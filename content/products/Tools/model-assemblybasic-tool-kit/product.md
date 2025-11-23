@@ -20,5 +20,6 @@ zhtw_price: 29.0
 cost: 17.0
 final_price: 220.0
 cost_tw: 73.0
+order_weight: 0
 ---
 

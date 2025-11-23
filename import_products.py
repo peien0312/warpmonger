@@ -219,17 +219,21 @@ def import_from_csv(csv_path='products.csv', default_category='Warhammer 40,000'
                     'sale_price': 0,
                     'is_new_arrival': False,
 
+                    # Ordering
+                    'order_weight': 0,  # Default to 0 for new products
+
                     # Images - preserve existing if updating
                     'images': existing_product.get('images', []) if existing_product else []
                 }
 
-                # Preserve existing tags if updating
+                # Preserve existing tags and settings if updating
                 if existing_product:
                     product_data['tags'] = existing_product.get('tags', [])
                     product_data['in_stock'] = existing_product.get('in_stock', True)
                     product_data['is_on_sale'] = existing_product.get('is_on_sale', False)
                     product_data['sale_price'] = existing_product.get('sale_price', 0)
                     product_data['is_new_arrival'] = existing_product.get('is_new_arrival', False)
+                    product_data['order_weight'] = existing_product.get('order_weight', 0)  # Preserve order_weight
 
                 # Save product
                 save_product(category, slug, product_data)

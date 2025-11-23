@@ -10,3 +10,4 @@ static/images/*
 # Product images and videos - these should not be in git
 content/products/*/images/
 content/products/*/*/images/
+all/

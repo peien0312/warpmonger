@@ -35,11 +35,30 @@ body {
     align-items: center;
 }
 
+.site-logo {
+    display: flex;
+    align-items: center;
+}
+
 .site-logo a {
-    color: #667eea;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     text-decoration: none;
-    font-size: 1.5rem;
-    font-weight: bold;
+    gap: 4px;
+}
+
+.site-logo .logo-img {
+    height: 50px;
+    width: auto;
+}
+
+.site-logo .logo-tagline {
+    font-size: 0.65rem;
+    font-weight: 600;
+    color: #666;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
 }
 
 .main-nav {
@@ -162,6 +181,28 @@ section h2 {
 .category-card h3 {
     font-size: 1.25rem;
     color: #667eea;
+}
+
+.category-icon {
+    margin-bottom: 15px;
+    width: 150px;
+    height: 150px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f8f9fa;
+    border-radius: 8px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.category-icon img {
+    max-width: 100%;
+    max-height: 100%;
+    width: auto;
+    height: auto;
+    border-radius: 8px;
+    object-fit: contain;
 }
 
 /* Products Grid */
@@ -875,6 +916,162 @@ section h2 {
     to { opacity: 1; }
 }
 
+/* Search */
+.search-container {
+    flex: 1;
+    max-width: 500px;
+    margin: 0 30px;
+    position: relative;
+}
+
+.search-form {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.search-input {
+    width: 100%;
+    padding: 10px 45px 10px 15px;
+    border: 2px solid #e9ecef;
+    border-radius: 25px;
+    font-size: 0.95rem;
+    transition: all 0.3s;
+    outline: none;
+}
+
+.search-input:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.search-button {
+    position: absolute;
+    right: 5px;
+    background: none;
+    border: none;
+    padding: 8px;
+    cursor: pointer;
+    color: #667eea;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: background 0.2s;
+}
+
+.search-button:hover {
+    background: rgba(102, 126, 234, 0.1);
+}
+
+.search-button svg {
+    display: block;
+}
+
+/* Autocomplete */
+.autocomplete-results {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    margin-top: 5px;
+    max-height: 400px;
+    overflow-y: auto;
+    z-index: 1000;
+}
+
+.autocomplete-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.autocomplete-item {
+    display: flex;
+    align-items: center;
+    padding: 12px 15px;
+    cursor: pointer;
+    border-bottom: 1px solid #f8f9fa;
+    transition: background 0.2s;
+}
+
+.autocomplete-item:last-child {
+    border-bottom: none;
+}
+
+.autocomplete-item:hover,
+.autocomplete-item.active {
+    background: #f8f9fa;
+}
+
+.autocomplete-image {
+    width: 50px;
+    height: 50px;
+    object-fit: cover;
+    border-radius: 4px;
+    margin-right: 12px;
+    flex-shrink: 0;
+}
+
+.autocomplete-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.autocomplete-title {
+    font-weight: 500;
+    color: #2c3e50;
+    margin-bottom: 2px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.autocomplete-title strong {
+    color: #667eea;
+    font-weight: 600;
+}
+
+.autocomplete-secondary {
+    font-size: 0.85rem;
+    color: #666;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Search Results */
+.search-query {
+    color: #666;
+    font-size: 1rem;
+    margin-bottom: 5px;
+}
+
+.search-query strong {
+    color: #667eea;
+}
+
+.clear-search {
+    display: inline-block;
+    color: #667eea;
+    text-decoration: none;
+    font-size: 0.9rem;
+    margin-top: 10px;
+    padding: 5px 15px;
+    border: 1px solid #667eea;
+    border-radius: 20px;
+    transition: all 0.2s;
+}
+
+.clear-search:hover {
+    background: #667eea;
+    color: white;
+}
+
 /* Responsive */
 @media (max-width: 992px) {
     .products-page {
@@ -901,6 +1098,18 @@ section h2 {
     .product-images {
         position: static;
     }
+
+    .header-content {
+        flex-wrap: wrap;
+        gap: 15px;
+    }
+
+    .search-container {
+        order: 3;
+        width: 100%;
+        max-width: 100%;
+        margin: 0;
+    }
 }
 
 @media (max-width: 768px) {
@@ -915,5 +1124,19 @@ section h2 {
 
     .main-nav {
         gap: 15px;
+    }
+
+    .search-input {
+        font-size: 0.9rem;
+        padding: 8px 40px 8px 12px;
+    }
+
+    .autocomplete-image {
+        width: 40px;
+        height: 40px;
+    }
+
+    .autocomplete-item {
+        padding: 10px 12px;
     }
 }

@@ -14,7 +14,7 @@ import shutil
 from pathlib import Path
 from app import PRODUCTS_DIR, slugify, save_product, get_products
 
-SALESSITE_PRODUCTS = "/Users/peienwang/salessite/products"
+SALESSITE_PRODUCTS = "/Users/peienwang/salessite/joytoy_media"
 CSV_FILE = "products.csv"
 
 def extract_sku_from_dirname(dirname):
@@ -154,8 +154,16 @@ def import_from_salessite():
             # Check if we have CSV data for this SKU
             csv_row = csv_data.get(sku)
 
-            # Determine if update or create
+            # Try to find existing product by SKU first
             existing = existing_by_sku.get(sku)
+
+            # If not found by SKU, try to find by slug (for ZH codes and other mismatches)
+            if not existing:
+                for product in existing_products:
+                    if product.get('slug') == product_slug:
+                        existing = product
+                        print(f"    Matched by slug: {product_slug}")
+                        break
 
             if existing:
                 # Update existing product

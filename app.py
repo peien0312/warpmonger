@@ -37,6 +37,7 @@ def format_month(date_str):
 CONTENT_DIR = os.path.join(os.path.dirname(__file__), 'content')
 PRODUCTS_DIR = os.path.join(CONTENT_DIR, 'products')
 BLOG_DIR = os.path.join(CONTENT_DIR, 'blog')
+CATEGORIES_DIR = os.path.join(CONTENT_DIR, 'categories')
 DATA_DIR = os.path.join(os.path.dirname(__file__), 'data')
 USERS_FILE = os.path.join(DATA_DIR, 'users.json')
 UPLOAD_FOLDER = os.path.join(os.path.dirname(__file__), 'static', 'images')
@@ -45,6 +46,7 @@ ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'webp', 'mp4', 'mov', 'avi', 'webm'}
 # Ensure directories exist
 os.makedirs(PRODUCTS_DIR, exist_ok=True)
 os.makedirs(BLOG_DIR, exist_ok=True)
+os.makedirs(CATEGORIES_DIR, exist_ok=True)
 os.makedirs(DATA_DIR, exist_ok=True)
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
@@ -159,20 +161,107 @@ def create_frontmatter(data, body):
 # ===== Product Functions =====
 
 def get_categories():
-    """Get list of product categories"""
-    if not os.path.exists(PRODUCTS_DIR):
-        return []
-    return [d for d in os.listdir(PRODUCTS_DIR)
-            if os.path.isdir(os.path.join(PRODUCTS_DIR, d)) and not d.startswith('.')]
+    """Get list of product categories from categories directory"""
+    categories = []
 
-def get_products(category=None):
-    """Get all products or products in a category"""
+    if not os.path.exists(CATEGORIES_DIR):
+        return []
+
+    for category_slug in os.listdir(CATEGORIES_DIR):
+        category_path = os.path.join(CATEGORIES_DIR, category_slug)
+        if not os.path.isdir(category_path) or category_slug.startswith('.'):
+            continue
+
+        category_file = os.path.join(category_path, 'category.md')
+        if not os.path.exists(category_file):
+            continue
+
+        with open(category_file, 'r', encoding='utf-8') as f:
+            content = f.read()
+
+        frontmatter, body = parse_frontmatter(content)
+
+        categories.append({
+            'slug': category_slug,
+            'name': frontmatter.get('name', category_slug),
+            'description': body,
+            'order_weight': frontmatter.get('order_weight', 0),
+            'icon': frontmatter.get('icon', '')
+        })
+
+    # Sort by order_weight (descending), then by name (ascending)
+    categories.sort(key=lambda c: (-c['order_weight'], c['name'].lower()))
+
+    return categories
+
+def get_category(slug):
+    """Get single category by slug"""
+    category_path = os.path.join(CATEGORIES_DIR, slug)
+    category_file = os.path.join(category_path, 'category.md')
+
+    if not os.path.exists(category_file):
+        return None
+
+    with open(category_file, 'r', encoding='utf-8') as f:
+        content = f.read()
+
+    frontmatter, body = parse_frontmatter(content)
+
+    return {
+        'slug': slug,
+        'name': frontmatter.get('name', slug),
+        'description': body,
+        'order_weight': frontmatter.get('order_weight', 0),
+        'icon': frontmatter.get('icon', '')
+    }
+
+def save_category(slug, data):
+    """Save category to file"""
+    category_path = os.path.join(CATEGORIES_DIR, slug)
+    os.makedirs(category_path, exist_ok=True)
+
+    # Create images directory
+    images_dir = os.path.join(category_path, 'images')
+    os.makedirs(images_dir, exist_ok=True)
+
+    # Prepare frontmatter
+    frontmatter_data = {
+        'name': data.get('name', ''),
+        'order_weight': data.get('order_weight', 0),
+        'icon': data.get('icon', '')
+    }
+
+    # Save category.md
+    category_file = os.path.join(category_path, 'category.md')
+    content = create_frontmatter(frontmatter_data, data.get('description', ''))
+    with open(category_file, 'w', encoding='utf-8') as f:
+        f.write(content)
+
+    return True
+
+def delete_category(slug):
+    """Delete category"""
+    import shutil
+    category_path = os.path.join(CATEGORIES_DIR, slug)
+
+    if os.path.exists(category_path):
+        shutil.rmtree(category_path)
+        return True
+    return False
+
+def get_products(category=None, search=None):
+    """Get all products or products in a category, optionally filtered by search query"""
     products = []
 
-    categories = [category] if category else get_categories()
+    # Get categories (either all or just the specified one)
+    if category:
+        categories = [category]
+    else:
+        # Get all category slugs
+        categories = [cat['slug'] for cat in get_categories()]
 
-    for cat in categories:
-        cat_path = os.path.join(PRODUCTS_DIR, cat)
+    for cat_slug in categories:
+        cat_path = os.path.join(PRODUCTS_DIR, cat_slug)
         if not os.path.exists(cat_path):
             continue
 
@@ -197,9 +286,9 @@ def get_products(category=None):
                 with open(tags_file, 'r', encoding='utf-8') as f:
                     tags = [line.strip() for line in f if line.strip()]
 
-            products.append({
+            product = {
                 'slug': product_slug,
-                'category': cat,
+                'category': cat_slug,
                 'title': frontmatter.get('title', product_slug),
                 'price': frontmatter.get('price', 0),
                 'description': body,
@@ -224,13 +313,30 @@ def get_products(category=None):
                 'zhtw_price': frontmatter.get('zhtw_price', 0),
                 'cost': frontmatter.get('cost', 0),
                 'final_price': frontmatter.get('final_price', 0),
-                'cost_tw': frontmatter.get('cost_tw', 0)
-            })
+                'cost_tw': frontmatter.get('cost_tw', 0),
+                # Ordering
+                'order_weight': frontmatter.get('order_weight', 0)
+            }
+
+            # Apply search filter if provided
+            if search:
+                search_lower = search.lower()
+                title_match = search_lower in product['title'].lower()
+                cn_name_match = search_lower in product['cn_name'].lower() if product['cn_name'] else False
+                zhtw_name_match = search_lower in product['zhtw_name'].lower() if product['zhtw_name'] else False
+
+                if not (title_match or cn_name_match or zhtw_name_match):
+                    continue
+
+            products.append(product)
+
+    # Sort products: first by order_weight (descending), then by title (ascending)
+    products.sort(key=lambda p: (-p['order_weight'], p['title'].lower()))
 
     return products
 
 def get_product(category, slug):
-    """Get single product by category and slug"""
+    """Get single product by category slug and product slug"""
     product_path = os.path.join(PRODUCTS_DIR, category, slug)
     product_file = os.path.join(product_path, 'product.md')
 
@@ -276,7 +382,9 @@ def get_product(category, slug):
         'zhtw_price': frontmatter.get('zhtw_price', 0),
         'cost': frontmatter.get('cost', 0),
         'final_price': frontmatter.get('final_price', 0),
-        'cost_tw': frontmatter.get('cost_tw', 0)
+        'cost_tw': frontmatter.get('cost_tw', 0),
+        # Ordering
+        'order_weight': frontmatter.get('order_weight', 0)
     }
 
 def save_product(category, slug, data):
@@ -312,7 +420,9 @@ def save_product(category, slug, data):
         'zhtw_price': data.get('zhtw_price', 0),
         'cost': data.get('cost', 0),
         'final_price': data.get('final_price', 0),
-        'cost_tw': data.get('cost_tw', 0)
+        'cost_tw': data.get('cost_tw', 0),
+        # Ordering
+        'order_weight': data.get('order_weight', 0)
     }
 
     # Save product.md
@@ -429,11 +539,13 @@ def products_page():
     """Product catalog page"""
     category = request.args.get('category')
     tag = request.args.get('tag')
+    search = request.args.get('search', '').strip()
     show_pre_order = request.args.get('pre_order') == 'true'
     show_on_sale = request.args.get('on_sale') == 'true'
     show_new_arrival = request.args.get('new_arrival') == 'true'
 
-    products = get_products(category)
+    # Get products with search filter
+    products = get_products(category, search if search else None)
 
     # Filter by tag if specified
     if tag:
@@ -452,10 +564,20 @@ def products_page():
         products = [p for p in products if p.get('is_new_arrival', False)]
 
     categories = get_categories()
+
+    # Get category name for display
+    current_category_name = None
+    if category:
+        cat_obj = get_category(category)
+        if cat_obj:
+            current_category_name = cat_obj['name']
+
     return render_template('public/products.html',
                          products=products,
                          categories=categories,
                          current_category=category,
+                         current_category_name=current_category_name,
+                         current_search=search,
                          show_pre_order=show_pre_order,
                          show_on_sale=show_on_sale,
                          show_new_arrival=show_new_arrival)
@@ -470,11 +592,16 @@ def product_detail(category, slug):
     # Convert markdown to HTML
     product['description_html'] = markdown.markdown(product['description'])
 
+    # Get category name for display
+    cat_obj = get_category(category)
+    category_name = cat_obj['name'] if cat_obj else category
+
     # Get related products (same category)
     related = [p for p in get_products(category) if p['slug'] != slug][:4]
 
     return render_template('public/product-detail.html',
                          product=product,
+                         category_name=category_name,
                          related=related)
 
 @app.route('/blog')
@@ -693,6 +820,128 @@ def api_get_categories():
     categories = get_categories()
     return jsonify({'categories': categories})
 
+@app.route('/api/categories/<slug>', methods=['GET'])
+def api_get_category(slug):
+    """Get single category"""
+    category = get_category(slug)
+    if not category:
+        return jsonify({'error': 'Category not found'}), 404
+    return jsonify({'category': category})
+
+@app.route('/api/categories', methods=['POST'])
+@login_required
+def api_create_category():
+    """Create new category"""
+    data = request.get_json()
+
+    name = data.get('name')
+    if not name:
+        return jsonify({'error': 'Name required'}), 400
+
+    slug = slugify(name)
+
+    # Check if already exists
+    if get_category(slug):
+        return jsonify({'error': 'Category already exists'}), 400
+
+    save_category(slug, data)
+
+    return jsonify({'success': True, 'slug': slug})
+
+@app.route('/api/categories/<slug>', methods=['PUT'])
+@login_required
+def api_update_category(slug):
+    """Update category"""
+    data = request.get_json()
+
+    if not get_category(slug):
+        return jsonify({'error': 'Category not found'}), 404
+
+    save_category(slug, data)
+
+    return jsonify({'success': True})
+
+@app.route('/api/categories/<slug>', methods=['DELETE'])
+@login_required
+def api_delete_category(slug):
+    """Delete category"""
+    if not get_category(slug):
+        return jsonify({'error': 'Category not found'}), 404
+
+    # Check if category has products
+    products_in_category = get_products(category=slug)
+    if products_in_category:
+        return jsonify({'error': f'Cannot delete category with {len(products_in_category)} products'}), 400
+
+    delete_category(slug)
+
+    return jsonify({'success': True})
+
+@app.route('/api/categories/<slug>/upload-icon', methods=['POST'])
+@login_required
+def api_upload_category_icon(slug):
+    """Upload category icon"""
+    if 'icon' not in request.files:
+        return jsonify({'error': 'No file provided'}), 400
+
+    file = request.files['icon']
+
+    if file.filename == '':
+        return jsonify({'error': 'No file selected'}), 400
+
+    if file and allowed_file(file.filename):
+        filename = secure_filename(file.filename)
+
+        # Create category images directory
+        images_dir = os.path.join(CATEGORIES_DIR, slug, 'images')
+        os.makedirs(images_dir, exist_ok=True)
+
+        # Save file
+        filepath = os.path.join(images_dir, filename)
+        file.save(filepath)
+
+        # Update category.md with the new icon
+        category = get_category(slug)
+        if category:
+            category['icon'] = filename
+            save_category(slug, category)
+
+        # Return relative URL
+        icon_url = f"/static/images/categories/{slug}/{filename}"
+
+        return jsonify({
+            'success': True,
+            'filename': filename,
+            'url': icon_url
+        })
+
+    return jsonify({'error': 'Invalid file type'}), 400
+
+@app.route('/api/products/autocomplete', methods=['GET'])
+def api_autocomplete():
+    """Get autocomplete suggestions for product search"""
+    query = request.args.get('q', '').strip()
+
+    if not query or len(query) < 2:
+        return jsonify({'suggestions': []})
+
+    # Get all products matching the search query
+    products = get_products(search=query)
+
+    # Limit to top 10 results
+    suggestions = []
+    for product in products[:10]:
+        suggestions.append({
+            'title': product['title'],
+            'cn_name': product.get('cn_name', ''),
+            'zhtw_name': product.get('zhtw_name', ''),
+            'category': product['category'],
+            'slug': product['slug'],
+            'image': product['images'][0] if product['images'] else None
+        })
+
+    return jsonify({'suggestions': suggestions})
+
 # ===== API Routes - Blog =====
 
 @app.route('/api/blog', methods=['GET'])
@@ -839,6 +1088,12 @@ def api_scan_images():
 def serve_product_image(category, slug, filename):
     """Serve product images"""
     images_dir = os.path.join(PRODUCTS_DIR, category, slug, 'images')
+    return send_from_directory(images_dir, filename)
+
+@app.route('/static/images/categories/<slug>/<filename>')
+def serve_category_icon(slug, filename):
+    """Serve category icons"""
+    images_dir = os.path.join(CATEGORIES_DIR, slug, 'images')
     return send_from_directory(images_dir, filename)
 
 # ===== Main =====

@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Toy Seller{% endblock %}</title>
+    <title>{% block title %}Warpmonger - Premium Action Figures{% endblock %}</title>
 
     <!-- Meta Description -->
-    <meta name="description" content="{% block meta_description %}Quality toys for children of all ages. Shop our curated selection of educational, classic, and creative toys.{% endblock %}">
+    <meta name="description" content="{% block meta_description %}Warpmonger - By John Action Figure. Premium action figures and collectibles. Shop our curated selection of high-quality figures from Warhammer, Infinity, Dark Source, and more.{% endblock %}">
 
     <!-- Canonical URL -->
     <link rel="canonical" href="{{ request.url }}">
@@ -16,7 +16,7 @@
     <meta property="og:url" content="{{ request.url }}">
     <meta property="og:title" content="{% block og_title %}{{ self.title() }}{% endblock %}">
     <meta property="og:description" content="{% block og_description %}{{ self.meta_description() }}{% endblock %}">
-    <meta property="og:image" content="{% block og_image %}{{ request.url_root }}static/images/logo.png{% endblock %}">
+    <meta property="og:image" content="{% block og_image %}{{ request.url_root }}static/images/warpmonger_logo_black.png{% endblock %}">
 
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image">
@@ -35,7 +35,35 @@
     <header class="site-header">
         <div class="container">
             <div class="header-content">
-                <h1 class="site-logo"><a href="/">Toy Seller</a></h1>
+                <div class="site-logo">
+                    <a href="/">
+                        <img src="/static/images/warpmonger_logo_black.png" alt="Warpmonger - By John Action Figure" class="logo-img">
+                        <span class="logo-tagline">PREMIUM ACTION FIGURES</span>
+                    </a>
+                </div>
+
+                <!-- Search Form -->
+                <div class="search-container">
+                    <form action="/products" method="get" class="search-form">
+                        <input
+                            type="text"
+                            name="search"
+                            id="search-input"
+                            class="search-input"
+                            placeholder="Search products..."
+                            autocomplete="off"
+                            value="{{ current_search if current_search is defined else '' }}"
+                        >
+                        <button type="submit" class="search-button">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="11" cy="11" r="8"></circle>
+                                <path d="m21 21-4.35-4.35"></path>
+                            </svg>
+                        </button>
+                        <div id="autocomplete-results" class="autocomplete-results" style="display: none;"></div>
+                    </form>
+                </div>
+
                 <nav class="main-nav">
                     <a href="/">Home</a>
                     <a href="/products">Products</a>
@@ -51,10 +79,11 @@
 
     <footer class="site-footer">
         <div class="container">
-            <p>&copy; 2025 Toy Seller. All rights reserved.</p>
+            <p>&copy; 2025 Warpmonger - By John Action Figure. All rights reserved.</p>
         </div>
     </footer>
 
+    <script src="/static/js/search.js"></script>
     {% block extra_js %}{% endblock %}
 </body>
 </html>

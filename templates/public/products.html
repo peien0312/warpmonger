@@ -1,8 +1,8 @@
 {% extends "public/base.html" %}
 
-{% block title %}{% if current_category %}{{ current_category }} Toys{% else %}All Products{% endif %} | Toy Seller{% endblock %}
+{% block title %}{% if current_category_name %}{{ current_category_name }} Action Figures{% else %}All Products{% endif %} | Warpmonger{% endblock %}
 
-{% block meta_description %}Browse our selection of {% if current_category %}{{ current_category|lower }} toys{% else %}quality toys for children{% endif %}. Find the perfect toys for your kids with fast shipping and great prices.{% endblock %}
+{% block meta_description %}Browse our selection of {% if current_category_name %}{{ current_category_name|lower }} action figures{% else %}premium action figures and collectibles{% endif %}. Find the perfect collectible figures with fast shipping and great prices.{% endblock %}
 
 {% block content %}
 <div class="container">
@@ -13,9 +13,9 @@
                 <li><a href="/products" {% if not current_category %}class="active"{% endif %}>All Products</a></li>
                 {% for category in categories %}
                 <li>
-                    <a href="/products?category={{ category }}"
-                       {% if current_category == category %}class="active"{% endif %}>
-                        {{ category }}
+                    <a href="/products?category={{ category.slug }}"
+                       {% if current_category == category.slug %}class="active"{% endif %}>
+                        {{ category.name }}
                     </a>
                 </li>
                 {% endfor %}
@@ -58,8 +58,17 @@
 
         <div class="products-main">
             <div class="products-header">
-                <h1>{% if current_category %}{{ current_category }}{% else %}All Products{% endif %}</h1>
+                {% if current_search %}
+                <h1>Search Results</h1>
+                <p class="search-query">Showing results for: <strong>"{{ current_search }}"</strong></p>
                 <p>{{ products|length }} product{% if products|length != 1 %}s{% endif %} found</p>
+                {% if products|length > 0 %}
+                <a href="/products" class="clear-search">Clear search</a>
+                {% endif %}
+                {% else %}
+                <h1>{% if current_category_name %}{{ current_category_name }}{% else %}All Products{% endif %}</h1>
+                <p>{{ products|length }} product{% if products|length != 1 %}s{% endif %} found</p>
+                {% endif %}
             </div>
 
             <div class="products-grid">
@@ -69,7 +78,7 @@
                         <div class="product-image-container">
                             {% if product.images %}
                             <img src="/static/images/products/{{ product.category }}/{{ product.slug }}/{{ product.images[0] }}"
-                                 alt="{{ product.title }} - {{ product.category }} toy for ${{ '%.2f'|format(product.price) }}">
+                                 alt="{{ product.title }} - Premium action figure - ${{ '%.2f'|format(product.price) }}">
                             {% else %}
                             <div class="product-placeholder">No Image</div>
                             {% endif %}
@@ -107,7 +116,13 @@
                 </div>
                 {% endfor %}
                 {% if not products %}
-                <p class="no-products">No products found in this category.</p>
+                <p class="no-products">
+                    {% if current_search %}
+                    No products found matching "{{ current_search }}". Try a different search term.
+                    {% else %}
+                    No products found in this category.
+                    {% endif %}
+                </p>
                 {% endif %}
             </div>
         </div>

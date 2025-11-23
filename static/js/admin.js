@@ -2,11 +2,15 @@
 
 let currentProduct = null;
 let currentBlogPost = null;
+let currentCategory = null;
 let uploadedImages = [];
+let allProducts = []; // Store all products for filtering
+let allCategories = []; // Store all categories
 
 // ===== Initialization =====
 
 document.addEventListener('DOMContentLoaded', () => {
+    loadCategoryEntities();
     loadCategories();
     loadBlogPosts();
     setupImageUpload();
@@ -20,6 +24,8 @@ async function loadCategories() {
     try {
         const response = await fetch('/api/products');
         const data = await response.json();
+
+        allProducts = data.products; // Store for filtering
 
         const categoriesMap = {};
         data.products.forEach(product => {
@@ -52,8 +58,14 @@ function renderCategories(categoriesMap) {
         const productsList = document.createElement('div');
         productsList.className = 'products-list';
         productsList.id = `category-${category}`;
+        productsList.style.display = 'none'; // Collapsed by default
 
-        categoriesMap[category].forEach(product => {
+        // Sort products alphabetically by title for admin view (A-Z)
+        const sortedProducts = categoriesMap[category].sort((a, b) =>
+            a.title.toLowerCase().localeCompare(b.title.toLowerCase())
+        );
+
+        sortedProducts.forEach(product => {
             const productLink = document.createElement('a');
             productLink.className = 'product-link';
             productLink.textContent = product.title;
@@ -90,6 +102,152 @@ function updateCategoriesDatalist(categories) {
     });
 }
 
+// ===== Category Management =====
+
+async function loadCategoryEntities() {
+    try {
+        const response = await fetch('/api/categories');
+        const data = await response.json();
+
+        allCategories = data.categories;
+        renderCategoryList(allCategories);
+    } catch (error) {
+        console.error('Error loading categories:', error);
+    }
+}
+
+function renderCategoryList(categories) {
+    const container = document.getElementById('category-list');
+    container.innerHTML = '';
+
+    // Sort by order_weight descending, then by name
+    const sortedCategories = [...categories].sort((a, b) => {
+        if (b.order_weight !== a.order_weight) {
+            return b.order_weight - a.order_weight;
+        }
+        return a.name.localeCompare(b.name);
+    });
+
+    sortedCategories.forEach(category => {
+        const categoryLink = document.createElement('a');
+        categoryLink.className = 'category-link';
+        categoryLink.textContent = category.name;
+        categoryLink.href = '#';
+        categoryLink.onclick = (e) => {
+            e.preventDefault();
+            editCategory(category.slug);
+        };
+        container.appendChild(categoryLink);
+    });
+}
+
+function showCreateCategory() {
+    currentCategory = null;
+    document.getElementById('category-editor-title').textContent = 'Create New Category';
+    document.getElementById('delete-category-btn').style.display = 'none';
+    document.getElementById('category-form').reset();
+    document.getElementById('category-slug').value = '';
+    document.getElementById('category-icon-preview').innerHTML = '';
+    showEditor('category-editor');
+}
+
+async function editCategory(slug) {
+    try {
+        const response = await fetch(`/api/categories/${slug}`);
+        const data = await response.json();
+
+        currentCategory = data.category;
+
+        document.getElementById('category-editor-title').textContent = 'Edit Category';
+        document.getElementById('delete-category-btn').style.display = 'block';
+        document.getElementById('category-slug').value = slug;
+        document.getElementById('category-name').value = currentCategory.name;
+        document.getElementById('category-order-weight').value = currentCategory.order_weight || 0;
+        document.getElementById('category-description').value = currentCategory.description || '';
+
+        // Show icon preview if exists
+        const iconPreview = document.getElementById('category-icon-preview');
+        if (currentCategory.icon) {
+            iconPreview.innerHTML = `<img src="/static/images/categories/${slug}/${currentCategory.icon}" style="max-width: 150px; border-radius: 8px;">`;
+        } else {
+            iconPreview.innerHTML = '';
+        }
+
+        showEditor('category-editor');
+    } catch (error) {
+        console.error('Error loading category:', error);
+        alert('Failed to load category');
+    }
+}
+
+async function uploadCategoryIcon() {
+    const fileInput = document.getElementById('category-icon-upload');
+    const file = fileInput.files[0];
+
+    if (!file) return;
+
+    const slug = document.getElementById('category-slug').value;
+    if (!slug) {
+        alert('Please save the category first before uploading an icon');
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append('icon', file);
+    formData.append('slug', slug);
+
+    try {
+        const response = await fetch(`/api/categories/${slug}/upload-icon`, {
+            method: 'POST',
+            body: formData
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            const iconPreview = document.getElementById('category-icon-preview');
+            iconPreview.innerHTML = `<img src="${data.url}?t=${Date.now()}" style="max-width: 150px; border-radius: 8px;">`;
+            alert('Icon uploaded successfully!');
+
+            // Reload category to update icon field
+            await editCategory(slug);
+        } else {
+            alert('Failed to upload icon: ' + (data.error || 'Unknown error'));
+        }
+    } catch (error) {
+        console.error('Error uploading icon:', error);
+        alert('Failed to upload icon');
+    }
+}
+
+async function deleteCategory() {
+    const slug = document.getElementById('category-slug').value;
+
+    if (!confirm(`Are you sure you want to delete this category? This action cannot be undone.`)) {
+        return;
+    }
+
+    try {
+        const response = await fetch(`/api/categories/${slug}`, {
+            method: 'DELETE'
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            alert('Category deleted successfully');
+            hideEditor();
+            await loadCategoryEntities();
+            await loadCategories(); // Reload products to update category list
+        } else {
+            alert('Failed to delete category: ' + (data.error || 'Unknown error'));
+        }
+    } catch (error) {
+        console.error('Error deleting category:', error);
+        alert('Failed to delete category');
+    }
+}
+
 async function loadBlogPosts() {
     try {
         const response = await fetch('/api/blog');
@@ -121,9 +279,7 @@ function renderBlogPosts(posts) {
 // ===== Show/Hide Editors =====
 
 function showCreateProduct() {
-    document.getElementById('welcome-screen').style.display = 'none';
-    document.getElementById('blog-editor').style.display = 'none';
-    document.getElementById('product-editor').style.display = 'block';
+    showEditor('product-editor');
     document.getElementById('product-editor-title').textContent = 'Create Product';
     document.getElementById('delete-product-btn').style.display = 'none';
 
@@ -138,9 +294,7 @@ function showCreateProduct() {
 }
 
 function showCreateBlog() {
-    document.getElementById('welcome-screen').style.display = 'none';
-    document.getElementById('product-editor').style.display = 'none';
-    document.getElementById('blog-editor').style.display = 'block';
+    showEditor('blog-editor');
     document.getElementById('blog-editor-title').textContent = 'Create Blog Post';
     document.getElementById('delete-blog-btn').style.display = 'none';
 
@@ -152,11 +306,27 @@ function showCreateBlog() {
     currentBlogPost = null;
 }
 
-function closeEditor() {
+function showEditor(editorId) {
+    // Hide all editors and welcome screen
+    document.getElementById('welcome-screen').style.display = 'none';
+    document.getElementById('category-editor').style.display = 'none';
+    document.getElementById('product-editor').style.display = 'none';
+    document.getElementById('blog-editor').style.display = 'none';
+
+    // Show the requested editor
+    document.getElementById(editorId).style.display = 'block';
+}
+
+function hideEditor() {
+    document.getElementById('category-editor').style.display = 'none';
     document.getElementById('product-editor').style.display = 'none';
     document.getElementById('blog-editor').style.display = 'none';
     document.getElementById('welcome-screen').style.display = 'block';
     document.getElementById('preview-container').innerHTML = '<p class="preview-placeholder">Preview will appear here...</p>';
+}
+
+function closeEditor() {
+    hideEditor();
 }
 
 // ===== Edit Product =====
@@ -168,9 +338,7 @@ async function editProduct(category, slug) {
 
         currentProduct = data.product;
 
-        document.getElementById('welcome-screen').style.display = 'none';
-        document.getElementById('blog-editor').style.display = 'none';
-        document.getElementById('product-editor').style.display = 'block';
+        showEditor('product-editor');
         document.getElementById('product-editor-title').textContent = 'Edit Product';
         document.getElementById('delete-product-btn').style.display = 'inline-block';
 
@@ -200,6 +368,7 @@ async function editProduct(category, slug) {
         document.getElementById('product-scale').value = currentProduct.scale || '';
         document.getElementById('product-size').value = currentProduct.size || '';
         document.getElementById('product-weight').value = currentProduct.weight || '';
+        document.getElementById('product-order-weight').value = currentProduct.order_weight || 0;
 
         // Fill backend-only pricing fields
         document.getElementById('product-zhtw-price').value = currentProduct.zhtw_price || '';
@@ -233,9 +402,7 @@ async function editBlogPost(slug) {
 
         currentBlogPost = data.post;
 
-        document.getElementById('welcome-screen').style.display = 'none';
-        document.getElementById('product-editor').style.display = 'none';
-        document.getElementById('blog-editor').style.display = 'block';
+        showEditor('blog-editor');
         document.getElementById('blog-editor-title').textContent = 'Edit Blog Post';
         document.getElementById('delete-blog-btn').style.display = 'inline-block';
 
@@ -260,8 +427,61 @@ async function editBlogPost(slug) {
 // ===== Form Handlers =====
 
 function setupForms() {
+    document.getElementById('category-form').addEventListener('submit', saveCategory);
     document.getElementById('product-form').addEventListener('submit', saveProduct);
     document.getElementById('blog-form').addEventListener('submit', saveBlogPost);
+}
+
+async function saveCategory(e) {
+    e.preventDefault();
+
+    const slug = document.getElementById('category-slug').value;
+
+    const data = {
+        name: document.getElementById('category-name').value,
+        description: document.getElementById('category-description').value,
+        order_weight: parseInt(document.getElementById('category-order-weight').value) || 0
+    };
+
+    try {
+        let response;
+        if (slug) {
+            // Update existing
+            response = await fetch(`/api/categories/${slug}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+        } else {
+            // Create new
+            response = await fetch('/api/categories', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+        }
+
+        const result = await response.json();
+
+        if (result.success) {
+            alert('Category saved successfully!');
+
+            // If it was a new category, set the slug so user can upload icon
+            if (!slug && result.slug) {
+                document.getElementById('category-slug').value = result.slug;
+                document.getElementById('delete-category-btn').style.display = 'block';
+                document.getElementById('category-editor-title').textContent = 'Edit Category';
+            }
+
+            await loadCategoryEntities();
+            await loadCategories(); // Reload products to update category dropdown
+        } else {
+            alert('Error: ' + result.error);
+        }
+    } catch (error) {
+        console.error('Error saving category:', error);
+        alert('Error saving category');
+    }
 }
 
 async function saveProduct(e) {
@@ -296,7 +516,9 @@ async function saveProduct(e) {
         zhtw_price: parseFloat(document.getElementById('product-zhtw-price').value) || 0,
         cost: parseFloat(document.getElementById('product-cost').value) || 0,
         final_price: parseFloat(document.getElementById('product-final-price').value) || 0,
-        cost_tw: parseFloat(document.getElementById('product-cost-tw').value) || 0
+        cost_tw: parseFloat(document.getElementById('product-cost-tw').value) || 0,
+        // Ordering
+        order_weight: parseInt(document.getElementById('product-order-weight').value) || 0
     };
 
     try {
@@ -703,3 +925,77 @@ document.addEventListener('DOMContentLoaded', () => {
         costInput.addEventListener('input', calculateProfitMargin);
     }
 });
+
+// ===== Admin Search =====
+
+function filterProducts(searchQuery) {
+    console.log('Filtering products with query:', searchQuery);
+    console.log('Total products available:', allProducts.length);
+
+    const query = searchQuery.trim().toLowerCase();
+    const clearBtn = document.querySelector('.search-clear');
+
+    // Show/hide clear button
+    if (clearBtn) {
+        if (query) {
+            clearBtn.style.display = 'inline-block';
+        } else {
+            clearBtn.style.display = 'none';
+        }
+    }
+
+    // If empty, show all products
+    if (!query) {
+        const categoriesMap = {};
+        allProducts.forEach(product => {
+            if (!categoriesMap[product.category]) {
+                categoriesMap[product.category] = [];
+            }
+            categoriesMap[product.category].push(product);
+        });
+        renderCategories(categoriesMap);
+        return;
+    }
+
+    // Filter products across all languages
+    const filteredProducts = allProducts.filter(product => {
+        const titleMatch = product.title && product.title.toLowerCase().includes(query);
+        const cnNameMatch = product.cn_name && product.cn_name.toLowerCase().includes(query);
+        const zhtwNameMatch = product.zhtw_name && product.zhtw_name.toLowerCase().includes(query);
+        const skuMatch = product.sku && String(product.sku).toLowerCase().includes(query);
+
+        return titleMatch || cnNameMatch || zhtwNameMatch || skuMatch;
+    });
+
+    console.log('Filtered products:', filteredProducts.length);
+
+    // Group filtered results by category
+    const categoriesMap = {};
+    filteredProducts.forEach(product => {
+        if (!categoriesMap[product.category]) {
+            categoriesMap[product.category] = [];
+        }
+        categoriesMap[product.category].push(product);
+    });
+
+    // Render filtered results
+    renderCategories(categoriesMap);
+
+    // Auto-expand all categories when searching
+    setTimeout(() => {
+        Object.keys(categoriesMap).forEach(category => {
+            const list = document.getElementById(`category-${category}`);
+            if (list) {
+                list.style.display = 'block';
+            }
+        });
+    }, 100);
+}
+
+function clearAdminSearch() {
+    const searchInput = document.getElementById('admin-search-input');
+    if (searchInput) {
+        searchInput.value = '';
+        filterProducts('');
+    }
+}

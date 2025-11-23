@@ -1,14 +1,14 @@
 {% extends "public/base.html" %}
 
-{% block title %}Toy Seller - Quality Toys for Children of All Ages{% endblock %}
+{% block title %}Warpmonger - Premium Action Figures By John{% endblock %}
 
-{% block meta_description %}Shop our curated selection of educational, classic, and creative toys. Quality products for children of all ages with fast shipping and great prices.{% endblock %}
+{% block meta_description %}Warpmonger - By John Action Figure. Shop our curated selection of premium action figures from Warhammer, Infinity, Dark Source, TMNT, and more. Quality collectibles with fast shipping and great prices.{% endblock %}
 
 {% block content %}
 <section class="hero">
     <div class="container">
-        <h2>Welcome to Toy Seller</h2>
-        <p>Discover amazing toys for kids of all ages</p>
+        <h2>Welcome to Warpmonger</h2>
+        <p>Premium Action Figures & Collectibles</p>
         <a href="/products" class="btn btn-primary btn-lg">Shop Now</a>
     </div>
 </section>
@@ -18,8 +18,13 @@
         <h2>Shop by Category</h2>
         <div class="categories-grid">
             {% for category in categories %}
-            <a href="/products?category={{ category }}" class="category-card">
-                <h3>{{ category }}</h3>
+            <a href="/products?category={{ category.slug }}" class="category-card">
+                {% if category.icon %}
+                <div class="category-icon">
+                    <img src="/static/images/categories/{{ category.slug }}/{{ category.icon }}" alt="{{ category.name }}">
+                </div>
+                {% endif %}
+                <h3>{{ category.name }}</h3>
             </a>
             {% endfor %}
             {% if not categories %}
@@ -40,7 +45,7 @@
                     <div class="product-image-container">
                         {% if product.images %}
                         <img src="/static/images/products/{{ product.category }}/{{ product.slug }}/{{ product.images[0] }}"
-                             alt="{{ product.title }} - {{ product.category }} toy for ${{ '%.2f'|format(product.price) }}">
+                             alt="{{ product.title }} - Premium action figure - ${{ '%.2f'|format(product.price) }}">
                         {% else %}
                         <div class="product-placeholder">No Image</div>
                         {% endif %}
@@ -80,7 +85,7 @@
                     <div class="product-image-container">
                         {% if product.images %}
                         <img src="/static/images/products/{{ product.category }}/{{ product.slug }}/{{ product.images[0] }}"
-                             alt="{{ product.title }} - {{ product.category }} toy for ${{ '%.2f'|format(product.price) }}">
+                             alt="{{ product.title }} - Premium action figure - ${{ '%.2f'|format(product.price) }}">
                         {% else %}
                         <div class="product-placeholder">No Image</div>
                         {% endif %}
@@ -119,7 +124,7 @@
                     <div class="product-image-container">
                         {% if product.images %}
                         <img src="/static/images/products/{{ product.category }}/{{ product.slug }}/{{ product.images[0] }}"
-                             alt="{{ product.title }} - {{ product.category }} toy for ${{ '%.2f'|format(product.price) }}">
+                             alt="{{ product.title }} - Premium action figure - ${{ '%.2f'|format(product.price) }}">
                         {% else %}
                         <div class="product-placeholder">No Image</div>
                         {% endif %}

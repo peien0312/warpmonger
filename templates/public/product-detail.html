@@ -1,6 +1,6 @@
 {% extends "public/base.html" %}
 
-{% block title %}{{ product.title }} - {{ product.category }} | Toy Seller{% endblock %}
+{% block title %}{{ product.title }} - {{ category_name }} | Warpmonger{% endblock %}
 
 {% block meta_description %}Buy {{ product.title }} for ${{ "%.2f"|format(product.price) }}. {{ product.description[:150] }}...{% endblock %}
 
@@ -56,7 +56,7 @@
     {
       "@type": "ListItem",
       "position": 2,
-      "name": "{{ product.category }}",
+      "name": "{{ category_name }}",
       "item": "{{ request.url_root }}products?category={{ product.category }}"
     },
     {
@@ -126,7 +126,7 @@
         <div class="product-info">
             <nav class="breadcrumb">
                 <a href="/products">Products</a> /
-                <a href="/products?category={{ product.category }}">{{ product.category }}</a> /
+                <a href="/products?category={{ product.category }}">{{ category_name }}</a> /
                 <span>{{ product.title }}</span>
             </nav>
 
@@ -220,7 +220,7 @@
                 <a href="/products/{{ prod.category }}/{{ prod.slug }}">
                     {% if prod.images %}
                     <img src="/static/images/products/{{ prod.category }}/{{ prod.slug }}/{{ prod.images[0] }}"
-                         alt="{{ prod.title }} - {{ prod.category }} toy for ${{ '%.2f'|format(prod.price) }}">
+                         alt="{{ prod.title }} - Premium action figure - ${{ '%.2f'|format(prod.price) }}">
                     {% else %}
                     <div class="product-placeholder">No Image</div>
                     {% endif %}

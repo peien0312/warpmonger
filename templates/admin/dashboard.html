@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard - Toy Seller</title>
+    <title>Admin Dashboard - Warpmonger</title>
     <link rel="stylesheet" href="/static/css/admin.css">
 </head>
 <body class="admin-page">
@@ -11,14 +11,30 @@
         <!-- Left Panel: Navigation -->
         <div class="admin-sidebar">
             <div class="sidebar-header">
-                <h2>Toy Seller</h2>
+                <h2>Warpmonger</h2>
                 <a href="/admin/logout" class="btn-logout">Logout</a>
             </div>
 
             <nav class="sidebar-nav">
                 <div class="nav-section">
+                    <h3>Categories</h3>
+                    <button class="btn btn-primary btn-sm" onclick="showCreateCategory()">+ New Category</button>
+                    <div id="category-list" class="category-list"></div>
+                </div>
+
+                <div class="nav-section">
                     <h3>Products</h3>
                     <button class="btn btn-primary btn-sm" onclick="showCreateProduct()">+ New Product</button>
+                    <div class="admin-search-container">
+                        <input
+                            type="text"
+                            id="admin-search-input"
+                            class="admin-search-input"
+                            placeholder="Search products..."
+                            onkeyup="filterProducts(this.value)"
+                        >
+                        <span class="search-clear" onclick="clearAdminSearch()" style="display: none;">&times;</span>
+                    </div>
                     <div id="categories-list" class="categories-list"></div>
                 </div>
 
@@ -39,8 +55,47 @@
         <div class="admin-main">
             <div id="editor-container">
                 <div id="welcome-screen" class="welcome-screen">
-                    <h1>Welcome to Toy Seller Admin</h1>
-                    <p>Select a product or blog post to edit, or create a new one.</p>
+                    <h1>Welcome to Warpmonger Admin</h1>
+                    <p>Select a category, product, or blog post to edit, or create a new one.</p>
+                </div>
+
+                <!-- Category Editor -->
+                <div id="category-editor" class="editor" style="display: none;">
+                    <h2 id="category-editor-title">Edit Category</h2>
+                    <form id="category-form">
+                        <input type="hidden" id="category-slug">
+
+                        <div class="form-group">
+                            <label for="category-name">Category Name *</label>
+                            <input type="text" id="category-name" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="category-order-weight">Display Order Weight (higher = shows first)</label>
+                            <input type="number" id="category-order-weight" value="0" placeholder="0">
+                            <small style="color: #666; font-size: 0.875rem;">Categories with higher order weight appear first. Default is 0.</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="category-description">Description</label>
+                            <textarea id="category-description" rows="4" placeholder="Optional category description"></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Category Icon</label>
+                            <div id="category-icon-preview" style="margin-bottom: 10px;">
+                                <!-- Icon will be displayed here -->
+                            </div>
+                            <input type="file" id="category-icon-upload" accept="image/*" onchange="uploadCategoryIcon()">
+                            <small style="color: #666; font-size: 0.875rem;">Upload an icon image for this category</small>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary">Save Category</button>
+                            <button type="button" class="btn btn-secondary" onclick="hideEditor()">Cancel</button>
+                            <button type="button" class="btn btn-danger" onclick="deleteCategory()" id="delete-category-btn" style="margin-left: auto;">Delete Category</button>
+                        </div>
+                    </form>
                 </div>
 
                 <!-- Product Editor -->
@@ -101,6 +156,12 @@
                                 <label for="product-weight">Weight</label>
                                 <input type="text" id="product-weight" placeholder="e.g., 0.2kg">
                             </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="product-order-weight">Display Order Weight (higher = shows first)</label>
+                            <input type="number" id="product-order-weight" value="0" placeholder="0">
+                            <small style="color: #666; font-size: 0.875rem;">Products with higher order weight appear first. Default is 0. Same weight = alphabetical order.</small>
                         </div>
 
                         <h3 style="margin-top: 20px; margin-bottom: 10px; color: #667eea;">Pricing (Customer-facing)</h3>

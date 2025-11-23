@@ -1,6 +1,6 @@
 {% extends "public/base.html" %}
 
-{% block title %}{{ post.title }} | Blog - Toy Seller{% endblock %}
+{% block title %}{{ post.title }} | Blog - Warpmonger{% endblock %}
 
 {% block meta_description %}{{ post.content[:155] }}...{% endblock %}
 
@@ -23,10 +23,10 @@
   {% endif %}
   "publisher": {
     "@type": "Organization",
-    "name": "Toy Seller",
+    "name": "Warpmonger",
     "logo": {
       "@type": "ImageObject",
-      "url": "{{ request.url_root }}static/images/logo.png"
+      "url": "{{ request.url_root }}static/images/warpmonger_logo_black.png"
     }
   },
   "mainEntityOfPage": {

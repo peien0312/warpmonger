@@ -3,7 +3,7 @@ title: Roman Republic LegionX Optio
 price: 36.99
 sku: 6927054400010
 in_stock: true
-images: ["editor_10.jpg", "editor_11.jpg", "editor_12.jpg", "editor_13.jpg", "editor_14.jpg", "editor_8.jpg", "editor_9.jpg", "gallery_10.jpg", "gallery_11.jpg", "gallery_12.jpg", "gallery_13.jpg", "gallery_14.jpg", "gallery_9.jpg"]
+images: ["editor_8.jpg", "editor_9.jpg", "editor_10.jpg", "editor_11.jpg", "editor_12.jpg", "editor_13.jpg", "editor_14.jpg", "gallery_9.jpg", "gallery_10.jpg", "gallery_11.jpg", "gallery_12.jpg", "gallery_13.jpg", "gallery_14.jpg"]
 is_pre_order: false
 available_date: 
 is_on_sale: false
@@ -20,5 +20,6 @@ zhtw_price: 178.0
 cost: 140.0
 final_price: 960.0
 cost_tw: 598.0
+order_weight: 0
 ---
 
