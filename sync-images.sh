@@ -3,10 +3,10 @@
 # Usage: ./sync-images.sh
 
 # Configuration
-EC2_USER="ubuntu"  # Change to your EC2 username (ubuntu, ec2-user, etc.)
-EC2_HOST="your-ec2-ip-or-domain"  # Change to your EC2 IP or domain
-EC2_PATH="/home/ubuntu/toy-seller-site/content/products"  # Path on EC2 server
-SSH_KEY="~/.ssh/your-key.pem"  # Path to your SSH key
+EC2_USER="ec2-user"  # Change to your EC2 username (ubuntu, ec2-user, etc.)
+EC2_HOST="35.78.242.30"  # Change to your EC2 IP or domain
+EC2_PATH="/home/ec2-user/warpmonger/content/products"  # Path on EC2 server
+SSH_KEY="~/.ssh/nownews.pem"  # Path to your SSH key
 
 # Colors for output
 GREEN='\033[0;32m'
