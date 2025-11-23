@@ -1,0 +1,12 @@
+venv/
+__pycache__/
+*.pyc
+.env
+.DS_Store
+data/
+static/images/*
+!static/images/.gitkeep
+
+# Product images and videos - these should not be in git
+content/products/*/images/
+content/products/*/*/images/

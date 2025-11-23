@@ -1,0 +1,38 @@
+{% extends "public/base.html" %}
+
+{% block title %}Blog - Toy News, Tips & Updates | Toy Seller{% endblock %}
+
+{% block meta_description %}Read our blog for the latest toy news, buying guides, safety tips, and updates about new products. Expert advice for parents and toy enthusiasts.{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="blog-page">
+        <h1>Blog</h1>
+
+        {% if posts %}
+        <div class="blog-posts">
+            {% for post in posts %}
+            <article class="blog-post-preview">
+                <h2><a href="/blog/{{ post.slug }}">{{ post.title }}</a></h2>
+                <p class="post-meta">
+                    {{ post.date }}
+                    {% if post.author %}by {{ post.author }}{% endif %}
+                </p>
+                <p class="post-excerpt">{{ post.excerpt }}</p>
+                {% if post.tags %}
+                <div class="post-tags">
+                    {% for tag in post.tags %}
+                    <span class="tag">{{ tag }}</span>
+                    {% endfor %}
+                </div>
+                {% endif %}
+                <a href="/blog/{{ post.slug }}" class="read-more">Read more →</a>
+            </article>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p class="no-posts">No blog posts yet. Check back soon!</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

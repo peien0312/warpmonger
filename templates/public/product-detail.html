@@ -1,0 +1,367 @@
+{% extends "public/base.html" %}
+
+{% block title %}{{ product.title }} - {{ product.category }} | Toy Seller{% endblock %}
+
+{% block meta_description %}Buy {{ product.title }} for ${{ "%.2f"|format(product.price) }}. {{ product.description[:150] }}...{% endblock %}
+
+{% block og_type %}product{% endblock %}
+{% block og_title %}{{ product.title }} - ${{ "%.2f"|format(product.price) }}{% endblock %}
+{% block og_description %}{{ product.description[:200] }}{% endblock %}
+{% if product.images %}
+{% block og_image %}{{ request.url_root }}static/images/products/{{ product.category }}/{{ product.slug }}/{{ product.images[0] }}{% endblock %}
+{% endif %}
+
+{% block structured_data %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org/",
+  "@type": "Product",
+  "name": "{{ product.title }}",
+  "description": "{{ product.description|replace('\n', ' ')|replace('"', '\\"') }}",
+  {% if product.images %}
+  "image": [
+    {% for image in product.images %}
+    "{{ request.url_root }}static/images/products/{{ product.category }}/{{ product.slug }}/{{ image }}"{% if not loop.last %},{% endif %}
+    {% endfor %}
+  ],
+  {% endif %}
+  {% if product.sku %}
+  "sku": "{{ product.sku }}",
+  {% endif %}
+  "brand": {
+    "@type": "Brand",
+    "name": "Toy Seller"
+  },
+  "offers": {
+    "@type": "Offer",
+    "url": "{{ request.url }}",
+    "priceCurrency": "USD",
+    "price": "{% if product.is_on_sale and product.sale_price > 0 %}{{ product.sale_price }}{% else %}{{ product.price }}{% endif %}",
+    "availability": "https://schema.org/{% if product.is_pre_order %}PreOrder{% elif product.in_stock %}InStock{% else %}OutOfStock{% endif %}"
+  }
+}
+</script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org/",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Products",
+      "item": "{{ request.url_root }}products"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "{{ product.category }}",
+      "item": "{{ request.url_root }}products?category={{ product.category }}"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "{{ product.title }}"
+    }
+  ]
+}
+</script>
+{% endblock %}
+
+{% block content %}
+<!-- Image/Video Lightbox -->
+<div id="image-lightbox" class="image-lightbox" onclick="closeLightbox(event)">
+    <button class="lightbox-close" onclick="closeLightbox(event)">&times;</button>
+    <button class="lightbox-nav lightbox-nav-left" onclick="navigateLightbox(-1, event)">&lt;</button>
+    <button class="lightbox-nav lightbox-nav-right" onclick="navigateLightbox(1, event)">&gt;</button>
+    <div id="lightbox-content"></div>
+</div>
+
+<div class="container">
+    <div class="product-detail">
+        <div class="product-images">
+            {% if product.images %}
+                {% set first_file = product.images[0] %}
+                {% set is_first_video = first_file.lower().endswith(('.mp4', '.mov', '.avi', '.webm')) %}
+                <div class="main-image" onclick="{% if is_first_video %}handleMainImageClick(event){% else %}openLightbox(){% endif %}">
+                    {% if is_first_video %}
+                    <video id="main-video" controls style="width: 100%; height: 100%; object-fit: contain;">
+                        <source src="/static/images/products/{{ product.category }}/{{ product.slug }}/{{ first_file }}" type="video/{{ first_file.split('.')[-1] }}">
+                        Your browser does not support the video tag.
+                    </video>
+                    {% else %}
+                    <img id="main-image" src="/static/images/products/{{ product.category }}/{{ product.slug }}/{{ first_file }}"
+                         alt="{{ product.title }} - main product image">
+                    {% endif %}
+                </div>
+                {% if product.images|length > 1 %}
+                <div class="thumbnails-container">
+                    <button class="thumbnail-nav thumbnail-nav-left" onclick="scrollThumbnails(-1)" id="thumb-left-btn">&lt;</button>
+                    <div class="image-thumbnails" id="thumbnails-wrapper">
+                        {% for image in product.images %}
+                        {% if image.lower().endswith(('.mp4', '.mov', '.avi', '.webm')) %}
+                        <div class="thumbnail video-thumbnail {% if loop.index0 == 0 %}active{% endif %}"
+                             data-index="{{ loop.index0 }}"
+                             onclick="switchToMedia({{ loop.index0 }}, this)">
+                            <span class="play-icon">▶</span>
+                        </div>
+                        {% else %}
+                        <img src="/static/images/products/{{ product.category }}/{{ product.slug }}/{{ image }}"
+                             alt="{{ product.title }} - view {{ loop.index }}"
+                             data-index="{{ loop.index0 }}"
+                             onclick="switchToMedia({{ loop.index0 }}, this)"
+                             class="thumbnail {% if loop.index0 == 0 %}active{% endif %}">
+                        {% endif %}
+                        {% endfor %}
+                    </div>
+                    <button class="thumbnail-nav thumbnail-nav-right" onclick="scrollThumbnails(1)" id="thumb-right-btn">&gt;</button>
+                </div>
+                {% endif %}
+            {% else %}
+                <div class="product-placeholder-large">No Image Available</div>
+            {% endif %}
+        </div>
+
+        <div class="product-info">
+            <nav class="breadcrumb">
+                <a href="/products">Products</a> /
+                <a href="/products?category={{ product.category }}">{{ product.category }}</a> /
+                <span>{{ product.title }}</span>
+            </nav>
+
+            <h1>{{ product.title }}</h1>
+
+            {# Product badges #}
+            <div class="product-badges-detail">
+                {% if product.is_pre_order %}
+                <span class="badge badge-preorder">Pre-order</span>
+                {% endif %}
+                {% if product.is_on_sale %}
+                <span class="badge badge-sale">Sale</span>
+                {% endif %}
+                {% if product.is_new_arrival %}
+                <span class="badge badge-new">New</span>
+                {% endif %}
+            </div>
+
+            <div class="product-meta">
+                {# Pricing #}
+                {% if product.is_on_sale and product.sale_price > 0 %}
+                <p class="price">
+                    <span class="original-price">${{ "%.2f"|format(product.price) }}</span>
+                    <span class="sale-price">${{ "%.2f"|format(product.sale_price) }}</span>
+                    <span class="savings">Save ${{ "%.2f"|format(product.price - product.sale_price) }}</span>
+                </p>
+                {% else %}
+                <p class="price">${{ "%.2f"|format(product.price) }}</p>
+                {% endif %}
+
+                {% if product.sku %}
+                <p class="sku">SKU: {{ product.sku }}</p>
+                {% endif %}
+
+                {# Product Specifications #}
+                {% if product.series %}
+                <p class="product-spec"><strong>Series:</strong> {{ product.series }}</p>
+                {% endif %}
+                {% if product.scale %}
+                <p class="product-spec"><strong>Scale:</strong> {{ product.scale }}</p>
+                {% endif %}
+                {% if product.size %}
+                <p class="product-spec"><strong>Size:</strong> {{ product.size }}</p>
+                {% endif %}
+                {% if product.weight %}
+                <p class="product-spec"><strong>Weight:</strong> {{ product.weight }}</p>
+                {% endif %}
+
+                {# Stock and Pre-order status #}
+                {% if product.is_pre_order %}
+                <p class="pre-order-status">
+                    Pre-order
+                    {% if product.available_date %}
+                    - Expected: {{ product.available_date|format_month }}
+                    {% endif %}
+                </p>
+                {% else %}
+                <p class="stock {% if product.in_stock %}in-stock{% else %}out-of-stock{% endif %}">
+                    {% if product.in_stock %}In Stock{% else %}Out of Stock{% endif %}
+                </p>
+                {% endif %}
+            </div>
+
+            <div class="product-description">
+                {{ product.description_html|safe }}
+            </div>
+
+            {% if product.tags %}
+            <div class="product-tags">
+                <strong>Tags:</strong>
+                {% for tag in product.tags %}
+                <span class="tag">{{ tag }}</span>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <div class="product-actions">
+                <button class="btn btn-primary btn-lg" onclick="alert('Add to cart functionality handled externally')">
+                    Add to Cart
+                </button>
+            </div>
+        </div>
+    </div>
+
+    {% if related %}
+    <section class="related-products">
+        <h2>Related Products</h2>
+        <div class="products-grid">
+            {% for prod in related %}
+            <div class="product-card">
+                <a href="/products/{{ prod.category }}/{{ prod.slug }}">
+                    {% if prod.images %}
+                    <img src="/static/images/products/{{ prod.category }}/{{ prod.slug }}/{{ prod.images[0] }}"
+                         alt="{{ prod.title }} - {{ prod.category }} toy for ${{ '%.2f'|format(prod.price) }}">
+                    {% else %}
+                    <div class="product-placeholder">No Image</div>
+                    {% endif %}
+                    <h3>{{ prod.title }}</h3>
+                    <p class="price">${{ "%.2f"|format(prod.price) }}</p>
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+    {% endif %}
+</div>
+
+<script>
+// Media list and current index
+const mediaList = [
+    {% for image in product.images %}
+    {
+        src: '/static/images/products/{{ product.category }}/{{ product.slug }}/{{ image }}',
+        isVideo: {{ 'true' if image.lower().endswith(('.mp4', '.mov', '.avi', '.webm')) else 'false' }},
+        type: '{{ image.split('.')[-1] }}'
+    }{{ ',' if not loop.last else '' }}
+    {% endfor %}
+];
+let currentMediaIndex = 0;
+
+function handleMainImageClick(e) {
+    // Don't open lightbox if clicking on video element itself (controls)
+    if (e.target.tagName !== 'VIDEO') {
+        openLightbox();
+    }
+}
+
+function switchToMedia(index, thumbnail) {
+    currentMediaIndex = index;
+    const media = mediaList[index];
+    const mainImageContainer = document.querySelector('.main-image');
+
+    // Remove active class from all thumbnails
+    document.querySelectorAll('.thumbnail').forEach(t => t.classList.remove('active'));
+    if (thumbnail) thumbnail.classList.add('active');
+
+    if (media.isVideo) {
+        mainImageContainer.innerHTML = `
+            <video id="main-video" controls style="width: 100%; height: 100%; object-fit: contain;">
+                <source src="${media.src}" type="video/${media.type}">
+                Your browser does not support the video tag.
+            </video>
+        `;
+        // For videos, only open lightbox when clicking outside the video controls
+        mainImageContainer.onclick = (e) => {
+            // Don't open lightbox if clicking on video element itself (controls)
+            if (e.target.tagName !== 'VIDEO') {
+                openLightbox(index);
+            }
+        };
+    } else {
+        mainImageContainer.innerHTML = `<img id="main-image" src="${media.src}" alt="Product image">`;
+        mainImageContainer.onclick = () => openLightbox(index);
+    }
+}
+
+function openLightbox(index = null) {
+    if (index !== null) currentMediaIndex = index;
+
+    const lightbox = document.getElementById('image-lightbox');
+    const lightboxContent = document.getElementById('lightbox-content');
+    const media = mediaList[currentMediaIndex];
+
+    if (media.isVideo) {
+        lightboxContent.innerHTML = `
+            <video controls autoplay style="max-width: 90vw; max-height: 90vh; object-fit: contain;">
+                <source src="${media.src}" type="video/${media.type}">
+                Your browser does not support the video tag.
+            </video>
+        `;
+    } else {
+        lightboxContent.innerHTML = `<img src="${media.src}" alt="Full size image" style="max-width: 90vw; max-height: 90vh; object-fit: contain;">`;
+    }
+
+    lightbox.classList.add('active');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeLightbox(e) {
+    if (e) {
+        e.stopPropagation();
+        // Only close if clicking the background, not the content
+        if (e.target.id !== 'image-lightbox' && !e.target.classList.contains('lightbox-close')) {
+            return;
+        }
+    }
+
+    // Pause any playing video in the lightbox
+    const lightboxContent = document.getElementById('lightbox-content');
+    const video = lightboxContent.querySelector('video');
+    if (video) {
+        video.pause();
+    }
+
+    const lightbox = document.getElementById('image-lightbox');
+    lightbox.classList.remove('active');
+    document.body.style.overflow = '';
+}
+
+function navigateLightbox(direction, e) {
+    if (e) e.stopPropagation();
+
+    currentMediaIndex += direction;
+    if (currentMediaIndex < 0) currentMediaIndex = mediaList.length - 1;
+    if (currentMediaIndex >= mediaList.length) currentMediaIndex = 0;
+
+    openLightbox(currentMediaIndex);
+
+    // Update thumbnail active state
+    document.querySelectorAll('.thumbnail').forEach((t, i) => {
+        t.classList.toggle('active', i === currentMediaIndex);
+    });
+}
+
+function scrollThumbnails(direction) {
+    const wrapper = document.getElementById('thumbnails-wrapper');
+    const scrollAmount = wrapper.offsetWidth / 2;
+    wrapper.scrollBy({
+        left: scrollAmount * direction,
+        behavior: 'smooth'
+    });
+}
+
+// Keyboard navigation
+document.addEventListener('keydown', function(e) {
+    const lightbox = document.getElementById('image-lightbox');
+    const isLightboxActive = lightbox.classList.contains('active');
+
+    if (e.key === 'Escape' && isLightboxActive) {
+        closeLightbox();
+    } else if (e.key === 'ArrowLeft' && isLightboxActive) {
+        navigateLightbox(-1);
+    } else if (e.key === 'ArrowRight' && isLightboxActive) {
+        navigateLightbox(1);
+    }
+});
+</script>
+{% endblock %}

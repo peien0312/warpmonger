@@ -1,0 +1,92 @@
+{% extends "public/base.html" %}
+
+{% block title %}{{ post.title }} | Blog - Toy Seller{% endblock %}
+
+{% block meta_description %}{{ post.content[:155] }}...{% endblock %}
+
+{% block og_type %}article{% endblock %}
+{% block og_title %}{{ post.title }}{% endblock %}
+{% block og_description %}{{ post.content[:200] }}{% endblock %}
+
+{% block structured_data %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "{{ post.title }}",
+  "datePublished": "{{ post.date }}",
+  {% if post.author %}
+  "author": {
+    "@type": "Person",
+    "name": "{{ post.author }}"
+  },
+  {% endif %}
+  "publisher": {
+    "@type": "Organization",
+    "name": "Toy Seller",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "{{ request.url_root }}static/images/logo.png"
+    }
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "{{ request.url }}"
+  },
+  "articleBody": "{{ post.content|replace('\n', ' ')|replace('"', '\\"') }}"
+}
+</script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org/",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Blog",
+      "item": "{{ request.url_root }}blog"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "{{ post.title }}"
+    }
+  ]
+}
+</script>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <article class="blog-post">
+        <nav class="breadcrumb">
+            <a href="/blog">Blog</a> / <span>{{ post.title }}</span>
+        </nav>
+
+        <header class="post-header">
+            <h1>{{ post.title }}</h1>
+            <p class="post-meta">
+                {{ post.date }}
+                {% if post.author %}by {{ post.author }}{% endif %}
+            </p>
+            {% if post.tags %}
+            <div class="post-tags">
+                {% for tag in post.tags %}
+                <span class="tag">{{ tag }}</span>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </header>
+
+        <div class="post-content">
+            {{ post.content_html|safe }}
+        </div>
+
+        <footer class="post-footer">
+            <a href="/blog" class="btn btn-secondary">← Back to Blog</a>
+        </footer>
+    </article>
+</div>
+{% endblock %}

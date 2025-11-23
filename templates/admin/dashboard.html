@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Toy Seller</title>
+    <link rel="stylesheet" href="/static/css/admin.css">
+</head>
+<body class="admin-page">
+    <div class="admin-container">
+        <!-- Left Panel: Navigation -->
+        <div class="admin-sidebar">
+            <div class="sidebar-header">
+                <h2>Toy Seller</h2>
+                <a href="/admin/logout" class="btn-logout">Logout</a>
+            </div>
+
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <h3>Products</h3>
+                    <button class="btn btn-primary btn-sm" onclick="showCreateProduct()">+ New Product</button>
+                    <div id="categories-list" class="categories-list"></div>
+                </div>
+
+                <div class="nav-section">
+                    <h3>Blog</h3>
+                    <button class="btn btn-primary btn-sm" onclick="showCreateBlog()">+ New Post</button>
+                    <div id="blog-list" class="blog-list"></div>
+                </div>
+
+                <div class="nav-section">
+                    <h3>Quick Links</h3>
+                    <a href="/" target="_blank" class="nav-link">View Site</a>
+                </div>
+            </nav>
+        </div>
+
+        <!-- Center Panel: Editor -->
+        <div class="admin-main">
+            <div id="editor-container">
+                <div id="welcome-screen" class="welcome-screen">
+                    <h1>Welcome to Toy Seller Admin</h1>
+                    <p>Select a product or blog post to edit, or create a new one.</p>
+                </div>
+
+                <!-- Product Editor -->
+                <div id="product-editor" class="editor" style="display: none;">
+                    <h2 id="product-editor-title">Edit Product</h2>
+                    <form id="product-form">
+                        <input type="hidden" id="product-slug">
+                        <input type="hidden" id="product-category">
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="product-id">Product ID</label>
+                                <input type="text" id="product-id">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="product-sku">SKU</label>
+                                <input type="text" id="product-sku">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="product-title">English Name *</label>
+                            <input type="text" id="product-title" required>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="product-cn-name">Chinese Name (简体)</label>
+                                <input type="text" id="product-cn-name">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="product-zhtw-name">Chinese Name (繁體)</label>
+                                <input type="text" id="product-zhtw-name">
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="product-series">Series</label>
+                                <input type="text" id="product-series">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="product-scale">Scale</label>
+                                <input type="text" id="product-scale" placeholder="e.g., Scale: 1/25">
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="product-size">Size</label>
+                                <input type="text" id="product-size" placeholder="e.g., 20*15*5">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="product-weight">Weight</label>
+                                <input type="text" id="product-weight" placeholder="e.g., 0.2kg">
+                            </div>
+                        </div>
+
+                        <h3 style="margin-top: 20px; margin-bottom: 10px; color: #667eea;">Pricing (Customer-facing)</h3>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="product-price">Price (USD) *</label>
+                                <input type="number" id="product-price" step="0.01" required>
+                            </div>
+                        </div>
+
+                        <h3 style="margin-top: 20px; margin-bottom: 10px; color: #e74c3c;">Backend Only (Not shown to customers)</h3>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="product-zhtw-price">Taiwan Price (TWD)</label>
+                                <input type="number" id="product-zhtw-price" step="0.01">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="product-cost">Cost (USD)</label>
+                                <input type="number" id="product-cost" step="0.01">
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="product-final-price">Final Price (TWD)</label>
+                                <input type="number" id="product-final-price" step="0.01">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="product-cost-tw">Cost Taiwan (TWD)</label>
+                                <input type="number" id="product-cost-tw" step="0.01">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Profit Margin (Calculated)</label>
+                            <div id="profit-margin" style="padding: 10px; background: #f8f9fa; border-radius: 4px; font-weight: bold;">
+                                -
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="product-category-select">Category *</label>
+                            <input type="text" id="product-category-select" list="categories-datalist" required>
+                            <datalist id="categories-datalist"></datalist>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="product-in-stock">
+                                <input type="checkbox" id="product-in-stock" checked>
+                                In Stock
+                            </label>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="product-pre-order">
+                                <input type="checkbox" id="product-pre-order" onchange="toggleAvailableDate()">
+                                Pre-order
+                            </label>
+                        </div>
+
+                        <div class="form-group" id="available-date-group" style="display: none;">
+                            <label for="product-available-date">Available Date</label>
+                            <input type="date" id="product-available-date">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="product-on-sale">
+                                <input type="checkbox" id="product-on-sale" onchange="toggleSalePrice()">
+                                On Sale
+                            </label>
+                        </div>
+
+                        <div class="form-group" id="sale-price-group" style="display: none;">
+                            <label for="product-sale-price">Sale Price</label>
+                            <input type="number" id="product-sale-price" step="0.01">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="product-new-arrival">
+                                <input type="checkbox" id="product-new-arrival">
+                                New Arrival
+                            </label>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="product-description">Description (Markdown)</label>
+                            <textarea id="product-description" rows="10"></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="product-tags">Tags (one per line)</label>
+                            <textarea id="product-tags" rows="5" placeholder="Red&#10;Children&#10;Age 3-6"></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Images</label>
+                            <div class="image-upload-area">
+                                <input type="file" id="image-upload" accept="image/*,video/*" multiple style="display: none;">
+                                <button type="button" class="btn btn-secondary" onclick="document.getElementById('image-upload').click()">Upload Images/Videos</button>
+                                <button type="button" class="btn btn-secondary" onclick="scanFolderForImages()">Scan Folder</button>
+                                <div id="images-preview" class="images-preview sortable"></div>
+                                <p style="margin-top: 10px; color: #666; font-size: 0.9em;">Drag and drop to reorder images</p>
+                            </div>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary">Save Product</button>
+                            <button type="button" class="btn btn-secondary" onclick="closeEditor()">Cancel</button>
+                            <button type="button" class="btn btn-danger" onclick="deleteProduct()" id="delete-product-btn" style="display: none;">Delete</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Blog Editor -->
+                <div id="blog-editor" class="editor" style="display: none;">
+                    <h2 id="blog-editor-title">Edit Blog Post</h2>
+                    <form id="blog-form">
+                        <input type="hidden" id="blog-slug">
+
+                        <div class="form-group">
+                            <label for="blog-title">Title *</label>
+                            <input type="text" id="blog-title" required>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="blog-date">Date</label>
+                                <input type="date" id="blog-date">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="blog-author">Author</label>
+                                <input type="text" id="blog-author">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="blog-excerpt">Excerpt</label>
+                            <textarea id="blog-excerpt" rows="3"></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="blog-content">Content (Markdown)</label>
+                            <textarea id="blog-content" rows="15"></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="blog-tags">Tags (comma-separated)</label>
+                            <input type="text" id="blog-tags" placeholder="news, toys, updates">
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary">Save Post</button>
+                            <button type="button" class="btn btn-secondary" onclick="closeEditor()">Cancel</button>
+                            <button type="button" class="btn btn-danger" onclick="deleteBlogPost()" id="delete-blog-btn" style="display: none;">Delete</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Panel: Preview -->
+        <div class="admin-preview">
+            <h3>Preview</h3>
+            <div id="preview-container" class="preview-content">
+                <p class="preview-placeholder">Preview will appear here...</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/js/admin.js"></script>
+</body>
+</html>

@@ -1,0 +1,116 @@
+{% extends "public/base.html" %}
+
+{% block title %}{% if current_category %}{{ current_category }} Toys{% else %}All Products{% endif %} | Toy Seller{% endblock %}
+
+{% block meta_description %}Browse our selection of {% if current_category %}{{ current_category|lower }} toys{% else %}quality toys for children{% endif %}. Find the perfect toys for your kids with fast shipping and great prices.{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="products-page">
+        <aside class="products-sidebar">
+            <h3>Categories</h3>
+            <ul class="category-list">
+                <li><a href="/products" {% if not current_category %}class="active"{% endif %}>All Products</a></li>
+                {% for category in categories %}
+                <li>
+                    <a href="/products?category={{ category }}"
+                       {% if current_category == category %}class="active"{% endif %}>
+                        {{ category }}
+                    </a>
+                </li>
+                {% endfor %}
+            </ul>
+
+            <h3 style="margin-top: 2rem;">Filters</h3>
+            <div class="filters">
+                <label class="filter-checkbox">
+                    <input type="checkbox" id="filter-preorder" {% if show_pre_order %}checked{% endif %}
+                           onchange="toggleFilter('pre_order')">
+                    Pre-order
+                </label>
+                <label class="filter-checkbox">
+                    <input type="checkbox" id="filter-onsale" {% if show_on_sale %}checked{% endif %}
+                           onchange="toggleFilter('on_sale')">
+                    On Sale
+                </label>
+                <label class="filter-checkbox">
+                    <input type="checkbox" id="filter-newarrival" {% if show_new_arrival %}checked{% endif %}
+                           onchange="toggleFilter('new_arrival')">
+                    New Arrivals
+                </label>
+            </div>
+
+            <script>
+            function toggleFilter(filterType) {
+                const url = new URL(window.location);
+                const checkbox = document.getElementById(`filter-${filterType.replace('_', '')}`);
+
+                if (checkbox.checked) {
+                    url.searchParams.set(filterType, 'true');
+                } else {
+                    url.searchParams.delete(filterType);
+                }
+
+                window.location.href = url.toString();
+            }
+            </script>
+        </aside>
+
+        <div class="products-main">
+            <div class="products-header">
+                <h1>{% if current_category %}{{ current_category }}{% else %}All Products{% endif %}</h1>
+                <p>{{ products|length }} product{% if products|length != 1 %}s{% endif %} found</p>
+            </div>
+
+            <div class="products-grid">
+                {% for product in products %}
+                <div class="product-card">
+                    <a href="/products/{{ product.category }}/{{ product.slug }}">
+                        <div class="product-image-container">
+                            {% if product.images %}
+                            <img src="/static/images/products/{{ product.category }}/{{ product.slug }}/{{ product.images[0] }}"
+                                 alt="{{ product.title }} - {{ product.category }} toy for ${{ '%.2f'|format(product.price) }}">
+                            {% else %}
+                            <div class="product-placeholder">No Image</div>
+                            {% endif %}
+
+                            {# Product badges #}
+                            <div class="product-badges">
+                                {% if product.is_pre_order %}
+                                <span class="badge badge-preorder">Pre-order</span>
+                                {% endif %}
+                                {% if product.is_on_sale %}
+                                <span class="badge badge-sale">Sale</span>
+                                {% endif %}
+                                {% if product.is_new_arrival %}
+                                <span class="badge badge-new">New</span>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <h3>{{ product.title }}</h3>
+
+                        {# Pricing #}
+                        {% if product.is_on_sale and product.sale_price > 0 %}
+                        <p class="price">
+                            <span class="original-price">${{ "%.2f"|format(product.price) }}</span>
+                            <span class="sale-price">${{ "%.2f"|format(product.sale_price) }}</span>
+                        </p>
+                        {% else %}
+                        <p class="price">${{ "%.2f"|format(product.price) }}</p>
+                        {% endif %}
+
+                        {% if not product.in_stock %}
+                        <p class="out-of-stock">Out of Stock</p>
+                        {% endif %}
+                    </a>
+                </div>
+                {% endfor %}
+                {% if not products %}
+                <p class="no-products">No products found in this category.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
