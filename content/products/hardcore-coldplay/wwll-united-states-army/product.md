@@ -1,5 +1,5 @@
 ---
-title: WWll United States Army
+title: WWII United States Army
 price: 19.99
 sku: 6973130378933
 in_stock: true
@@ -16,10 +16,10 @@ series: Hardcore Coldplay
 scale: Scale：1/18
 size: 19.5*13*4
 weight: 0.2kg
-zhtw_price: 99.0
-cost: 65.0
-final_price: 480.0
-cost_tw: 278.0
+zhtw_price: 99
+cost: 65
+final_price: 480
+cost_tw: 278
 order_weight: 0
 ---
 
