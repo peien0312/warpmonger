@@ -11,6 +11,11 @@ body {
     line-height: 1.6;
     color: #d4d4d4;
     background: #0a0a0a;
+    overflow-x: hidden;
+}
+
+html {
+    overflow-x: hidden;
 }
 
 .container {
@@ -1421,6 +1426,20 @@ section h2::after {
         max-width: 100%;
         margin: 0;
     }
+
+    .image-thumbnails {
+        max-width: calc(100vw - 140px);
+    }
+
+    .thumbnails-container {
+        gap: 5px;
+    }
+
+    .thumbnail-nav {
+        width: 35px;
+        height: 35px;
+        font-size: 18px;
+    }
 }
 
 @media (max-width: 768px) {
@@ -1457,5 +1476,83 @@ section h2::after {
 
     section h2 {
         font-size: 2rem;
+    }
+
+    .container {
+        padding: 0 15px;
+    }
+
+    .product-detail {
+        gap: 20px;
+        padding: 20px 0;
+    }
+
+    .product-images {
+        max-width: 100%;
+    }
+
+    .main-image {
+        margin-bottom: 15px;
+        width: 100%;
+        max-width: 100%;
+    }
+
+    .image-thumbnails {
+        max-width: calc(100vw - 120px);
+    }
+
+    .thumbnail {
+        width: 70px;
+        min-width: 70px;
+        height: 70px;
+    }
+
+    .thumbnail-nav {
+        width: 30px;
+        height: 30px;
+        font-size: 16px;
+    }
+}
+
+@media (max-width: 480px) {
+    .container {
+        padding: 0 10px;
+    }
+
+    .product-detail {
+        padding: 15px 0;
+        gap: 15px;
+    }
+
+    .main-image {
+        margin-bottom: 10px;
+    }
+
+    .image-thumbnails {
+        max-width: calc(100vw - 100px);
+    }
+
+    .thumbnail {
+        width: 60px;
+        min-width: 60px;
+        height: 60px;
+    }
+
+    .thumbnail-nav {
+        width: 28px;
+        height: 28px;
+        font-size: 14px;
+    }
+
+    .thumbnails-container {
+        gap: 3px;
+    }
+
+    .breadcrumb {
+        font-size: 0.75rem;
+    }
+
+    .product-info h1 {
+        font-size: 1.5rem;
     }
 }
