@@ -1,5 +1,5 @@
 ---
-title: Uitramarines Cataphractii Terminator Squad Terminator with Reaper Autocannon
+title: Ultramarines Cataphractii Terminator Squad Terminator with Reaper Autocannon
 price: 46.99
 sku: 6973130377486
 in_stock: true
@@ -16,10 +16,10 @@ series: Warhammer "The Horus Heresy"
 scale: Scale：1/18
 size: 20*18.5*7
 weight: 0.35kg
-zhtw_price: 198.0
-cost: 155.0
-final_price: 1110.0
-cost_tw: 662.0
+zhtw_price: 198
+cost: 155
+final_price: 1110
+cost_tw: 662
 order_weight: 0
 ---
 
