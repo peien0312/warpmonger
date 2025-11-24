@@ -16,10 +16,13 @@ series: Warhammer 40,000
 scale: Scale：1/18
 size: 20*18.5*7
 weight: 0.35kg
-zhtw_price: 329.0
-cost: 260.0
-final_price: 1620.0
-cost_tw: 1110.0
+zhtw_price: 329
+cost: 260
+final_price: 1620
+cost_tw: 1110
 order_weight: 0
 ---
 
+The Sanguinor, Angel of Death, is a mysterious and awe-inspiring figure within the Blood Angels Chapter of the Adeptus Astartes. His origins are shrouded in myth: some believe he is a divine manifestation of the Primarch Sanguinius *, while others claim he is a spirit of vengeance that appears only in the Chapter’s darkest hours. Unlike mortal heroes, the Sanguinor does not reside permanently among the Blood Angels — he manifests suddenly on battlefields where his presence is most needed, vanishing once victory is secured.
+
+* Primarch of the IX Legion: Sanguinius led the Blood Angels, one of the Emperor’s twenty Space Marine Legions. He was a brilliant commander and beloved figure, often seen as embodying the Emperor’s noblest qualities. At the Siege of Terra, Sanguinius confronted Warmaster Horus aboard the Vengeful Spirit. Though mortally wounded and slain, his sacrifice weakened Horus, paving the way for the Emperor’s final battle. His death left a psychic imprint on the Blood Angels, manifesting as the Red Thirst and Black Rage, curses that haunt the Chapter to this day

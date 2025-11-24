@@ -16,10 +16,17 @@ series: Warhammer 40,000
 scale: Scale：1/18
 size: 20*18.5*5.5
 weight: 0.35kg
-zhtw_price: 309.0
-cost: 245.0
-final_price: 1450.0
-cost_tw: 1046.0
+zhtw_price: 309
+cost: 245
+final_price: 1450
+cost_tw: 1046
 order_weight: 0
 ---
 
+Lemartes, Guardian of the Death Company * of the Blood Angels Chapter, is a Chaplain burdened by the curse of the Black Rage ** yet possessed of the strength to master it. Unlike his doomed brethren, he retains clarity enough to lead them into battle, transforming their madness into a weapon of faith and fury. Armed with the sacred Blood Crozius ***, Lemartes embodies both the spiritual authority of his Chaplaincy and the grim duty of guiding the lost, standing as a tragic yet indomitable figure within the Chapter.
+
+* The Death Company is a unique and tragic formation within the Blood Angels Chapter, made up of Space Marines consumed by the psychic curse known as the Black Rage.
+
+** A psychic curse that drives Blood Angels into berserk fury, reliving the death of their Primarch Sanguinius.
+
+*** A sacred, power-wreathed relic that embodies his dual role as Chaplain and cursed shepherd of the Death Company, turning their madness into a weapon of faith and fury.
