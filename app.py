@@ -36,6 +36,7 @@ class SimpleCache:
                 self._data.clear()
 
 cache = SimpleCache()  # Permanent cache, invalidated only by admin
+html_cache = SimpleCache()  # Cache for rendered HTML pages
 
 app = Flask(__name__)
 app.secret_key = os.getenv('SECRET_KEY', 'dev-secret-key-change-in-production')
@@ -285,6 +286,7 @@ def save_category(slug, data):
 
     # Invalidate cache
     cache.invalidate()
+    html_cache.invalidate()
     return True
 
 def delete_category(slug):
@@ -296,6 +298,7 @@ def delete_category(slug):
         shutil.rmtree(category_path)
         # Invalidate cache
         cache.invalidate()
+        html_cache.invalidate()
         return True
     return False
 
@@ -545,6 +548,7 @@ def save_product(category, slug, data):
 
     # Invalidate cache
     cache.invalidate()
+    html_cache.invalidate()
     return True
 
 # ===== Blog Functions =====
@@ -696,6 +700,7 @@ def save_codex_entry(slug, data):
 
     # Invalidate cache
     cache.invalidate()
+    html_cache.invalidate()
     return True
 
 def build_codex_lookup():
@@ -775,6 +780,15 @@ def products_page():
     show_on_sale = request.args.get('on_sale') == 'true'
     show_new_arrival = request.args.get('new_arrival') == 'true'
 
+    # Check HTML cache for simple category pages (no search/tag/filters)
+    is_simple_page = not tag and not search and not show_pre_order and not show_on_sale and not show_new_arrival
+    cache_key = f"html_products_{category or 'all'}"
+
+    if is_simple_page:
+        cached_html = html_cache.get(cache_key)
+        if cached_html:
+            return cached_html
+
     # Get products with search filter
     products = get_products(category, search if search else None)
 
@@ -803,7 +817,7 @@ def products_page():
         if cat_obj:
             current_category_name = cat_obj['name']
 
-    return render_template('public/products.html',
+    html = render_template('public/products.html',
                          products=products,
                          categories=categories,
                          current_category=category,
@@ -813,6 +827,12 @@ def products_page():
                          show_pre_order=show_pre_order,
                          show_on_sale=show_on_sale,
                          show_new_arrival=show_new_arrival)
+
+    # Cache simple pages
+    if is_simple_page:
+        html_cache.set(cache_key, html)
+
+    return html
 
 @app.route('/products/<category>/<slug>')
 def product_detail(category, slug):
@@ -1068,6 +1088,7 @@ def api_delete_product(category, slug):
 
     # Invalidate cache
     cache.invalidate()
+    html_cache.invalidate()
     return jsonify({'success': True})
 
 @app.route('/api/categories', methods=['GET'])
@@ -1347,6 +1368,7 @@ def api_delete_codex_entry(slug):
 
     # Invalidate cache
     cache.invalidate()
+    html_cache.invalidate()
     return jsonify({'success': True})
 
 # ===== API Routes - Tags =====
@@ -1417,6 +1439,7 @@ def api_rename_tag(tag_name):
 
     # Invalidate cache
     cache.invalidate()
+    html_cache.invalidate()
 
     return jsonify({'success': True, 'updated_count': updated_count})
 
@@ -1447,6 +1470,7 @@ def api_delete_tag(tag_name):
 
     # Invalidate cache
     cache.invalidate()
+    html_cache.invalidate()
 
     return jsonify({'success': True, 'updated_count': updated_count})
 
@@ -1478,6 +1502,7 @@ def api_add_product_to_tag(tag_name):
 
         # Invalidate cache
         cache.invalidate()
+    html_cache.invalidate()
 
     return jsonify({'success': True})
 
@@ -1503,6 +1528,7 @@ def api_remove_product_from_tag(tag_name, category, slug):
 
         # Invalidate cache
         cache.invalidate()
+    html_cache.invalidate()
 
     return jsonify({'success': True})
 
@@ -1597,6 +1623,38 @@ def serve_category_icon(slug, filename):
     """Serve category icons"""
     images_dir = os.path.join(CATEGORIES_DIR, slug, 'images')
     return send_from_directory(images_dir, filename)
+
+# ===== Cache Warming =====
+
+def warm_cache():
+    """Pre-load all data into cache on startup to avoid cold start delays"""
+    print("Warming cache...")
+
+    # Load all products
+    products = get_products()
+    print(f"  - Loaded {len(products)} products")
+
+    # Load all categories
+    categories = get_categories()
+    print(f"  - Loaded {len(categories)} categories")
+
+    # Load codex entries
+    codex_entries = get_codex_entries()
+    print(f"  - Loaded {len(codex_entries)} codex entries")
+
+    # Build codex lookup
+    build_codex_lookup()
+    print("  - Built codex lookup")
+
+    # Load tags
+    tags = get_all_tags()
+    print(f"  - Loaded {len(tags)} tags")
+
+    # Note: HTML pages are cached on first request (can't pre-render due to request context)
+    print("Cache warming complete! (HTML pages cache on first visit)")
+
+# Warm cache on import (works with gunicorn/uwsgi)
+warm_cache()
 
 # ===== Main =====
 
