@@ -9,45 +9,33 @@ from PIL import Image
 import markdown
 from flask import Flask, render_template, request, jsonify, session, redirect, url_for, send_from_directory
 from dotenv import load_dotenv
-import time
 from threading import Lock
 
 load_dotenv()
 
 # === In-Memory Cache ===
 class SimpleCache:
-    """Simple TTL-based cache for product/category data"""
-    def __init__(self, ttl=60):
-        self.ttl = ttl
+    """Permanent in-memory cache - only invalidated by admin actions"""
+    def __init__(self):
         self._data = {}
-        self._timestamps = {}
         self._lock = Lock()
 
     def get(self, key):
         with self._lock:
-            if key not in self._data:
-                return None
-            if time.time() - self._timestamps[key] > self.ttl:
-                del self._data[key]
-                del self._timestamps[key]
-                return None
-            return self._data[key]
+            return self._data.get(key)
 
     def set(self, key, value):
         with self._lock:
             self._data[key] = value
-            self._timestamps[key] = time.time()
 
     def invalidate(self, key=None):
         with self._lock:
             if key:
                 self._data.pop(key, None)
-                self._timestamps.pop(key, None)
             else:
                 self._data.clear()
-                self._timestamps.clear()
 
-cache = SimpleCache(ttl=60)  # 60 second TTL
+cache = SimpleCache()  # Permanent cache, invalidated only by admin
 
 app = Flask(__name__)
 app.secret_key = os.getenv('SECRET_KEY', 'dev-secret-key-change-in-production')
