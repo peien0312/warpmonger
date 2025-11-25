@@ -172,6 +172,7 @@ body {
 .product-link,
 .blog-link,
 .category-link,
+.codex-link,
 .nav-link {
     display: block;
     padding: 6px 10px;
@@ -184,6 +185,7 @@ body {
 .product-link:hover,
 .blog-link:hover,
 .category-link:hover,
+.codex-link:hover,
 .nav-link:hover {
     background: rgba(255, 255, 255, 0.1);
     color: white;

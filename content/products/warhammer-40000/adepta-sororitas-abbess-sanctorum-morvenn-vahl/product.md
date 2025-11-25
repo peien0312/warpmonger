@@ -23,8 +23,4 @@ cost_tw: 1366
 order_weight: 0
 ---
 
-Morvenn Vahl is the Abbess Sanctorum of the Adepta Sororitas and a High Lord of Terra*. In her novel Spear of Faith by Jude Reid, she is portrayed as a mortal leader wrestling with doubt and faith while defending the cardinal world of Ophelia VII against the Night Lords**.
-
-*The High Lords of Terra are the ruling council of the Imperium, while the Adepta Sororitas are the militant arm of the Ecclesiarchy, known as the Sisters of Battle.
-
-**The Night Lords are a Chaos Space Marine Legion infamous for their use of terror, psychological warfare, and sadistic cruelty. Founded as the VIII Legion during the Great Crusade, they turned traitor in the Horus Heresy under their Primarch, Konrad Curze.
+Morvenn Vahl is the Abbess Sanctorum of the [[Adepta Sororitas]] and a [[High Lord of Terra]]. In her novel Spear of Faith by Jude Reid, she is portrayed as a mortal leader wrestling with doubt and faith while defending the cardinal world of Ophelia VII against the [[Night Lords]].

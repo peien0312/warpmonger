@@ -23,10 +23,4 @@ cost_tw: 1537
 order_weight: 0
 ---
 
-The Primaris Redemptor Dreadnought was introduced during the Indomitus Crusade * as part of Belisarius Cawl’s ** innovations for the newly created Primaris Space Marines. Unlike older Castraferrum or Contemptor patterns, the Redemptor is a towering war machine designed specifically to match the enhanced physiology and battlefield needs of Primaris warriors. It serves as both a walking tank and a sarcophagus, housing mortally wounded Primaris Marines so they can continue fighting in service to the Emperor. First deployed alongside Guilliman’s *** crusading forces after the opening of the Great Rift, the Redemptor quickly became a staple of many Chapters, combining devastating ranged firepower with brutal close-combat capability and symbolizing the Imperium’s relentless drive to keep its heroes fighting even beyond death.
-
-*A massive military campaign to stabilize the Imperium, reclaim lost worlds, and push back Chaos launched by Roboute Guilliman after the opening of the Great Rift shattered the galaxy.
-
-** An Archmagos Dominus of the Adeptus Mechanicus. Secretly worked for 10,000 years on Guilliman’s orders to create new warriors and technology.
-
-*** Primarch of the Ultramarines, resurrected in the 41st Millennium.
+The Primaris Redemptor Dreadnought was introduced during the [[Indomitus Crusade]] as part of [[Belisarius Cawl]]'s innovations for the newly created Primaris Space Marines. Unlike older Castraferrum or Contemptor patterns, the Redemptor is a towering war machine designed specifically to match the enhanced physiology and battlefield needs of Primaris warriors. It serves as both a walking tank and a sarcophagus, housing mortally wounded Primaris Marines so they can continue fighting in service to the Emperor. First deployed alongside [[Guilliman]]'s crusading forces after the opening of the Great Rift, the Redemptor quickly became a staple of many Chapters, combining devastating ranged firepower with brutal close-combat capability and symbolizing the Imperium's relentless drive to keep its heroes fighting even beyond death.

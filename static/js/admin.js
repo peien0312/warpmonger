@@ -3,9 +3,11 @@
 let currentProduct = null;
 let currentBlogPost = null;
 let currentCategory = null;
+let currentCodexEntry = null;
 let uploadedImages = [];
 let allProducts = []; // Store all products for filtering
 let allCategories = []; // Store all categories
+let allCodexEntries = []; // Store all codex entries
 
 // ===== Initialization =====
 
@@ -13,6 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
     loadCategoryEntities();
     loadCategories();
     loadBlogPosts();
+    loadCodexEntries();
     setupImageUpload();
     setupForms();
     setupPreview();
@@ -312,6 +315,7 @@ function showEditor(editorId) {
     document.getElementById('category-editor').style.display = 'none';
     document.getElementById('product-editor').style.display = 'none';
     document.getElementById('blog-editor').style.display = 'none';
+    document.getElementById('codex-editor').style.display = 'none';
 
     // Show the requested editor
     document.getElementById(editorId).style.display = 'block';
@@ -321,6 +325,7 @@ function hideEditor() {
     document.getElementById('category-editor').style.display = 'none';
     document.getElementById('product-editor').style.display = 'none';
     document.getElementById('blog-editor').style.display = 'none';
+    document.getElementById('codex-editor').style.display = 'none';
     document.getElementById('welcome-screen').style.display = 'block';
     document.getElementById('preview-container').innerHTML = '<p class="preview-placeholder">Preview will appear here...</p>';
 }
@@ -430,6 +435,7 @@ function setupForms() {
     document.getElementById('category-form').addEventListener('submit', saveCategory);
     document.getElementById('product-form').addEventListener('submit', saveProduct);
     document.getElementById('blog-form').addEventListener('submit', saveBlogPost);
+    document.getElementById('codex-form').addEventListener('submit', saveCodexEntry);
 }
 
 async function saveCategory(e) {
@@ -999,3 +1005,157 @@ function clearAdminSearch() {
         filterProducts('');
     }
 }
+
+// ===== Codex Management =====
+
+async function loadCodexEntries() {
+    try {
+        const response = await fetch('/api/codex');
+        const data = await response.json();
+
+        allCodexEntries = data.entries;
+        renderCodexList(allCodexEntries);
+    } catch (error) {
+        console.error('Error loading codex entries:', error);
+    }
+}
+
+function renderCodexList(entries) {
+    const container = document.getElementById('codex-list');
+    container.innerHTML = '';
+
+    entries.forEach(entry => {
+        const entryLink = document.createElement('a');
+        entryLink.className = 'codex-link';
+        entryLink.textContent = entry.title;
+        entryLink.href = '#';
+        entryLink.onclick = (e) => {
+            e.preventDefault();
+            editCodexEntry(entry.slug);
+        };
+        container.appendChild(entryLink);
+    });
+}
+
+function showCreateCodex() {
+    currentCodexEntry = null;
+    document.getElementById('codex-editor-title').textContent = 'Create Codex Entry';
+    document.getElementById('delete-codex-btn').style.display = 'none';
+    document.getElementById('codex-form').reset();
+    document.getElementById('codex-slug').value = '';
+    showEditor('codex-editor');
+    updateCodexPreview();
+}
+
+async function editCodexEntry(slug) {
+    try {
+        const response = await fetch(`/api/codex/${slug}`);
+        const data = await response.json();
+
+        currentCodexEntry = data.entry;
+
+        document.getElementById('codex-editor-title').textContent = 'Edit Codex Entry';
+        document.getElementById('delete-codex-btn').style.display = 'inline-block';
+        document.getElementById('codex-slug').value = slug;
+        document.getElementById('codex-title').value = currentCodexEntry.title;
+        document.getElementById('codex-aliases').value = (currentCodexEntry.aliases || []).join('\n');
+        document.getElementById('codex-content').value = currentCodexEntry.content;
+
+        showEditor('codex-editor');
+        updateCodexPreview();
+    } catch (error) {
+        console.error('Error loading codex entry:', error);
+        alert('Failed to load codex entry');
+    }
+}
+
+async function saveCodexEntry(e) {
+    e.preventDefault();
+
+    const slug = document.getElementById('codex-slug').value;
+
+    const aliasesText = document.getElementById('codex-aliases').value;
+    const aliases = aliasesText ? aliasesText.split('\n').map(a => a.trim()).filter(a => a) : [];
+
+    const data = {
+        title: document.getElementById('codex-title').value,
+        aliases: aliases,
+        content: document.getElementById('codex-content').value
+    };
+
+    try {
+        let response;
+        if (slug) {
+            // Update existing
+            response = await fetch(`/api/codex/${slug}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+        } else {
+            // Create new
+            response = await fetch('/api/codex', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+        }
+
+        const result = await response.json();
+
+        if (result.success) {
+            alert('Codex entry saved successfully!');
+            loadCodexEntries();
+            closeEditor();
+        } else {
+            alert('Error: ' + result.error);
+        }
+    } catch (error) {
+        console.error('Error saving codex entry:', error);
+        alert('Error saving codex entry');
+    }
+}
+
+async function deleteCodexEntry() {
+    if (!confirm('Are you sure you want to delete this codex entry?')) return;
+
+    const slug = document.getElementById('codex-slug').value;
+
+    try {
+        const response = await fetch(`/api/codex/${slug}`, {
+            method: 'DELETE'
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            alert('Codex entry deleted successfully!');
+            loadCodexEntries();
+            closeEditor();
+        } else {
+            alert('Error: ' + result.error);
+        }
+    } catch (error) {
+        console.error('Error deleting codex entry:', error);
+        alert('Error deleting codex entry');
+    }
+}
+
+function updateCodexPreview() {
+    const content = document.getElementById('codex-content').value;
+    const preview = document.getElementById('preview-container');
+
+    if (content) {
+        preview.innerHTML = `<div class="markdown-preview">${escapeHtml(content)}</div>`;
+    } else {
+        preview.innerHTML = '<p class="preview-placeholder">Enter content to see preview...</p>';
+    }
+}
+
+// Setup codex preview on input
+document.addEventListener('DOMContentLoaded', () => {
+    const codexContent = document.getElementById('codex-content');
+    if (codexContent) {
+        codexContent.addEventListener('input', updateCodexPreview);
+    }
+});

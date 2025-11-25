@@ -45,8 +45,15 @@
                 </div>
 
                 <div class="nav-section">
+                    <h3>Codex</h3>
+                    <button class="btn btn-primary btn-sm" onclick="showCreateCodex()">+ New Entry</button>
+                    <div id="codex-list" class="codex-list"></div>
+                </div>
+
+                <div class="nav-section">
                     <h3>Quick Links</h3>
                     <a href="/" target="_blank" class="nav-link">View Site</a>
+                    <a href="/codex" target="_blank" class="nav-link">View Codex</a>
                 </div>
             </nav>
         </div>
@@ -319,6 +326,43 @@
                             <button type="submit" class="btn btn-primary">Save Post</button>
                             <button type="button" class="btn btn-secondary" onclick="closeEditor()">Cancel</button>
                             <button type="button" class="btn btn-danger" onclick="deleteBlogPost()" id="delete-blog-btn" style="display: none;">Delete</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Codex Editor -->
+                <div id="codex-editor" class="editor" style="display: none;">
+                    <h2 id="codex-editor-title">Edit Codex Entry</h2>
+                    <form id="codex-form">
+                        <input type="hidden" id="codex-slug">
+
+                        <div class="form-group">
+                            <label for="codex-title">Title *</label>
+                            <input type="text" id="codex-title" required placeholder="e.g., Sanguinius">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="codex-aliases">Aliases (one per line)</label>
+                            <textarea id="codex-aliases" rows="3" placeholder="Primarch Sanguinius&#10;The Great Angel&#10;Angel of Baal"></textarea>
+                            <small style="color: #666; font-size: 0.875rem;">Alternative names that will also link to this entry</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="codex-content">Content (Markdown)</label>
+                            <textarea id="codex-content" rows="12" placeholder="Write the lore/description here..."></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Usage</label>
+                            <div style="padding: 10px; background: #f8f9fa; border-radius: 4px; font-size: 0.9rem; color: #666;">
+                                Use <code style="background: #e9ecef; padding: 2px 6px; border-radius: 3px;">[[Title]]</code> or <code style="background: #e9ecef; padding: 2px 6px; border-radius: 3px;">[[Alias]]</code> in product descriptions to create a tooltip link.
+                            </div>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary">Save Entry</button>
+                            <button type="button" class="btn btn-secondary" onclick="closeEditor()">Cancel</button>
+                            <button type="button" class="btn btn-danger" onclick="deleteCodexEntry()" id="delete-codex-btn" style="display: none;">Delete</button>
                         </div>
                     </form>
                 </div>

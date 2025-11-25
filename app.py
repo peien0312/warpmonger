@@ -566,6 +566,23 @@ def get_codex_entry(slug):
         'content': body
     }
 
+def save_codex_entry(slug, data):
+    """Save codex entry to file"""
+    # Prepare frontmatter
+    frontmatter_data = {
+        'title': data.get('title', ''),
+        'aliases': data.get('aliases', [])
+    }
+
+    # Save codex entry .md file
+    filepath = os.path.join(CODEX_DIR, f"{slug}.md")
+    content = create_frontmatter(frontmatter_data, data.get('content', ''))
+
+    with open(filepath, 'w', encoding='utf-8') as f:
+        f.write(content)
+
+    return True
+
 def build_codex_lookup():
     """Build a lookup dictionary for codex terms (title and aliases -> slug)"""
     lookup = {}
@@ -1127,6 +1144,52 @@ def api_get_codex_entry(slug):
     if not entry:
         return jsonify({'error': 'Entry not found'}), 404
     return jsonify({'entry': entry})
+
+@app.route('/api/codex', methods=['POST'])
+@login_required
+def api_create_codex_entry():
+    """Create new codex entry"""
+    data = request.get_json()
+
+    title = data.get('title')
+    if not title:
+        return jsonify({'error': 'Title required'}), 400
+
+    slug = slugify(title)
+
+    # Check if already exists
+    if get_codex_entry(slug):
+        return jsonify({'error': 'Entry already exists'}), 400
+
+    save_codex_entry(slug, data)
+
+    return jsonify({'success': True, 'slug': slug})
+
+@app.route('/api/codex/<slug>', methods=['PUT'])
+@login_required
+def api_update_codex_entry(slug):
+    """Update codex entry"""
+    data = request.get_json()
+
+    if not get_codex_entry(slug):
+        return jsonify({'error': 'Entry not found'}), 404
+
+    save_codex_entry(slug, data)
+
+    return jsonify({'success': True})
+
+@app.route('/api/codex/<slug>', methods=['DELETE'])
+@login_required
+def api_delete_codex_entry(slug):
+    """Delete codex entry"""
+    filepath = os.path.join(CODEX_DIR, f"{slug}.md")
+
+    if not os.path.exists(filepath):
+        return jsonify({'error': 'Entry not found'}), 404
+
+    os.remove(filepath)
+
+    return jsonify({'success': True})
 
 # ===== API Routes - Images =====
 
