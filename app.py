@@ -40,6 +40,18 @@ cache = SimpleCache()  # Permanent cache, invalidated only by admin
 app = Flask(__name__)
 app.secret_key = os.getenv('SECRET_KEY', 'dev-secret-key-change-in-production')
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
+app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 31536000  # 1 year cache for static files
+
+@app.after_request
+def add_cache_headers(response):
+    """Add cache headers for static files"""
+    if request.path.startswith('/static/images/'):
+        # Cache images for 1 year (they rarely change)
+        response.headers['Cache-Control'] = 'public, max-age=31536000'
+    elif request.path.startswith('/static/'):
+        # Cache other static files (CSS, JS) for 1 week
+        response.headers['Cache-Control'] = 'public, max-age=604800'
+    return response
 
 # Custom Jinja2 filter for formatting month
 @app.template_filter('format_month')

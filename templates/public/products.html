@@ -82,8 +82,9 @@
                     <a href="/products/{{ product.category }}/{{ product.slug }}">
                         <div class="product-image-container">
                             {% if product.images %}
-                            <img src="/static/images/products/{{ product.category }}/{{ product.slug }}/{{ product.images[0] }}"
-                                 alt="{{ product.title }} - Premium action figure - ${{ '%.2f'|format(product.price) }}">
+                            <img src="/static/images/products/{{ product.category }}/{{ product.slug }}/thumb_{{ product.images[0].rsplit('.', 1)[0] }}.jpg"
+                                 alt="{{ product.title }} - Premium action figure - ${{ '%.2f'|format(product.price) }}"
+                                 loading="lazy">
                             {% else %}
                             <div class="product-placeholder">No Image</div>
                             {% endif %}

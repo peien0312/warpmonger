@@ -219,8 +219,9 @@
             <div class="product-card">
                 <a href="/products/{{ prod.category }}/{{ prod.slug }}">
                     {% if prod.images %}
-                    <img src="/static/images/products/{{ prod.category }}/{{ prod.slug }}/{{ prod.images[0] }}"
-                         alt="{{ prod.title }} - Premium action figure - ${{ '%.2f'|format(prod.price) }}">
+                    <img src="/static/images/products/{{ prod.category }}/{{ prod.slug }}/thumb_{{ prod.images[0].rsplit('.', 1)[0] }}.jpg"
+                         alt="{{ prod.title }} - Premium action figure - ${{ '%.2f'|format(prod.price) }}"
+                         loading="lazy">
                     {% else %}
                     <div class="product-placeholder">No Image</div>
                     {% endif %}
