@@ -453,6 +453,39 @@ body {
     overflow-y: auto;
 }
 
+/* Codex Products List */
+.codex-products-list {
+    max-height: 250px;
+    overflow-y: auto;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    padding: 10px;
+    background: #f8f9fa;
+}
+
+.codex-product-item {
+    padding: 8px 10px;
+    background: white;
+    border: 1px solid #e9ecef;
+    border-radius: 4px;
+    margin-bottom: 6px;
+}
+
+.codex-product-item:last-child {
+    margin-bottom: 0;
+}
+
+.codex-product-item .product-title {
+    color: #333;
+    text-decoration: none;
+    font-size: 0.875rem;
+}
+
+.codex-product-item .product-title:hover {
+    color: #667eea;
+    text-decoration: underline;
+}
+
 /* Tag Editor */
 .tags-list {
     max-height: 300px;

@@ -1274,6 +1274,31 @@ def api_get_codex_entry(slug):
     entry = get_codex_entry(slug)
     if not entry:
         return jsonify({'error': 'Entry not found'}), 404
+
+    # If requested from admin, include products that reference this codex
+    if request.args.get('include_products') == 'true':
+        products = get_products()
+        # Search terms: title and aliases
+        search_terms = [entry['title'].lower()]
+        if entry.get('aliases'):
+            search_terms.extend([a.lower() for a in entry['aliases']])
+
+        referencing_products = []
+        for product in products:
+            description = (product.get('description') or '').lower()
+            # Check if any search term appears in description
+            for term in search_terms:
+                if term in description:
+                    referencing_products.append({
+                        'slug': product['slug'],
+                        'category': product['category'],
+                        'title': product['title']
+                    })
+                    break
+
+        entry['products'] = referencing_products
+        entry['product_count'] = len(referencing_products)
+
     return jsonify({'entry': entry})
 
 @app.route('/api/codex', methods=['POST'])

@@ -1065,13 +1065,19 @@ function showCreateCodex() {
     document.getElementById('delete-codex-btn').style.display = 'none';
     document.getElementById('codex-form').reset();
     document.getElementById('codex-slug').value = '';
+
+    // Hide products section for new entries
+    document.getElementById('codex-products-section').style.display = 'none';
+    document.getElementById('codex-products-list').innerHTML = '';
+
     showEditor('codex-editor');
     updateCodexPreview();
 }
 
 async function editCodexEntry(slug) {
     try {
-        const response = await fetch(`/api/codex/${slug}`);
+        // Fetch with products included
+        const response = await fetch(`/api/codex/${slug}?include_products=true`);
         const data = await response.json();
 
         currentCodexEntry = data.entry;
@@ -1083,12 +1089,41 @@ async function editCodexEntry(slug) {
         document.getElementById('codex-aliases').value = (currentCodexEntry.aliases || []).join('\n');
         document.getElementById('codex-content').value = currentCodexEntry.content;
 
+        // Show products using this codex
+        renderCodexProducts(currentCodexEntry.products || []);
+
         showEditor('codex-editor');
         updateCodexPreview();
     } catch (error) {
         console.error('Error loading codex entry:', error);
         alert('Failed to load codex entry');
     }
+}
+
+function renderCodexProducts(products) {
+    const section = document.getElementById('codex-products-section');
+    const container = document.getElementById('codex-products-list');
+    const countEl = document.getElementById('codex-product-count');
+
+    countEl.textContent = products.length;
+
+    if (products.length === 0) {
+        section.style.display = 'none';
+        container.innerHTML = '';
+        return;
+    }
+
+    section.style.display = 'block';
+    container.innerHTML = '';
+
+    products.forEach(product => {
+        const productItem = document.createElement('div');
+        productItem.className = 'codex-product-item';
+        productItem.innerHTML = `
+            <a href="#" class="product-title" onclick="editProduct('${product.category}', '${product.slug}'); return false;">${product.title}</a>
+        `;
+        container.appendChild(productItem);
+    });
 }
 
 async function saveCodexEntry(e) {
