@@ -1556,3 +1556,340 @@ section h2::after {
         font-size: 1.5rem;
     }
 }
+
+/* ===== Codex Styles ===== */
+
+.codex-page {
+    padding: 40px 0;
+}
+
+.codex-header {
+    margin-bottom: 40px;
+    text-align: center;
+}
+
+.codex-header h1 {
+    font-size: 2.5rem;
+    color: #fff;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    font-weight: 900;
+    text-shadow: 0 0 10px rgba(139, 0, 0, 0.6);
+    margin-bottom: 15px;
+}
+
+.codex-intro {
+    color: #888;
+    font-size: 1.1rem;
+}
+
+.codex-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 25px;
+}
+
+.codex-card {
+    background: #1a1a1a;
+    padding: 25px;
+    border-radius: 2px;
+    text-decoration: none;
+    color: inherit;
+    border: 2px solid #2a2a2a;
+    transition: all 0.3s;
+    display: block;
+}
+
+.codex-card:hover {
+    border-color: #8B0000;
+    transform: translateY(-3px);
+    box-shadow: 0 0 20px rgba(139, 0, 0, 0.4);
+}
+
+.codex-card h3 {
+    color: #C9B037;
+    font-size: 1.25rem;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.codex-excerpt {
+    color: #aaa;
+    font-size: 0.9rem;
+    line-height: 1.6;
+    margin-bottom: 15px;
+}
+
+.codex-aliases {
+    font-size: 0.8rem;
+}
+
+.alias-label {
+    color: #666;
+    margin-right: 8px;
+}
+
+.alias {
+    display: inline-block;
+    background: #2a2a2a;
+    padding: 3px 8px;
+    border-radius: 2px;
+    color: #888;
+    margin-right: 5px;
+    margin-bottom: 5px;
+}
+
+.no-entries {
+    text-align: center;
+    padding: 60px 20px;
+    color: #555;
+}
+
+/* Codex Entry Page */
+.codex-entry-page {
+    padding: 40px 0;
+}
+
+.codex-entry-layout {
+    display: grid;
+    grid-template-columns: 250px 1fr;
+    gap: 40px;
+}
+
+.codex-sidebar {
+    position: sticky;
+    top: 100px;
+    align-self: start;
+}
+
+.codex-sidebar h3 {
+    color: #C9B037;
+    font-size: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #8B0000;
+}
+
+.codex-nav-list {
+    list-style: none;
+    max-height: 60vh;
+    overflow-y: auto;
+}
+
+.codex-nav-list li {
+    margin-bottom: 5px;
+}
+
+.codex-nav-list a {
+    display: block;
+    padding: 8px 12px;
+    color: #aaa;
+    text-decoration: none;
+    font-size: 0.9rem;
+    border-radius: 2px;
+    transition: all 0.3s;
+}
+
+.codex-nav-list a:hover,
+.codex-nav-list a.active {
+    background: #8B0000;
+    color: #fff;
+}
+
+.codex-entry-content {
+    background: #1a1a1a;
+    padding: 40px;
+    border-radius: 2px;
+    border: 2px solid #2a2a2a;
+}
+
+.entry-header {
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 2px solid #8B0000;
+}
+
+.entry-header h1 {
+    font-size: 2rem;
+    color: #fff;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 15px;
+}
+
+.entry-aliases {
+    margin-top: 10px;
+}
+
+.entry-body {
+    line-height: 1.8;
+    color: #aaa;
+}
+
+.entry-body p {
+    margin-bottom: 20px;
+}
+
+.entry-footer {
+    margin-top: 40px;
+    padding-top: 20px;
+    border-top: 1px solid #2a2a2a;
+}
+
+/* Codex Term Links */
+.codex-term {
+    color: #C9B037;
+    text-decoration: none;
+    border-bottom: 1px dotted #C9B037;
+    cursor: pointer;
+    transition: all 0.3s;
+    position: relative;
+}
+
+.codex-term:hover {
+    color: #fff;
+    border-bottom-color: #fff;
+    text-shadow: 0 0 8px rgba(201, 176, 55, 0.6);
+}
+
+/* Codex Tooltip */
+.codex-tooltip {
+    position: fixed;
+    background: #1a1a1a;
+    border: 2px solid #8B0000;
+    border-radius: 2px;
+    padding: 15px 20px;
+    max-width: 350px;
+    width: max-content;
+    z-index: 10000;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.8);
+    animation: tooltipFadeIn 0.2s ease;
+    pointer-events: auto;
+}
+
+.codex-tooltip::before {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 0;
+    border: 8px solid transparent;
+}
+
+.codex-tooltip.tooltip-above::before {
+    bottom: -16px;
+    left: 20px;
+    border-top-color: #8B0000;
+}
+
+.codex-tooltip.tooltip-below::before {
+    top: -16px;
+    left: 20px;
+    border-bottom-color: #8B0000;
+}
+
+.codex-tooltip-title {
+    color: #C9B037;
+    font-size: 1rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+}
+
+.codex-tooltip-content {
+    color: #aaa;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    margin-bottom: 12px;
+}
+
+.codex-tooltip-link {
+    display: inline-block;
+    color: #8B0000;
+    font-size: 0.85rem;
+    text-decoration: none;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    transition: color 0.3s;
+}
+
+.codex-tooltip-link:hover {
+    color: #C9B037;
+}
+
+.codex-tooltip-close {
+    position: absolute;
+    top: 8px;
+    right: 10px;
+    background: none;
+    border: none;
+    color: #666;
+    font-size: 18px;
+    cursor: pointer;
+    padding: 0;
+    line-height: 1;
+    display: none;
+}
+
+/* Show close button on mobile */
+@media (max-width: 768px) {
+    .codex-tooltip-close {
+        display: block;
+    }
+}
+
+@keyframes tooltipFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(5px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Responsive Codex */
+@media (max-width: 992px) {
+    .codex-entry-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .codex-sidebar {
+        position: static;
+        border-bottom: 2px solid #8B0000;
+        padding-bottom: 20px;
+        margin-bottom: 20px;
+    }
+
+    .codex-nav-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        max-height: none;
+    }
+
+    .codex-nav-list li {
+        margin-bottom: 0;
+    }
+}
+
+@media (max-width: 768px) {
+    .codex-entry-content {
+        padding: 25px;
+    }
+
+    .codex-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .codex-tooltip {
+        max-width: calc(100vw - 40px);
+        left: 20px !important;
+        right: 20px !important;
+    }
+}

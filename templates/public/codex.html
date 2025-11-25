@@ -1,0 +1,39 @@
+{% extends "public/base.html" %}
+
+{% block title %}Codex - Lore & Background | Warpmonger{% endblock %}
+
+{% block meta_description %}Explore the rich lore and background of Warhammer 40,000, Horus Heresy, and other universes. Learn about Primarchs, Space Marine Chapters, and more.{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="codex-page">
+        <header class="codex-header">
+            <h1>Codex</h1>
+            <p class="codex-intro">Explore the rich lore and background of the universes behind our figures.</p>
+        </header>
+
+        {% if entries %}
+        <div class="codex-grid">
+            {% for entry in entries %}
+            <a href="/codex/{{ entry.slug }}" class="codex-card">
+                <h3>{{ entry.title }}</h3>
+                <p class="codex-excerpt">{{ entry.excerpt }}</p>
+                {% if entry.aliases %}
+                <div class="codex-aliases">
+                    <span class="alias-label">Also known as:</span>
+                    {% for alias in entry.aliases[:3] %}
+                    <span class="alias">{{ alias }}</span>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </a>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="no-entries">
+            <p>No codex entries yet. Check back soon!</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,54 @@
+{% extends "public/base.html" %}
+
+{% block title %}{{ entry.title }} - Codex | Warpmonger{% endblock %}
+
+{% block meta_description %}{{ entry.content[:150] }}...{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="codex-entry-page">
+        <nav class="breadcrumb">
+            <a href="/">Home</a> /
+            <a href="/codex">Codex</a> /
+            <span>{{ entry.title }}</span>
+        </nav>
+
+        <div class="codex-entry-layout">
+            <aside class="codex-sidebar">
+                <h3>Codex Entries</h3>
+                <ul class="codex-nav-list">
+                    {% for e in all_entries %}
+                    <li>
+                        <a href="/codex/{{ e.slug }}" class="{% if e.slug == entry.slug %}active{% endif %}">
+                            {{ e.title }}
+                        </a>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </aside>
+
+            <article class="codex-entry-content">
+                <header class="entry-header">
+                    <h1>{{ entry.title }}</h1>
+                    {% if entry.aliases %}
+                    <div class="entry-aliases">
+                        <span class="alias-label">Also known as:</span>
+                        {% for alias in entry.aliases %}
+                        <span class="alias">{{ alias }}</span>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </header>
+
+                <div class="entry-body">
+                    {{ entry.content_html|safe }}
+                </div>
+
+                <footer class="entry-footer">
+                    <a href="/codex" class="btn btn-secondary">Back to Codex</a>
+                </footer>
+            </article>
+        </div>
+    </div>
+</div>
+{% endblock %}

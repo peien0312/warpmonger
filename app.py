@@ -38,6 +38,7 @@ CONTENT_DIR = os.path.join(os.path.dirname(__file__), 'content')
 PRODUCTS_DIR = os.path.join(CONTENT_DIR, 'products')
 BLOG_DIR = os.path.join(CONTENT_DIR, 'blog')
 CATEGORIES_DIR = os.path.join(CONTENT_DIR, 'categories')
+CODEX_DIR = os.path.join(CONTENT_DIR, 'codex')
 DATA_DIR = os.path.join(os.path.dirname(__file__), 'data')
 USERS_FILE = os.path.join(DATA_DIR, 'users.json')
 UPLOAD_FOLDER = os.path.join(os.path.dirname(__file__), 'static', 'images')
@@ -47,6 +48,7 @@ ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'webp', 'mp4', 'mov', 'avi', 'webm'}
 os.makedirs(PRODUCTS_DIR, exist_ok=True)
 os.makedirs(BLOG_DIR, exist_ok=True)
 os.makedirs(CATEGORIES_DIR, exist_ok=True)
+os.makedirs(CODEX_DIR, exist_ok=True)
 os.makedirs(DATA_DIR, exist_ok=True)
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
@@ -513,6 +515,90 @@ def save_blog_post(slug, data):
 
     return True
 
+# ===== Codex Functions =====
+
+def get_codex_entries():
+    """Get all codex entries"""
+    entries = []
+
+    if not os.path.exists(CODEX_DIR):
+        return entries
+
+    for filename in os.listdir(CODEX_DIR):
+        if not filename.endswith('.md'):
+            continue
+
+        filepath = os.path.join(CODEX_DIR, filename)
+        with open(filepath, 'r', encoding='utf-8') as f:
+            content = f.read()
+
+        frontmatter, body = parse_frontmatter(content)
+
+        slug = filename[:-3]  # Remove .md
+        entries.append({
+            'slug': slug,
+            'title': frontmatter.get('title', slug),
+            'aliases': frontmatter.get('aliases', []),
+            'content': body,
+            'excerpt': body[:200] + '...' if len(body) > 200 else body
+        })
+
+    # Sort alphabetically by title
+    entries.sort(key=lambda x: x['title'].lower())
+    return entries
+
+def get_codex_entry(slug):
+    """Get single codex entry by slug"""
+    filepath = os.path.join(CODEX_DIR, f"{slug}.md")
+
+    if not os.path.exists(filepath):
+        return None
+
+    with open(filepath, 'r', encoding='utf-8') as f:
+        content = f.read()
+
+    frontmatter, body = parse_frontmatter(content)
+
+    return {
+        'slug': slug,
+        'title': frontmatter.get('title', slug),
+        'aliases': frontmatter.get('aliases', []),
+        'content': body
+    }
+
+def build_codex_lookup():
+    """Build a lookup dictionary for codex terms (title and aliases -> slug)"""
+    lookup = {}
+    entries = get_codex_entries()
+
+    for entry in entries:
+        # Map title to slug
+        lookup[entry['title'].lower()] = entry['slug']
+        # Map aliases to slug
+        for alias in entry.get('aliases', []):
+            lookup[alias.lower()] = entry['slug']
+
+    return lookup
+
+def process_codex_links(text):
+    """Convert [[term]] syntax to codex links"""
+    codex_lookup = build_codex_lookup()
+
+    def replace_codex_link(match):
+        term = match.group(1)
+        term_lower = term.lower()
+
+        if term_lower in codex_lookup:
+            slug = codex_lookup[term_lower]
+            return f'<a href="/codex/{slug}" class="codex-term" data-codex="{slug}">{term}</a>'
+        else:
+            # Term not found in codex, just return the text without brackets
+            return term
+
+    # Match [[anything]]
+    pattern = r'\[\[([^\]]+)\]\]'
+    return re.sub(pattern, replace_codex_link, text)
+
 # ===== Routes - Public =====
 
 @app.route('/')
@@ -589,8 +675,9 @@ def product_detail(category, slug):
     if not product:
         return "Product not found", 404
 
-    # Convert markdown to HTML
-    product['description_html'] = markdown.markdown(product['description'])
+    # Process codex links first, then convert markdown to HTML
+    description_with_codex = process_codex_links(product['description'])
+    product['description_html'] = markdown.markdown(description_with_codex)
 
     # Get category name for display
     cat_obj = get_category(category)
@@ -621,6 +708,27 @@ def blog_post_page(slug):
     post['content_html'] = markdown.markdown(post['content'])
 
     return render_template('public/blog-post.html', post=post)
+
+@app.route('/codex')
+def codex_page():
+    """Codex listing page"""
+    entries = get_codex_entries()
+    return render_template('public/codex.html', entries=entries)
+
+@app.route('/codex/<slug>')
+def codex_entry_page(slug):
+    """Codex entry detail page"""
+    entry = get_codex_entry(slug)
+    if not entry:
+        return "Codex entry not found", 404
+
+    # Convert markdown to HTML
+    entry['content_html'] = markdown.markdown(entry['content'])
+
+    # Get all entries for navigation
+    all_entries = get_codex_entries()
+
+    return render_template('public/codex-entry.html', entry=entry, all_entries=all_entries)
 
 @app.route('/sitemap.xml')
 def sitemap():
@@ -1003,6 +1111,22 @@ def api_delete_blog_post(slug):
     os.remove(filepath)
 
     return jsonify({'success': True})
+
+# ===== API Routes - Codex =====
+
+@app.route('/api/codex', methods=['GET'])
+def api_get_codex_entries():
+    """Get all codex entries"""
+    entries = get_codex_entries()
+    return jsonify({'entries': entries})
+
+@app.route('/api/codex/<slug>', methods=['GET'])
+def api_get_codex_entry(slug):
+    """Get single codex entry for tooltip"""
+    entry = get_codex_entry(slug)
+    if not entry:
+        return jsonify({'error': 'Entry not found'}), 404
+    return jsonify({'entry': entry})
 
 # ===== API Routes - Images =====
 
