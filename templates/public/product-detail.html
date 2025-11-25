@@ -198,7 +198,7 @@
             <div class="product-tags">
                 <strong>Tags:</strong>
                 {% for tag in product.tags %}
-                <span class="tag">{{ tag }}</span>
+                <a href="/products?tag={{ tag|urlencode }}" class="tag tag-link">{{ tag }}</a>
                 {% endfor %}
             </div>
             {% endif %}

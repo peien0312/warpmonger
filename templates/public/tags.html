@@ -1,0 +1,29 @@
+{% extends "public/base.html" %}
+
+{% block title %}Browse by Tags | Warpmonger{% endblock %}
+
+{% block meta_description %}Browse our collection by tags. Find action figures and collectibles organized by series, scale, faction, and more.{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="tags-page">
+        <div class="tags-header">
+            <h1>Browse by Tags</h1>
+            <p>Click a tag to see all products with that tag</p>
+        </div>
+
+        <div class="tag-cloud">
+            {% for tag in tags %}
+            <a href="/products?tag={{ tag.name|urlencode }}" class="tag-cloud-item" data-count="{{ tag.count }}">
+                {{ tag.name }}
+                <span class="tag-count">({{ tag.count }})</span>
+            </a>
+            {% endfor %}
+        </div>
+
+        {% if not tags %}
+        <p class="no-tags">No tags found.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

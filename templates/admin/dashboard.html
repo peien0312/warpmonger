@@ -17,37 +17,104 @@
 
             <nav class="sidebar-nav">
                 <div class="nav-section">
-                    <h3>Categories</h3>
-                    <button class="btn btn-primary btn-sm" onclick="showCreateCategory()">+ New Category</button>
-                    <div id="category-list" class="category-list"></div>
-                </div>
-
-                <div class="nav-section">
-                    <h3>Products</h3>
-                    <button class="btn btn-primary btn-sm" onclick="showCreateProduct()">+ New Product</button>
-                    <div class="admin-search-container">
-                        <input
-                            type="text"
-                            id="admin-search-input"
-                            class="admin-search-input"
-                            placeholder="Search products..."
-                            onkeyup="filterProducts(this.value)"
-                        >
-                        <span class="search-clear" onclick="clearAdminSearch()" style="display: none;">&times;</span>
+                    <h3 class="nav-section-header collapsed" onclick="toggleNavSection(this)">
+                        <span class="nav-section-toggle"></span>
+                        Categories
+                    </h3>
+                    <div class="nav-section-content" style="display: none;">
+                        <button class="btn btn-primary btn-sm" onclick="showCreateCategory()">+ New Category</button>
+                        <div class="admin-search-container">
+                            <input
+                                type="text"
+                                id="category-search-input"
+                                class="admin-search-input"
+                                placeholder="Search categories..."
+                                onkeyup="filterCategoryEntities(this.value)"
+                            >
+                        </div>
+                        <div id="category-list" class="category-list sidebar-list"></div>
                     </div>
-                    <div id="categories-list" class="categories-list"></div>
                 </div>
 
                 <div class="nav-section">
-                    <h3>Blog</h3>
-                    <button class="btn btn-primary btn-sm" onclick="showCreateBlog()">+ New Post</button>
-                    <div id="blog-list" class="blog-list"></div>
+                    <h3 class="nav-section-header collapsed" onclick="toggleNavSection(this)">
+                        <span class="nav-section-toggle"></span>
+                        Products
+                    </h3>
+                    <div class="nav-section-content" style="display: none;">
+                        <button class="btn btn-primary btn-sm" onclick="showCreateProduct()">+ New Product</button>
+                        <div class="admin-search-container">
+                            <input
+                                type="text"
+                                id="admin-search-input"
+                                class="admin-search-input"
+                                placeholder="Search products..."
+                                onkeyup="filterProducts(this.value)"
+                            >
+                            <span class="search-clear" onclick="clearAdminSearch()" style="display: none;">&times;</span>
+                        </div>
+                        <div id="categories-list" class="categories-list sidebar-list"></div>
+                    </div>
                 </div>
 
                 <div class="nav-section">
-                    <h3>Codex</h3>
-                    <button class="btn btn-primary btn-sm" onclick="showCreateCodex()">+ New Entry</button>
-                    <div id="codex-list" class="codex-list"></div>
+                    <h3 class="nav-section-header collapsed" onclick="toggleNavSection(this)">
+                        <span class="nav-section-toggle"></span>
+                        Blog
+                    </h3>
+                    <div class="nav-section-content" style="display: none;">
+                        <button class="btn btn-primary btn-sm" onclick="showCreateBlog()">+ New Post</button>
+                        <div class="admin-search-container">
+                            <input
+                                type="text"
+                                id="blog-search-input"
+                                class="admin-search-input"
+                                placeholder="Search posts..."
+                                onkeyup="filterBlogPosts(this.value)"
+                            >
+                        </div>
+                        <div id="blog-list" class="blog-list sidebar-list"></div>
+                    </div>
+                </div>
+
+                <div class="nav-section">
+                    <h3 class="nav-section-header collapsed" onclick="toggleNavSection(this)">
+                        <span class="nav-section-toggle"></span>
+                        Codex
+                    </h3>
+                    <div class="nav-section-content" style="display: none;">
+                        <button class="btn btn-primary btn-sm" onclick="showCreateCodex()">+ New Entry</button>
+                        <div class="admin-search-container">
+                            <input
+                                type="text"
+                                id="codex-search-input"
+                                class="admin-search-input"
+                                placeholder="Search codex..."
+                                onkeyup="filterCodexEntries(this.value)"
+                            >
+                        </div>
+                        <div id="codex-list" class="codex-list sidebar-list"></div>
+                    </div>
+                </div>
+
+                <div class="nav-section">
+                    <h3 class="nav-section-header collapsed" onclick="toggleNavSection(this)">
+                        <span class="nav-section-toggle"></span>
+                        Tags
+                    </h3>
+                    <div class="nav-section-content" style="display: none;">
+                        <button class="btn btn-primary btn-sm" onclick="showCreateTag()">+ New Tag</button>
+                        <div class="admin-search-container">
+                            <input
+                                type="text"
+                                id="tag-search-input"
+                                class="admin-search-input"
+                                placeholder="Search tags..."
+                                onkeyup="filterTags(this.value)"
+                            >
+                        </div>
+                        <div id="tags-list" class="tags-list sidebar-list"></div>
+                    </div>
                 </div>
 
                 <div class="nav-section">
@@ -363,6 +430,40 @@
                             <button type="submit" class="btn btn-primary">Save Entry</button>
                             <button type="button" class="btn btn-secondary" onclick="closeEditor()">Cancel</button>
                             <button type="button" class="btn btn-danger" onclick="deleteCodexEntry()" id="delete-codex-btn" style="display: none;">Delete</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Tag Editor -->
+                <div id="tag-editor" class="editor" style="display: none;">
+                    <h2 id="tag-editor-title">Edit Tag</h2>
+                    <form id="tag-form">
+                        <input type="hidden" id="tag-original-name">
+
+                        <div class="form-group">
+                            <label for="tag-name">Tag Name *</label>
+                            <input type="text" id="tag-name" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Products with this tag (<span id="tag-product-count">0</span>)</label>
+                            <div id="tag-products-list" class="tag-products-list">
+                                <!-- Products will be listed here -->
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Add Product to Tag</label>
+                            <div class="add-product-to-tag-container">
+                                <input type="text" id="add-product-search" placeholder="Search product to add..." autocomplete="off">
+                                <div id="add-product-autocomplete" class="admin-autocomplete-results"></div>
+                            </div>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary">Save Tag</button>
+                            <button type="button" class="btn btn-secondary" onclick="closeEditor()">Cancel</button>
+                            <button type="button" class="btn btn-danger" onclick="deleteTag()" id="delete-tag-btn">Delete Tag</button>
                         </div>
                     </form>
                 </div>

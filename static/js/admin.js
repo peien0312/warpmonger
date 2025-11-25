@@ -8,6 +8,10 @@ let uploadedImages = [];
 let allProducts = []; // Store all products for filtering
 let allCategories = []; // Store all categories
 let allCodexEntries = []; // Store all codex entries
+let allTags = []; // Store all tags
+let currentTag = null; // Current tag being edited
+let newTagProducts = []; // Temporary storage for products when creating a new tag
+let isNewTag = false; // Flag to track if we're creating a new tag
 
 // ===== Initialization =====
 
@@ -16,10 +20,26 @@ document.addEventListener('DOMContentLoaded', () => {
     loadCategories();
     loadBlogPosts();
     loadCodexEntries();
+    loadTags();
     setupImageUpload();
     setupForms();
     setupPreview();
 });
+
+// ===== Sidebar Section Toggle =====
+
+function toggleNavSection(header) {
+    const content = header.nextElementSibling;
+    const isCollapsed = header.classList.contains('collapsed');
+
+    if (isCollapsed) {
+        header.classList.remove('collapsed');
+        content.style.display = 'block';
+    } else {
+        header.classList.add('collapsed');
+        content.style.display = 'none';
+    }
+}
 
 // ===== Load Content =====
 
@@ -316,6 +336,7 @@ function showEditor(editorId) {
     document.getElementById('product-editor').style.display = 'none';
     document.getElementById('blog-editor').style.display = 'none';
     document.getElementById('codex-editor').style.display = 'none';
+    document.getElementById('tag-editor').style.display = 'none';
 
     // Show the requested editor
     document.getElementById(editorId).style.display = 'block';
@@ -326,6 +347,7 @@ function hideEditor() {
     document.getElementById('product-editor').style.display = 'none';
     document.getElementById('blog-editor').style.display = 'none';
     document.getElementById('codex-editor').style.display = 'none';
+    document.getElementById('tag-editor').style.display = 'none';
     document.getElementById('welcome-screen').style.display = 'block';
     document.getElementById('preview-container').innerHTML = '<p class="preview-placeholder">Preview will appear here...</p>';
 }
@@ -1157,5 +1179,488 @@ document.addEventListener('DOMContentLoaded', () => {
     const codexContent = document.getElementById('codex-content');
     if (codexContent) {
         codexContent.addEventListener('input', updateCodexPreview);
+    }
+});
+
+// ===== Tag Management =====
+
+async function loadTags() {
+    try {
+        const response = await fetch('/api/tags');
+        const data = await response.json();
+
+        allTags = data.tags;
+        renderTagsList(allTags);
+    } catch (error) {
+        console.error('Error loading tags:', error);
+    }
+}
+
+function renderTagsList(tags) {
+    const container = document.getElementById('tags-list');
+    container.innerHTML = '';
+
+    tags.forEach(tag => {
+        const tagLink = document.createElement('a');
+        tagLink.className = 'tag-link';
+        tagLink.innerHTML = `${tag.name} <span class="tag-count">(${tag.count})</span>`;
+        tagLink.href = '#';
+        tagLink.onclick = (e) => {
+            e.preventDefault();
+            editTag(tag.name);
+        };
+        container.appendChild(tagLink);
+    });
+}
+
+function filterTags(query) {
+    const filtered = allTags.filter(tag =>
+        tag.name.toLowerCase().includes(query.toLowerCase())
+    );
+    renderTagsList(filtered);
+}
+
+function filterCategoryEntities(query) {
+    const filtered = allCategories.filter(category =>
+        category.name.toLowerCase().includes(query.toLowerCase())
+    );
+    renderCategoryList(filtered);
+}
+
+function filterBlogPosts(query) {
+    // Get blog posts from DOM and filter
+    const blogList = document.getElementById('blog-list');
+    const links = blogList.querySelectorAll('.blog-link');
+    const searchLower = query.toLowerCase();
+
+    links.forEach(link => {
+        const title = link.textContent.toLowerCase();
+        if (title.includes(searchLower) || !query) {
+            link.style.display = 'block';
+        } else {
+            link.style.display = 'none';
+        }
+    });
+}
+
+function filterCodexEntries(query) {
+    const filtered = allCodexEntries.filter(entry =>
+        entry.title.toLowerCase().includes(query.toLowerCase())
+    );
+    renderCodexList(filtered);
+}
+
+function showCreateTag() {
+    currentTag = null;
+    isNewTag = true;
+    newTagProducts = [];
+
+    document.getElementById('tag-editor-title').textContent = 'Create New Tag';
+    document.getElementById('tag-original-name').value = '';
+    document.getElementById('tag-name').value = '';
+    document.getElementById('tag-product-count').textContent = '0';
+    document.getElementById('delete-tag-btn').style.display = 'none';
+
+    // Clear products list
+    renderTagProducts([]);
+
+    showEditor('tag-editor');
+}
+
+async function editTag(tagName) {
+    // Find the tag in allTags
+    const tag = allTags.find(t => t.name === tagName);
+    if (!tag) return;
+
+    currentTag = tag;
+    isNewTag = false;
+    newTagProducts = [];
+
+    document.getElementById('tag-editor-title').textContent = 'Edit Tag';
+    document.getElementById('tag-original-name').value = tagName;
+    document.getElementById('tag-name').value = tagName;
+    document.getElementById('tag-product-count').textContent = tag.count;
+    document.getElementById('delete-tag-btn').style.display = 'inline-block';
+
+    // Render products list
+    renderTagProducts(tag.products);
+
+    showEditor('tag-editor');
+}
+
+function renderTagProducts(products) {
+    const container = document.getElementById('tag-products-list');
+    container.innerHTML = '';
+
+    // For new tags, use newTagProducts; for existing tags, use products
+    const displayProducts = isNewTag ? newTagProducts : products;
+
+    if (displayProducts.length === 0) {
+        container.innerHTML = '<p style="color: #666; font-style: italic;">No products with this tag</p>';
+        return;
+    }
+
+    displayProducts.forEach(product => {
+        const productItem = document.createElement('div');
+        productItem.className = 'tag-product-item';
+        productItem.innerHTML = `
+            <span class="product-title">${product.title}</span>
+            <button type="button" class="btn btn-sm btn-danger" onclick="removeProductFromTag('${product.category}', '${product.slug}')">Remove</button>
+        `;
+        container.appendChild(productItem);
+    });
+
+    // Update count
+    document.getElementById('tag-product-count').textContent = displayProducts.length;
+}
+
+// ===== Add Product to Tag Autocomplete =====
+
+let addProductDebounceTimer = null;
+let addProductCurrentFocus = -1;
+
+function setupAddProductAutocomplete() {
+    const searchInput = document.getElementById('add-product-search');
+    const autocompleteResults = document.getElementById('add-product-autocomplete');
+
+    if (!searchInput || !autocompleteResults) return;
+
+    // Input event with debounce
+    searchInput.addEventListener('input', function() {
+        clearTimeout(addProductDebounceTimer);
+        const query = this.value.trim();
+
+        if (query.length < 1) {
+            hideAddProductAutocomplete();
+            return;
+        }
+
+        addProductDebounceTimer = setTimeout(() => {
+            showAddProductSuggestions(query);
+        }, 200);
+    });
+
+    // Keyboard navigation
+    searchInput.addEventListener('keydown', function(e) {
+        const items = autocompleteResults.querySelectorAll('.admin-autocomplete-item');
+
+        if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            addProductCurrentFocus++;
+            if (addProductCurrentFocus >= items.length) addProductCurrentFocus = 0;
+            updateAddProductActiveClass(items);
+        } else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            addProductCurrentFocus--;
+            if (addProductCurrentFocus < 0) addProductCurrentFocus = items.length - 1;
+            updateAddProductActiveClass(items);
+        } else if (e.key === 'Enter') {
+            e.preventDefault();
+            if (addProductCurrentFocus > -1 && items.length > 0) {
+                items[addProductCurrentFocus].click();
+            }
+        } else if (e.key === 'Escape') {
+            hideAddProductAutocomplete();
+        }
+    });
+
+    // Close on click outside
+    document.addEventListener('click', function(e) {
+        if (!searchInput.contains(e.target) && !autocompleteResults.contains(e.target)) {
+            hideAddProductAutocomplete();
+        }
+    });
+}
+
+function showAddProductSuggestions(query) {
+    const autocompleteResults = document.getElementById('add-product-autocomplete');
+    const queryLower = query.toLowerCase();
+
+    // Get products already in this tag (for existing tags or new tags)
+    let tagProducts = [];
+    if (isNewTag) {
+        tagProducts = newTagProducts.map(p => `${p.category}/${p.slug}`);
+    } else if (currentTag) {
+        tagProducts = currentTag.products.map(p => `${p.category}/${p.slug}`);
+    }
+
+    // Filter products
+    const filtered = allProducts.filter(product => {
+        // Exclude products already in tag
+        if (tagProducts.includes(`${product.category}/${product.slug}`)) {
+            return false;
+        }
+
+        const titleMatch = product.title && product.title.toLowerCase().includes(queryLower);
+        const cnNameMatch = product.cn_name && product.cn_name.toLowerCase().includes(queryLower);
+        const zhtwNameMatch = product.zhtw_name && product.zhtw_name.toLowerCase().includes(queryLower);
+        const skuMatch = product.sku && String(product.sku).toLowerCase().includes(queryLower);
+        const idMatch = product.id && String(product.id).toLowerCase().includes(queryLower);
+
+        return titleMatch || cnNameMatch || zhtwNameMatch || skuMatch || idMatch;
+    }).slice(0, 10); // Limit to 10 results
+
+    if (filtered.length === 0) {
+        autocompleteResults.innerHTML = '<div class="admin-autocomplete-empty">No products found</div>';
+        autocompleteResults.style.display = 'block';
+        return;
+    }
+
+    let html = '';
+    filtered.forEach((product, index) => {
+        const imagePath = product.images && product.images.length > 0
+            ? `/static/images/products/${product.category}/${product.slug}/${product.images[0]}`
+            : '';
+
+        html += `
+            <div class="admin-autocomplete-item" data-index="${index}" data-category="${product.category}" data-slug="${product.slug}">
+                ${imagePath ? `<img src="${imagePath}" alt="" class="admin-autocomplete-image" onerror="this.style.display='none'">` : '<div class="admin-autocomplete-image-placeholder"></div>'}
+                <div class="admin-autocomplete-info">
+                    <div class="admin-autocomplete-title">${highlightMatch(product.title, query)}</div>
+                    ${product.cn_name || product.zhtw_name ? `<div class="admin-autocomplete-secondary">${product.cn_name || ''} ${product.zhtw_name && product.zhtw_name !== product.cn_name ? product.zhtw_name : ''}</div>` : ''}
+                </div>
+            </div>
+        `;
+    });
+
+    autocompleteResults.innerHTML = html;
+    autocompleteResults.style.display = 'block';
+    addProductCurrentFocus = -1;
+
+    // Add click handlers
+    const items = autocompleteResults.querySelectorAll('.admin-autocomplete-item');
+    items.forEach(item => {
+        item.addEventListener('click', function() {
+            const category = this.getAttribute('data-category');
+            const slug = this.getAttribute('data-slug');
+            addProductToTagBySlug(category, slug);
+        });
+
+        item.addEventListener('mouseenter', function() {
+            items.forEach(i => i.classList.remove('active'));
+            this.classList.add('active');
+            addProductCurrentFocus = parseInt(this.getAttribute('data-index'));
+        });
+    });
+}
+
+function highlightMatch(text, query) {
+    if (!text || !query) return text || '';
+    const regex = new RegExp(`(${query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+    return text.replace(regex, '<strong>$1</strong>');
+}
+
+function updateAddProductActiveClass(items) {
+    items.forEach(item => item.classList.remove('active'));
+    if (addProductCurrentFocus >= 0 && addProductCurrentFocus < items.length) {
+        items[addProductCurrentFocus].classList.add('active');
+    }
+}
+
+function hideAddProductAutocomplete() {
+    const autocompleteResults = document.getElementById('add-product-autocomplete');
+    if (autocompleteResults) {
+        autocompleteResults.style.display = 'none';
+        autocompleteResults.innerHTML = '';
+    }
+    addProductCurrentFocus = -1;
+}
+
+async function addProductToTagBySlug(category, slug) {
+    const searchInput = document.getElementById('add-product-search');
+
+    // For new tags, add to temporary array
+    if (isNewTag) {
+        const product = allProducts.find(p => p.category === category && p.slug === slug);
+        if (product) {
+            newTagProducts.push({
+                category: category,
+                slug: slug,
+                title: product.title
+            });
+            searchInput.value = '';
+            hideAddProductAutocomplete();
+            renderTagProducts([]);
+        }
+        return;
+    }
+
+    // For existing tags, use API
+    const tagName = document.getElementById('tag-original-name').value;
+
+    try {
+        const response = await fetch(`/api/tags/${encodeURIComponent(tagName)}/products`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ category, slug })
+        });
+
+        if (response.ok) {
+            searchInput.value = '';
+            hideAddProductAutocomplete();
+            // Reload tags and refresh the editor
+            await loadTags();
+            await loadCategories();
+            editTag(tagName);
+        } else {
+            const data = await response.json();
+            alert(data.error || 'Failed to add product');
+        }
+    } catch (error) {
+        console.error('Error adding product to tag:', error);
+        alert('Failed to add product to tag');
+    }
+}
+
+// Initialize autocomplete on DOMContentLoaded
+document.addEventListener('DOMContentLoaded', setupAddProductAutocomplete);
+
+async function removeProductFromTag(category, slug) {
+    // For new tags, remove from temporary array
+    if (isNewTag) {
+        newTagProducts = newTagProducts.filter(p => !(p.category === category && p.slug === slug));
+        renderTagProducts([]);
+        return;
+    }
+
+    // For existing tags, use API
+    const tagName = document.getElementById('tag-original-name').value;
+
+    if (!confirm(`Remove this product from tag "${tagName}"?`)) {
+        return;
+    }
+
+    try {
+        const response = await fetch(`/api/tags/${encodeURIComponent(tagName)}/products/${category}/${slug}`, {
+            method: 'DELETE'
+        });
+
+        if (response.ok) {
+            // Reload tags and refresh the editor
+            await loadTags();
+            await loadCategories();
+            editTag(tagName);
+        } else {
+            const data = await response.json();
+            alert(data.error || 'Failed to remove product');
+        }
+    } catch (error) {
+        console.error('Error removing product from tag:', error);
+        alert('Failed to remove product from tag');
+    }
+}
+
+async function saveTag(e) {
+    e.preventDefault();
+
+    const originalName = document.getElementById('tag-original-name').value;
+    const newName = document.getElementById('tag-name').value.trim();
+
+    if (!newName) {
+        alert('Tag name is required');
+        return;
+    }
+
+    // Creating a new tag
+    if (isNewTag) {
+        if (newTagProducts.length === 0) {
+            alert('Please add at least one product to the tag');
+            return;
+        }
+
+        // Check if tag already exists
+        if (allTags.some(t => t.name.toLowerCase() === newName.toLowerCase())) {
+            alert('A tag with this name already exists');
+            return;
+        }
+
+        try {
+            // Add tag to each product
+            let successCount = 0;
+            for (const product of newTagProducts) {
+                const response = await fetch(`/api/tags/${encodeURIComponent(newName)}/products`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ category: product.category, slug: product.slug })
+                });
+                if (response.ok) {
+                    successCount++;
+                }
+            }
+
+            alert(`Tag "${newName}" created and added to ${successCount} product(s).`);
+            isNewTag = false;
+            newTagProducts = [];
+            await loadTags();
+            await loadCategories();
+            closeEditor();
+        } catch (error) {
+            console.error('Error creating tag:', error);
+            alert('Failed to create tag');
+        }
+        return;
+    }
+
+    // Editing existing tag - if name changed, rename the tag
+    if (newName !== originalName) {
+        try {
+            const response = await fetch(`/api/tags/${encodeURIComponent(originalName)}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ new_name: newName })
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                alert(`Tag renamed. Updated ${data.updated_count} products.`);
+                await loadTags();
+                await loadCategories();
+                closeEditor();
+            } else {
+                alert(data.error || 'Failed to rename tag');
+            }
+        } catch (error) {
+            console.error('Error renaming tag:', error);
+            alert('Failed to rename tag');
+        }
+    } else {
+        closeEditor();
+    }
+}
+
+async function deleteTag() {
+    const tagName = document.getElementById('tag-original-name').value;
+
+    if (!confirm(`Are you sure you want to delete tag "${tagName}"? This will remove it from all products.`)) {
+        return;
+    }
+
+    try {
+        const response = await fetch(`/api/tags/${encodeURIComponent(tagName)}`, {
+            method: 'DELETE'
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            alert(`Tag deleted. Removed from ${data.updated_count} products.`);
+            await loadTags();
+            await loadCategories();
+            closeEditor();
+        } else {
+            alert(data.error || 'Failed to delete tag');
+        }
+    } catch (error) {
+        console.error('Error deleting tag:', error);
+        alert('Failed to delete tag');
+    }
+}
+
+// Setup tag form submission
+document.addEventListener('DOMContentLoaded', () => {
+    const tagForm = document.getElementById('tag-form');
+    if (tagForm) {
+        tagForm.addEventListener('submit', saveTag);
     }
 });

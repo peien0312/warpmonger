@@ -65,6 +65,11 @@
                 {% if products|length > 0 %}
                 <a href="/products" class="clear-search">Clear search</a>
                 {% endif %}
+                {% elif current_tag %}
+                <h1>Tag: {{ current_tag }}</h1>
+                <p>{{ products|length }} product{% if products|length != 1 %}s{% endif %} found</p>
+                <a href="/products" class="clear-search">Clear filter</a>
+                <a href="/tags" class="clear-search" style="margin-left: 1rem;">Browse all tags</a>
                 {% else %}
                 <h1>{% if current_category_name %}{{ current_category_name }}{% else %}All Products{% endif %}</h1>
                 <p>{{ products|length }} product{% if products|length != 1 %}s{% endif %} found</p>

@@ -9,8 +9,45 @@ from PIL import Image
 import markdown
 from flask import Flask, render_template, request, jsonify, session, redirect, url_for, send_from_directory
 from dotenv import load_dotenv
+import time
+from threading import Lock
 
 load_dotenv()
+
+# === In-Memory Cache ===
+class SimpleCache:
+    """Simple TTL-based cache for product/category data"""
+    def __init__(self, ttl=60):
+        self.ttl = ttl
+        self._data = {}
+        self._timestamps = {}
+        self._lock = Lock()
+
+    def get(self, key):
+        with self._lock:
+            if key not in self._data:
+                return None
+            if time.time() - self._timestamps[key] > self.ttl:
+                del self._data[key]
+                del self._timestamps[key]
+                return None
+            return self._data[key]
+
+    def set(self, key, value):
+        with self._lock:
+            self._data[key] = value
+            self._timestamps[key] = time.time()
+
+    def invalidate(self, key=None):
+        with self._lock:
+            if key:
+                self._data.pop(key, None)
+                self._timestamps.pop(key, None)
+            else:
+                self._data.clear()
+                self._timestamps.clear()
+
+cache = SimpleCache(ttl=60)  # 60 second TTL
 
 app = Flask(__name__)
 app.secret_key = os.getenv('SECRET_KEY', 'dev-secret-key-change-in-production')
@@ -164,6 +201,11 @@ def create_frontmatter(data, body):
 
 def get_categories():
     """Get list of product categories from categories directory"""
+    # Check cache first
+    cached = cache.get('categories')
+    if cached is not None:
+        return cached
+
     categories = []
 
     if not os.path.exists(CATEGORIES_DIR):
@@ -194,6 +236,8 @@ def get_categories():
     # Sort by order_weight (descending), then by name (ascending)
     categories.sort(key=lambda c: (-c['order_weight'], c['name'].lower()))
 
+    # Cache before returning
+    cache.set('categories', categories)
     return categories
 
 def get_category(slug):
@@ -239,6 +283,8 @@ def save_category(slug, data):
     with open(category_file, 'w', encoding='utf-8') as f:
         f.write(content)
 
+    # Invalidate cache
+    cache.invalidate()
     return True
 
 def delete_category(slug):
@@ -248,11 +294,37 @@ def delete_category(slug):
 
     if os.path.exists(category_path):
         shutil.rmtree(category_path)
+        # Invalidate cache
+        cache.invalidate()
         return True
     return False
 
 def get_products(category=None, search=None):
     """Get all products or products in a category, optionally filtered by search query"""
+    # Check cache first (only for non-search queries, search will filter cached results)
+    cache_key = f"products:{category or 'all'}"
+
+    if not search:
+        cached = cache.get(cache_key)
+        if cached is not None:
+            return cached
+    else:
+        # For search, get cached full/category list first, then filter
+        cached = cache.get(cache_key)
+        if cached is not None:
+            # Filter cached products by search
+            search_lower = search.lower()
+            filtered = []
+            for product in cached:
+                title_match = search_lower in product['title'].lower()
+                cn_name_match = search_lower in product['cn_name'].lower() if product['cn_name'] else False
+                zhtw_name_match = search_lower in product['zhtw_name'].lower() if product['zhtw_name'] else False
+                id_match = search_lower in str(product['id']).lower() if product['id'] else False
+                sku_match = search_lower in str(product['sku']).lower() if product['sku'] else False
+                if title_match or cn_name_match or zhtw_name_match or id_match or sku_match:
+                    filtered.append(product)
+            return filtered
+
     products = []
 
     # Get categories (either all or just the specified one)
@@ -326,8 +398,10 @@ def get_products(category=None, search=None):
                 title_match = search_lower in product['title'].lower()
                 cn_name_match = search_lower in product['cn_name'].lower() if product['cn_name'] else False
                 zhtw_name_match = search_lower in product['zhtw_name'].lower() if product['zhtw_name'] else False
+                id_match = search_lower in str(product['id']).lower() if product['id'] else False
+                sku_match = search_lower in str(product['sku']).lower() if product['sku'] else False
 
-                if not (title_match or cn_name_match or zhtw_name_match):
+                if not (title_match or cn_name_match or zhtw_name_match or id_match or sku_match):
                     continue
 
             products.append(product)
@@ -335,7 +409,36 @@ def get_products(category=None, search=None):
     # Sort products: first by order_weight (descending), then by title (ascending)
     products.sort(key=lambda p: (-p['order_weight'], p['title'].lower()))
 
+    # Cache before returning (only for non-search queries)
+    if not search:
+        cache.set(cache_key, products)
+
     return products
+
+def get_all_tags():
+    """Get all unique tags with product counts"""
+    # Check cache first
+    cached = cache.get('all_tags')
+    if cached is not None:
+        return cached
+
+    products = get_products()
+    tag_counts = {}
+
+    for product in products:
+        for tag in product.get('tags', []):
+            if tag in tag_counts:
+                tag_counts[tag] += 1
+            else:
+                tag_counts[tag] = 1
+
+    # Convert to list of dicts and sort by count (descending), then name
+    tags = [{'name': name, 'count': count} for name, count in tag_counts.items()]
+    tags.sort(key=lambda t: (-t['count'], t['name'].lower()))
+
+    # Cache before returning
+    cache.set('all_tags', tags)
+    return tags
 
 def get_product(category, slug):
     """Get single product by category slug and product slug"""
@@ -440,6 +543,8 @@ def save_product(category, slug, data):
             for tag in data['tags']:
                 f.write(f"{tag}\n")
 
+    # Invalidate cache
+    cache.invalidate()
     return True
 
 # ===== Blog Functions =====
@@ -519,6 +624,11 @@ def save_blog_post(slug, data):
 
 def get_codex_entries():
     """Get all codex entries"""
+    # Check cache first
+    cached = cache.get('codex_entries')
+    if cached is not None:
+        return cached
+
     entries = []
 
     if not os.path.exists(CODEX_DIR):
@@ -545,6 +655,9 @@ def get_codex_entries():
 
     # Sort alphabetically by title
     entries.sort(key=lambda x: x['title'].lower())
+
+    # Cache before returning
+    cache.set('codex_entries', entries)
     return entries
 
 def get_codex_entry(slug):
@@ -581,10 +694,17 @@ def save_codex_entry(slug, data):
     with open(filepath, 'w', encoding='utf-8') as f:
         f.write(content)
 
+    # Invalidate cache
+    cache.invalidate()
     return True
 
 def build_codex_lookup():
     """Build a lookup dictionary for codex terms (title and aliases -> slug)"""
+    # Check cache first
+    cached = cache.get('codex_lookup')
+    if cached is not None:
+        return cached
+
     lookup = {}
     entries = get_codex_entries()
 
@@ -595,6 +715,8 @@ def build_codex_lookup():
         for alias in entry.get('aliases', []):
             lookup[alias.lower()] = entry['slug']
 
+    # Cache before returning
+    cache.set('codex_lookup', lookup)
     return lookup
 
 def process_codex_links(text):
@@ -636,6 +758,12 @@ def home():
                          on_sale=on_sale,
                          posts=posts,
                          categories=categories)
+
+@app.route('/tags')
+def tags_page():
+    """Tag cloud page"""
+    tags = get_all_tags()
+    return render_template('public/tags.html', tags=tags)
 
 @app.route('/products')
 def products_page():
@@ -680,6 +808,7 @@ def products_page():
                          categories=categories,
                          current_category=category,
                          current_category_name=current_category_name,
+                         current_tag=tag,
                          current_search=search,
                          show_pre_order=show_pre_order,
                          show_on_sale=show_on_sale,
@@ -937,6 +1066,8 @@ def api_delete_product(category, slug):
     import shutil
     shutil.rmtree(product_path)
 
+    # Invalidate cache
+    cache.invalidate()
     return jsonify({'success': True})
 
 @app.route('/api/categories', methods=['GET'])
@@ -1188,6 +1319,165 @@ def api_delete_codex_entry(slug):
         return jsonify({'error': 'Entry not found'}), 404
 
     os.remove(filepath)
+
+    # Invalidate cache
+    cache.invalidate()
+    return jsonify({'success': True})
+
+# ===== API Routes - Tags =====
+
+@app.route('/api/tags', methods=['GET'])
+@login_required
+def api_get_tags():
+    """Get all tags with their products"""
+    tags = get_all_tags()
+    products = get_products()
+
+    # Build tag -> products mapping
+    tag_products = {}
+    for tag in tags:
+        tag_name = tag['name']
+        tag_products[tag_name] = []
+        for product in products:
+            if tag_name in product.get('tags', []):
+                tag_products[tag_name].append({
+                    'slug': product['slug'],
+                    'category': product['category'],
+                    'title': product['title']
+                })
+
+    result = []
+    for tag in tags:
+        result.append({
+            'name': tag['name'],
+            'count': tag['count'],
+            'products': tag_products[tag['name']]
+        })
+
+    return jsonify({'tags': result})
+
+@app.route('/api/tags/<path:tag_name>', methods=['PUT'])
+@login_required
+def api_rename_tag(tag_name):
+    """Rename a tag across all products"""
+    data = request.get_json()
+    new_name = data.get('new_name', '').strip()
+
+    if not new_name:
+        return jsonify({'error': 'New tag name is required'}), 400
+
+    if new_name == tag_name:
+        return jsonify({'error': 'New name is the same as old name'}), 400
+
+    products = get_products()
+    updated_count = 0
+
+    for product in products:
+        if tag_name in product.get('tags', []):
+            # Read current tags
+            tags_file = os.path.join(PRODUCTS_DIR, product['category'], product['slug'], 'tags.txt')
+            if os.path.exists(tags_file):
+                with open(tags_file, 'r', encoding='utf-8') as f:
+                    tags = [line.strip() for line in f if line.strip()]
+
+                # Replace the tag
+                new_tags = [new_name if t == tag_name else t for t in tags]
+
+                # Write back
+                with open(tags_file, 'w', encoding='utf-8') as f:
+                    for t in new_tags:
+                        f.write(f"{t}\n")
+
+                updated_count += 1
+
+    # Invalidate cache
+    cache.invalidate()
+
+    return jsonify({'success': True, 'updated_count': updated_count})
+
+@app.route('/api/tags/<path:tag_name>', methods=['DELETE'])
+@login_required
+def api_delete_tag(tag_name):
+    """Remove a tag from all products"""
+    products = get_products()
+    updated_count = 0
+
+    for product in products:
+        if tag_name in product.get('tags', []):
+            # Read current tags
+            tags_file = os.path.join(PRODUCTS_DIR, product['category'], product['slug'], 'tags.txt')
+            if os.path.exists(tags_file):
+                with open(tags_file, 'r', encoding='utf-8') as f:
+                    tags = [line.strip() for line in f if line.strip()]
+
+                # Remove the tag
+                new_tags = [t for t in tags if t != tag_name]
+
+                # Write back
+                with open(tags_file, 'w', encoding='utf-8') as f:
+                    for t in new_tags:
+                        f.write(f"{t}\n")
+
+                updated_count += 1
+
+    # Invalidate cache
+    cache.invalidate()
+
+    return jsonify({'success': True, 'updated_count': updated_count})
+
+@app.route('/api/tags/<path:tag_name>/products', methods=['POST'])
+@login_required
+def api_add_product_to_tag(tag_name):
+    """Add a product to a tag"""
+    data = request.get_json()
+    category = data.get('category')
+    slug = data.get('slug')
+
+    if not category or not slug:
+        return jsonify({'error': 'Category and slug are required'}), 400
+
+    tags_file = os.path.join(PRODUCTS_DIR, category, slug, 'tags.txt')
+
+    # Read current tags
+    tags = []
+    if os.path.exists(tags_file):
+        with open(tags_file, 'r', encoding='utf-8') as f:
+            tags = [line.strip() for line in f if line.strip()]
+
+    # Add tag if not already present
+    if tag_name not in tags:
+        tags.append(tag_name)
+        with open(tags_file, 'w', encoding='utf-8') as f:
+            for t in tags:
+                f.write(f"{t}\n")
+
+        # Invalidate cache
+        cache.invalidate()
+
+    return jsonify({'success': True})
+
+@app.route('/api/tags/<path:tag_name>/products/<category>/<slug>', methods=['DELETE'])
+@login_required
+def api_remove_product_from_tag(tag_name, category, slug):
+    """Remove a product from a tag"""
+    tags_file = os.path.join(PRODUCTS_DIR, category, slug, 'tags.txt')
+
+    if not os.path.exists(tags_file):
+        return jsonify({'error': 'Tags file not found'}), 404
+
+    # Read current tags
+    with open(tags_file, 'r', encoding='utf-8') as f:
+        tags = [line.strip() for line in f if line.strip()]
+
+    # Remove the tag
+    if tag_name in tags:
+        tags.remove(tag_name)
+        with open(tags_file, 'w', encoding='utf-8') as f:
+            for t in tags:
+                f.write(f"{t}\n")
+
+        # Invalidate cache
+        cache.invalidate()
 
     return jsonify({'success': True})
 

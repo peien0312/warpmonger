@@ -21,6 +21,12 @@
     // Hover timeout reference
     let hoverTimeout = null;
 
+    // Hide timeout reference (delay before closing tooltip)
+    let hideTimeout = null;
+
+    // Delay before hiding tooltip (ms) - allows time to move mouse to tooltip
+    const HIDE_DELAY = 150;
+
     /**
      * Fetch codex entry data from API
      */
@@ -132,6 +138,11 @@
      * Remove active tooltip
      */
     function removeTooltip() {
+        // Clear any pending hide timeout
+        if (hideTimeout) {
+            clearTimeout(hideTimeout);
+            hideTimeout = null;
+        }
         if (activeTooltip) {
             activeTooltip.remove();
             activeTooltip = null;
@@ -177,7 +188,7 @@
     function handleMouseLeave(e) {
         if (isTouchDevice) return;
 
-        // Clear pending timeout
+        // Clear pending show timeout
         if (hoverTimeout) {
             clearTimeout(hoverTimeout);
             hoverTimeout = null;
@@ -189,7 +200,33 @@
             return;
         }
 
-        removeTooltip();
+        // Delay hiding to allow user to move mouse to tooltip
+        scheduleHideTooltip();
+    }
+
+    /**
+     * Schedule tooltip to be hidden after delay
+     */
+    function scheduleHideTooltip() {
+        // Clear any existing hide timeout
+        if (hideTimeout) {
+            clearTimeout(hideTimeout);
+        }
+
+        hideTimeout = setTimeout(() => {
+            removeTooltip();
+            hideTimeout = null;
+        }, HIDE_DELAY);
+    }
+
+    /**
+     * Cancel scheduled hide (called when mouse enters tooltip)
+     */
+    function cancelHideTooltip() {
+        if (hideTimeout) {
+            clearTimeout(hideTimeout);
+            hideTimeout = null;
+        }
     }
 
     /**
@@ -235,13 +272,23 @@
             }
         }, true);
 
-        // Also handle leaving the tooltip itself
+        // Handle entering the tooltip - cancel any pending hide
+        document.addEventListener('mouseenter', (e) => {
+            if (activeTooltip && (e.target === activeTooltip || activeTooltip.contains(e.target))) {
+                cancelHideTooltip();
+            }
+        }, true);
+
+        // Handle leaving the tooltip itself
         document.addEventListener('mouseleave', (e) => {
             if (e.target.classList.contains('codex-tooltip')) {
                 const relatedTarget = e.relatedTarget;
-                if (!relatedTarget || !relatedTarget.classList.contains('codex-term')) {
-                    removeTooltip();
+                // If moving back to a codex term, don't hide
+                if (relatedTarget && relatedTarget.classList.contains('codex-term')) {
+                    return;
                 }
+                // Use delayed hide to allow moving back to tooltip
+                scheduleHideTooltip();
             }
         }, true);
 
