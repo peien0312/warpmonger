@@ -23,3 +23,4 @@ cost_tw: 662.0
 order_weight: 0
 ---
 
+Sister Noyalle stands as a Battle Sister of the [[Adepta Sororitas]], wielding her blessed bolter in the Emperor's name. Raised within the Schola Progenium and inducted into the Orders Militant, she exemplifies the righteous fury that defines the Sisters of Battle. Where heresy festers, Sisters like Noyalle bring cleansing flame; where faith wavers, their conviction burns brightest.

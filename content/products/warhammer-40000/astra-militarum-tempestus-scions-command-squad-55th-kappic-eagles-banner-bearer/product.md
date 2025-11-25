@@ -23,3 +23,4 @@ cost_tw: 875.0
 order_weight: 0
 ---
 
+This Banner Bearer of the 55th Kappic Eagles carries the regimental colors into battle alongside his fellow Tempestus Scions. As elite storm troopers of the [[Astra Militarum]], the Scions represent the pinnacle of human military training — and their banner embodies their regiment's honor and martial pride. The Kappic Eagles' standard flies in the most dangerous war zones across the galaxy, a symbol of Imperial authority even in the darkest hours.

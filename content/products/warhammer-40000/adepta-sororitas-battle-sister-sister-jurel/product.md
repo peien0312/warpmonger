@@ -23,3 +23,4 @@ cost_tw: 662.0
 order_weight: 0
 ---
 
+Sister Jurel serves as a Battle Sister in the [[Adepta Sororitas]], the militant arm of the Ecclesiarchy. Armed with holy bolter and unwavering faith, she stands among her fellow Sisters as a warrior dedicated to purging the enemies of the God-Emperor. Battle Sisters form the core of the Orders Militant, trained from youth in the arts of war and devotion, their every action a prayer made manifest through righteous violence.

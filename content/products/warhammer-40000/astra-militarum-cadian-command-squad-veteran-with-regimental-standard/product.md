@@ -23,3 +23,4 @@ cost_tw: 662.0
 order_weight: 0
 ---
 
+This veteran of the [[Astra Militarum]] bears the sacred Regimental Standard of his Cadian unit — a responsibility given only to the most steadfast soldiers. The Standard represents the regiment's history, honors, and fallen comrades, serving as a rallying point that inspires nearby Guardsmen to fight with renewed determination. To let the Standard fall is unthinkable; its bearer will fight to the death before allowing such dishonor. In the grim calculus of Imperial warfare, a single fluttering banner can mean the difference between routing and victory.

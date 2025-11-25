@@ -23,3 +23,4 @@ cost_tw: 470.0
 order_weight: 0
 ---
 
+The Death Korps of Krieg are among the most grimly determined regiments of the [[Astra Militarum]], raised from a world that nearly destroyed itself in civil war. This Veteran Squad Sergeant leads his men with the stoic fatalism that defines the Korps — they do not fight to survive, but to atone for their ancestors' sins through sacrifice. Clad in distinctive gas masks and great coats, the Death Korps specialize in siege warfare and wars of attrition, willingly accepting casualties that would break other regiments. To them, death in the Emperor's service is not a tragedy but a privilege.

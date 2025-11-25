@@ -23,3 +23,4 @@ cost_tw: 1366.0
 order_weight: 0
 ---
 
+Sister Collaen pilots a Paragon Warsuit in service to the Order of the Argent Shroud, one of the most selfless and heroic Orders Militant of the [[Adepta Sororitas]]. The Paragon Warsuit is a towering exoskeleton that transforms a single Battle Sister into a walking engine of destruction, armed with heavy weapons normally mounted on vehicles. The Argent Shroud is renowned for arriving unannounced to aid Imperial forces in their darkest hour, and Sister Collaen embodies this tradition — a silver-armored angel of death descending upon the Emperor's foes.

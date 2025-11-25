@@ -23,3 +23,4 @@ cost_tw: 1366.0
 order_weight: 0
 ---
 
+The Kastelan Robot is an ancient battle automaton of the [[Adeptus Mechanicus]], its design dating back to the Dark Age of Technology. Armed with Heavy Phosphor Blasters, this towering construct unleashes streams of burning phosphex that ignite on contact and continue to burn until nothing remains. Unlike the thinking machines forbidden by Imperial law, Kastelan Robots operate through doctrina imperatives — pre-programmed battle protocols that can be switched by their Datasmith handlers. Relentless, tireless, and utterly loyal to their binary hymns, they are the Omnissiah's wrath made manifest.

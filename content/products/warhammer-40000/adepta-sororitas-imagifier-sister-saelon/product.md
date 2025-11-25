@@ -23,3 +23,4 @@ cost_tw: 705.0
 order_weight: 0
 ---
 
+Sister Saelon serves as an Imagifier within the [[Adepta Sororitas]], bearing aloft a sacred relic that commemorates a martyred Saint or fallen hero of the Order. The Imagifier's role is both spiritual and tactical — her presence inspires nearby Sisters to fight with redoubled fervor, their faith strengthened by the visible reminder of those who gave their lives for the Emperor. In battle, Sister Saelon's banner becomes a rallying point, turning desperation into righteous fury.

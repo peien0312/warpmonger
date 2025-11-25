@@ -23,3 +23,4 @@ cost_tw: 662.0
 order_weight: 0
 ---
 
+Sister Superior Kassia commands her squad of Battle Sisters within the [[Adepta Sororitas]], leading from the front with chainsword and bolt pistol. As a Sister Superior, she has proven herself through countless battles against the enemies of the Emperor, earning the right to guide her Sisters in war. Her tactical acumen and unshakeable faith make her an anchor upon which her squad can rely in even the darkest of conflicts.

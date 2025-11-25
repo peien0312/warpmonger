@@ -23,3 +23,4 @@ cost_tw: 662.0
 order_weight: 0
 ---
 
+The Grenadier of the 55th Kappic Eagles provides heavy fire support for his Tempestus Scion squad, wielding weapons that can crack open bunkers and obliterate enemy armor. As elite operatives of the [[Astra Militarum]], Scions are trained to handle specialized weaponry far beyond what standard Guardsmen receive. The Grenadier's devastating firepower ensures that no enemy position is safe when the Kappic Eagles come calling.

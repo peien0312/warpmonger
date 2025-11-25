@@ -23,3 +23,4 @@ cost_tw: 1366.0
 order_weight: 0
 ---
 
+Equipped with twin Incendine Combustors, this Kastelan Robot of the [[Adeptus Mechanicus]] is optimized for purging enemies in close quarters with sanctified promethium. The Kastelan pattern dates back to humanity's golden age, its construction secrets jealously guarded by the Tech-Priests of Mars. In battle, these war machines advance with mechanical precision, their flamers reducing infantry to ash while their armored shells shrug off return fire. To the Mechanicus, each Kastelan is a holy relic — a living prayer to the Omnissiah written in steel and fire.

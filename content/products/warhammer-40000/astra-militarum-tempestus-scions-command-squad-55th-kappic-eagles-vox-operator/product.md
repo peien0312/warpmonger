@@ -23,3 +23,4 @@ cost_tw: 662.0
 order_weight: 0
 ---
 
+The Vox Operator of the 55th Kappic Eagles maintains vital communications during Tempestus Scion operations, coordinating with command and calling in support strikes. For elite operatives of the [[Astra Militarum]] conducting deep-strike missions behind enemy lines, reliable vox communications can mean the difference between a successful extraction and total annihilation. This operator ensures that no matter how far the Kappic Eagles venture into hostile territory, they are never truly alone.

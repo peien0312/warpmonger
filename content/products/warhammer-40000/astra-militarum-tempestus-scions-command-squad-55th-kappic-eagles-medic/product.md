@@ -23,3 +23,4 @@ cost_tw: 662.0
 order_weight: 0
 ---
 
+The Medic of the 55th Kappic Eagles keeps his elite comrades fighting through injuries that would fell lesser soldiers. Tempestus Scions of the [[Astra Militarum]] are expensive investments — years of Schola Progenium training cannot be easily replaced — making battlefield medicine crucial to maintaining squad effectiveness. Armed with stimulants, surgical tools, and unwavering resolve, the Medic ensures that wounded Scions return to combat rather than the grave.

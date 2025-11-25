@@ -23,3 +23,4 @@ cost_tw: 1366.0
 order_weight: 0
 ---
 
+Sister Merewal pilots a Paragon Warsuit into battle for the [[Adepta Sororitas]], her faith magnified by the tremendous firepower at her command. The Paragon Warsuit is a marvel of Imperial engineering, a walking shrine of destruction that allows a single Battle Sister to engage tanks, monsters, and heretic champions on equal footing. Encased in blessed ceramite and armed with weapons that would normally require entire weapons teams, Sister Merewal represents the pinnacle of the Sororitas war machine.

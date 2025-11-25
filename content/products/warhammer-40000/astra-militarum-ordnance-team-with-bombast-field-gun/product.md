@@ -23,3 +23,4 @@ cost_tw: 2477.0
 order_weight: 0
 ---
 
+The Bombast Field Gun is a heavy artillery piece deployed by [[Astra Militarum]] ordnance teams to provide devastating indirect fire support. Crewed by trained artillerists, this weapon can reduce fortifications to rubble and annihilate massed infantry formations from kilometers away. Artillery is the god of war in the Imperial Guard, and the Bombast exemplifies this doctrine — where it speaks, the enemy dies. The crew works with practiced efficiency, loading, aiming, and firing in a deadly rhythm that turns distant coordinates into craters.

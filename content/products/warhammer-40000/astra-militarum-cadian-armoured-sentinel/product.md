@@ -23,3 +23,4 @@ cost_tw: 1836.0
 order_weight: 0
 ---
 
+The Cadian Armoured Sentinel is a light walker employed by the [[Astra Militarum]] for reconnaissance and fire support. Unlike the open-topped Scout Sentinel, the Armoured variant encases its pilot in protective plating, allowing it to operate in more hostile environments and engage heavier targets. Cadian regiments favor these versatile walkers for their ability to navigate terrain impassable to tanks while still delivering devastating firepower. Though the fall of Cadia shattered their homeworld, Cadian Sentinels continue to stride across battlefields throughout the galaxy, a testament to their world's enduring legacy.

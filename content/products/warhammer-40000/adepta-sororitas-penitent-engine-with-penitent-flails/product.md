@@ -23,3 +23,4 @@ cost_tw: 1409.0
 order_weight: 0
 ---
 
+Armed with massive Penitent Flails, this Penitent Engine of the [[Adepta Sororitas]] is built for close-quarters carnage. The flails are blessed chains ending in sanctified weights, capable of crushing power armor and tearing through monstrous flesh alike. The condemned pilot within screams prayers and curses as they drive the machine forward, seeking the absolution that only death can bring. Each swing of the flails is both an act of penance and a demonstration of the Ecclesiarchy's brutal approach to redemption.

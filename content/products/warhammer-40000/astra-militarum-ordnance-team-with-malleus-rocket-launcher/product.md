@@ -23,3 +23,4 @@ cost_tw: 2477.0
 order_weight: 0
 ---
 
+The Malleus Rocket Launcher provides [[Astra Militarum]] forces with mobile anti-armor capability, its warheads designed to crack open tanks and bunkers alike. Operated by a dedicated ordnance team, the Malleus can unleash a salvo of rockets that saturate an area with explosive destruction. When enemy armor threatens to overwhelm Guardsmen armed only with lasguns, the Malleus teams are called forward — their rockets screaming across the battlefield to deliver the Emperor's judgment upon the foe.

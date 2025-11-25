@@ -23,3 +23,4 @@ cost_tw: 875.0
 order_weight: 0
 ---
 
+The Tempestor Prime leads the elite Tempestus Scions of the 55th Kappic Eagles, the [[Astra Militarum]]'s storm troopers. Scions are raised from infancy in the Schola Progenium, subjected to brutal training that produces soldiers far superior to standard Guardsmen. The Tempestor Prime commands his squad with cold efficiency, deploying via grav-chute insertions and Valkyrie assaults to strike at the heart of enemy operations. Where regular Guardsmen hold the line, the Scions are the blade that cuts the enemy's throat.

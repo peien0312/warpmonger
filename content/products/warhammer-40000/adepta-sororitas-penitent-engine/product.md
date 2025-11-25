@@ -23,3 +23,4 @@ cost_tw: 1409.0
 order_weight: 0
 ---
 
+The Penitent Engine is a terrifying instrument of redemption employed by the [[Adepta Sororitas]]. Those who have committed grave sins against the Emperor — whether fallen Sisters, heretics seeking absolution, or criminals granted one final chance — are hardwired into these walking death machines. Denied the mercy of death, the pilot feels every wound inflicted upon the machine while being pumped with combat stimulants, driving them into a frenzy of violence. Only through death in battle can the pilot's soul find redemption.
