@@ -23,3 +23,5 @@ cost_tw: 1644.0
 order_weight: 0
 ---
 
+The Contemptor-Achillus Dreadnought represents the pinnacle of [[Legio Custodes]] war machines, entombing a fallen Custodian within its golden sarcophagus. Unlike standard Legion dreadnoughts, the Achillus pattern is crafted to the exacting standards of the Custodes, wielding weapons of incomparable quality. Even in death, a Custodian continues to serve the Emperor with the same lethal precision as in life.
+

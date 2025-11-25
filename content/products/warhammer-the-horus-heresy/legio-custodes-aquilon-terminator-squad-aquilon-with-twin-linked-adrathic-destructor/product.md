@@ -23,3 +23,5 @@ cost_tw: 918.0
 order_weight: 0
 ---
 
+Armed with a twin-linked Adrathic destructor, this [[Legio Custodes]] Aquilon Terminator wields one of the most devastating weapons available to the Emperor's forces. Adrathic weapons disintegrate matter at the molecular level, leaving nothing behind of their targets. Such rare and powerful armaments are entrusted only to the Custodians, who bear them with lethal precision.
+

@@ -23,3 +23,5 @@ cost_tw: 1644.0
 order_weight: 0
 ---
 
+The Contemptor-Galatus Dreadnought is configured for close-quarters combat, bearing a massive blade and protective shield that allow it to hold against any foe. This [[Legio Custodes]] war machine embodies the defensive traditions of the Custodian Guard, created to protect the Emperor's throne room against any assault. Its auramite hull gleams with the same golden luster as its living brothers.
+

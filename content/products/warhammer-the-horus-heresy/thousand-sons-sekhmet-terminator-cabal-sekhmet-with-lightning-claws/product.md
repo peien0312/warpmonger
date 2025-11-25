@@ -23,3 +23,5 @@ cost_tw: 662.0
 order_weight: 0
 ---
 
+Wielding paired lightning claws that crackle with both electrical and psychic energy, this [[Sekhmet]] Terminator is configured for swift, deadly close combat. The [[Thousand Sons]] enhanced these weapons with warp-conductive materials, allowing the wielder to channel his considerable psychic might through every strike. His attacks come too fast for mortal reflexes to counter.
+

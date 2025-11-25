@@ -23,3 +23,4 @@ cost_tw: 1046.0
 order_weight: 0
 ---
 
+[[Imperial Fists]] Praetors commanded the VII Legion's forces with the strategic brilliance and unwavering discipline that defined [[Rogal Dorn|Dorn's]] sons. Armed with a master-crafted power sword, this senior commander exemplifies the Legion's dedication to martial excellence. Whether directing siege operations or leading assaults, Praetors of the Imperial Fists were among the most capable commanders of the [[Horus Heresy]].

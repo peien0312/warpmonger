@@ -23,3 +23,4 @@ cost_tw: 619.0
 order_weight: 0
 ---
 
+Armed with volkite serpentas, this Angel's Tears Arch-Erelim of the [[Blood Angels]] wields heat rays capable of deflagrating targets in a single burst. The Angel's Tears were destroyer specialists, willing to deploy weapons and tactics other [[Blood Angels]] found distasteful. Jump pack-equipped for rapid assault, they struck with terrible precision before withdrawing to attack again.

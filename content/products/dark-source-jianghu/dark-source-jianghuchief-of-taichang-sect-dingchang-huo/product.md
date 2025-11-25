@@ -23,3 +23,5 @@ cost_tw: 555.0
 order_weight: 0
 ---
 
+Dingchang Huo leads the Taichang Sect as its Chief in the Dark Source Jianghu series. This 1/18 scale figure embodies the authority and martial skill expected of a sect leader. His traditional attire and commanding pose make him a centerpiece for any Jianghu collection.
+

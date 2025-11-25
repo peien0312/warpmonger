@@ -23,3 +23,4 @@ cost_tw: 939.0
 order_weight: 0
 ---
 
+Raldoron, First Captain of the [[Blood Angels]], was the most trusted of [[Sanguinius|Sanguinius's]] commanders and heir to the Legion's leadership should the Primarch fall. A consummate warrior and inspiring leader, Raldoron led the Blood Angels' elite forces throughout the Great Crusade and [[Horus Heresy]]. His unwavering loyalty and tactical brilliance made him instrumental in the Legion's survival through the darkest days of the civil war.

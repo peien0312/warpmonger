@@ -23,3 +23,4 @@ cost_tw: 278.0
 order_weight: 0
 ---
 
+Army Builder Figure 16 is a versatile military operator designed for expanding your tactical displays. This detailed 1/18 scale figure features modern combat gear and weaponry suitable for a variety of military scenarios. Perfect for collectors building their own armies or creating dynamic diorama scenes with multiple soldiers.

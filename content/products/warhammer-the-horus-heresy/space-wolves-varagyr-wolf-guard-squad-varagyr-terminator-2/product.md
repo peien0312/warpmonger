@@ -23,3 +23,5 @@ cost_tw: 705.0
 order_weight: 0
 ---
 
+Among the [[Varagyr]], only the most ferocious hunters earn a place at [[Leman Russ|Leman Russ's]] side. This [[Space Wolves]] terminator carries weapons that have tasted the blood of xenos warlords and traitor champions. His Cataphractii armor bears the scars of countless battles, each mark a testament to enemies slain in the Wolf King's name.
+

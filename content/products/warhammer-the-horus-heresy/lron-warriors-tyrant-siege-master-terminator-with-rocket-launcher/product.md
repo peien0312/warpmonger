@@ -23,3 +23,4 @@ cost_tw: 683.0
 order_weight: 0
 ---
 
+Tyrant Siege Masters were the elite commanders of the [[Iron Warriors|Iron Warriors']] heavy siege units, leading Terminator squads equipped to crack open even the most formidable fortifications. Armed with a rocket launcher for anti-armor and fortification destruction, this veteran embodies the IV Legion's doctrine of overwhelming firepower. His [[Terminator Armour]] allows him to advance through withering defensive fire.

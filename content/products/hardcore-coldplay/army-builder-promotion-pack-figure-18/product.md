@@ -23,3 +23,4 @@ cost_tw: 278.0
 order_weight: 0
 ---
 
+Army Builder Figure 18 adds another specialized soldier to your military collection. This highly detailed 1/18 scale figure features authentic tactical equipment and combat-ready posing. Designed to work alongside other Army Builder figures for creating realistic squad compositions and battle displays.

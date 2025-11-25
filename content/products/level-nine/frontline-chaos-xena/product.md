@@ -23,3 +23,5 @@ cost_tw: 1495.0
 order_weight: 0
 ---
 
+Xena enters the Frontline Chaos battlefield as a formidable 1/12 scale action figure. Her design combines tactical functionality with Level Nine's characteristic style. This highly detailed figure features multiple articulation points, interchangeable hands, and combat accessories for dynamic posing.
+

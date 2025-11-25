@@ -23,3 +23,4 @@ cost_tw: 918.0
 order_weight: 0
 ---
 
+Dominion Zephon of the [[Blood Angels]] was once called "The Bringer of Sorrow" for his mastery of the jump pack assault. When grievous wounds cost him his hands, [[Belisarius Cawl|Arkhan Land]] crafted him augmetic replacements, allowing him to continue serving the IX Legion. This figure depicts Zephon with his distinctive bionic arms, a testament to the Blood Angels' determination to continue fighting despite any obstacle.

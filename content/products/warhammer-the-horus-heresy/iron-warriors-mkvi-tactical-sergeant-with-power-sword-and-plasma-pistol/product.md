@@ -23,3 +23,4 @@ cost_tw: 589.0
 order_weight: 0
 ---
 
+An [[Iron Warriors]] Tactical Sergeant in Mark VI "Corvus" armor, armed with a power sword and plasma pistol for dealing with armored targets. The lighter Mark VI pattern offered improved mobility for the kind of rapid assault operations the IV Legion sometimes employed between grinding siege actions. The plasma pistol's armor-penetrating capability makes this Sergeant a threat to any foe.

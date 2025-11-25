@@ -23,3 +23,5 @@ cost_tw: 0
 order_weight: 0
 ---
 
+Brother Dreadnought Tyleas continues to serve the [[Ultramarines]] from within the mighty frame of a Redemptor Dreadnought. This advanced war machine allows mortally wounded heroes to fight on, their wisdom and experience preserved alongside devastating firepower. Armed with macro plasma incinerators and onslaught gatling cannons, Tyleas strides into battle as a living monument to the Chapter's glorious history.
+

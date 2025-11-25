@@ -23,3 +23,4 @@ cost_tw: 363.0
 order_weight: 0
 ---
 
+Intercessors form the backbone of Primaris [[Blood Angels]] forces, wielding bolt rifles that deliver death at range with devastating precision. Created through the genius of [[Belisarius Cawl]], Primaris Marines are larger and more resilient than their firstborn brothers, yet they carry the same noble spirit and cursed blood of [[Sanguinius]]. In crimson armor marked with the Chapter's heraldry, these warriors embody the Blood Angels' legacy of martial excellence.

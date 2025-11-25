@@ -23,3 +23,4 @@ cost_tw: 811.0
 order_weight: 0
 ---
 
+The Heavy Gunner provides overwhelming suppressive fire to cover rescue operations, wielding devastating weapons capable of shredding enemy formations. These specialists carry the firepower needed to create safe corridors through hostile territory when extracting wounded comrades. The figure features a heavy weapons loadout and reinforced armor, showcasing the Rescue Squad's commitment to bringing their people home by any means necessary.

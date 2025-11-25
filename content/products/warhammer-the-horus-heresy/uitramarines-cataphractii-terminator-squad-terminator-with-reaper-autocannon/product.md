@@ -23,3 +23,5 @@ cost_tw: 662
 order_weight: 0
 ---
 
+This [[Ultramarines]] Cataphractii Terminator provides heavy fire support with a reaper autocannon, capable of shredding infantry and light vehicles alike. The Cataphractii pattern's bulk easily accommodates such heavy weapons, allowing the warrior to lay down sustained fire while advancing. Such firepower was invaluable during the brutal battles of the [[Horus Heresy]].
+

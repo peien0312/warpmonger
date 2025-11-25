@@ -23,3 +23,5 @@ cost_tw: 1495.0
 order_weight: 0
 ---
 
+Amy joins the Frontline Chaos roster as a 1/12 scale highly articulated action figure. Her design captures the series' signature blend of tactical gear and stylized aesthetics. This Level Nine figure includes interchangeable accessories and hands, allowing collectors to create various combat and display poses.
+

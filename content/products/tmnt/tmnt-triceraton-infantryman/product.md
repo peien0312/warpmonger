@@ -23,3 +23,4 @@ cost_tw: 662.0
 order_weight: 0
 ---
 
+The Triceraton Infantryman is a soldier from the warlike dinosaur-like alien species who have repeatedly clashed with the Turtles. These formidable warriors combine the natural durability of their triceratops-like biology with advanced alien weaponry. The figure captures the Triceraton's distinctive three-horned appearance and military equipment from this iconic alien race.

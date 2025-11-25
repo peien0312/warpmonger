@@ -23,3 +23,4 @@ cost_tw: 1430.0
 order_weight: 0
 ---
 
+[[Space Wolves]] [[Contemptor Dreadnought|Contemptor Dreadnoughts]] entombed fallen heroes who continued to serve the VI Legion in death. Armed with a Gravis bolt cannon for devastating anti-infantry firepower, this war machine charges alongside its living brothers with the same savage fury that defined them in life. The wolf totems and frost decorations mark this Dreadnought as one of Fenris's finest warriors.

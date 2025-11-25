@@ -23,3 +23,5 @@ cost_tw: 512.0
 order_weight: 0
 ---
 
+A tactical legionary of the [[Ultramarines]] clad in Mark III Iron Armor, the pattern preferred for boarding actions and siege warfare during the Great Crusade. The XIII Legion fielded vast numbers of such warriors, their discipline and tactical acumen making them the template for all future Space Marine doctrine. This soldier represents the might of [[Roboute Guilliman|Guilliman's]] five hundred worlds.
+

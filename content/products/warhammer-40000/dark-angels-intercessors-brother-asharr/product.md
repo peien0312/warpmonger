@@ -23,3 +23,5 @@ cost_tw: 534.0
 order_weight: 0
 ---
 
+Brother Asharr serves among the [[Dark Angels]] Intercessors, Primaris Space Marines who form the backbone of the Chapter's battle companies. Clad in dark green armor marked with the Chapter's winged sword emblem, he carries the bolt rifle that has become the standard armament of the Primaris generations. Though Primaris Marines are newcomers to the Chapter, they have proven their worth in countless battles and are slowly being inducted into the Dark Angels' hidden traditions.
+

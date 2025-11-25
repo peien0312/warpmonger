@@ -23,3 +23,5 @@ cost_tw: 290.0
 order_weight: 0
 ---
 
+Liam is a UNSC assault specialist who excels in direct action operations against enemy strongholds. His aggressive tactics and superior firepower make him an asset in any combat situation. This 1/25 scale figure features the advanced weapons and armor of UNSC frontline fighters.
+

@@ -23,3 +23,5 @@ cost_tw: 0
 order_weight: 0
 ---
 
+The Sky Striker is a precision strike mech from the APOC Series, engineered for surgical attacks against high-value targets. Its advanced targeting systems and specialized armaments enable devastating accuracy from extreme ranges. This detailed mech model captures the lethal elegance of dedicated anti-armor platforms.
+

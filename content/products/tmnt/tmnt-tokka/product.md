@@ -23,3 +23,4 @@ cost_tw: 662.0
 order_weight: 0
 ---
 
+Tokka is the mutant snapping turtle created by Shredder to destroy the Teenage Mutant Ninja Turtles, possessing incredible strength but limited intelligence. Usually paired with his partner Rahzar, this childlike monster caused massive destruction across New York City. The figure captures Tokka's imposing bulk and the spiked shell that made him such a dangerous opponent in the films.

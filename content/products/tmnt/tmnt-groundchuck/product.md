@@ -23,3 +23,4 @@ cost_tw: 713.0
 order_weight: 0
 ---
 
+Groundchuck is the massive mutant bull whose brute strength and short temper make him a dangerous adversary. Usually teamed with his partner Dirtbag, this bovine bruiser charges into battle with little regard for strategy or subtlety. The figure showcases Groundchuck's intimidating horns and muscular build that make him one of the Turtles' toughest opponents.

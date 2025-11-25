@@ -23,3 +23,5 @@ cost_tw: 98.0
 order_weight: 0
 ---
 
+The Ash Yellow A display case offers a warm, muted backdrop for your 1/25 scale figures. The hangar-style design creates an immersive military aesthetic while protecting your collection. Part of the Individual Soldier display case series for stylish figure presentation.
+

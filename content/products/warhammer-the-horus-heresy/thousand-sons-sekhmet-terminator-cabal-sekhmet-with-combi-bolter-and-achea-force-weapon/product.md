@@ -23,3 +23,5 @@ cost_tw: 662.0
 order_weight: 0
 ---
 
+This [[Sekhmet]] Terminator wields an Achea force weapon, the signature armament of the [[Thousand Sons]] elite. The Achea pattern channeled psychic energy through crystalline matrices, allowing the wielder to strike with the full force of their warp-touched mind. Combined with a combi-bolter for ranged engagement, this warrior embodies the Legion's fusion of martial and psychic prowess.
+

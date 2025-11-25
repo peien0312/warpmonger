@@ -23,3 +23,5 @@ cost_tw: 290.0
 order_weight: 0
 ---
 
+Volok is a battle-hardened assaulter of the Steel Ride Corps who thrives in the chaos of mechanized combat. His aggressive nature and heavy weapons proficiency make him a terror on the battlefield. This 1/25 scale figure showcases the imposing gear and combat stance of Steel Ride shock troops.
+

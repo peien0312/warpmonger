@@ -23,3 +23,4 @@ cost_tw: 841.0
 order_weight: 0
 ---
 
+Metalhead is the robotic turtle built by Donatello to assist the team in battle, packing serious firepower into a mechanical shell. Originally created by Krang and reprogrammed by the Turtles, this metal warrior combines turtle fighting spirit with computerized precision. The figure showcases Metalhead's distinctive robotic design with exposed machinery and integrated weapons systems.

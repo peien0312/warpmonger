@@ -23,3 +23,5 @@ cost_tw: 705.0
 order_weight: 0
 ---
 
+The Varagyr Thegn commands the Wolf King's elite bodyguard, the dreaded [[Varagyr]] terminators of the [[Space Wolves]]. Chosen for his ferocity and unwavering loyalty to [[Leman Russ]], the Thegn leads his brothers into the heart of battle where the fighting is thickest. His frost blade has ended champions and warlords alike, and his presence ensures the Wolf King's will is enforced without question.
+

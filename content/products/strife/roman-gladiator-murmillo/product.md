@@ -23,3 +23,4 @@ cost_tw: 448.0
 order_weight: 0
 ---
 
+The Murmillo was one of the most popular gladiator types, instantly recognizable by their distinctive fish-crested helmet. Named after a type of saltwater fish, these heavily-armed warriors carried a large rectangular shield and gladius sword, fighting in a style similar to Roman legionaries. This figure features the iconic fish-shaped helmet crest and heavy equipment that made the Murmillo a symbol of gladiatorial combat throughout the Roman Empire.

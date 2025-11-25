@@ -23,3 +23,5 @@ cost_tw: 248.0
 order_weight: 0
 ---
 
+This pilot figure represents the elite operator of the Storm Tempestus fire support mech, trained to coordinate devastating artillery barrages while maintaining battlefield awareness. Their specialized flight suit is designed for extended combat operations in the mech cockpit. This 1/25 scale figure pairs perfectly with the Tempestus mech.
+

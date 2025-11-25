@@ -23,3 +23,4 @@ cost_tw: 726.0
 order_weight: 0
 ---
 
+[[Blood Angels]] Dawnbreakers carved a bloody path through enemy formations with their deadly combination of jump pack mobility and close-combat prowess. Equipped with power weapons and falling star grenades, these warriors struck with the fury of [[Sanguinius]] himself. The ornate crimson armor and angelic motifs of the Dawnbreakers reflected the IX Legion's artistic traditions even in warfare.

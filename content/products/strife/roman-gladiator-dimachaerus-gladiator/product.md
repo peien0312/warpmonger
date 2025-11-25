@@ -23,3 +23,4 @@ cost_tw: 363.0
 order_weight: 0
 ---
 
+The Dimachaerus was a rare and spectacular gladiator type who fought with two swords simultaneously, dazzling crowds with their ambidextrous combat style. Without a shield for protection, these warriors relied entirely on speed and offensive pressure to overwhelm their opponents. This detailed 1/18 scale figure captures the aggressive dual-wielding stance that made the Dimachaerus a crowd favorite in the Roman arenas.

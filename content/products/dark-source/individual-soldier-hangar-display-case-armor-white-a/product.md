@@ -23,3 +23,5 @@ cost_tw: 98.0
 order_weight: 0
 ---
 
+The Armor White A display case provides a pristine white backdrop for showcasing your 1/25 scale figures. The hangar-style design creates an immersive military aesthetic while protecting your collection. Part of the Individual Soldier display case series for clean, professional figure presentation.
+

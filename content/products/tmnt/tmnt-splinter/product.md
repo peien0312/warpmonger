@@ -23,3 +23,4 @@ cost_tw: 662.0
 order_weight: 0
 ---
 
+Master Splinter is the wise sensei who trained the Teenage Mutant Ninja Turtles in the art of ninjutsu, transforming four baby turtles into formidable warriors. Once a human martial artist named Hamato Yoshi, this mutated rat now guides his adopted sons with patience, discipline, and profound wisdom. The figure captures Splinter's distinguished appearance in his traditional robes with incredible attention to detail.

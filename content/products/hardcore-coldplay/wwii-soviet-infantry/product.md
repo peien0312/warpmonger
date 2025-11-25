@@ -23,3 +23,4 @@ cost_tw: 278.0
 order_weight: 0
 ---
 
+The WWII Soviet Infantry soldier represents the brave men who fought on the Eastern Front against the Axis powers. This 1/18 scale figure features authentic Red Army equipment and uniforms from the Great Patriotic War. An excellent addition for World War II collectors and diorama builders recreating historical battles.

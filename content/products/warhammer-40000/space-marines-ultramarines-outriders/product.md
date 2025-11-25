@@ -23,3 +23,5 @@ cost_tw: 512.0
 order_weight: 0
 ---
 
+[[Ultramarines]] Outriders race across the battlefield on their armored attack bikes, their blue armor gleaming as they execute flanking maneuvers with precision. These Primaris Marines combine speed and firepower to strike at enemy weak points, adhering to the tactical doctrines of the Codex Astartes. Each Outrider is trained to operate independently while remaining part of a coordinated battle plan, the hallmark of Ultramarines warfare.
+

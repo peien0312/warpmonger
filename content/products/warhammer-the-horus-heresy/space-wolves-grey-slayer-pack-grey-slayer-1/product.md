@@ -23,3 +23,4 @@ cost_tw: 619.0
 order_weight: 0
 ---
 
+Grey Slayers were the [[Space Wolves|Space Wolves']] premier assault infantry, warriors who had earned their place through ferocity and skill in close combat. Armed with the traditional weapons of Fenris, they charged into enemy lines with the savage fury that made the VI Legion feared across the galaxy. This warrior bears the grey of his pack, ready to hunt alongside his brothers.

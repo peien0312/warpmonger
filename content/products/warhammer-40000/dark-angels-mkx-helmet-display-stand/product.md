@@ -23,3 +23,5 @@ cost_tw: 2690.0
 order_weight: 0
 ---
 
+This premium set includes a life-size [[Dark Angels]] Mark X helmet with a custom display stand designed to showcase this iconic piece of Space Marine wargear. The helmet is finished in the dark green of the First Legion, complete with the Chapter's heraldry and authentic weathering details. The display stand features Dark Angels iconography and provides an impressive presentation worthy of any serious collector of Warhammer 40,000 merchandise.
+

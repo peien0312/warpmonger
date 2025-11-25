@@ -23,3 +23,4 @@ cost_tw: 1003.0
 order_weight: 0
 ---
 
+The Sanguinary Priests are the guardians of the [[Blood Angels]]' precious gene-seed and the keepers of their Primarch's blood. Armed with narthecium and chainsword, they fulfill the dual role of healer and warrior, extracting gene-seed from fallen brothers while defending the living. More than mere Apothecaries, Sanguinary Priests also search endlessly for a cure to the [[Black Rage]] and Red Thirst — a quest that has consumed them for ten thousand years without success.

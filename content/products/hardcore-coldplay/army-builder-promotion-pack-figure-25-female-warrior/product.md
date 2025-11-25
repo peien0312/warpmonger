@@ -23,3 +23,4 @@ cost_tw: 278.0
 order_weight: 0
 ---
 
+The Female Warrior brings diversity to the Army Builder series with a skilled combatant ready for any mission. This 1/18 scale figure features detailed tactical gear and weaponry designed for modern combat operations. Her dynamic pose and professional equipment make her an essential addition to any mixed-gender military unit.

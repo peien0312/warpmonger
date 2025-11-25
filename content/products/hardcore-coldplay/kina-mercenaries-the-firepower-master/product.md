@@ -23,3 +23,4 @@ cost_tw: 278.0
 order_weight: 0
 ---
 
+The Firepower Master brings devastating heavy weapons support to the Kina Mercenaries squad. This 1/18 scale figure carries the team's primary suppression firepower, equipped to lay down covering fire and eliminate fortified positions. The detailed figure showcases the heavy loadout and specialized gear of a professional heavy weapons specialist.

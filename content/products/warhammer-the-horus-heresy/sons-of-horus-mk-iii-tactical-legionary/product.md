@@ -23,3 +23,4 @@ cost_tw: 512.0
 order_weight: 0
 ---
 
+[[Sons of Horus]] Legionaries in Mark III "Iron" power armor formed the backbone of the XVI Legion's battle line. This armor pattern, developed for boarding actions and close-quarters combat during the Great Crusade, proved ideal for the brutal warfare of the [[Horus Heresy]]. The sea-green of the XVI Legion marks this warrior as one of the Warmaster's own, a veteran of countless campaigns.

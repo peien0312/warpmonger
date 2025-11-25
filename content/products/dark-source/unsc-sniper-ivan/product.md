@@ -23,3 +23,5 @@ cost_tw: 290.0
 order_weight: 0
 ---
 
+Ivan is a precision marksman of the UNSC forces, trained to eliminate high-value targets from extreme distances. His specialized sniper equipment allows him to provide overwatch for allied forces during critical operations. This 1/25 scale figure features detailed tactical gear and signature sniper rifle.
+

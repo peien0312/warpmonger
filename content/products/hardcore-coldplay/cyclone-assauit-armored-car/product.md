@@ -23,3 +23,4 @@ cost_tw: 1366.0
 order_weight: 0
 ---
 
+The Cyclone Assault Armored Car is a formidable tactical vehicle designed for rapid deployment and heavy combat operations. This impressive 1/18 scale model features detailed armor plating, weapon systems, and military vehicle authenticity. The perfect centerpiece for your military collection, compatible with Hardcore Coldplay figures for complete tactical displays.

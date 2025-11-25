@@ -23,3 +23,4 @@ cost_tw: 619.0
 order_weight: 0
 ---
 
+Michelangelo is the fun-loving party dude of the Teenage Mutant Ninja Turtles, spinning his nunchucks while cracking jokes and ordering pizza. Wearing his signature orange mask, Mikey's carefree attitude belies serious ninja skills when his brothers need him most. This 1/18 scale figure captures the youngest turtle's energetic personality and iconic weapons in incredible detail.

@@ -23,3 +23,4 @@ cost_tw: 598.0
 order_weight: 0
 ---
 
+The Optio serves as second-in-command to the Centurion, positioned at the rear of the formation to prevent soldiers from breaking ranks. Armed with a long staff to push wavering legionaries back into line, the Optio maintained the formation integrity that made Roman armies so formidable. This figure includes the distinctive optio staff and equipment marking this crucial junior officer position.

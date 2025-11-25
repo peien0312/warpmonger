@@ -23,3 +23,5 @@ cost_tw: 897.0
 order_weight: 0
 ---
 
+The encarmine axe is a brutal variant of the [[Sanguinary Guard]]'s signature weapons, trading the precision of sword or spear for devastating cleaving power. This guardian carries his axe alongside an inferno pistol, allowing him to crack open armored targets at range before finishing them in glorious melee combat. The [[Blood Angels]] Sanguinary Guard are chosen from veterans who have proven themselves worthy of bearing [[Sanguinius]]'s legacy, and each fights with the fury of their fallen Primarch.
+

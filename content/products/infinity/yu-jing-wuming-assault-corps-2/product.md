@@ -23,3 +23,4 @@ cost_tw: 512.0
 order_weight: 0
 ---
 
+This Wu Ming variant carries an alternate weapons configuration for diversified tactical options. The Assault Corps' expendable nature means they are often equipped for the most dangerous missions. Pair with other Wu Ming figures to create assault teams for your Yu Jing collection.

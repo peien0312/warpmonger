@@ -23,3 +23,5 @@ cost_tw: 192.0
 order_weight: 0
 ---
 
+These zombie cheerleaders bring a darkly humorous element to the undead apocalypse, their pep rally spirit twisted into something far more sinister. Their uniforms and pom-poms create striking visual contrast with their zombified appearance. This 1/25 scale set adds character variety to outbreak scenarios.
+

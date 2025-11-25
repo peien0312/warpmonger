@@ -23,3 +23,4 @@ cost_tw: 278.0
 order_weight: 0
 ---
 
+The Sniper provides precision long-range support for Delta Force operations, eliminating high-value targets and providing overwatch. This 1/18 scale figure carries a precision rifle and optical equipment for accurate shooting at extended distances. The patient guardian who watches over the team from concealed positions.

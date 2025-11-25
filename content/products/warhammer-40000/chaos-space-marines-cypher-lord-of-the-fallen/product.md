@@ -23,3 +23,5 @@ cost_tw: 1046.0
 order_weight: 0
 ---
 
+[[Cypher]] is one of the most enigmatic figures in the galaxy, a hooded warrior who has evaded capture for ten thousand years while being relentlessly hunted by the Dark Angels. Armed with two ancient pistols that he wields with preternatural speed, Cypher appears at crucial moments across the Imperium, his motives forever unclear. Upon his back he carries a sword that some believe to be the Lion Sword of the Dark Angels Primarch, though none have ever seen him draw it. The Lord of the Fallen walks a path known only to himself, his ultimate destination a mystery that haunts those who hunt him.
+

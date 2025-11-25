@@ -23,3 +23,4 @@ cost_tw: 278.0
 order_weight: 0
 ---
 
+The Machine Gunner delivers overwhelming automatic fire to support Delta Force operations. This 1/18 scale figure wields a belt-fed machine gun and carries the ammunition needed for sustained engagements. The heaviest hitter in the squad, essential for establishing fire superiority in combat situations.

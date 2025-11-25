@@ -23,3 +23,5 @@ cost_tw: 448.0
 order_weight: 0
 ---
 
+Sergeant Bragar leads his Eradicator squad with the quiet determination characteristic of the [[Salamanders]] Chapter. His melta rifle has claimed countless armored vehicles and fortifications, each kill a tribute to the volcanic homeworld of Nocturne. As squad leader, Bragar identifies priority targets and coordinates his brothers' fire, ensuring that even the most heavily armored enemies fall before the Salamanders' cleansing flames.
+

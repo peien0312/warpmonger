@@ -23,3 +23,4 @@ cost_tw: 769.0
 order_weight: 0
 ---
 
+The [[Justaerin]] were the elite First Company of the [[Sons of Horus]], clad in distinctive black [[Terminator Armour]] that set them apart from their brothers. This warrior wields a Carsoran power axe, a weapon pattern unique to the XVI Legion, capable of cleaving through armor with terrifying efficiency. As the Warmaster's personal guard, the Justaerin were feared throughout the galaxy.

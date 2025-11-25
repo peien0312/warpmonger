@@ -23,3 +23,4 @@ cost_tw: 555.0
 order_weight: 0
 ---
 
+The Knights of Justice uphold PanOceania's ideals through force of arms, their power armor making them walking fortresses on the battlefield. These elite warriors are deployed when overwhelming force is required to secure victory. This 1/18 scale figure captures the imposing presence of these armored champions.

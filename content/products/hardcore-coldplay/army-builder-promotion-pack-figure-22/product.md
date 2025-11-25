@@ -23,3 +23,4 @@ cost_tw: 278.0
 order_weight: 0
 ---
 
+Army Builder Figure 22 offers yet another configuration for military collectors seeking to expand their forces. The detailed 1/18 scale construction ensures this figure integrates seamlessly with other Hardcore Coldplay releases. Build your perfect army with this and other figures from the Army Builder series.

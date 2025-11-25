@@ -23,3 +23,4 @@ cost_tw: 2050.0
 order_weight: 0
 ---
 
+[[Alpharius]], Primarch of the [[Alpha Legion]], was the last of the Emperor's sons to be found and the most enigmatic. Uniquely among the Primarchs, he was nearly identical in stature to his Legionaries, allowing him to move among them undetected. Armed with the Pale Spear, Alpharius commanded the XX Legion through complex webs of misdirection and layered plans. This figure captures the mysterious Primarch in his distinctive scaled armor, ready to orchestrate galaxy-spanning schemes.

@@ -23,3 +23,4 @@ cost_tw: 278.0
 order_weight: 0
 ---
 
+Army Builder Figure 19 continues the series with another distinct military operative for your growing collection. The 1/18 scale figure includes detailed weapons and equipment that bring authenticity to any military display. Collect multiple figures to assemble complete tactical units for your dioramas.

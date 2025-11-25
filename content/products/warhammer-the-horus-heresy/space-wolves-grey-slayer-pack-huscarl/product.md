@@ -23,3 +23,4 @@ cost_tw: 619.0
 order_weight: 0
 ---
 
+The Huscarl leads a Grey Slayer Pack of the [[Space Wolves]], elite close-combat warriors who embodied the VI Legion's ferocious assault doctrine. Grey Slayers were veterans who had proven themselves in countless engagements, their skill with blade and axe unmatched. The Huscarl's ornate armor and wolf-tooth talismans mark him as a leader among [[Leman Russ|Russ's]] savage warriors.

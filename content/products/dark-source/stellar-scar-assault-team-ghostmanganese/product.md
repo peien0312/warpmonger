@@ -23,3 +23,5 @@ cost_tw: 354.0
 order_weight: 0
 ---
 
+Ghostmanganese is a reconnaissance specialist of the Stellar Scar Assault Team, their muted colors perfect for silent observation. They excel at gathering intelligence before major assault operations begin. This 1/18 scale figure captures the subtle, professional appearance of Stellar Scar scouts.
+

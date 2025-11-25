@@ -23,3 +23,5 @@ cost_tw: 803.0
 order_weight: 0
 ---
 
+The Storm Tempestus is a devastating fire support mech from the APOC Series, bristling with heavy weapons designed to provide overwhelming long-range firepower. Its massive armament can suppress entire enemy formations while supporting allied advance. This 1/25 scale model captures the imposing artillery platform in impressive detail.
+

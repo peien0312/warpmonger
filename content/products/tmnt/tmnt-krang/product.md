@@ -23,3 +23,4 @@ cost_tw: 705.0
 order_weight: 0
 ---
 
+Krang is the sinister brain-like alien warlord from Dimension X who allied with Shredder to conquer Earth. Operating from within his powerful android body, this disembodied conqueror brings advanced alien technology and ruthless ambition to the Foot Clan's schemes. The figure features Krang's memorable android exosuit with the brain creature visible in the abdominal compartment.

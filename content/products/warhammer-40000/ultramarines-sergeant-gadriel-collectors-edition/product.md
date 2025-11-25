@@ -23,3 +23,5 @@ cost_tw: 1003.0
 order_weight: 0
 ---
 
+Sergeant Gadriel leads his squad with the unwavering determination that defines the [[Ultramarines]]. This Collector's Edition captures the veteran sergeant in exceptional detail, showcasing the wargear and bearing of a warrior who has risen through the ranks through merit and valor. Gadriel represents the countless sergeants who form the backbone of Space Marine leadership, translating their Captains' orders into battlefield reality.
+

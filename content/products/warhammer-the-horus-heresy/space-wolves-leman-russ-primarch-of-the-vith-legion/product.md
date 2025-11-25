@@ -23,3 +23,4 @@ cost_tw: 2007.0
 order_weight: 0
 ---
 
+[[Leman Russ]], Primarch of the [[Space Wolves|VI Legion]] and known as the Wolf King, was the Emperor's executioner and one of the most fearsome warriors among his brothers. Raised among the savage tribes of Fenris, Russ led his Legion with primal fury and unshakeable loyalty. Armed with the Sword of Balenight and the Axe of Helwinter, this figure captures the Wolf King ready to execute the Emperor's judgement during the [[Horus Heresy]].

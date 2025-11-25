@@ -23,3 +23,4 @@ cost_tw: 875.0
 order_weight: 0
 ---
 
+Armed with a volkite charger and power axe, this [[Lernaean|Lernaean Terminator]] of the [[Alpha Legion]] is equipped for close-range devastation. The volkite charger's thermal ray can immolate targets in seconds, while the power axe ensures any survivors meet a swift end. The Lernaean specialized in decapitation strikes, eliminating enemy commanders with ruthless efficiency and absolute precision.

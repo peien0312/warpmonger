@@ -23,3 +23,4 @@ cost_tw: 641.0
 order_weight: 0
 ---
 
+[[Imperial Fists]] Despoiler Squad Sergeants led close-combat specialists who excelled at clearing enemy fortifications and holding breaches. Armed with a plasma pistol for dealing with armored targets and equipped with close-quarters weapons, this Sergeant exemplifies the VII Legion's aggressive assault doctrine. In Mark III armor, he is perfectly equipped for the brutal fighting of the [[Horus Heresy]].

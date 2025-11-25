@@ -23,3 +23,4 @@ cost_tw: 875.0
 order_weight: 0
 ---
 
+[[Alpha Legion]] Praetors wielded both blade and subterfuge with equal skill, commanding their forces through complex operational cells and layered battle plans. Armed with an elegant power sword, this commander can match any foe in single combat while orchestrating wider strategic maneuvers. In the XX Legion, every action serves multiple purposes, and this Praetor is no exception.

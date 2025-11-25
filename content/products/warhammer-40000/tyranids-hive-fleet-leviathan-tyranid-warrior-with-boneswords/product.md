@@ -23,3 +23,5 @@ cost_tw: 790.0
 order_weight: 0
 ---
 
+Tyranid Warriors are the synapse creatures of the [[Tyranids|Tyranid]] swarms, organisms through which the Hive Mind directs its lesser creatures. This Warrior carries boneswords — living blades that can slice through armor while their psychic resonance attacks the victim's nervous system. Standing far larger than a human, Warriors provide both combat prowess and psychic coordination, making them priority targets for any force facing a Tyranid invasion.
+

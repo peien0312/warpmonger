@@ -23,3 +23,4 @@ cost_tw: 619.0
 order_weight: 0
 ---
 
+The Angel's Tears were the [[Blood Angels|Blood Angels']] most terrifying destroyers, jump pack-equipped specialists who deployed weapons too horrific for normal warfare. This Arch-Erelim carries the signature Angel's Tears grenade launcher, a weapon that fires rad and phosphex munitions to annihilate enemy positions. Senior members of the formation, Arch-Erelim led their brothers in devastating assault operations.

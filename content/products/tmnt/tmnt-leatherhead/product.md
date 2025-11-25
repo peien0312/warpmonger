@@ -23,3 +23,4 @@ cost_tw: 841.0
 order_weight: 0
 ---
 
+Leatherhead is the massive mutant alligator whose tragic origin as a Kraang experiment led him to become both ally and occasional foe to the Turtles. His incredible strength and armored hide make him one of the most physically imposing mutants in New York's sewers. This detailed figure captures Leatherhead's fearsome appearance and the raw power that makes him such a memorable character.

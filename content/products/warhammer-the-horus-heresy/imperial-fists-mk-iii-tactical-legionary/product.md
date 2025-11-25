@@ -23,3 +23,4 @@ cost_tw: 512.0
 order_weight: 0
 ---
 
+[[Imperial Fists]] Legionaries in Mark III "Iron" armor formed the unyielding battle line of the VII Legion. Masters of defensive warfare and siege craft, [[Rogal Dorn|Dorn's]] sons were instrumental in fortifying Terra against the Traitor onslaught during the [[Horus Heresy]]. The golden yellow armor identifies this warrior as one of the most disciplined and resolute Space Marines in the Imperium.

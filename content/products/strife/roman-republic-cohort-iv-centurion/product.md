@@ -23,3 +23,4 @@ cost_tw: 576.0
 order_weight: 0
 ---
 
+The Centurion of Cohort IV commands approximately eighty legionaries, the backbone of Roman military might during the Republic era. Identified by their transverse helmet crest and vine staff of office, these professional officers led from the front and enforced the iron discipline that made Rome's legions legendary. This detailed figure captures the commanding presence and distinctive equipment that marked a centurion's authority on the battlefield.

@@ -23,3 +23,5 @@ cost_tw: 8284.0
 order_weight: 0
 ---
 
+House Terryn's Knight Paladin is a legendary war machine, its blue and white heraldry recognized across the Imperium as a symbol of nobility and martial prowess. The Knight Paladin is the most common pattern of [[Imperial Knights]], a versatile war engine armed with a rapid-fire battle cannon and a thunderstrike gauntlet for crushing enemy vehicles. House Terryn has fought alongside the armies of the Imperium for millennia, their Nobles upholding traditions of honor and duty that predate even the Imperium itself.
+

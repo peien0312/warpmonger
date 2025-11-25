@@ -23,3 +23,5 @@ cost_tw: 290.0
 order_weight: 0
 ---
 
+Moreau is an elite UNSC sniper whose precision and tactical awareness have made him a legendary figure among military personnel. His ability to blend into any environment makes him nearly impossible to detect. This 1/25 scale figure showcases the professional equipment of UNSC special forces marksmen.
+

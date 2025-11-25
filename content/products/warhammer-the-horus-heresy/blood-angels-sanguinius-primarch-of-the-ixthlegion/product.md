@@ -23,3 +23,4 @@ cost_tw: 2071.0
 order_weight: 0
 ---
 
+[[Sanguinius]], Primarch of the [[Blood Angels|IX Legion]] and known as the Great Angel, was the most beloved of the Emperor's sons. His magnificent white wings and angelic countenance made him an inspiring figure, while his martial prowess made him deadly on the battlefield. Armed with the Blade Encarmine and the Spear of Telesto, Sanguinius would ultimately sacrifice himself confronting [[Horus]] aboard the Vengeful Spirit, his death becoming a defining tragedy of the [[Horus Heresy]].

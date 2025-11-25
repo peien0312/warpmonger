@@ -23,3 +23,4 @@ cost_tw: 683.0
 order_weight: 0
 ---
 
+[[Iron Warriors]] Tyrant Siege Terminators were specialists in fortification destruction, their heavy weapons capable of reducing bunkers and gun emplacements to rubble. Armed with a cyclone missile launcher, this warrior can saturate enemy positions with explosive ordnance. The heavy [[Terminator Armour]] allows these siege specialists to advance through defensive fire that would annihilate lesser troops.

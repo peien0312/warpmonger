@@ -23,3 +23,4 @@ cost_tw: 811.0
 order_weight: 0
 ---
 
+The Medical Officer rushes into the thick of battle to save lives, stabilizing wounded soldiers and performing emergency field surgery under fire. Trained in both combat and medicine, these professionals carry the burden of keeping their comrades alive against impossible odds. This detailed figure includes medical equipment and emergency supplies, capturing the dual role of healer and warrior that defines the Rescue Squad's medics.

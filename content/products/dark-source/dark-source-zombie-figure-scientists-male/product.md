@@ -23,3 +23,5 @@ cost_tw: 290.0
 order_weight: 0
 ---
 
+These male scientist zombies represent the researchers at the heart of the outbreak, their intellect now replaced by primal hunger. Lab coats and safety goggles remain as ironic reminders of failed protocols. This 1/25 scale set adds authenticity to laboratory horror displays.
+

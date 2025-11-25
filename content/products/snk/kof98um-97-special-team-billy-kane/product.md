@@ -23,3 +23,5 @@ cost_tw: 675.0
 order_weight: 0
 ---
 
+Billy Kane, the bo staff-wielding enforcer from The King of Fighters, represents the '97 Special Team in this 1/18 scale figure. His iconic red outfit and signature three-section staff are faithfully reproduced. A longtime rival of the Fatal Fury heroes, Billy brings attitude and style to any KOF collection.
+

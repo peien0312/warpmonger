@@ -23,3 +23,5 @@ cost_tw: 248.0
 order_weight: 0
 ---
 
+Tork is the Steel Ride Corps mechanic responsible for keeping their vehicles combat-ready in the field. His technical expertise ensures the Corps can maintain their aggressive tempo even under harsh conditions. This 1/25 scale figure features specialized tools and the practical gear of military mechanics.
+

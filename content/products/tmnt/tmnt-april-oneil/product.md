@@ -23,3 +23,4 @@ cost_tw: 619.0
 order_weight: 0
 ---
 
+April O'Neil is the intrepid Channel 6 reporter who became the Turtles' first human ally after they rescued her from the Foot Clan. Her investigative skills and courage often lead her into danger, but she proves time and again that she can hold her own alongside her mutant friends. This figure captures April in her classic yellow jumpsuit, ready for her next breaking story from the sewers.

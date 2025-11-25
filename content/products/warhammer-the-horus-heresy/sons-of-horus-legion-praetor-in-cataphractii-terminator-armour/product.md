@@ -23,3 +23,4 @@ cost_tw: 961.0
 order_weight: 0
 ---
 
+[[Sons of Horus]] Praetors were the senior commanders of the XVI Legion, veterans who had proven themselves in countless campaigns across the galaxy. Clad in heavy Cataphractii [[Terminator Armour]], this Praetor leads from the front lines, his presence inspiring his warriors to ever greater acts of brutality. The bulky armor provides unmatched protection for close-quarters boarding actions and teleport assaults.

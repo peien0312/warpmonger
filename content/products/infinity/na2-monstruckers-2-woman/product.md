@@ -23,3 +23,5 @@ cost_tw: 555.0
 order_weight: 0
 ---
 
+This female Monstrucker brings the same vital repair and engineering skills to your NA2 forces with a different personality. The Monstruckers' ability to keep TAGs and remotes operational mid-battle can turn the tide of any engagement. Pair with the male variant to ensure your heavy assets stay in the fight.
+

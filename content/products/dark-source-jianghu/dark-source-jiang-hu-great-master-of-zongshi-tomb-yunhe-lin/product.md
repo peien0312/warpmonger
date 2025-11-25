@@ -23,3 +23,5 @@ cost_tw: 683.0
 order_weight: 0
 ---
 
+Yunhe Lin, the Great Master of Zongshi Tomb, emerges from the Dark Source Jianghu series as a figure of ancient wisdom and martial prowess. This 1/18 scale figure captures the elder warrior's dignified bearing and traditional robes. An essential addition for collectors exploring the mystical martial arts world of Jianghu.
+

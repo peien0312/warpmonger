@@ -23,3 +23,4 @@ cost_tw: 619.0
 order_weight: 0
 ---
 
+This Angel's Tears Erelim of the [[Blood Angels]] carries paired volkite serpentas, heat rays of ancient design that can reduce armored targets to ash. The Angel's Tears accepted the burden of employing weapons their Legion found distasteful, ensuring the IX Legion's victories even at the cost of their own souls. Their jump packs allowed them to deploy these weapons with devastating precision.

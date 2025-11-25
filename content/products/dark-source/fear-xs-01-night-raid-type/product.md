@@ -23,3 +23,5 @@ cost_tw: 606.0
 order_weight: 0
 ---
 
+The FEAR XS-01 Night Raid type is a stealth-oriented combat mech designed for covert operations and surprise attacks. Its dark armor and silent systems make it ideal for infiltration missions deep behind enemy lines. This 1/25 scale model captures the menacing silhouette of specialized night combat mechs.
+

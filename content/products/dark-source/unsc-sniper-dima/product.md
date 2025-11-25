@@ -23,3 +23,5 @@ cost_tw: 290.0
 order_weight: 0
 ---
 
+Dima is a skilled UNSC sniper known for impossible shots and unwavering focus under pressure. His ability to operate in any environment makes him a versatile asset in any combat theater. This 1/25 scale figure features the advanced optics and precision weapons of UNSC long-range specialists.
+

@@ -23,3 +23,5 @@ cost_tw: 290.0
 order_weight: 0
 ---
 
+Foster is a veteran UNSC sniper with countless confirmed eliminations in hostile territories. His extensive combat experience and steady nerves make him a legend among UNSC marksmen. This 1/25 scale figure captures the elite equipment and professional bearing of UNSC precision shooters.
+

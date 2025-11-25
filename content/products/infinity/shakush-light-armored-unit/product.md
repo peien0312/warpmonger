@@ -23,3 +23,4 @@ cost_tw: 1089.0
 order_weight: 0
 ---
 
+The Shakush is a light Tactical Armored Gear favored by Haqqislam forces, combining speed and firepower in a nimble package. This agile TAG excels at flanking maneuvers and rapid redeployment across the battlefield. The 1/18 scale figure showcases the sleek, desert-appropriate design of this versatile combat platform.

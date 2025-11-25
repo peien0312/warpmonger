@@ -23,3 +23,4 @@ cost_tw: 1068.0
 order_weight: 0
 ---
 
+Fafnir Rann served as the Lord Seneschal of the [[Imperial Fists]], commanding the Legion's assault forces with brutal efficiency. Known for his savage fighting style and preference for chain weapons, Rann was the embodiment of controlled fury on the battlefield. During the [[Horus Heresy]], he led devastating counter-attacks against the Traitor forces, his ferocity inspiring his brothers to hold the walls of Terra.

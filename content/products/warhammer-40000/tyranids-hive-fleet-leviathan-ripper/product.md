@@ -23,3 +23,5 @@ cost_tw: 299.0
 order_weight: 0
 ---
 
+Rippers are among the smallest [[Tyranids|Tyranid]] organisms, serpentine creatures that swarm across battlefields in their millions to consume the dead and dying. These voracious beasts strip flesh from bone with terrifying efficiency, processing organic matter that will later be absorbed into the Hive Fleet's biomass pools. Hive Fleet Leviathan's Rippers bear the distinctive purple and white coloration of their fleet, marking them as part of one of the most dangerous tendrils of the Great Devourer.
+

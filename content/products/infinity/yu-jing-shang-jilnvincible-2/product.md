@@ -23,3 +23,4 @@ cost_tw: 470.0
 order_weight: 0
 ---
 
+This second Shang Ji Invincible variant brings a different weapons loadout to your Yu Jing forces. The modular nature of their power armor allows for mission-specific configurations without sacrificing protection. Collect both variants to create versatile heavy infantry teams for your StateEmpire army.

@@ -23,3 +23,5 @@ cost_tw: 555.0
 order_weight: 0
 ---
 
+Ao Gongsun holds the title of Blademaster within the Taichang Sect, a position earned through supreme swordsmanship. This 1/18 scale Dark Source Jianghu figure comes with exquisitely detailed weapons befitting his legendary status. His dynamic pose captures the essence of Chinese sword martial arts.
+

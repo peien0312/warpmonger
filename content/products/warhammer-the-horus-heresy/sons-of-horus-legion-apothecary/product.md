@@ -23,3 +23,4 @@ cost_tw: 790.0
 order_weight: 0
 ---
 
+[[Sons of Horus]] Legion Apothecaries served a vital role in preserving their Legion's genetic legacy, recovering gene-seed from fallen warriors and providing battlefield medical support. During the [[Horus Heresy]], their duties took on darker dimensions as the Traitor Legions sought to swell their numbers by any means necessary. This warrior bears the traditional white markings and narthecium of his calling.

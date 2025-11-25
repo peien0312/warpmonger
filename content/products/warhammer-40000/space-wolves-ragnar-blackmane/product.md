@@ -23,3 +23,5 @@ cost_tw: 897.0
 order_weight: 0
 ---
 
+Ragnar Blackmane is the youngest Wolf Lord in the history of the [[Space Wolves]], a ferocious warrior whose impetuous nature is matched only by his martial skill. Armed with the Frostfang — a master-crafted frost blade — and his bolt pistol, Ragnar leads his Great Company from the front, always seeking the most dangerous foes to challenge. His transformation into a Primaris Marine has only enhanced his already legendary abilities, making him one of the deadliest warriors in the Chapter.
+

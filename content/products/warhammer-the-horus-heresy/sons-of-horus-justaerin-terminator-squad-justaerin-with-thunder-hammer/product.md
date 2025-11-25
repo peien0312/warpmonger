@@ -23,3 +23,4 @@ cost_tw: 769.0
 order_weight: 0
 ---
 
+A [[Justaerin]] Terminator of the [[Sons of Horus]] armed with a devastating thunder hammer, a weapon capable of pulverizing enemy armor and shattering fortifications with each swing. Clad in black Cataphractii [[Terminator Armour]], this elite warrior served among [[Horus|Warmaster Horus's]] personal guard. The thunder hammer's disruption field can overload even void shields, making these warriors terrifying in siege warfare.

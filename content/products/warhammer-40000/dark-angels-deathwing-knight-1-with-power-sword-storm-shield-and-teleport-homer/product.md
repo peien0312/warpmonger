@@ -23,3 +23,5 @@ cost_tw: 982.0
 order_weight: 0
 ---
 
+[[Deathwing]] Knights are the champions of the [[Dark Angels]]' First Company, ceremonial warriors entrusted with the Chapter's most sacred duties. This Knight carries a power sword and storm shield alongside a teleport homer, allowing his squad to call down reinforcements from orbit directly onto his position. Clad in bone-white Terminator armor adorned with the iconography of the Unforgiven, he stands ready to deliver judgment upon the enemies of the Emperor and hunt the Fallen wherever they hide.
+

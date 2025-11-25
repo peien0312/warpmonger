@@ -23,3 +23,4 @@ cost_tw: 448.0
 order_weight: 0
 ---
 
+The Hasta Gladiator specializes in spear combat, using the reach advantage of their weapon to control distance and strike before opponents can close. This fighting style required exceptional footwork and precision, as the spear's length became a liability in close quarters. The figure comes equipped with an authentic hasta spear and the lighter armor that allowed these gladiators to maintain the mobility essential to their combat style.

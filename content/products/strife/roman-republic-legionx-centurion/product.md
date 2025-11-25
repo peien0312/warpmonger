@@ -23,3 +23,4 @@ cost_tw: 598.0
 order_weight: 0
 ---
 
+The Centurion of Legion X commands his century with the authority and experience that defined Roman military excellence. Legion X was among the most famous units in Roman history, serving with distinction under Julius Caesar during the conquest of Gaul. This figure features the ornate armor, transverse crest, and commanding presence befitting an officer of this legendary legion.

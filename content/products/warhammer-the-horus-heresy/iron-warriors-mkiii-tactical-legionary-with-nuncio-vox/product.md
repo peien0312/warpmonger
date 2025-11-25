@@ -23,3 +23,4 @@ cost_tw: 598.0
 order_weight: 0
 ---
 
+[[Iron Warriors]] Legionaries equipped with nuncio-vox communications gear provided vital coordination for the IV Legion's methodical siege operations. In the grinding attritional warfare the [[Iron Warriors]] excelled at, clear communication between assault elements was essential. The Mark III armor's frontal protection made it ideal for the trench warfare and fortification breaching that defined the Legion's approach.

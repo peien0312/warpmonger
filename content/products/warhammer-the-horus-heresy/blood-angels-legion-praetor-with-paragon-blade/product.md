@@ -23,3 +23,4 @@ cost_tw: 1089.0
 order_weight: 0
 ---
 
+A [[Blood Angels]] Praetor bearing a Paragon Blade, a weapon of exquisite craftsmanship worthy of the IX Legion's finest commanders. Paragon Blades were master-crafted weapons that enhanced their wielder's already formidable combat abilities, making these Praetors deadly duelists. The ornate crimson and gold armor reflects the artistic traditions the Blood Angels maintained even during the [[Horus Heresy]].

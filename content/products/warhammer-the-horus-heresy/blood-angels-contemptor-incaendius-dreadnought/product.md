@@ -23,3 +23,4 @@ cost_tw: 1644.0
 order_weight: 0
 ---
 
+The [[Blood Angels]] Contemptor-Incaendius [[Contemptor Dreadnought|Dreadnought]] is a specialized variant designed for close assault, equipped with twin inferno pistols and massive talons. The Incaendius pattern reflects the IX Legion's preference for aggressive close-quarters combat, allowing fallen heroes to continue serving as devastating assault platforms. The crimson armor marks this walker as one of [[Sanguinius|Sanguinius's]] own.

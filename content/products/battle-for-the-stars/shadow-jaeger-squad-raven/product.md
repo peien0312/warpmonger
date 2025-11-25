@@ -23,3 +23,4 @@ cost_tw: 278.0
 order_weight: 0
 ---
 
+Codename Raven serves as the eyes of the Shadow Jaeger squad, providing aerial reconnaissance and overwatch support for covert operations. With enhanced optics and drone integration, Raven maintains situational awareness across the entire battlefield. This figure features the distinctive surveillance equipment and long-range communication gear that makes Raven an invaluable asset to any infiltration mission.

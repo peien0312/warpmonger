@@ -1,5 +1,8 @@
 ---
 title: Sanguinius
-aliases: ["Primarch Sanguinius", "The Great Angel", "Angel of Baal"]
+aliases:
+  - sanguinius
+  - the great angel
 ---
-Primarch of the IX Legion: Sanguinius led the Blood Angels, one of the Emperor's twenty Space Marine Legions. He was a brilliant commander and beloved figure, often seen as embodying the Emperor's noblest qualities. At the Siege of Terra, Sanguinius confronted Warmaster Horus aboard the Vengeful Spirit. Though mortally wounded and slain, his sacrifice weakened Horus, paving the way for the Emperor's final battle. His death left a psychic imprint on the Blood Angels, manifesting as the Red Thirst and Black Rage, curses that haunt the Chapter to this day.
+
+Sanguinius, Primarch of the Blood Angels and known as the Great Angel, was perhaps the most beloved of all the Emperor's sons. Blessed with magnificent white wings and angelic beauty, he embodied nobility and virtue while harboring a terrible secret—the Red Thirst that afflicted his Legion. During the Siege of Terra, Sanguinius confronted Horus himself aboard the Vengeful Spirit and, though he fell in battle, his sacrifice helped weaken the Warmaster enough for the Emperor to deliver the final blow. His death transformed him into a martyred saint revered across the Imperium.

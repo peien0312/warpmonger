@@ -23,3 +23,5 @@ cost_tw: 675.0
 order_weight: 0
 ---
 
+Kyo Kusanagi, the flame-wielding hero of The King of Fighters, joins the 98UM action figure lineup. As the protagonist of SNK's legendary fighting game series, Kyo comes with his signature crimson flames and multiple interchangeable parts. This 1/18 scale figure captures his iconic design from KOF 98 Ultimate Match with exceptional detail.
+

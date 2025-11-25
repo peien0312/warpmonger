@@ -23,3 +23,4 @@ cost_tw: 278.0
 order_weight: 0
 ---
 
+The Jetpack Mercenary takes combat to new heights with advanced aerial mobility equipment. This sci-fi themed 1/18 scale figure features a detailed jetpack system and futuristic weaponry for high-altitude operations. Perfect for collectors who enjoy blending military realism with science fiction elements.

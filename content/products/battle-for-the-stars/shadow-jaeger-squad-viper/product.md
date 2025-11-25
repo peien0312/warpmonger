@@ -23,3 +23,4 @@ cost_tw: 278.0
 order_weight: 0
 ---
 
+Codename Viper strikes with lethal precision, specializing in close-quarters assassination and silent elimination of high-value targets. This Shadow Jaeger operative moves with deadly grace, dispatching enemies before they even realize the threat. The figure captures Viper's menacing presence with detailed tactical gear and the covert weaponry that makes this operative a whispered nightmare among enemy forces.

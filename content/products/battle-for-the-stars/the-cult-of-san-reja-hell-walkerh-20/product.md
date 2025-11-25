@@ -23,3 +23,4 @@ cost_tw: 555.0
 order_weight: 0
 ---
 
+The "Hell Walker" H-20 is the signature combat motorcycle of the Cult of San Reja, a ruthless gang that terrorizes the lawless frontier worlds. Modified for both speed and destruction, this machine features reinforced armor plating and weapon mounts for running battles across wasteland terrain. The detailed model captures the aggressive, post-apocalyptic aesthetic that defines the San Reja cult's unique brand of vehicular mayhem.

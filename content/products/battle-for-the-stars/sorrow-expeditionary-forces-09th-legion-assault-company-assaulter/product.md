@@ -23,3 +23,4 @@ cost_tw: 512.0
 order_weight: 0
 ---
 
+The Assaulter forms the aggressive tip of the spear for the 09th Legion, trained to breach enemy positions and secure objectives through overwhelming firepower. Armed with close-quarters combat weaponry, these shock troops excel at clearing fortified positions and engaging hostiles at point-blank range. This highly detailed 1/18 scale figure captures the aggressive stance and heavy armament that defines the Assault Company's frontline warriors.

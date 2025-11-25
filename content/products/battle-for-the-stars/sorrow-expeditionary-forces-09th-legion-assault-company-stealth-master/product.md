@@ -23,3 +23,4 @@ cost_tw: 491.0
 order_weight: 0
 ---
 
+The Stealth Master operates in the shadows, infiltrating enemy lines to gather intelligence and eliminate high-value targets. Equipped with advanced cloaking technology and suppressed weapons, these specialists can move unseen through hostile territory. This detailed figure showcases the specialized reconnaissance gear and lighter loadout that allows the Stealth Master to operate behind enemy lines undetected.

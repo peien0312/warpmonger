@@ -23,3 +23,4 @@ cost_tw: 662.0
 order_weight: 0
 ---
 
+Casey Jones is the hockey-masked vigilante who patrols the streets of New York armed with an arsenal of sports equipment. This hot-headed ally of the Turtles fights crime with baseball bats, hockey sticks, and an unshakeable sense of street justice. The figure includes Casey's signature hockey mask and sports gear, capturing the urban warrior's unconventional crime-fighting style.

@@ -23,3 +23,4 @@ cost_tw: 726.0
 order_weight: 0
 ---
 
+Dawnbreakers were the [[Blood Angels|Blood Angels']] premier assault infantry, jump pack-equipped warriors who excelled at smashing through enemy lines. Armed with power weapons and falling star grenades—specialized ordnance that created blinding bursts of light—they descended upon their foes like vengeful angels. The Dawnbreaker Cohorts were the embodiment of the IX Legion's aggressive close-quarters doctrine.

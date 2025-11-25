@@ -23,3 +23,4 @@ cost_tw: 555.0
 order_weight: 0
 ---
 
+Oktavia Grimsdottir serves as a Harpooner for the Icebreakers, skilled in arctic warfare and specialized hunting techniques. Her expertise with the harpoon weapon makes her deadly against armored targets and large creatures alike. This 1/18 scale figure captures the cold-weather gear and distinctive weaponry of this unique operative.

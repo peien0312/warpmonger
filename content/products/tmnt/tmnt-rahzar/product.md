@@ -23,3 +23,4 @@ cost_tw: 713.0
 order_weight: 0
 ---
 
+Rahzar is the ferocious mutant wolf created alongside Tokka to serve Shredder's vendetta against the Turtles. His razor-sharp claws and animalistic fury made him a terrifying opponent, though his childish mentality often undermined his effectiveness. This detailed figure showcases Rahzar's lupine features and the savage claws that earned him his name.

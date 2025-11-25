@@ -23,3 +23,4 @@ cost_tw: 512.0
 order_weight: 0
 ---
 
+The Wu Ming Assault Corps are Yu Jing's disposable shock troops, criminals given a chance at redemption through service. Their heavy armor and aggressive tactics make them ideal for the most dangerous assaults. This 1/18 scale figure captures the brutal functionality of Wu Ming combat equipment.

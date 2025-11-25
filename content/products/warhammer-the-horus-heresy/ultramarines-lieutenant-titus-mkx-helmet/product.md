@@ -23,3 +23,5 @@ cost_tw: 2263.0
 order_weight: 0
 ---
 
+A full-scale replica of Lieutenant Titus's Mark X helmet, the iconic headgear worn by the legendary [[Ultramarines]] warrior from Warhammer 40,000: Space Marine II. This 1:1 scale collectible captures every detail of the advanced Primaris armor, from the blue ceramite plating to the red eye lenses. A stunning display piece for any fan of the XIII Legion.
+

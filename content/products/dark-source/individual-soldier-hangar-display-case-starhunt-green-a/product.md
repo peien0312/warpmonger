@@ -23,3 +23,5 @@ cost_tw: 98.0
 order_weight: 0
 ---
 
+The Starhunt Green A display case offers a military-inspired green backdrop for your 1/25 scale figures. The hangar-style design creates an immersive tactical aesthetic while protecting your collection. Part of the Individual Soldier display case series for combat-themed figure presentation.
+

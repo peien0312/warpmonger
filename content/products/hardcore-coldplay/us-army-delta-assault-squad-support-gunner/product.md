@@ -23,3 +23,4 @@ cost_tw: 278.0
 order_weight: 0
 ---
 
+The Support Gunner provides sustained firepower for the Delta Force squad, carrying automatic weapons for suppressive fire missions. This 1/18 scale figure showcases the specialized equipment and heavier loadout required for fire support roles. Combine with other Delta squad members to create a complete special operations unit.

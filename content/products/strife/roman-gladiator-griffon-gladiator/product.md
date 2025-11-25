@@ -23,3 +23,4 @@ cost_tw: 363.0
 order_weight: 0
 ---
 
+The Griffon Gladiator draws inspiration from the mythical beast, wearing elaborate armor adorned with griffon imagery that elevated arena combat into theatrical spectacle. These gladiators embodied the legendary creature's ferocity and majesty, fighting with a style befitting their mythological namesake. This figure features ornate griffon-themed equipment that made these warriors unforgettable performers in the bloody entertainment of ancient Rome.

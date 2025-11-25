@@ -23,3 +23,4 @@ cost_tw: 512.0
 order_weight: 0
 ---
 
+[[Alpha Legion]] Legionaries in Mark III "Iron" armor formed the backbone of the XX Legion's conventional forces. While the Legion preferred covert operations, they maintained fully capable battle line units for open warfare. The metallic blue-green of the Alpha Legion marks this warrior as part of the most mysterious Legion, whose true loyalties during the [[Horus Heresy]] remain debated to this day.

@@ -23,3 +23,5 @@ cost_tw: 747.0
 order_weight: 0
 ---
 
+This [[Ultramarines]] Terminator carries an assault cannon, a rotary weapon capable of unleashing a storm of shells that can shred infantry and light vehicles alike. The assault cannon transforms the Terminator into a walking fire support platform, providing covering fire for his squad or laying down suppressive barrages during advances. In the cramped confines of space hulks and fortress corridors, such firepower proves devastating.
+

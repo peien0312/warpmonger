@@ -23,3 +23,5 @@ cost_tw: 248.0
 order_weight: 0
 ---
 
+This pilot figure represents the reliable operator of the Bedrock standard combat mech, trained in versatile battlefield tactics and direct engagement. Their practical flight suit reflects the no-nonsense approach of frontline mech warfare. This 1/25 scale figure complements the Bedrock mech perfectly.
+

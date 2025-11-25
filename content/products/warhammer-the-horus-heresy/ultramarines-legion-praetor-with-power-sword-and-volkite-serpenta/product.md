@@ -23,3 +23,5 @@ cost_tw: 1089.0
 order_weight: 0
 ---
 
+A Praetor of the [[Ultramarines]] Legion during the Great Crusade, armed with power sword and volkite serpenta. The XIII Legion's Praetors were masters of the Codex disciplines that would later become standard across the Imperium. His tactical genius and martial prowess exemplify the ideals of [[Roboute Guilliman]], building an empire that would endure through the darkness of the [[Horus Heresy]].
+

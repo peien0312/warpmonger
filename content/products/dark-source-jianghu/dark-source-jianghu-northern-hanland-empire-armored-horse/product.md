@@ -23,3 +23,5 @@ cost_tw: 683.0
 order_weight: 0
 ---
 
+The Armored Horse of the Northern Hanland Empire brings cavalry warfare to the Dark Source Jianghu series. This 1/18 scale mount features authentic barding and detailed tack, perfect for displaying with Northern Empire cavalry figures. The imposing war horse captures the military might of ancient China.
+

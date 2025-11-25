@@ -23,3 +23,5 @@ cost_tw: 939.0
 order_weight: 0
 ---
 
+Clad in heavy Gravis armor, this [[Ultramarines]] Captain leads his brothers from the front lines where the fighting is fiercest. The Gravis pattern provides enhanced protection and strength, allowing him to wade through enemy fire while delivering devastating attacks. As a Captain of the XIII Legion, he commands with the tactical precision that has made the Ultramarines the most emulated Chapter in the Imperium.
+

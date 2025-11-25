@@ -23,3 +23,5 @@ cost_tw: 641.0
 order_weight: 0
 ---
 
+The Sternguard Veteran Sergeant leads the elite veterans of the [[Ultramarines]] First Company, warriors chosen for their exceptional marksmanship and decades of combat experience. Sternguard Veterans are masters of ranged warfare, equipped with special issue ammunition that allows them to adapt their firepower to any threat. As sergeant, he directs his squad's devastating volleys with the precision that has made the Ultramarines' Sternguard legendary.
+

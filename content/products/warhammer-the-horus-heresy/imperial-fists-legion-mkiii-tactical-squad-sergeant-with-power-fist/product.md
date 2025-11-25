@@ -23,3 +23,4 @@ cost_tw: 641.0
 order_weight: 0
 ---
 
+An [[Imperial Fists]] Tactical Squad Sergeant in Mark III armor, armed with a power fist capable of crushing through enemy armor. Sergeants of the VII Legion led their squads with the disciplined efficiency that defined [[Rogal Dorn|Dorn's]] sons, holding defensive lines or advancing through enemy positions with equal skill. The power fist marks this veteran as ready for any foe the [[Horus Heresy]] throws at him.

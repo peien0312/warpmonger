@@ -23,3 +23,4 @@ cost_tw: 2050.0
 order_weight: 0
 ---
 
+[[Perturabo]], Primarch of the [[Iron Warriors|IV Legion]], was the undisputed master of siege warfare in the Legiones Astartes. His brilliant strategic mind and talent for architecture made him the Imperium's greatest builder—and greatest destroyer—of fortifications. This figure captures the Lord of Iron in his formidable warplate, wielding Forgebreaker, ready to tear down the walls of the Imperium he once helped build during the [[Horus Heresy]].

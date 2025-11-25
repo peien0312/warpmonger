@@ -23,3 +23,4 @@ cost_tw: 278.0
 order_weight: 0
 ---
 
+The WWII Wehrmacht soldier represents the German armed forces during the Second World War. This 1/18 scale figure features historically accurate uniforms and equipment from the period. A detailed figure for collectors building World War II displays and historical military dioramas.

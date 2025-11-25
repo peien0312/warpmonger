@@ -23,3 +23,4 @@ cost_tw: 1132.0
 order_weight: 0
 ---
 
+The North 09 Strike Attack Mecha serves as a rapid assault platform, combining speed and firepower for devastating hit-and-run tactics. Unlike heavier Tyrant-class units, the North 09 prioritizes mobility, capable of repositioning faster than enemy targeting systems can track. This detailed model features an aggressive forward-swept design, multiple weapon systems, and the powerful leg actuators that give this mecha its legendary battlefield agility.

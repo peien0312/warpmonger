@@ -23,3 +23,4 @@ cost_tw: 299.0
 order_weight: 0
 ---
 
+The Lone Wolf operates independently with the enhanced strength and protection of a powered exoskeleton. This 1/18 scale mercenary figure combines near-future technology with tactical military design. The detailed exoskeleton frame and heavy weaponry make this a standout piece for collectors of advanced military hardware.

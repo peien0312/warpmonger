@@ -23,3 +23,4 @@ cost_tw: 662.0
 order_weight: 0
 ---
 
+Adjutant Zork serves as second-in-command to Captain Zorax, executing orders with the ruthless efficiency expected of Triceraton military officers. His loyalty to his captain and dedication to the Triceraton Empire make him a formidable opponent. The figure showcases Zork's distinctive officer equipment and the intimidating presence of this alien warrior.

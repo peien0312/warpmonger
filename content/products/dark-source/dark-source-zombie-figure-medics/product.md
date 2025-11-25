@@ -23,3 +23,5 @@ cost_tw: 222.0
 order_weight: 0
 ---
 
+These medic zombies were healthcare workers who stayed to help during the outbreak, paying the ultimate price for their dedication. Their medical scrubs and equipment remain as grim reminders of their sacrifice. This 1/25 scale set adds tragic depth to zombie apocalypse scenarios.
+

@@ -23,3 +23,4 @@ cost_tw: 555.0
 order_weight: 0
 ---
 
+This female light infantry warrior wields gladius and shield, ready to engage in close combat when the skirmishing phase ends. Her lighter equipment allows for rapid movement while still providing the protection needed for melee engagement. The figure showcases the balanced loadout of sword-armed auxiliary troops who fought alongside Rome's famous heavy infantry legions.

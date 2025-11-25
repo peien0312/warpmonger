@@ -23,3 +23,5 @@ cost_tw: 1495.0
 order_weight: 0
 ---
 
+Dora completes your Frontline Chaos squad with her unique character design and combat-ready appearance. This 1/12 scale Level Nine figure offers exceptional articulation and detail. Includes signature weapons and accessories that capture Dora's personality and role in the Frontline Chaos universe.
+

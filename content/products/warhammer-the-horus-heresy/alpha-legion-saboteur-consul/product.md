@@ -23,3 +23,4 @@ cost_tw: 939.0
 order_weight: 0
 ---
 
+[[Alpha Legion]] Saboteur Consuls specialize in demolitions and infrastructure destruction, crippling enemy capabilities before open battle begins. These operatives infiltrate behind enemy lines to destroy supply depots, communication arrays, and vital installations. Armed with specialized demolition charges and personal weapons, the Saboteur Consul embodies the Alpha Legion's preference for winning wars before the first shot is fired.

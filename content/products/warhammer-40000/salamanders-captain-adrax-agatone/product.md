@@ -23,3 +23,5 @@ cost_tw: 918.0
 order_weight: 0
 ---
 
+Captain Adrax Agatone of the [[Salamanders]] Third Company is a living legend, a warrior whose skin has been darkened to deep obsidian by the radiation of Nocturne. Armed with master-crafted weapons forged in the volcanic depths of his homeworld, Agatone leads his brothers with the fierce determination that defines the sons of Vulkan. Unlike many Space Marine commanders, he fights to protect humanity, not merely to destroy its enemies — a distinction that makes the Salamanders beloved by the common people they defend.
+

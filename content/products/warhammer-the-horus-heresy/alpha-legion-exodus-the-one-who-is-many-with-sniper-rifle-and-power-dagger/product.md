@@ -23,3 +23,4 @@ cost_tw: 1025.0
 order_weight: 0
 ---
 
+Exodus, "The One Who is Many," was the [[Alpha Legion|Alpha Legion's]] most feared assassin, a title held by multiple operatives to maintain the illusion of omnipresence. Armed with a customized sniper rifle and power dagger, Exodus specialized in decapitation strikes against enemy leadership. Whether one individual or many, Exodus embodied the Alpha Legion's doctrine of eliminating key targets to collapse enemy command structures.

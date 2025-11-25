@@ -23,3 +23,4 @@ cost_tw: 512.0
 order_weight: 0
 ---
 
+[[Blood Angels]] Legionaries in Mark III "Iron" armor formed the backbone of the IX Legion's battle line during the [[Horus Heresy]]. The distinctive crimson of [[Sanguinius|Sanguinius's]] Legion marks this warrior as one of the most noble Space Marines in the Imperium. Despite the heavy, utilitarian design of Mark III armor, the Blood Angels maintained their tradition of ornate decoration and artistic expression.

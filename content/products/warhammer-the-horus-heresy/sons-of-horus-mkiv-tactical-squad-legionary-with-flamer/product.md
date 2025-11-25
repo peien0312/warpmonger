@@ -23,3 +23,4 @@ cost_tw: 619.0
 order_weight: 0
 ---
 
+This [[Sons of Horus]] Legionary in Mark IV "Maximus" armor carries a flamer, perfect for clearing fortifications and purging enemy infantry from cover. The Mark IV pattern represents the pinnacle of pre-Heresy armor technology, offering superior protection while maintaining excellent mobility. Armed to burn a path through any opposition, this warrior embodies the XVI Legion's aggressive doctrine.

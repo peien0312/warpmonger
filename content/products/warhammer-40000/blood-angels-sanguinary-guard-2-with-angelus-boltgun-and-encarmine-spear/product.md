@@ -23,3 +23,5 @@ cost_tw: 790.0
 order_weight: 0
 ---
 
+Armed with the elegant encarmine spear and wrist-mounted angelus boltgun, this [[Sanguinary Guard]] warrior combines ranged firepower with devastating reach in close combat. The encarmine spear allows him to strike down enemies before they can bring their own weapons to bear, while the angelus boltgun provides supporting fire during his descent from the skies. As part of the [[Blood Angels]]' most honored brotherhood, he fights with the grace and precision that defined [[Sanguinius]], the Great Angel.
+

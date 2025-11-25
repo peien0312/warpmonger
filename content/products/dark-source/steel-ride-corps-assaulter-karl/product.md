@@ -23,3 +23,5 @@ cost_tw: 290.0
 order_weight: 0
 ---
 
+Karl is a veteran assaulter of the Steel Ride Corps, a mechanized infantry unit known for their aggressive tactics and heavy armor. His expertise in vehicular assault makes him deadly when riding into battle. This 1/25 scale figure features the distinctive equipment and rugged appearance of Steel Ride operators.
+

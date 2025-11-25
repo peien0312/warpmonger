@@ -23,3 +23,5 @@ cost_tw: 675.0
 order_weight: 0
 ---
 
+Benimaru Nikaido brings his electrifying style to the KOF 98UM Hero Team collection. This 1/18 scale figure captures the flamboyant fighter's distinctive hairstyle and lightning-based fighting stance. Complete with character-specific accessories, Benimaru is ready to join Kyo and Daimon in your King of Fighters display.
+

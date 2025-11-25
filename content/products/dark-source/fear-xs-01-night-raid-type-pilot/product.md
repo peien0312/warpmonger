@@ -23,3 +23,5 @@ cost_tw: 192.0
 order_weight: 0
 ---
 
+This pilot figure operates the FEAR XS-01 Night Raid mech, trained in covert infiltration and surprise attacks. Their specialized suit is designed for extended stealth operations in the mech cockpit. This 1/25 scale figure pairs with the XS-01 Night Raid mech for complete displays.
+

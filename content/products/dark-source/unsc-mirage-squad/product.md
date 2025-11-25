@@ -23,3 +23,5 @@ cost_tw: 1174.0
 order_weight: 0
 ---
 
+The UNSC Mirage Squad is an elite special operations unit renowned for their ability to appear and vanish like ghosts on the battlefield. This complete squad set includes multiple operators with diverse combat roles and equipment. The 1/25 scale figures capture the coordinated tactical appearance of humanity's premier covert operations team.
+

@@ -23,3 +23,5 @@ cost_tw: 512.0
 order_weight: 0
 ---
 
+The Tankhunters are Ariadna's dedicated anti-armor specialists, trained to destroy enemy TAGs and heavy vehicles with devastating effect. Their camouflage expertise and powerful weapons make them the nightmare of any armored opponent. This 1/18 scale figure features the specialized equipment that makes these soldiers such effective heavy-unit killers.
+

@@ -23,3 +23,5 @@ cost_tw: 0
 order_weight: 0
 ---
 
+The Bedrock Albus is a white-armored variant of the standard combat mech, its distinctive coloring marking it for arctic or urban operations. This reliable platform balances firepower, protection, and mobility for general combat duties. The detailed model captures the robust design of workhorse military mechs.
+

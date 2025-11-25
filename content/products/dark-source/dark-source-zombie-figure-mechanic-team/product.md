@@ -23,3 +23,5 @@ cost_tw: 248.0
 order_weight: 0
 ---
 
+The Mechanic Team zombies were blue-collar workers caught in the outbreak while on the job. Their work clothes and tools remain, though their purpose has shifted from repair to destruction. This 1/25 scale set adds working-class realism to zombie apocalypse dioramas.
+

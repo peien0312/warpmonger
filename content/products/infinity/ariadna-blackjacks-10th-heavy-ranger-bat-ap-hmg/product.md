@@ -23,3 +23,4 @@ cost_tw: 1089.0
 order_weight: 0
 ---
 
+The Blackjack Heavy Ranger from Ariadna's 10th Battalion brings devastating firepower with its armor-piercing HMG configuration. This imposing Tactical Armored Gear represents the rugged colonial faction's answer to heavier enemy units. The detailed 1/18 scale figure captures the brutalist aesthetic of Ariadna's military hardware from the Infinity universe.

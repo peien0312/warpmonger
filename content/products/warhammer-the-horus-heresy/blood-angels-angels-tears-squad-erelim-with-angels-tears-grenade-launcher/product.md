@@ -23,3 +23,4 @@ cost_tw: 619.0
 order_weight: 0
 ---
 
+An Erelim of the [[Blood Angels]] Angel's Tears, equipped with the formation's signature grenade launcher designed to deliver rad and phosphex munitions. These weapons left nothing but scorched earth and irradiated remains, a grim necessity in the most desperate battles of the [[Horus Heresy]]. Jump pack-equipped, the Angel's Tears struck where conventional forces could not.

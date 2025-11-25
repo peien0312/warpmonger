@@ -23,3 +23,5 @@ cost_tw: 982.0
 order_weight: 0
 ---
 
+The [[Deathwing]] Knights are inducted into the Inner Circle of the [[Dark Angels]], learning the terrible truth about the Fallen and swearing oaths of silence that bind them until death. This Knight wields his power sword and storm shield with the skill of centuries of combat, his Terminator armor proof against all but the most devastating weapons. When the Chapter hunts the most dangerous of the Fallen, it is the Deathwing Knights who lead the assault.
+

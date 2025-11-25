@@ -23,3 +23,4 @@ cost_tw: 278.0
 order_weight: 0
 ---
 
+The Breacher specializes in forced entry and obstacle removal for the Delta Force team. This 1/18 scale figure carries the specialized equipment needed to blow doors, defeat locks, and create entry points for assault operations. An essential role in any tactical team conducting direct action missions.

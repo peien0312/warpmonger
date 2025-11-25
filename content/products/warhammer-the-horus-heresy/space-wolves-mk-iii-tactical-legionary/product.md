@@ -23,3 +23,4 @@ cost_tw: 512.0
 order_weight: 0
 ---
 
+[[Space Wolves]] Legionaries in Mark III armor formed the savage battle line of the VI Legion. Though other Legions used these warriors for disciplined defensive actions, [[Leman Russ|Russ's]] sons wielded them as assault troops, their frontal armor perfect for charging into enemy guns. The grey and frost decorations identify this warrior as one of Fenris's wolves, ready to hunt the Imperium's enemies.

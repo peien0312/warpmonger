@@ -23,3 +23,4 @@ cost_tw: 427.0
 order_weight: 0
 ---
 
+The Observation Tower provides essential tactical oversight for mecha depot facilities, offering elevated surveillance and command capabilities. This modular scenery piece serves as the perfect command center for your 1/18 scale military displays. The detailed construction includes platforms, ladders, and observation equipment, creating an immersive diorama backdrop for your Battle for the Stars collection or any futuristic military setting.

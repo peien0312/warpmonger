@@ -23,3 +23,5 @@ cost_tw: 1196.0
 order_weight: 0
 ---
 
+The God of War 86-II Assault is a devastating heavy combat mech standing 22cm tall in 1/25 scale. This assault variant is optimized for aggressive frontline combat with enhanced weapons systems and reinforced armor plating. The imposing design commands attention in any mech collection or diorama display.
+

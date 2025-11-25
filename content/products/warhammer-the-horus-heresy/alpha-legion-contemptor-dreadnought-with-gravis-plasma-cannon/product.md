@@ -23,3 +23,4 @@ cost_tw: 1623.0
 order_weight: 0
 ---
 
+[[Alpha Legion]] [[Contemptor Dreadnought|Contemptor Dreadnoughts]] served as heavy fire support for the secretive XX Legion, providing devastating firepower when subtlety was no longer an option. Armed with a Gravis plasma cannon, this war machine can annihilate heavy infantry and armored targets alike. Even in death, Alpha Legion warriors continue to serve their inscrutable masters, their true loyalties as mysterious as ever.

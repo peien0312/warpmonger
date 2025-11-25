@@ -23,3 +23,5 @@ cost_tw: 641.0
 order_weight: 0
 ---
 
+Armed with the standard bolt rifle of the [[Ultramarines]] Sternguard, this veteran exemplifies the Chapter's doctrine of precision firepower. The bolt rifle in the hands of a Sternguard Veteran becomes a weapon of surgical destruction, each round placed with the accuracy that only decades of experience can provide. These veterans form the core of any Ultramarines assault, their fire clearing the path for their brothers.
+

@@ -23,3 +23,4 @@ cost_tw: 982.0
 order_weight: 0
 ---
 
+[[Sigismund]], First Captain of the [[Imperial Fists]], was acclaimed as the finest swordsman in all the Legiones Astartes. His skill with a blade was so legendary that even Primarchs respected his prowess. During the [[Horus Heresy]] and the Siege of Terra, Sigismund led the Templars, elite warriors whose fervor would later found the [[Black Templars]] Chapter. Armed with the Black Sword, he remained undefeated in single combat.

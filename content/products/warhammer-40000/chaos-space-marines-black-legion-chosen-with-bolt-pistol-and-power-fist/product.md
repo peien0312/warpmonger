@@ -23,3 +23,5 @@ cost_tw: 961.0
 order_weight: 0
 ---
 
+This [[Black Legion]] Chosen warrior wields a devastating power fist capable of crushing ceramite armor and bone alike. The Chosen are the elite infantry of Chaos Space Marine warbands, veterans who have proven their worth through millennia of warfare against the Imperium. His bolt pistol provides close-range firepower, but it is in the brutal press of melee that this warrior truly excels, his power fist delivering killing blows with every swing. Such is the fate of any who stand against the Black Crusade.
+

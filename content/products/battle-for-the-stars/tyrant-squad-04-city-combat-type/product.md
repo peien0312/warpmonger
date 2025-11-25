@@ -23,3 +23,4 @@ cost_tw: 1857.0
 order_weight: 0
 ---
 
+The Tyrant-04 City Combat Type has been optimized for urban warfare, featuring enhanced close-quarters sensors and reinforced armor against ambush attacks. This variant excels in the cramped streets and ruins of planetary cities where conventional mecha would struggle to maneuver. The figure showcases urban camouflage patterns and specialized equipment designed to dominate the brutal house-to-house fighting that defines modern urban combat.

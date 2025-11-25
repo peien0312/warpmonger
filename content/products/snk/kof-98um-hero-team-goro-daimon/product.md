@@ -23,3 +23,5 @@ cost_tw: 675.0
 order_weight: 0
 ---
 
+Goro Daimon, the judo master of The King of Fighters Hero Team, stands ready in this 1/18 scale figure. His powerful physique and traditional judogi are faithfully recreated, capturing the strength that makes him one of the series' most formidable grapplers. Includes accessories for recreating his devastating throwing techniques.
+

@@ -23,3 +23,5 @@ cost_tw: 2028.0
 order_weight: 0
 ---
 
+[[Magnus the Red]], Primarch of the [[Thousand Sons|XV Legion]] and known as the Crimson King, was the most powerful psyker among the Emperor's sons. His single cyclopean eye saw truths hidden from mortal sight, and his mastery of the Warp was unmatched by any save the Emperor himself. This towering figure stands amid arcane energies, his crimson armor adorned with symbols of forbidden knowledge that would seal his Legion's fate.
+

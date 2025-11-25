@@ -23,3 +23,4 @@ cost_tw: 1366.0
 order_weight: 0
 ---
 
+The Teutonic Knights are PanOceania's heavy assault specialists, their massive armor and devastating weapons designed for breaking enemy lines. This military order traces its traditions to ancient Earth while wielding the most advanced technology the Hyperpower can provide. The detailed 1/18 scale figure showcases the imposing Germanic-inspired power armor.

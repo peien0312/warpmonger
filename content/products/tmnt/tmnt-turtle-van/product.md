@@ -23,3 +23,4 @@ cost_tw: 2284.0
 order_weight: 0
 ---
 
+The Turtle Van, also known as the Party Wagon, is the iconic mobile headquarters that transports the Teenage Mutant Ninja Turtles across New York City. Modified by Donatello with weapons, surveillance equipment, and of course a pizza warmer, this vehicle is as much a character as the Turtles themselves. This impressive 1/18 scale model captures every detail of the beloved van's distinctive green-and-yellow design.

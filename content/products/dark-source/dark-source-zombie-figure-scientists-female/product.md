@@ -23,3 +23,5 @@ cost_tw: 222.0
 order_weight: 0
 ---
 
+These female scientist zombies represent researchers who became victims of their own experiments. Their lab coats and professional attire tell the story of an outbreak that started where it should have been prevented. Perfect 1/25 scale additions to laboratory horror dioramas and zombie scenarios.
+

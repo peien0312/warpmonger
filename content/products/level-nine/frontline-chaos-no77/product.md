@@ -23,3 +23,5 @@ cost_tw: 1495.0
 order_weight: 0
 ---
 
+No.77 stands out in the Frontline Chaos lineup with her striking design and enigmatic character. This 1/12 scale figure from Level Nine features premium materials, detailed sculpting, and extensive articulation. Includes character-specific weapons and accessories for maximum display versatility.
+

@@ -23,3 +23,5 @@ cost_tw: 470.0
 order_weight: 0
 ---
 
+The third Marauder variant offers yet another weapons configuration for your USARF forces. These rangers are known for their tenacity and self-reliance in hostile territory, embodying the pioneer spirit of Ariadna's American settlers. The detailed 1/18 scale sculpt showcases their practical, combat-focused equipment.
+

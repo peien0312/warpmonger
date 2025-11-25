@@ -23,3 +23,5 @@ cost_tw: 675.0
 order_weight: 0
 ---
 
+Ryuji Yamazaki, the psychotic yakuza enforcer from The King of Fighters, joins the '97 Special Team lineup. This 1/18 scale figure captures his menacing presence and signature snake arm attack. His sadistic personality shines through in every detail, from his disheveled appearance to his combat-ready pose.
+

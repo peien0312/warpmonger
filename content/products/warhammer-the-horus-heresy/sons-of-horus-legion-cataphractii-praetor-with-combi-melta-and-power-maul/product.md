@@ -23,3 +23,4 @@ cost_tw: 1089.0
 order_weight: 0
 ---
 
+This [[Sons of Horus]] Praetor in Cataphractii [[Terminator Armour]] wields a devastating combination of combi-melta and power maul, perfect for cracking open enemy fortifications and crushing defenders. The combi-melta allows for anti-armor capability at close range, while the power maul delivers crushing blows that can fell even the most heavily armored opponents. A veteran commander for the Warmaster's elite forces.

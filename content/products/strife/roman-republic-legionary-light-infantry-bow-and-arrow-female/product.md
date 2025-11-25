@@ -23,3 +23,4 @@ cost_tw: 555.0
 order_weight: 0
 ---
 
+This female archer serves as light infantry support for the Roman Republic forces, providing ranged fire to soften enemy formations before the heavy infantry advance. Armed with bow and quiver, she wears lighter armor that allows for the mobility required by skirmishing troops. The figure represents the auxiliary forces that supplemented Rome's legendary legions with specialized combat capabilities.

@@ -23,3 +23,5 @@ cost_tw: 128.0
 order_weight: 0
 ---
 
+These zombie police dogs were loyal K-9 units turned into terrifying undead predators. Their enhanced senses and speed make them among the most dangerous infected creatures. This 1/25 scale set adds a fearsome animal threat to your zombie apocalypse collection.
+

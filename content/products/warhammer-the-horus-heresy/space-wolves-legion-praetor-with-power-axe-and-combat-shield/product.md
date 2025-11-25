@@ -23,3 +23,4 @@ cost_tw: 1003.0
 order_weight: 0
 ---
 
+[[Space Wolves]] Praetors commanded the VI Legion's forces with the ferocity and cunning that defined [[Leman Russ|Russ's]] sons. Armed with a power axe and combat shield, this warrior is equipped for the close-quarters violence the Space Wolves excel at. The frost-touched weapons and feral decorations mark this commander as a veteran of Fenris's harshest traditions.

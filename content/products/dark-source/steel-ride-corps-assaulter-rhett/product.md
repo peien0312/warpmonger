@@ -23,3 +23,5 @@ cost_tw: 290.0
 order_weight: 0
 ---
 
+Rhett serves as an assaulter in the Steel Ride Corps, specializing in mounted combat and rapid vehicle deployment. His combat training emphasizes speed and aggression in mechanized warfare. This 1/25 scale figure captures the battle-ready appearance of Steel Ride frontline troops.
+

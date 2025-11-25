@@ -23,3 +23,5 @@ cost_tw: 2263.0
 order_weight: 0
 ---
 
+This life-size replica of a [[Dark Angels]] Mark X helmet captures every detail of the Primaris Space Marine's iconic headgear. The Mark X armor pattern was developed by [[Belisarius Cawl]] over ten thousand years and represents the pinnacle of Imperial power armor technology. Finished in the dark green of the First Legion with the Chapter's winged sword emblem, this helmet serves as an impressive display piece for any collector of Warhammer 40,000 memorabilia.
+

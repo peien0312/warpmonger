@@ -23,3 +23,4 @@ cost_tw: 790.0
 order_weight: 0
 ---
 
+This [[Blood Angels]] Captain wields an inferno pistol and power fist — weapons designed to annihilate armored targets and enemy champions alike. The inferno pistol concentrates melta energy into a short-ranged beam that can slag through tank armor, while the power fist allows him to crush anything that survives the initial blast. Like all sons of [[Sanguinius]], he fights with a fury that borders on the sublime, his rage tempered by centuries of discipline.

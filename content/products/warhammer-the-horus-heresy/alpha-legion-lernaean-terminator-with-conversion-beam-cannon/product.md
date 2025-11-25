@@ -23,3 +23,4 @@ cost_tw: 875.0
 order_weight: 0
 ---
 
+[[Lernaean|Lernaean Terminators]] were the elite assault troops of the [[Alpha Legion]], named after the mythical Hydra's lair. This warrior carries a conversion beam cannon, a devastating weapon whose power increases with range, capable of annihilating heavily armored targets at distance. Clad in distinctive Cataphractii armor, the Lernaean embody the Alpha Legion's doctrine of striking the head to kill the body.

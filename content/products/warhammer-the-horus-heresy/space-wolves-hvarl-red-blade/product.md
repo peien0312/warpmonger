@@ -23,3 +23,4 @@ cost_tw: 1089.0
 order_weight: 0
 ---
 
+Hvarl Red-Blade was a legendary Jarl of the [[Space Wolves]], commander of Fyf Great Company and one of [[Leman Russ|Leman Russ's]] most trusted war leaders. His red-stained weapons earned him his fearsome epithet, and his tactical cunning made him invaluable during the burning of Prospero and the battles of the [[Horus Heresy]]. This figure depicts the savage warrior in his ornate armor, ready to lead his wolves into battle.

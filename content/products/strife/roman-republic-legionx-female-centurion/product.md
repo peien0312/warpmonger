@@ -23,3 +23,4 @@ cost_tw: 598.0
 order_weight: 0
 ---
 
+This female Centurion of Legion X leads her soldiers with the same iron discipline and tactical acumen as her male counterparts. Her transverse helmet crest and decorated armor mark her rank and authority among the legendary Tenth Legion. The figure combines historical Roman military equipment with a distinctive character design that stands out in any collection.

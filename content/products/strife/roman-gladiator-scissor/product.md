@@ -23,3 +23,4 @@ cost_tw: 363.0
 order_weight: 0
 ---
 
+The Scissor gladiator wielded a unique crescent-bladed weapon attached to a hardened leather or metal tube worn over the forearm. This distinctive armament could parry attacks and deliver vicious slashing wounds in a single motion. The figure showcases the signature scissor blade and the specialized armor developed for this unusual fighting style that thrilled Roman audiences.

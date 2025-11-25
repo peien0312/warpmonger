@@ -23,3 +23,4 @@ cost_tw: 662.0
 order_weight: 0
 ---
 
+A [[Sons of Horus]] Tactical Squad Sergeant in Mark IV armor, armed with a crackling power fist that can crush through the thickest armor plating. Sergeants of the XVI Legion led from the front, their enhanced close-combat capabilities allowing them to challenge enemy leaders and heavy infantry. The power fist marks this veteran as a proven killer, eager to crush all opposition to the Warmaster.

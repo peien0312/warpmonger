@@ -23,3 +23,4 @@ cost_tw: 1046.0
 order_weight: 0
 ---
 
+[[Horus Aximand|"Little Horus" Aximand]], Captain of the [[Sons of Horus]] 5th Company, earned his nickname due to his striking resemblance to his Primarch. As a member of the Mournival, Horus's inner circle of advisors, Aximand was privy to the Legion's darkest councils. This figure depicts the conflicted warrior in his distinctive armor, bearing the weight of decisions that would shake the galaxy.

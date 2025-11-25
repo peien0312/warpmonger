@@ -23,3 +23,4 @@ cost_tw: 491.0
 order_weight: 0
 ---
 
+The Striker delivers rapid-response firepower wherever the battle demands, trained for lightning-fast deployment and aggressive engagement. These mobile warriors bridge the gap between frontline assaulters and support units, capable of adapting their tactics to exploit any weakness in enemy defenses. The figure features the balanced loadout and mobile combat gear that makes the Striker such a versatile asset to the 09th Legion.

@@ -23,3 +23,4 @@ cost_tw: 3245.0
 order_weight: 0
 ---
 
+The Roman Republic Collector's Edition brings together multiple figures and accessories in one premium package, offering exceptional value for collectors building their ancient Roman army. This comprehensive set provides the core units needed to recreate the military might of the Roman Republic. Perfect for serious collectors and history enthusiasts looking to establish an impressive Roman military display.

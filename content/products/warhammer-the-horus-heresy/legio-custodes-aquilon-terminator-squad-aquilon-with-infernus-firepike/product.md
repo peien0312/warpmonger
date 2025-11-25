@@ -23,3 +23,5 @@ cost_tw: 961.0
 order_weight: 0
 ---
 
+Aquilon Terminators represent the heaviest armored warriors of the [[Legio Custodes]], their auramite plate superior to even Legion Terminator armor. This Custodian wields an Infernus firepike, a weapon that projects streams of promethium capable of cleansing fortifications and reducing even heavily armored foes to ash. The Aquilons served as the Emperor's assault troops during the Great Crusade.
+

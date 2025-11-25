@@ -23,3 +23,4 @@ cost_tw: 534.0
 order_weight: 0
 ---
 
+The Sniper provides precision long-range support for the 09th Legion, eliminating enemy officers and disabling critical systems from concealed positions. Years of training have honed these marksmen into patient, deadly predators capable of turning the tide of battle with a single well-placed shot. This figure comes equipped with a precision rifle and camouflage equipment, capturing the patient menace of these elite sharpshooters.

@@ -23,3 +23,5 @@ cost_tw: 98.0
 order_weight: 0
 ---
 
+The Shadow Black A display case offers a dramatic dark backdrop for your 1/25 scale figures. The hangar-style design creates a striking contrast that highlights figure details. Part of the Individual Soldier display case series for bold, professional presentation.
+

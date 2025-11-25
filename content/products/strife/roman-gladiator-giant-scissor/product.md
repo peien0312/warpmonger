@@ -23,3 +23,4 @@ cost_tw: 363.0
 order_weight: 0
 ---
 
+The Giant Scissor gladiator wields an oversized version of the distinctive scissor blade, a crescent-shaped weapon designed to hook around shields and deliver devastating slashing attacks. This imposing warrior variant traded subtlety for raw intimidation, their massive weapon capable of cleaving through armor. The figure showcases the unique scissor weapon and the heavy build required to wield such a formidable arm in combat.

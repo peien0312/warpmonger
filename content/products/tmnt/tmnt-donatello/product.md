@@ -23,3 +23,4 @@ cost_tw: 619.0
 order_weight: 0
 ---
 
+Donatello, the brilliant tech expert of the Teenage Mutant Ninja Turtles, wields his bo staff with precision while designing gadgets that give the team their technological edge. Known for his purple mask and intellectual approach to combat, Donnie is the problem-solver who can hack any system or build any machine. This detailed 1/18 scale figure captures the brains of the group in his classic animated series appearance.

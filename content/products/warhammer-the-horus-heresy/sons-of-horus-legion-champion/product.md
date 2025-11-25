@@ -23,3 +23,4 @@ cost_tw: 961.0
 order_weight: 0
 ---
 
+Legion Champions of the [[Sons of Horus]] served as the finest duelists in their companies, challenging enemy champions to single combat while their brothers looked on. These warriors embodied the aggressive, honor-bound traditions of the XVI Legion, seeking glory through personal victory. Clad in ornate artificer armor and armed with master-crafted weapons, they were the pride of the Warmaster's hosts.

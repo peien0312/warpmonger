@@ -23,3 +23,4 @@ cost_tw: 713.0
 order_weight: 0
 ---
 
+Dirtbag is the mutant mole who burrows through New York's underground, his powerful digging claws and subterranean knowledge making him a unique threat. Often partnered with Groundchuck, this tunneling villain can attack from unexpected directions. The figure captures Dirtbag's distinctive mole features and mining equipment that reflect his underground origins.

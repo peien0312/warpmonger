@@ -23,3 +23,5 @@ cost_tw: 747.0
 order_weight: 0
 ---
 
+The Victrix Honour Guard are the elite protectors of the [[Ultramarines]]' most sacred figures, warriors chosen for their skill and absolute loyalty. Armed with storm shield and power sword, they form an impenetrable wall around those they protect, their shields deflecting enemy fire while their swords cut down any who draw too close. To serve in the Victrix Guard is among the highest honors an Ultramarine can receive.
+

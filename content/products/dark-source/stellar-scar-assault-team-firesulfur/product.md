@@ -23,3 +23,5 @@ cost_tw: 354.0
 order_weight: 0
 ---
 
+Firesulfur is a heavy weapons specialist of the Stellar Scar Assault Team, their fiery color scheme matching their aggressive combat role. They provide devastating firepower support during orbital boarding actions. This 1/18 scale figure features the distinctive armor and heavy armament of Stellar Scar fire support units.
+

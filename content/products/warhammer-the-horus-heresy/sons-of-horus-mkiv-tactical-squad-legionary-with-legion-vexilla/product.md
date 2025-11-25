@@ -23,3 +23,4 @@ cost_tw: 662.0
 order_weight: 0
 ---
 
+Bearing the Legion Vexilla of the [[Sons of Horus]], this warrior in Mark IV armor serves as a rallying point for his brothers in battle. The standard displays the Eye of [[Horus]], the symbol that would come to represent treachery and rebellion across the Imperium. Such warriors were chosen for their courage and reliability, tasked with keeping the Legion's colors flying even in the most desperate engagements.

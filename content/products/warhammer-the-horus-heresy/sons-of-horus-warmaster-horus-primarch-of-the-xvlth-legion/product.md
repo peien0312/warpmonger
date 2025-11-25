@@ -23,3 +23,4 @@ cost_tw: 2434.0
 order_weight: 0
 ---
 
+[[Horus|Warmaster Horus]], Primarch of the [[Sons of Horus|XVI Legion]], stands as the most infamous figure in Imperial history. Once the Emperor's most favored son and appointed Warmaster of the entire Great Crusade, his fall to Chaos sparked the devastating civil war that nearly destroyed the Imperium. This figure captures him in his full terrible glory, armed with the Talon of Horus and Worldbreaker, ready to lead his Legion against all who remain loyal to the Throne.

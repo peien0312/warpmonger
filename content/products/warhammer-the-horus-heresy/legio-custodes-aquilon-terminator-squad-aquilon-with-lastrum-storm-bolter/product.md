@@ -23,3 +23,5 @@ cost_tw: 918.0
 order_weight: 0
 ---
 
+This [[Legio Custodes]] Aquilon Terminator carries a Lastrum storm bolter, a master-crafted weapon that fires explosive rounds with devastating accuracy. The Aquilons' auramite Terminator plate makes them nigh-invulnerable to conventional weapons, allowing them to stride through enemy fire while delivering death with every shot. Such warriors formed the spearhead of Custodian assaults.
+

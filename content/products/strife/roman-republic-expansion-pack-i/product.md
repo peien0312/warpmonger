@@ -23,3 +23,4 @@ cost_tw: 448.0
 order_weight: 0
 ---
 
+The Roman Republic Expansion Pack I provides essential equipment and accessories to enhance your Strife collection. This accessory set includes additional weapons, shields, and equipment pieces that allow for greater customization and variety in your Roman military displays. Perfect for collectors looking to expand their army or create unique configurations for their existing figures.

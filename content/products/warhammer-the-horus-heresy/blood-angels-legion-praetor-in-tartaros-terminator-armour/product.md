@@ -23,3 +23,4 @@ cost_tw: 897.0
 order_weight: 0
 ---
 
+[[Blood Angels]] Praetors in Tartaros [[Terminator Armour]] commanded the IX Legion's elite forces with the nobility and martial excellence that defined [[Sanguinius|Sanguinius's]] sons. The Tartaros pattern offered superior mobility compared to other Terminator variants, suiting the Blood Angels' aggressive assault doctrines. This senior commander leads from the front, embodying the IX Legion's fearless nature.

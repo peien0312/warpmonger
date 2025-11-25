@@ -23,3 +23,4 @@ cost_tw: 555.0
 order_weight: 0
 ---
 
+This female Wildcat operative brings the same tactical flexibility as the male variant, representing the Nomads' egalitarian approach to military service. The Wildcats' reputation for adaptability makes them valuable assets in any engagement. Pair with other Wildcats to create complete fireteams for your Nomad forces.

@@ -23,3 +23,4 @@ cost_tw: 598.0
 order_weight: 0
 ---
 
+[[Iron Warriors]] Tactical Sergeants led their squads with the cold efficiency that defined [[Perturabo|Perturabo's]] Legion. In the bitter trench fighting and siege operations the IV Legion prosecuted, Sergeants needed to maintain discipline under the most punishing conditions. The hazard-striped armor marks this veteran as one of the Imperium's most relentless warriors.

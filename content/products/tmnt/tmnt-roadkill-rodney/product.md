@@ -23,3 +23,4 @@ cost_tw: 628.0
 order_weight: 0
 ---
 
+Roadkill Rodney is the robotic menace designed to hunt down the Turtles with relentless mechanical precision. This dangerous automaton combines lethal programming with durable construction, making it a persistent threat to our heroes. The figure captures Rodney's intimidating robotic design and the industrial weaponry that makes this machine so dangerous.

@@ -23,3 +23,5 @@ cost_tw: 897.0
 order_weight: 0
 ---
 
+A [[Dark Angels]] Master commands one of the Chapter's companies, a position of great authority and responsibility within the Unforgiven. Armed with a crushing power fist, this commander leads his warriors from the front, his tactical acumen matched only by his prowess in combat. Dark Angels Masters are members of the Inner Circle, privy to the Chapter's secret shame and sworn to hunt the Fallen until every last traitor has been captured or destroyed.
+

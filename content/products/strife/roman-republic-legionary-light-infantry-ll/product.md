@@ -23,3 +23,4 @@ cost_tw: 534.0
 order_weight: 0
 ---
 
+The Light Infantry soldier serves in the screening forces of the Roman Republic, harassing enemy formations and protecting the flanks of the heavier legionary units. Equipped with javelins and lighter armor, these mobile warriors could strike quickly and withdraw before the enemy could respond. This figure captures the agile equipment and combat-ready stance of Rome's versatile light infantry.

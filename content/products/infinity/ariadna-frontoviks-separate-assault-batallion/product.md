@@ -23,3 +23,5 @@ cost_tw: 512.0
 order_weight: 0
 ---
 
+The Frontoviks are Ariadna's elite assault troops, hardened veterans who specialize in breakthrough operations. Their distinctive heavy armor and aggressive loadouts reflect their role as the spearhead of any major offensive. This 1/18 scale figure captures the rugged, battle-worn appearance of these feared shock troops.
+

@@ -23,3 +23,5 @@ cost_tw: 8284.0
 order_weight: 0
 ---
 
+House Raven's Knight Errant is a towering engine of destruction, piloted by a Noble warrior bound to the machine through neural interface. The Knight Errant pattern favors aggressive tactics, armed with a thermal cannon capable of melting through the thickest armor and a reaper chainsword for devastating close combat. House Raven is among the most powerful of the [[Imperial Knights]] houses, their black and red Knights having served the Imperium since the Age of Strife.
+

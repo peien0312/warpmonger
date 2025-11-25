@@ -23,3 +23,5 @@ cost_tw: 1196.0
 order_weight: 0
 ---
 
+The Deathshroud Champion leads his brothers in the silent vigil over Mortarion, commanding through subtle gesture and the weight of his presence alone. Armed with twin plaguespurter gauntlets and a massive manreaper, this [[Death Guard]] warrior has served the Daemon Primarch for ten thousand years, his devotion unwavering even as his body rots away. The Champion's armor is a shrine to decay, hung with censers that spread Nurgle's blessings with every step.
+

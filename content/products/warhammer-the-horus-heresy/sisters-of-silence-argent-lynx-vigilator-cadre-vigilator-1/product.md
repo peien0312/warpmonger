@@ -23,3 +23,5 @@ cost_tw: 662.0
 order_weight: 0
 ---
 
+A Vigilator of the Argent Lynx Cadre, this [[Sisters of Silence|Sister of Silence]] hunts psykers and Warp-tainted abominations. Her null presence causes agony to any psychic entity, while her training makes her deadly in conventional combat as well. The Vigilators specialize in stealth and tracking, hunting their prey through the shadows.
+

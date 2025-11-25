@@ -23,3 +23,5 @@ cost_tw: 790.0
 order_weight: 0
 ---
 
+The [[Sanguinary Guard]] are the golden elite of the [[Blood Angels]], warriors whose duty is to protect the Chapter's most sacred figures. This guardian carries an encarmine blade — a master-crafted power sword that glows with lethal energy — paired with an inferno pistol capable of melting through the heaviest armor. Clad in ancient artificer armor adorned with angelic iconography, he embodies the noble fury of [[Sanguinius]] himself, sweeping through battle on golden wings to deliver death to the enemies of the Imperium.
+

@@ -23,3 +23,4 @@ cost_tw: 2028.0
 order_weight: 0
 ---
 
+The Iron Circle were [[Perturabo|Perturabo's]] personal bodyguard automata, Domitar-Ferrum class battle-automata designed to the Primarch's own specifications. Armed with a Karceri battle shield and graviton crusher, this war machine combined defensive capability with devastating anti-armor power. [[Perturabo]] trusted these constructs more than his own sons, their machine loyalty free from the resentments that plagued the [[Iron Warriors]].

@@ -23,3 +23,4 @@ cost_tw: 278.0
 order_weight: 0
 ---
 
+The Assault Team Member is trained for rapid-entry operations and close-quarters combat scenarios. This 1/18 scale figure features breaching equipment and CQB weaponry optimized for room-clearing missions. An essential figure for recreating tactical assault operations in your military dioramas.

@@ -23,3 +23,4 @@ cost_tw: 278.0
 order_weight: 0
 ---
 
+The Assault Operator serves as the primary combatant of the Delta Force squad, trained in advanced warfare techniques. This 1/18 scale figure features the authentic tactical equipment used by America's elite counter-terrorism unit. Part of the complete Delta Assault Squad series for building your elite special operations team.

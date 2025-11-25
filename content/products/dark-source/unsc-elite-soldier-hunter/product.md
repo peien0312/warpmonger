@@ -23,3 +23,5 @@ cost_tw: 248.0
 order_weight: 0
 ---
 
+Hunter is an elite veteran soldier of the UNSC forces, a survivor of countless engagements who brings unmatched experience to any operation. His combat wisdom and tactical flexibility make him invaluable as both operator and advisor. This 1/25 scale figure showcases the distinguished equipment of UNSC elite forces.
+

@@ -23,3 +23,5 @@ cost_tw: 769.0
 order_weight: 0
 ---
 
+The Terminator Sergeant leads his elite warriors into the most dangerous combat zones, his power sword ready to cut down any who threaten his squad. Armed with a teleport homer, he can call down additional reinforcements directly onto his position, ensuring the [[Ultramarines]] maintain tactical superiority. Terminator armor grants near-invulnerability, allowing the sergeant to wade through enemy fire while directing his squad's devastating attacks.
+

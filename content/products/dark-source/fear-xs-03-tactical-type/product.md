@@ -23,3 +23,5 @@ cost_tw: 606.0
 order_weight: 0
 ---
 
+The FEAR XS-03 Tactical type is a versatile combat mech designed for balanced performance across various mission profiles. Its modular weapon systems allow rapid reconfiguration for different tactical situations. This 1/25 scale model showcases the practical, mission-adaptable design of multi-role combat mechs.
+

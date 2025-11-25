@@ -23,3 +23,5 @@ cost_tw: 564.0
 order_weight: 0
 ---
 
+Recreate the iconic Japan Street stage from KOF 98 Ultimate Match with this detailed 1/18 scale diorama base. Perfect for displaying your KOF action figures in an authentic fighting game environment, this stage base captures the urban Japanese backdrop that fans know and love. Compatible with all KOF 98UM figures.
+

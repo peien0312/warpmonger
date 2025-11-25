@@ -23,3 +23,4 @@ cost_tw: 1003.0
 order_weight: 0
 ---
 
+An [[Alpha Legion]] Praetor in Cataphractii [[Terminator Armour]], this senior commander leads the XX Legion's forces with cunning and precision. The heavy Cataphractii plate provides unmatched protection for teleport assaults and boarding actions, while the Praetor's tactical genius ensures every engagement serves the Alpha Legion's inscrutable plans. Whether loyalist or traitor, his true allegiances remain a mystery.

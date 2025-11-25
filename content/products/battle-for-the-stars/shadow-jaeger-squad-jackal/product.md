@@ -23,3 +23,4 @@ cost_tw: 278.0
 order_weight: 0
 ---
 
+Codename Jackal operates as a cunning tracker and ambush specialist within the Shadow Jaeger squad, hunting targets across hostile terrain with predatory patience. Like the namesake scavenger, Jackal excels at exploiting weakness and striking when the enemy is most vulnerable. This 1/18 scale figure features the sleek black tactical gear and specialized equipment that allows the Shadow Jaegers to operate in complete darkness.

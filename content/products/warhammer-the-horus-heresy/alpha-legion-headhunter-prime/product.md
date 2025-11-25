@@ -23,3 +23,4 @@ cost_tw: 641.0
 order_weight: 0
 ---
 
+[[Alpha Legion]] Headhunter Primes lead the Legion's elite kill-teams, coordinating assassination missions and priority target elimination. Veterans of countless covert operations, these warriors are experts at infiltrating enemy lines and eliminating high-value targets. Armed and armored for stealth and lethality, the Headhunter Prime ensures no enemy commander is safe from the Alpha Legion's reach.

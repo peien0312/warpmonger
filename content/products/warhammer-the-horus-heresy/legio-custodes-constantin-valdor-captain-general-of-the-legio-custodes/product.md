@@ -23,3 +23,5 @@ cost_tw: 2050.0
 order_weight: 0
 ---
 
+[[Constantin Valdor]], Captain-General of the [[Legio Custodes]], was the first and greatest of the Emperor's golden guardians. His martial prowess was legendary even among the Custodians, and he stood as one of the few beings permitted to address the Emperor directly. Armed with the Apollonian Spear, Valdor led the defense of Terra during the darkest hours of the [[Horus Heresy]].
+

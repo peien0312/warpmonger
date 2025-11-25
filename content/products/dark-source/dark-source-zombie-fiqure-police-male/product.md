@@ -23,3 +23,5 @@ cost_tw: 290.0
 order_weight: 0
 ---
 
+These male police officer zombies were once the first responders to the outbreak, now they hunt the survivors they once swore to protect. Their torn uniforms and equipment tell stories of desperate last stands. This 1/25 scale set is ideal for urban zombie apocalypse scenes.
+

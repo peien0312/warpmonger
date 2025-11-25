@@ -23,3 +23,5 @@ cost_tw: 675.0
 order_weight: 0
 ---
 
+Blue Mary, the skilled sambo fighter and private detective from The King of Fighters, completes the '97 Special Team. This 1/18 scale figure showcases her athletic build and distinctive leather jacket. Known for her submission holds and grappling prowess, Mary comes with accessories to recreate her signature moves.
+

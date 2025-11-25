@@ -23,3 +23,4 @@ cost_tw: 1857.0
 order_weight: 0
 ---
 
+The Tyrant-03 Tactical Type represents the pinnacle of powered combat armor, combining devastating firepower with advanced battlefield mobility. This walking weapons platform can engage multiple targets simultaneously while shrugging off small arms fire that would shred conventional infantry. The highly detailed mecha features multiple weapon hardpoints, articulated joints, and the imposing silhouette that has earned the Tyrant series its fearsome reputation across countless warzones.

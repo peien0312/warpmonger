@@ -23,3 +23,5 @@ cost_tw: 982.0
 order_weight: 0
 ---
 
+This [[Deathwing]] Knight is accompanied by a Watcher in the Dark, one of the mysterious hooded figures that have served the [[Dark Angels]] since the time of Caliban. Armed with power sword and storm shield, the Knight fights alongside his enigmatic companion whose true nature remains one of the Chapter's many secrets. The Watchers rarely speak, but their presence is said to bring fortune to the Dark Angels, and they guard relics of immense importance to the Chapter.
+

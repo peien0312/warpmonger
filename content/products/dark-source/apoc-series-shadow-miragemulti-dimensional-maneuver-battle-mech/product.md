@@ -23,3 +23,5 @@ cost_tw: 670.0
 order_weight: 0
 ---
 
+The Shadow Mirage is an advanced multi-dimensional maneuver battle mech from the APOC Series, designed for lightning-fast strikes and evasive combat. Its agile frame and advanced mobility systems allow it to outmaneuver heavier opponents. This 1/25 scale model showcases the sleek, aerodynamic design philosophy of stealth combat mechs.
+

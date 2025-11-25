@@ -23,3 +23,4 @@ cost_tw: 619.0
 order_weight: 0
 ---
 
+Bearing the Legion Vexilla of the [[Space Wolves]], this Grey Slayer serves as a rallying point for his pack brothers in the chaos of close combat. The wolf-head standard marks the advance of [[Leman Russ|Russ's]] savage warriors, a symbol that struck fear into the hearts of the Imperium's enemies. Standard bearers were chosen for their courage and skill, trusted to keep the Legion's colors flying.

@@ -23,3 +23,4 @@ cost_tw: 790.0
 order_weight: 0
 ---
 
+[[Imperial Fists]] Legion Apothecaries were vital to maintaining the VII Legion's strength during the brutal campaigns of the [[Horus Heresy]]. Tasked with recovering gene-seed from fallen brothers and providing battlefield medical support, these warriors ensured the Legion's legacy would endure. The distinctive yellow armor marks this healer as one of [[Rogal Dorn|Rogal Dorn's]] own, a keeper of the Legion's genetic future.

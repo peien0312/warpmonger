@@ -23,3 +23,4 @@ cost_tw: 619.0
 order_weight: 0
 ---
 
+A Grey Slayer of the [[Space Wolves]], armed and armored for the close-quarters violence the VI Legion excelled at. Grey Slayers disdained ranged warfare, preferring to close with their enemies and settle matters with blade and axe. Each warrior bore trophies from countless kills, testament to their prowess in the savage style of warfare [[Leman Russ]] taught his sons.

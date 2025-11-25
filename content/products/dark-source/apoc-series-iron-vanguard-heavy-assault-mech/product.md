@@ -23,3 +23,5 @@ cost_tw: 0
 order_weight: 0
 ---
 
+The Iron Vanguard is a heavy assault mech from the APOC Series, designed to break through enemy fortifications with overwhelming force. Its thick armor and massive weapons make it the ultimate shock assault platform. This detailed model showcases the brutal efficiency of heavy combat mechs designed for breakthrough operations.
+

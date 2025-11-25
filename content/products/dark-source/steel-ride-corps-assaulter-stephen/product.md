@@ -23,3 +23,5 @@ cost_tw: 290.0
 order_weight: 0
 ---
 
+Stephen is a reliable Steel Ride Corps assaulter who has served in numerous mechanized operations. His steady performance and combat experience make him a cornerstone of any assault team. This 1/25 scale figure captures the professional appearance and tactical equipment of Steel Ride infantry.
+

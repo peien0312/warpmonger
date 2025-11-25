@@ -23,3 +23,5 @@ cost_tw: 290.0
 order_weight: 0
 ---
 
+Marco is an experienced Steel Ride Corps assaulter known for his tactical flexibility and combat adaptability. His skills in both mounted and dismounted combat make him effective in any engagement. This 1/25 scale figure features the versatile loadout and equipment of Steel Ride veterans.
+

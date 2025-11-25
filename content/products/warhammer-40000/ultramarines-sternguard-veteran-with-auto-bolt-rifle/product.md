@@ -23,3 +23,5 @@ cost_tw: 641.0
 order_weight: 0
 ---
 
+This [[Ultramarines]] Sternguard Veteran carries an auto bolt rifle, a weapon capable of sustained automatic fire that can shred through enemy infantry. Sternguard Veterans are the elite marksmen of the First Company, warriors who have proven themselves through decades of service. Each veteran has mastered multiple weapon systems and carries ammunition types tailored to specific threats, making them adaptable to any battlefield situation.
+

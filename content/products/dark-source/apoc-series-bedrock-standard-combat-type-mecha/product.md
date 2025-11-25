@@ -23,3 +23,5 @@ cost_tw: 803.0
 order_weight: 0
 ---
 
+The Bedrock is the backbone of the APOC Series mech line, a reliable standard combat platform that excels in direct engagement. Its balanced design provides solid firepower and protection without sacrificing mobility. This 1/25 scale model captures the no-frills effectiveness of frontline battle mechs.
+

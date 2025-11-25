@@ -23,3 +23,4 @@ cost_tw: 619.0
 order_weight: 0
 ---
 
+The Signifer carried the sacred standard of Cohort IV, a symbol of unit identity and honor that legionaries would die to protect. Wearing an animal pelt over their helmet for easy recognition in battle, standard bearers occupied a position of tremendous trust and responsibility. This figure showcases the distinctive animal skin headdress, cohort standard, and ceremonial equipment that marked these honored soldiers.

@@ -23,3 +23,4 @@ cost_tw: 470.0
 order_weight: 0
 ---
 
+The Shang Ji Invincibles are Yu Jing's elite heavy infantry, clad in sophisticated powered armor that makes them nearly unstoppable on the battlefield. These warriors represent the pinnacle of the StateEmpire's military might. This 1/18 scale figure features the distinctive Asian-influenced power armor design of Yu Jing forces.

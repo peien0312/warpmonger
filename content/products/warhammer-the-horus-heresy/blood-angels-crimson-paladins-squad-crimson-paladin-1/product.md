@@ -23,3 +23,4 @@ cost_tw: 747.0
 order_weight: 0
 ---
 
+The Crimson Paladins were the elite bodyguard of [[Sanguinius]], drawn from the finest warriors of the [[Blood Angels]] Legion. Clad in ornate Cataphractii [[Terminator Armour]] and wielding master-crafted Iliastus assault cannons and solarite power gauntlets, these warriors were sworn to protect their Primarch above all else. Each Paladin was a veteran of centuries of warfare, chosen for both martial skill and unwavering loyalty.

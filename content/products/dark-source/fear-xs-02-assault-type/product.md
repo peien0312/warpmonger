@@ -23,3 +23,5 @@ cost_tw: 606.0
 order_weight: 0
 ---
 
+The FEAR XS-02 Assault type is an aggressive combat mech built for frontal assault and breakthrough operations. Heavy armor and devastating weaponry make it the spearhead of any mechanized offensive. This 1/25 scale model captures the imposing presence of dedicated assault mechs.
+

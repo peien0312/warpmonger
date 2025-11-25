@@ -23,3 +23,4 @@ cost_tw: 675.0
 order_weight: 0
 ---
 
+Bearing the Legion Standard of the [[Iron Warriors]], this Chosen warrior serves as a rallying point for his brothers in the grinding siege warfare the IV Legion excels at. The iron skull and hazard striping of the standard marks the relentless advance of [[Perturabo|Perturabo's]] forces. Command Squad Chosen were veterans of countless campaigns, trusted to keep the Legion's colors flying in the most desperate battles.

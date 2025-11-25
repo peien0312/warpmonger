@@ -23,3 +23,4 @@ cost_tw: 363.0
 order_weight: 0
 ---
 
+The Hoplomachus was a heavily-armed gladiator modeled after Greek hoplite warriors, carrying a spear, dagger, and small round shield called a parma. Their combat style emphasized disciplined technique over brute force, employing measured advances and calculated strikes. This figure captures the distinctive Greek-inspired equipment including the bronze greaves and plumed helmet that set the Hoplomachus apart in the arena.

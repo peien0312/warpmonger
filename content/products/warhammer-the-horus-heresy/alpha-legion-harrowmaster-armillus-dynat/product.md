@@ -23,3 +23,4 @@ cost_tw: 961.0
 order_weight: 0
 ---
 
+Armillus Dynat, Harrowmaster of the [[Alpha Legion]], was one of the XX Legion's most accomplished field commanders, specializing in void warfare and planetary assault. His tactical acumen made him invaluable during the [[Horus Heresy]], orchestrating devastating attacks that left enemies reeling. This figure captures the Harrowmaster in his ornate armor, ready to execute another of the Alpha Legion's labyrinthine battle plans.

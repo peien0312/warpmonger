@@ -23,3 +23,5 @@ cost_tw: 1196.0
 order_weight: 0
 ---
 
+Sworn to protect Mortarion with their very existence, the Deathshroud never stray more than forty-nine paces from their master's side. This [[Death Guard]] Terminator carries the signature weapons of his brotherhood — a rust-pitted manreaper and a gauntlet that sprays Nurgle's foulest contagions. The Deathshroud's silence is legendary; they do not speak, communicating only through gesture and the grinding of their plague-ridden armor. In battle, their presence alone inspires terror.
+

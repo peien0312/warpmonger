@@ -23,3 +23,4 @@ cost_tw: 278.0
 order_weight: 0
 ---
 
+The Assault Vanguard leads the charge for the Kina Mercenaries, first through the door and first to engage enemy contacts. This 1/18 scale figure features the aggressive loadout and protective gear needed for point-man operations. Collect alongside the Firepower Master to build your complete Kina Mercenaries squad.

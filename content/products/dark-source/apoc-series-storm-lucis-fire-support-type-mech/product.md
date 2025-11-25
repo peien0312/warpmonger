@@ -23,3 +23,5 @@ cost_tw: 0
 order_weight: 0
 ---
 
+The Storm Lucis is a fire support variant in the APOC Series, featuring enhanced energy weapons and advanced targeting arrays. Its beam weapons provide clean, precise fire support with minimal collateral damage. This detailed mech model showcases the elegant design of energy-based weapons platforms.
+

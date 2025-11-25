@@ -23,3 +23,5 @@ cost_tw: 705.0
 order_weight: 0
 ---
 
+The [[Varagyr]] Wolf Guard were [[Leman Russ|Russ's]] chosen killers, warriors whose loyalty was beyond question and whose skill in combat was unmatched within the [[Space Wolves]] Legion. This terminator's heavy armor and deadly weapons make him a devastating opponent, capable of holding against overwhelming odds while his packmates hunt down their quarry.
+

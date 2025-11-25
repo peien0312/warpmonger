@@ -23,3 +23,4 @@ cost_tw: 598.0
 order_weight: 0
 ---
 
+The Foot Clan ninja serves as Shredder's loyal soldier, one of countless black-clad warriors trained in the deadly arts. These disciplined fighters attack in overwhelming numbers, their individual skills combining into a formidable threat even for the Turtles. This figure captures the classic Foot Soldier design with traditional ninja weapons and uniform for building your Foot Clan army.

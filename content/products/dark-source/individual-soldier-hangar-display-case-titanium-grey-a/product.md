@@ -23,3 +23,5 @@ cost_tw: 98.0
 order_weight: 0
 ---
 
+The Titanium Grey A display case provides a sleek metallic backdrop for your 1/25 scale figures. The hangar-style design creates an immersive industrial aesthetic perfect for mech and military collections. Part of the Individual Soldier display case series for professional presentation.
+

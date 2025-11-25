@@ -23,3 +23,5 @@ cost_tw: 290.0
 order_weight: 0
 ---
 
+The Biochemical Lab Team zombies represent the ground zero of the outbreak, researchers in hazmat suits who couldn't escape the very containment protocols they designed. Their protective gear couldn't save them from infection. This 1/25 scale set creates dramatic laboratory horror dioramas.
+

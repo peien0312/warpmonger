@@ -23,3 +23,4 @@ cost_tw: 598.0
 order_weight: 0
 ---
 
+This Foot Clan ninja variant offers a different loadout for Shredder's endless army of loyal warriors. The Foot Soldiers' interchangeable weapons and combat styles make each encounter unpredictable for the heroes in a half shell. Pair with Foot Clan A to create diverse squads of ninja opponents for your TMNT display battles.

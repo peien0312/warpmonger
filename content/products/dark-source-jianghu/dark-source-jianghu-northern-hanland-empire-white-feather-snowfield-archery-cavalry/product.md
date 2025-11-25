@@ -23,3 +23,5 @@ cost_tw: 683.0
 order_weight: 0
 ---
 
+The White Feather Snowfield Archery Cavalry represents the elite mounted archers of the Northern Hanland Empire. This 1/18 scale figure is equipped for combat in frozen terrain, with winter gear and a powerful bow. Their legendary accuracy makes them feared across the Jianghu.
+

@@ -23,3 +23,4 @@ cost_tw: 790.0
 order_weight: 0
 ---
 
+A Captain of the [[Blood Angels]] leads his brothers with the nobility and martial excellence befitting the Sons of [[Sanguinius]]. Armed with a heavy bolt pistol and master-crafted power sword, he exemplifies the Chapter's preference for elegant yet devastating close-quarters combat. Blood Angels Captains must balance their duties as battlefield commanders with the constant struggle against the Red Thirst, channeling their inner darkness into righteous fury against the enemies of the Imperium.

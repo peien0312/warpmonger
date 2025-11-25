@@ -23,3 +23,4 @@ cost_tw: 2434.0
 order_weight: 0
 ---
 
+The Predator Annihilator is the premier tank-hunting vehicle in the [[Blood Angels]] armory, its twin lascannons capable of coring out enemy armor at extreme range. Based on the ancient Rhino chassis, the Predator has served Space Marine Chapters since before the Horus Heresy. The Blood Angels favor aggressive armored tactics, using their Predators to eliminate enemy heavy armor before their assault forces close for the kill.

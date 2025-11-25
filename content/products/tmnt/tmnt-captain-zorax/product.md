@@ -23,3 +23,4 @@ cost_tw: 662.0
 order_weight: 0
 ---
 
+Captain Zorax commands Triceraton forces with the authority and tactical brilliance that earned him his rank among the warrior species. This decorated officer leads his troops in their ongoing conflicts across the galaxy, including numerous encounters with the Teenage Mutant Ninja Turtles. The figure features Captain Zorax's ornate command armor and officer insignia.

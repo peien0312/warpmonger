@@ -23,3 +23,5 @@ cost_tw: 222.0
 order_weight: 0
 ---
 
+These firefighter zombies were first responders who rushed toward danger only to become part of it. Their heavy gear and equipment now serve no protective purpose. This 1/25 scale set honors these fallen heroes while adding dramatic figures to zombie outbreak scenarios.
+

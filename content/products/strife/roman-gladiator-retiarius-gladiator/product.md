@@ -23,3 +23,4 @@ cost_tw: 363.0
 order_weight: 0
 ---
 
+The Retiarius fought with a weighted net and trident, representing the fisherman hunting his catch in the arena's violent theater. Lightly armored to maximize mobility, these gladiators relied on entangling opponents with their net before delivering killing blows with the trident. This figure captures the unique fighting stance and distinctive equipment that made Retiarius battles among the most dramatic spectacles in Roman entertainment.

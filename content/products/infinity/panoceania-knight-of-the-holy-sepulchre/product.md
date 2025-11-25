@@ -23,3 +23,4 @@ cost_tw: 1196.0
 order_weight: 0
 ---
 
+The Knight of the Holy Sepulchre represents one of PanOceania's most elite military orders, clad in advanced power armor and wielding devastating weaponry. These warriors combine religious fervor with cutting-edge technology in service to the Hyperpower. This imposing 1/18 scale figure showcases the ornate yet functional armor design of the order.

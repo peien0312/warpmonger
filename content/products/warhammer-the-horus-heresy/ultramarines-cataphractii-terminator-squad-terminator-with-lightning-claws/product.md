@@ -23,3 +23,5 @@ cost_tw: 662.0
 order_weight: 0
 ---
 
+Armed with paired lightning claws, this [[Ultramarines]] Cataphractii Terminator is configured for devastating close-quarters combat. The Cataphractii pattern's heavy armor makes the wearer nearly invulnerable, allowing him to wade through enemy fire to deliver killing strikes. Such warriors formed the elite assault units of [[Roboute Guilliman|Guilliman's]] Legion.
+

@@ -23,3 +23,4 @@ cost_tw: 619.0
 order_weight: 0
 ---
 
+[[Space Wolves]] Grey Slayers carved a bloody path through the enemies of the Imperium during the Great Crusade and [[Horus Heresy]]. These veterans preferred the intimate violence of melee combat, where they could look their foes in the eye before ending them. The frost-touched weapons and feral decorations mark this warrior as one of Fenris's most dangerous hunters.

@@ -23,3 +23,4 @@ cost_tw: 641.0
 order_weight: 0
 ---
 
+[[Alpha Legion]] Headhunters are elite operatives specializing in assassination and priority target elimination. Armed with a banestrike combi-bolter—whose specialized rounds can penetrate even power armor—and a power dagger for silent kills, this warrior is perfectly equipped for the XX Legion's favored tactics. Headhunters strike from the shadows, eliminating enemy leaders before vanishing into the chaos.

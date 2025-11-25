@@ -23,3 +23,5 @@ cost_tw: 2306.0
 order_weight: 0
 ---
 
+[[Lion El'Jonson]], the First Primarch, has returned to lead the [[Dark Angels]] in humanity's darkest hour. After ten thousand years of slumber beneath the Rock, the Lion awakened during the Era Indomitus to find the Imperium beset on all sides. Now he wages war once more, wielding the legendary weapons of his office against the enemies of mankind. This figure captures the Lion in all his majesty, a demigod of war whose return has shaken the foundations of the Imperium and given hope to the sons of the First Legion.
+

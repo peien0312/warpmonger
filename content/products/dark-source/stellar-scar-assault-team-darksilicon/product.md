@@ -23,3 +23,5 @@ cost_tw: 354.0
 order_weight: 0
 ---
 
+Darksilicon is a specialist of the Stellar Scar Assault Team, identified by their dark metallic armor coloring. Their stealth capabilities make them ideal for covert space station infiltrations. This 1/18 scale figure showcases the advanced technology and tactical design of Stellar Scar operatives.
+

@@ -23,3 +23,4 @@ cost_tw: 278.0
 order_weight: 0
 ---
 
+The Star Bounty Hunter navigates the galaxy in pursuit of high-value targets with specialized hunting equipment. This 1/18 scale figure features sleek space-age armor and advanced targeting systems. An excellent addition for collectors who appreciate the intersection of military action figures and science fiction aesthetics.

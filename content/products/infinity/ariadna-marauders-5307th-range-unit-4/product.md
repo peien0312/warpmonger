@@ -23,3 +23,5 @@ cost_tw: 470.0
 order_weight: 0
 ---
 
+Complete your 5307th Ranger Unit with this fourth Marauder variant. The Marauders' ability to operate independently behind enemy lines makes them perfect for disruption and sabotage missions. This 1/18 scale figure rounds out a full fireteam of these legendary American-heritage special forces.
+

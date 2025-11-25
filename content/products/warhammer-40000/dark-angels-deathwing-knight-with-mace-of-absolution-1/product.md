@@ -23,3 +23,5 @@ cost_tw: 897.0
 order_weight: 0
 ---
 
+The Mace of Absolution is a sacred weapon of the [[Deathwing]] Knights, a power maul imbued with arcane technologies that can shatter armor and bone with every swing. This Knight wields his mace in the traditional manner of the [[Dark Angels]]' ceremonial warriors, his bone-white armor marking him as a member of the Chapter's elite First Company. Against the Fallen and the forces of Chaos, the Deathwing Knights deliver the Emperor's judgment without mercy.
+

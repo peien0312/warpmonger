@@ -23,3 +23,5 @@ cost_tw: 662.0
 order_weight: 0
 ---
 
+Clad in the advanced Mark IV Maximus pattern armor, this [[Thousand Sons]] legionary represents the pinnacle of pre-Heresy technology combined with the Legion's arcane traditions. The XV Legion's tactical squads were unlike those of other Legions, for every brother could manifest some measure of psychic power. His crimson plate gleams with protective wards.
+

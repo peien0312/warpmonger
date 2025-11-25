@@ -23,3 +23,4 @@ cost_tw: 705.0
 order_weight: 0
 ---
 
+[[Sons of Horus]] Terminators in Tartaros pattern armor combined the protection of tactical dreadnought armor with greater mobility than other variants. This warrior carries a combi-bolter for ranged firepower and a chainfist capable of ripping through bulkheads and enemy armor alike. The Tartaros pattern was favored by the XVI Legion's aggressive commanders for teleport assaults requiring swift action.

@@ -23,3 +23,4 @@ cost_tw: 747.0
 order_weight: 0
 ---
 
+A warrior of the Crimson Paladins, the [[Blood Angels|Blood Angels']] elite Terminator bodyguard sworn to protect [[Sanguinius]]. The Paladins' distinctive gold and crimson armor set them apart even among the IX Legion's already ornate forces. Armed with devastating firepower and close-combat weapons, they formed an impenetrable wall around the Great Angel in the most desperate battles of the [[Horus Heresy]].

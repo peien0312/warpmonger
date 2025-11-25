@@ -23,3 +23,4 @@ cost_tw: 555.0
 order_weight: 0
 ---
 
+The Wildcats are Nomad polyvalent tactical units, professional soldiers capable of adapting to any combat situation. This male operative carries the versatile loadout that allows Wildcats to fulfill multiple battlefield roles. The 1/18 scale figure features the sleek, functional design aesthetic characteristic of Nomad military forces.

@@ -23,3 +23,5 @@ cost_tw: 290.0
 order_weight: 0
 ---
 
+Levi serves as a combat medic in UNSC forces, providing critical medical support while under fire. His courage in saving wounded comrades has earned him respect throughout the service. This 1/25 scale figure features medical equipment and the distinctive markings of UNSC medical personnel.
+

@@ -23,3 +23,5 @@ cost_tw: 747.0
 order_weight: 0
 ---
 
+The storm bolter is the standard armament of [[Ultramarines]] Terminators, a twin-barreled weapon that delivers devastating volleys of mass-reactive rounds. Clad in ancient Tactical Dreadnought armor, this warrior can withstand punishment that would annihilate lesser soldiers while delivering death with every trigger pull. Terminators are deployed when the enemy must be crushed without mercy, their storm bolters clearing corridors and bunkers with brutal efficiency.
+

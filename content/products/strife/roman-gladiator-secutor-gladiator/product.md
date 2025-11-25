@@ -23,3 +23,4 @@ cost_tw: 363.0
 order_weight: 0
 ---
 
+The Secutor, meaning "pursuer," was specifically designed to fight against the Retiarius, their smooth egg-shaped helmet offering no edges for nets to catch. These relentless warriors pressed forward aggressively, seeking to close distance before their lightly-armored opponents could entangle them. This figure features the distinctive smooth helmet and heavy equipment that made the Secutor a formidable counter to net-wielding gladiators.

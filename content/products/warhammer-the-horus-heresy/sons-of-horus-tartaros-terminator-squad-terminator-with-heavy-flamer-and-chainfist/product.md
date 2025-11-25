@@ -23,3 +23,4 @@ cost_tw: 705.0
 order_weight: 0
 ---
 
+Armed with a heavy flamer and chainfist, this [[Sons of Horus]] Tartaros Terminator specializes in brutal close-range engagements. The heavy flamer's promethium spray can clear entire corridors of defenders, while the chainfist's adamantine teeth make short work of armored bulkheads and vehicle hulls. Perfect for the aggressive boarding actions favored by the XVI Legion during the [[Horus Heresy]].

@@ -23,3 +23,5 @@ cost_tw: 149.0
 order_weight: 0
 ---
 
+These zombie female wrestlers bring undead athleticism to your apocalyptic dioramas. Once champions of the ring, they now pursue a different kind of takedown. This 1/25 scale figure set adds unique characters to zombie outbreak scenarios and post-apocalyptic displays.
+

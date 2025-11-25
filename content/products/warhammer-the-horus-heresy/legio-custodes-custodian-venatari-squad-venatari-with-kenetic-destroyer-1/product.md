@@ -23,3 +23,5 @@ cost_tw: 897.0
 order_weight: 0
 ---
 
+The Venatari are the airborne hunters of the [[Legio Custodes]], equipped with jump packs that allow them to strike from unexpected angles. This Custodian carries a kinetic destroyer, a weapon that fires hyper-accelerated projectiles capable of punching through the heaviest armor. The Venatari excel at hunting down enemy commanders and eliminating high-value targets.
+

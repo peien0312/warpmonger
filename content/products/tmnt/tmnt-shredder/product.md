@@ -23,3 +23,4 @@ cost_tw: 641.0
 order_weight: 0
 ---
 
+The Shredder is the fearsome leader of the Foot Clan and arch-nemesis of the Teenage Mutant Ninja Turtles, his razor-sharp armor making him a walking weapon. Oroku Saki's vendetta against Splinter has driven decades of conflict from the shadows of New York City. This imposing figure showcases the iconic bladed armor and menacing presence that has made Shredder one of animation's most memorable villains.

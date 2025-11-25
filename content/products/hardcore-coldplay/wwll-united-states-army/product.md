@@ -23,3 +23,4 @@ cost_tw: 278
 order_weight: 0
 ---
 
+The WWII United States Army soldier represents the American GIs who fought across Europe and the Pacific during World War II. This 1/18 scale figure features authentic period equipment and uniforms that honor their service. Perfect for collectors recreating D-Day landings, the Battle of the Bulge, or other historic operations.

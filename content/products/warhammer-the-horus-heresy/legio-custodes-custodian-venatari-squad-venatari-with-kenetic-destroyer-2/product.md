@@ -23,3 +23,5 @@ cost_tw: 897.0
 order_weight: 0
 ---
 
+A Venatari of the [[Legio Custodes]] armed with a kinetic destroyer, this aerial warrior represents the Emperor's wrath descending from above. The Venatari's jump packs grant them unparalleled mobility on the battlefield, allowing them to engage enemies thought safely behind fortifications or escort screens. No target is beyond their reach.
+

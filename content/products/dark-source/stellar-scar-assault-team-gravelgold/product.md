@@ -23,3 +23,5 @@ cost_tw: 354.0
 order_weight: 0
 ---
 
+Gravelgold is an elite operative of the Stellar Scar Assault Team, named for the distinctive golden accents on their advanced combat armor. These soldiers are deployed for the most challenging space operations. This 1/18 scale figure features the sleek, futuristic design of Stellar Scar combat equipment.
+

@@ -23,3 +23,5 @@ cost_tw: 248.0
 order_weight: 0
 ---
 
+These security guard zombies were the last line of defense when containment failed, now they wander the halls they once protected. Their uniforms and equipment hint at desperate attempts to hold back the horde. This 1/25 scale set is perfect for facility outbreak dioramas.
+

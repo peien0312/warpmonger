@@ -23,3 +23,4 @@ cost_tw: 278.0
 order_weight: 0
 ---
 
+Army Builder Figure 20 brings additional variety to your military figure lineup with unique loadout configurations. This 1/18 scale soldier features the attention to detail collectors expect from the Hardcore Coldplay line. An excellent choice for filling out squad rosters or creating diverse combat scenes.

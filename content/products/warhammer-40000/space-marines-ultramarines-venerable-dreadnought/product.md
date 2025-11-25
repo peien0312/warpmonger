@@ -23,3 +23,5 @@ cost_tw: 1366.0
 order_weight: 0
 ---
 
+A Venerable Dreadnought is among the most revered warriors in an [[Ultramarines]] company, an ancient hero interred within a walking war machine to continue fighting for centuries after his mortal body has failed. These venerable warriors carry the wisdom of ages, their counsel sought by Chapter leadership on matters of strategy and tradition. Armed with devastating weapons, they stride into battle as living icons of the Chapter's glorious history.
+

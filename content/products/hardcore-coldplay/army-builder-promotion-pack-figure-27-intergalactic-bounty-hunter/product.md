@@ -23,3 +23,4 @@ cost_tw: 278.0
 order_weight: 0
 ---
 
+The Intergalactic Bounty Hunter tracks targets across the stars with specialized alien-hunting equipment. This sci-fi themed 1/18 scale figure features space-age armor and weapons designed for extraterrestrial contracts. A unique addition to collections that span both military realism and science fiction genres.

@@ -23,3 +23,5 @@ cost_tw: 448.0
 order_weight: 0
 ---
 
+Brother T'Kren serves among the [[Salamanders]] Eradicators, Primaris Marines who specialize in the destruction of armored targets. Armed with the devastating melta rifle, he brings the volcanic fury of Nocturne to the battlefield, reducing enemy vehicles to molten slag with every shot. The Salamanders' mastery of melta weaponry is legendary, and T'Kren upholds this tradition with every target he destroys.
+

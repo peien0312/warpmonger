@@ -23,3 +23,5 @@ cost_tw: 290.0
 order_weight: 0
 ---
 
+Mason is a highly trained UNSC sniper who specializes in reconnaissance and precision elimination. His patience and accuracy have earned him a fearsome reputation among enemy forces. This 1/25 scale figure features the distinctive marksman equipment and camouflage gear of UNSC special operations.
+

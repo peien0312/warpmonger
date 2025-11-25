@@ -23,3 +23,4 @@ cost_tw: 363.0
 order_weight: 0
 ---
 
+The Thraex, named after the fierce warriors of Thrace, fought with a curved sica sword and small square shield. Their distinctive griffin-crested helmet and high greaves protected their legs from the low slashing attacks favored by their usual opponents. This figure captures the aggressive Thracian fighting style and elaborate protective equipment that made the Thraex one of the most visually striking gladiator types in the arena.

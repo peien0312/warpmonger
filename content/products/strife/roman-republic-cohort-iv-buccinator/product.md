@@ -23,3 +23,4 @@ cost_tw: 576.0
 order_weight: 0
 ---
 
+The Buccinator served as the military horn player for Cohort IV, sounding commands that directed troop movements across the chaos of ancient battlefields. The deep, resonant tones of the buccina carried over the din of combat, coordinating advances, retreats, and complex tactical maneuvers. This figure includes the distinctive curved bronze horn and legionary equipment that defined these essential military musicians of the Roman Republic.

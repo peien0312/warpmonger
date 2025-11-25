@@ -23,3 +23,4 @@ cost_tw: 833.0
 order_weight: 0
 ---
 
+[[Imperial Fists]] Cataphractii Terminators formed the armored fist of the VII Legion's elite forces, their heavy armor perfect for breaching enemy fortifications. This warrior's chainfist can tear through bulkheads and armor alike, making him invaluable in the siege warfare the [[Imperial Fists]] mastered. The golden yellow of [[Rogal Dorn|Dorn's]] Legion marks this veteran as a defender of Terra.

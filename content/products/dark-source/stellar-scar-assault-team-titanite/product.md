@@ -23,3 +23,5 @@ cost_tw: 354.0
 order_weight: 0
 ---
 
+Titanite is a front-line assault specialist of the Stellar Scar Assault Team, their reinforced armor designed to breach heavily defended positions. Their durability and firepower make them the spearhead of any space assault operation. This 1/18 scale figure showcases the heavy combat gear of Stellar Scar breaching units.
+

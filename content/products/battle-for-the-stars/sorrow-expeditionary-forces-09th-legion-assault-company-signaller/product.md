@@ -23,3 +23,4 @@ cost_tw: 534.0
 order_weight: 0
 ---
 
+The Signaller maintains vital communications across the battlefield, coordinating artillery strikes and relaying real-time intelligence between scattered units. Without these communication specialists, the Assault Company would be blind and deaf in the chaos of combat. This figure features the distinctive communications array and tactical equipment that keeps the 09th Legion connected even in the most hostile electronic warfare environments.

@@ -23,3 +23,4 @@ cost_tw: 1623.0
 order_weight: 0
 ---
 
+The Knights Hospitallers serve as PanOceania's medical military order, combining combat prowess with advanced healing capabilities. These armored medics can save lives while eliminating threats with equal efficiency. This premium 1/18 scale figure set features the distinctive white and red livery and sophisticated equipment of this revered order.

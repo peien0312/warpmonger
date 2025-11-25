@@ -23,3 +23,4 @@ cost_tw: 726.0
 order_weight: 0
 ---
 
+The Dawnbreaker Champion leads his Cohort with unmatched skill and fury, a veteran of countless assault actions for the [[Blood Angels]]. Champions were chosen for their exceptional combat abilities and inspiring presence, wielding master-crafted weapons and wearing ornate artificer armor. In battle, they are the first to descend upon the enemy, their example driving their brothers to ever greater feats of valor.

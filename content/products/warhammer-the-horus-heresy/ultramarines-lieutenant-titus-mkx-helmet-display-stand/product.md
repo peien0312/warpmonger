@@ -23,3 +23,5 @@ cost_tw: 2690.0
 order_weight: 0
 ---
 
+Lieutenant Titus's Mark X helmet with an illuminated display stand, showcasing the iconic [[Ultramarines]] helm in all its glory. This premium 1:1 scale replica includes a custom base that brings the helmet to life with integrated lighting. The complete package for collectors who want to display a piece of Space Marine history from Warhammer 40,000: Space Marine II.
+

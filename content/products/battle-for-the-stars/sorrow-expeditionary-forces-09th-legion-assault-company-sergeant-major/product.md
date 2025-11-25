@@ -23,3 +23,4 @@ cost_tw: 512.0
 order_weight: 0
 ---
 
+The Sergeant Major serves as the backbone of the 09th Legion Assault Company, coordinating squad movements and maintaining discipline under fire. This veteran soldier carries years of combat experience from countless planetary campaigns, his commanding presence inspiring those under his charge. The figure comes equipped with tactical combat gear and command equipment befitting a seasoned non-commissioned officer of the Sorrow Expeditionary Forces.

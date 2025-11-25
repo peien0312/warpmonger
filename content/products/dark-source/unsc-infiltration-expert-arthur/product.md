@@ -23,3 +23,5 @@ cost_tw: 290.0
 order_weight: 0
 ---
 
+Arthur is a UNSC infiltration expert trained for covert operations behind enemy lines. His stealth skills and adaptability allow him to complete missions others would consider impossible. This 1/25 scale figure features specialized infiltration gear and suppressed weapons.
+

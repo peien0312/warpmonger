@@ -23,3 +23,4 @@ cost_tw: 662.0
 order_weight: 0
 ---
 
+Slash is the brutal mutant snapping turtle who began as a villain before eventually finding redemption alongside the Turtles. Larger and more aggressive than the heroes, his spiked shell and savage fighting style made him a formidable opponent. This figure captures Slash's intimidating appearance with his distinctive black bandana and heavily armored shell.

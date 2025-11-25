@@ -23,3 +23,5 @@ cost_tw: 2455.0
 order_weight: 0
 ---
 
+The Razorback is a versatile armored transport used by the [[Ultramarines]] to carry infantry into battle while providing heavy fire support. This variant mounts twin lascannons, making it a deadly anti-armor platform capable of destroying enemy tanks and fortifications. The Ultramarines employ Razorbacks as part of coordinated battle plans, their firepower supporting infantry advances while their transport capacity ensures tactical flexibility.
+
