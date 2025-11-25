@@ -153,6 +153,74 @@ Reference these when writing descriptions:
 
 ---
 
+## Tags
+
+Tags are stored in a separate `tags.txt` file (one tag per line) within each product folder.
+
+### Tag Categories
+
+**Universe/Game System** (required)
+- `Warhammer 40,000`
+- `Horus Heresy`
+- `Age of Sigmar`
+- `Infinity`
+- `TMNT`
+- `Dark Source`
+
+**Faction** (required for W40K/HH)
+- `Space Marines`, `Blood Angels`, `Ultramarines`, `Imperial Fists`, etc.
+- `Adepta Sororitas`, `Astra Militarum`, `Adeptus Mechanicus`
+- `Chaos Space Marines`, `Death Guard`, `World Eaters`, etc.
+- `Orks`, `Tyranids`, `Necrons`, `Aeldari`, `T'au`
+
+**Unit Type** (recommended)
+- `Infantry`, `Characters`, `Named Characters`
+- `Vehicles`, `Walkers`, `Dreadnoughts`
+- `Heavy Support`, `Elite`, `HQ`
+
+**Special Categories** (as applicable)
+- `Primarch` - for Primarch figures
+- `Chapter Master` - for Chapter leaders
+- `Chaplain`, `Librarian`, `Apothecary` - for specialist roles
+- `Terminator` - for Terminator armor
+- `Primaris` - for Primaris Marines
+
+### Tag Guidelines
+- Use 3-6 tags per product
+- Always include universe and faction
+- Use consistent capitalization (Title Case)
+- Don't duplicate information already in the title
+
+### Example Tags
+
+**Blood Angels Character:**
+```
+Blood Angels
+Warhammer 40,000
+Space Marines
+Named Characters
+Chaplain
+```
+
+**Adepta Sororitas Infantry:**
+```
+Adepta Sororitas
+Warhammer 40,000
+Infantry
+Sisters of Battle
+```
+
+**Astra Militarum Vehicle:**
+```
+Astra Militarum
+Warhammer 40,000
+Imperial Guard
+Vehicles
+Walkers
+```
+
+---
+
 ## Quality Checklist
 
 - [ ] Description is 50-150 words
@@ -161,6 +229,8 @@ Reference these when writing descriptions:
 - [ ] Includes 1-3 codex links (if applicable)
 - [ ] No spelling/grammar errors
 - [ ] Factually accurate to source material
+- [ ] Tags file has 3-6 relevant tags
+- [ ] Tags include universe and faction
 
 ---
 
