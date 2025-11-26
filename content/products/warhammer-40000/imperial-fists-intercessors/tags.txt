@@ -1,5 +1,2 @@
 Warhammer 40,000
 Imperial Fists
-Infantry
-Primaris
-Intercessors

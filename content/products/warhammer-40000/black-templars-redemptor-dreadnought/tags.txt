@@ -2,4 +2,3 @@ Warhammer 40,000
 Black Templars
 Vehicles
 Dreadnought
-Primaris

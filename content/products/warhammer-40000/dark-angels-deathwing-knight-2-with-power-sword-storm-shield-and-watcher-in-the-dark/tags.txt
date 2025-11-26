@@ -1,5 +1,4 @@
 Warhammer 40,000
 Dark Angels
-Infantry
 Deathwing
 Terminator

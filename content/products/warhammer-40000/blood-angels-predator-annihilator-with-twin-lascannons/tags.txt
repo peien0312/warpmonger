@@ -1,5 +1,4 @@
 Warhammer 40,000
 Blood Angels
 Vehicles
-Tank
 Predator

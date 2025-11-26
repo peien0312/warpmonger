@@ -2,4 +2,3 @@ Horus Heresy
 Alpha Legion
 Vehicles
 Dreadnought
-Contemptor

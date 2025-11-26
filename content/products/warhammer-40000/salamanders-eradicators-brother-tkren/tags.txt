@@ -1,5 +1,2 @@
 Warhammer 40,000
 Salamanders
-Infantry
-Primaris
-Eradicators

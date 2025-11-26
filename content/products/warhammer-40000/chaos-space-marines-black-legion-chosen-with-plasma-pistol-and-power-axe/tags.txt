@@ -1,5 +1,2 @@
 Warhammer 40,000
-Chaos Space Marines
 Black Legion
-Infantry
-Chosen

@@ -11,3 +11,5 @@ static/images/*
 content/products/*/images/
 content/products/*/*/images/
 all/
+
+nohup.out

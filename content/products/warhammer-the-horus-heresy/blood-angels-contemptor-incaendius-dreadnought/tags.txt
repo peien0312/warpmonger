@@ -2,4 +2,3 @@ Horus Heresy
 Blood Angels
 Vehicles
 Dreadnought
-Contemptor

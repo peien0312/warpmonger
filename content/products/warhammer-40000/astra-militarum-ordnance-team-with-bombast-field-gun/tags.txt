@@ -1,5 +1,2 @@
 Astra Militarum
 Warhammer 40,000
-Imperial Guard
-Heavy Support
-Artillery
