@@ -134,6 +134,9 @@
 
             {# Product badges #}
             <div class="product-badges-detail">
+                {% if not product.in_stock %}
+                <span class="badge badge-soldout">Sold Out</span>
+                {% endif %}
                 {% if product.is_pre_order %}
                 <span class="badge badge-preorder">Pre-order</span>
                 {% endif %}
@@ -203,11 +206,6 @@
             </div>
             {% endif %}
 
-            <div class="product-actions">
-                <button class="btn btn-primary btn-lg" onclick="alert('Add to cart functionality handled externally')">
-                    Add to Cart
-                </button>
-            </div>
         </div>
     </div>
 

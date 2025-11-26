@@ -2,7 +2,7 @@
 title: Space Wolves Grey Slayer Pack Grey Slayer 1
 price: 39.99
 sku: 6973130377400
-in_stock: true
+in_stock: false
 images: ["editor_19.jpg", "editor_20.jpg", "editor_21.jpg", "editor_22.jpg", "editor_23.jpg", "editor_24.jpg", "editor_25.jpg", "gallery_15.jpg", "gallery_16.jpg", "gallery_17.jpg", "gallery_18.jpg", "gallery_19.jpg", "gallery_20.jpg"]
 is_pre_order: false
 available_date: 

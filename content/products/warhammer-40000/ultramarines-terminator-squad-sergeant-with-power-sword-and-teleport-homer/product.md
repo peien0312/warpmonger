@@ -4,7 +4,7 @@ price: 57.99
 sku: 6973130379923
 in_stock: true
 images: ["editor_3.jpg", "editor_4.jpg", "editor_5.jpg", "editor_6.jpg", "editor_7.jpg", "editor_8.jpg", "gallery_3.jpg", "gallery_4.jpg", "gallery_5.jpg", "gallery_6.jpg", "gallery_7.jpg", "gallery_8.jpg"]
-is_pre_order: true
+is_pre_order: false
 available_date: 2025-11-01
 is_on_sale: false
 sale_price: 0

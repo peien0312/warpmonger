@@ -2,7 +2,7 @@
 title: U.S. Army Delta Assault Squad -Assult Operator
 price: 19.99
 sku: 6973130379534
-in_stock: true
+in_stock: false
 images: ["editor_23.jpg", "editor_24.jpg", "editor_25.jpg", "editor_26.jpg", "editor_27.jpg", "gallery_27.jpg", "gallery_28.jpg", "gallery_29.jpg", "gallery_30.jpg", "gallery_31.jpg", "gallery_32.jpg"]
 is_pre_order: false
 available_date: 

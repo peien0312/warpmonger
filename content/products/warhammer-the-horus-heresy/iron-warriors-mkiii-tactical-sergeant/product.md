@@ -2,7 +2,7 @@
 title: Iron Warriors MKIII Tactical Sergeant
 price: 39.99
 sku: 6927054401451
-in_stock: true
+in_stock: false
 images: ["editor_4.jpg", "editor_5.jpg", "editor_6.jpg", "editor_7.jpg", "editor_8.jpg", "editor_9.jpg", "editor_10.jpg", "gallery_3.jpg", "gallery_4.jpg", "gallery_5.jpg", "gallery_6.jpg", "gallery_7.jpg", "gallery_8.jpg"]
 is_pre_order: false
 available_date: 

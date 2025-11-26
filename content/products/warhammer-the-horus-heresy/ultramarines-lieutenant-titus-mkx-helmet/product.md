@@ -2,9 +2,9 @@
 title: Ultramarines Lieutenant Titus' MKX Helmet
 price: 229.99
 sku: 6927054401741
-in_stock: true
+in_stock: false
 images: ["image_001.jpg", "image_002.jpg", "image_003.jpg", "image_004.jpg", "image_005.jpg", "image_006.jpg", "image_007.jpg", "image_008.jpg", "image_009.jpg"]
-is_pre_order: true
+is_pre_order: false
 available_date: 2025-11-01
 is_on_sale: false
 sale_price: 0

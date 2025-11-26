@@ -2,7 +2,7 @@
 title: Iron Warriors MKVI Tactical Sergeant with Power Sword and Plasma Pistol
 price: 39.99
 sku: 6927054401758
-in_stock: true
+in_stock: false
 images: ["image_001.jpg", "image_002.jpg", "image_003.jpg", "image_004.jpg", "image_005.jpg", "image_006.jpg", "image_007.jpg", "image_008.jpg", "image_009.jpg", "image_010.jpg", "image_011.jpg", "image_012.jpg"]
 is_pre_order: false
 available_date: 

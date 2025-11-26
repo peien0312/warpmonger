@@ -2,7 +2,7 @@
 title: Ultramarines Redemptor Dreadnought Brother Dreadnought Tyleas
 price: 169.99
 sku: 6973130372757   
-in_stock: true
+in_stock: false
 images: ["editor_001.jpg", "editor_002.jpg", "editor_003.jpg", "editor_004.jpg", "editor_005.jpg", "editor_006.jpg", "editor_007.jpg", "editor_008.jpg", "editor_009.jpg", "editor_010.jpg", "editor_011.jpg", "gallery_001.jpg", "gallery_002.jpg", "gallery_003.jpg", "gallery_004.jpg", "gallery_005.jpg"]
 is_pre_order: false
 available_date: 

@@ -779,9 +779,10 @@ def products_page():
     show_pre_order = request.args.get('pre_order') == 'true'
     show_on_sale = request.args.get('on_sale') == 'true'
     show_new_arrival = request.args.get('new_arrival') == 'true'
+    show_in_stock = request.args.get('in_stock') == 'true'
 
     # Check HTML cache for simple category pages (no search/tag/filters)
-    is_simple_page = not tag and not search and not show_pre_order and not show_on_sale and not show_new_arrival
+    is_simple_page = not tag and not search and not show_pre_order and not show_on_sale and not show_new_arrival and not show_in_stock
     cache_key = f"html_products_{category or 'all'}"
 
     if is_simple_page:
@@ -808,6 +809,10 @@ def products_page():
     if show_new_arrival:
         products = [p for p in products if p.get('is_new_arrival', False)]
 
+    # Filter by in stock if specified
+    if show_in_stock:
+        products = [p for p in products if p.get('in_stock', True)]
+
     categories = get_categories()
 
     # Get category name for display
@@ -826,7 +831,8 @@ def products_page():
                          current_search=search,
                          show_pre_order=show_pre_order,
                          show_on_sale=show_on_sale,
-                         show_new_arrival=show_new_arrival)
+                         show_new_arrival=show_new_arrival,
+                         show_in_stock=show_in_stock)
 
     # Cache simple pages
     if is_simple_page:

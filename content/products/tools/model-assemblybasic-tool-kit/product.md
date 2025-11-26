@@ -2,7 +2,7 @@
 title: MODEL ASSEMBLYBASIC TOOL KIT
 price: 9.99
 sku: 6927054401352
-in_stock: true
+in_stock: false
 images: ["image_001.jpg", "image_002.jpg", "image_003.jpg", "image_004.jpg"]
 is_pre_order: false
 available_date: 

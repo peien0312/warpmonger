@@ -2,7 +2,7 @@
 title: Legio Custodes Contemptor-Achillus Dreadnought
 price: 119.99
 sku: 6927054400812
-in_stock: true
+in_stock: false
 images: ["editor_1.jpg", "editor_2.jpg", "editor_3.jpg", "editor_4.jpg", "editor_5.jpg", "editor_6.jpg", "editor_7.jpg", "editor_8.jpg", "gallery_1.jpg", "gallery_2.jpg", "gallery_3.jpg", "gallery_4.jpg", "gallery_5.jpg", "gallery_6.jpg"]
 is_pre_order: false
 available_date: 

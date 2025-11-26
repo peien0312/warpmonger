@@ -2,7 +2,7 @@
 title: lron Warriors Tyrant Siege Master Terminator with Rocket launcher
 price: 45.99
 sku: 6927054401482
-in_stock: true
+in_stock: false
 images: ["editor_11.jpg", "editor_12.jpg", "editor_13.jpg", "editor_14.jpg", "editor_15.jpg", "editor_16.jpg", "editor_17.jpg", "editor_18.jpg", "editor_19.jpg", "editor_20.jpg", "editor_21.jpg", "gallery_9.jpg", "gallery_10.jpg", "gallery_11.jpg", "gallery_12.jpg", "gallery_13.jpg", "gallery_14.jpg"]
 is_pre_order: false
 available_date: 

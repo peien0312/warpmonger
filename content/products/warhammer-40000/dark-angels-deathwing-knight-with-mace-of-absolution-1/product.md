@@ -2,7 +2,7 @@
 title: Dark Angels Deathwing Knight with Mace of Absolution 1
 price: 63.99
 sku: 6973130379206
-in_stock: true
+in_stock: false
 images: ["editor_7.jpg", "editor_8.jpg", "editor_9.jpg", "editor_10.jpg", "editor_11.jpg", "gallery_9.jpg", "gallery_10.jpg", "gallery_11.jpg", "gallery_12.jpg", "gallery_13.jpg", "gallery_14.jpg"]
 is_pre_order: false
 available_date: 

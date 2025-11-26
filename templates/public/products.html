@@ -8,20 +8,7 @@
 <div class="container">
     <div class="products-page">
         <aside class="products-sidebar">
-            <h3>Categories</h3>
-            <ul class="category-list">
-                <li><a href="/products" {% if not current_category %}class="active"{% endif %}>All Products</a></li>
-                {% for category in categories %}
-                <li>
-                    <a href="/products?category={{ category.slug }}"
-                       {% if current_category == category.slug %}class="active"{% endif %}>
-                        {{ category.name }}
-                    </a>
-                </li>
-                {% endfor %}
-            </ul>
-
-            <h3 style="margin-top: 2rem;">Filters</h3>
+            <h3>Filters</h3>
             <div class="filters">
                 <label class="filter-checkbox">
                     <input type="checkbox" id="filter-preorder" {% if show_pre_order %}checked{% endif %}
@@ -38,7 +25,25 @@
                            onchange="toggleFilter('new_arrival')">
                     New Arrivals
                 </label>
+                <label class="filter-checkbox">
+                    <input type="checkbox" id="filter-instock" {% if show_in_stock %}checked{% endif %}
+                           onchange="toggleFilter('in_stock')">
+                    In Stock
+                </label>
             </div>
+
+            <h3 style="margin-top: 2rem;">Categories</h3>
+            <ul class="category-list">
+                <li><a href="/products{% if show_pre_order or show_on_sale or show_new_arrival or show_in_stock %}?{% endif %}{% if show_pre_order %}pre_order=true{% endif %}{% if show_on_sale %}{% if show_pre_order %}&{% endif %}on_sale=true{% endif %}{% if show_new_arrival %}{% if show_pre_order or show_on_sale %}&{% endif %}new_arrival=true{% endif %}{% if show_in_stock %}{% if show_pre_order or show_on_sale or show_new_arrival %}&{% endif %}in_stock=true{% endif %}" {% if not current_category %}class="active"{% endif %}>All Products</a></li>
+                {% for category in categories %}
+                <li>
+                    <a href="/products?category={{ category.slug }}{% if show_pre_order %}&pre_order=true{% endif %}{% if show_on_sale %}&on_sale=true{% endif %}{% if show_new_arrival %}&new_arrival=true{% endif %}{% if show_in_stock %}&in_stock=true{% endif %}"
+                       {% if current_category == category.slug %}class="active"{% endif %}>
+                        {{ category.name }}
+                    </a>
+                </li>
+                {% endfor %}
+            </ul>
 
             <script>
             function toggleFilter(filterType) {
@@ -91,6 +96,9 @@
 
                             {# Product badges #}
                             <div class="product-badges">
+                                {% if not product.in_stock %}
+                                <span class="badge badge-soldout">Sold Out</span>
+                                {% endif %}
                                 {% if product.is_pre_order %}
                                 <span class="badge badge-preorder">Pre-order</span>
                                 {% endif %}
@@ -113,10 +121,6 @@
                         </p>
                         {% else %}
                         <p class="price">${{ "%.2f"|format(product.price) }}</p>
-                        {% endif %}
-
-                        {% if not product.in_stock %}
-                        <p class="out-of-stock">Out of Stock</p>
                         {% endif %}
                     </a>
                 </div>

@@ -2,7 +2,7 @@
 title: Space Wolves Varagyr Wolf Guard Squad Varagyr Terminator 4
 price: 44.99
 sku: 6973130375857
-in_stock: true
+in_stock: false
 images: ["editor_27.jpg", "editor_28.jpg", "editor_29.jpg", "editor_30.jpg", "editor_31.jpg", "editor_32.jpg", "gallery_27.jpg", "gallery_28.jpg", "gallery_29.jpg", "gallery_30.jpg", "gallery_31.jpg", "gallery_32.jpg"]
 is_pre_order: false
 available_date: 

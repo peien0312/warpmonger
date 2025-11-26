@@ -4,7 +4,7 @@ price: 67.99
 sku: 6927054402502
 in_stock: true
 images: ["editor_023.jpg", "editor_024.jpg", "editor_025.jpg", "editor_026.jpg", "editor_027.jpg", "editor_028.jpg", "editor_029.jpg", "editor_030.jpg", "editor_031.jpg", "editor_032.jpg", "gallery_015.jpg", "gallery_016.jpg", "gallery_017.jpg", "gallery_018.jpg", "gallery_019.jpg", "gallery_020.jpg"]
-is_pre_order: true
+is_pre_order: false
 available_date: 2025-12-01
 is_on_sale: false
 sale_price: 0

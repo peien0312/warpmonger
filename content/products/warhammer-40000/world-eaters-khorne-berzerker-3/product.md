@@ -2,7 +2,7 @@
 title: World Eaters Khorne Berzerker 3
 price: 46.99
 sku: 6927054400591
-in_stock: true
+in_stock: false
 images: ["editor_35.jpg", "editor_36.jpg", "editor_37.jpg", "editor_38.jpg", "editor_39.jpg", "editor_40.jpg", "gallery_36.jpg", "gallery_37.jpg", "gallery_38.jpg", "gallery_39.jpg", "gallery_40.jpg", "gallery_41.jpg"]
 is_pre_order: false
 available_date: 

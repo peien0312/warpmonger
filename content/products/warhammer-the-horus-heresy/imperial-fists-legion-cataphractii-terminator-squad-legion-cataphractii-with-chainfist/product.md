@@ -2,7 +2,7 @@
 title: Imperial Fists Legion Cataphractii Terminator Squad Legion Cataphractii with Chainfist
 price: 57.99
 sku: 6973130379398
-in_stock: true
+in_stock: false
 images: ["editor_11.jpg", "editor_12.jpg", "editor_13.jpg", "editor_14.jpg", "editor_15.jpg"]
 is_pre_order: false
 available_date: 

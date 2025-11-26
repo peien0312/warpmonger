@@ -134,6 +134,9 @@
 
                         {# Product badges #}
                         <div class="product-badges">
+                            {% if not product.in_stock %}
+                            <span class="badge badge-soldout">Sold Out</span>
+                            {% endif %}
                             {% if product.is_pre_order %}
                             <span class="badge badge-preorder">Pre-order</span>
                             {% endif %}

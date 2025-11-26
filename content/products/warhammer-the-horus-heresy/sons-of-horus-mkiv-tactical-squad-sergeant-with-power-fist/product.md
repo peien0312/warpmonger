@@ -2,7 +2,7 @@
 title: Sons of Horus MKIV Tactical Squad Sergeant with Power Fist
 price: 46.99
 sku: 6973130379572
-in_stock: true
+in_stock: false
 images: ["editor_3.jpg", "editor_4.jpg", "editor_5.jpg", "editor_6.jpg", "editor_7.jpg", "gallery_3.jpg", "gallery_4.jpg", "gallery_5.jpg", "gallery_6.jpg", "gallery_7.jpg", "gallery_8.jpg"]
 is_pre_order: false
 available_date: 

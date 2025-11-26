@@ -2,7 +2,7 @@
 title: Ork Kommandos Comms Boy Wagzuk
 price: 64.99
 sku: 6973130372979
-in_stock: true
+in_stock: false
 images: ["editor_1.jpg", "editor_2.jpg", "editor_3.jpg", "editor_4.jpg", "editor_5.jpg", "editor_6.jpg", "gallery_1.png", "gallery_2.jpg", "gallery_3.jpg", "gallery_4.jpg", "gallery_5.png"]
 is_pre_order: false
 available_date: 

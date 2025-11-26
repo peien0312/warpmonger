@@ -2,7 +2,7 @@
 title: Sons of Horus MKIV Tactical Squad Legionary with Flamer
 price: 43.99
 sku: 6973130379596
-in_stock: true
+in_stock: false
 images: ["editor_14.jpg", "editor_15.jpg", "editor_16.jpg", "editor_17.jpg", "editor_18.jpg", "editor_19.jpg", "gallery_15.jpg", "gallery_16.jpg", "gallery_17.jpg", "gallery_18.jpg", "gallery_19.jpg", "gallery_20.jpg"]
 is_pre_order: false
 available_date: 

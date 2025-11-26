@@ -2,7 +2,7 @@
 title: Chaos Space Marines Black Legion Chosen Champion with bolter and power maul
 price: 72.99
 sku: 6927054400997
-in_stock: true
+in_stock: false
 images: ["editor_1.jpg", "editor_33.jpg", "editor_34.jpg", "editor_35.jpg", "editor_36.jpg", "editor_37.jpg", "editor_38.jpg", "editor_39.jpg", "editor_40.jpg", "gallery_1.jpg", "gallery_2.jpg", "gallery_27.jpg", "gallery_28.jpg", "gallery_29.jpg", "gallery_30.jpg", "gallery_31.jpg", "gallery_32.jpg"]
 is_pre_order: false
 available_date: 
