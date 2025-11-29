@@ -1,6 +1,9 @@
 import os
 import json
 import re
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 from datetime import datetime
 from functools import wraps
 from werkzeug.utils import secure_filename
@@ -392,7 +395,9 @@ def get_products(category=None, search=None):
                 'final_price': frontmatter.get('final_price', 0),
                 'cost_tw': frontmatter.get('cost_tw', 0),
                 # Ordering
-                'order_weight': frontmatter.get('order_weight', 0)
+                'order_weight': frontmatter.get('order_weight', 0),
+                # Grouping
+                'group': frontmatter.get('group', '')
             }
 
             # Apply search filter if provided
@@ -492,7 +497,9 @@ def get_product(category, slug):
         'final_price': frontmatter.get('final_price', 0),
         'cost_tw': frontmatter.get('cost_tw', 0),
         # Ordering
-        'order_weight': frontmatter.get('order_weight', 0)
+        'order_weight': frontmatter.get('order_weight', 0),
+        # Grouping
+        'group': frontmatter.get('group', '')
     }
 
 def save_product(category, slug, data):
@@ -530,7 +537,9 @@ def save_product(category, slug, data):
         'final_price': data.get('final_price', 0),
         'cost_tw': data.get('cost_tw', 0),
         # Ordering
-        'order_weight': data.get('order_weight', 0)
+        'order_weight': data.get('order_weight', 0),
+        # Grouping
+        'group': data.get('group', '')
     }
 
     # Save product.md
@@ -813,6 +822,9 @@ def products_page():
     if show_in_stock:
         products = [p for p in products if p.get('in_stock', True)]
 
+    # Sort by group for visual clustering (grouped products together, then by order_weight and title)
+    products.sort(key=lambda p: (p.get('group') or 'zzz', -p.get('order_weight', 0), p['title'].lower()))
+
     categories = get_categories()
 
     # Get category name for display
@@ -855,8 +867,33 @@ def product_detail(category, slug):
     cat_obj = get_category(category)
     category_name = cat_obj['name'] if cat_obj else category
 
-    # Get related products (same category)
-    related = [p for p in get_products(category) if p['slug'] != slug][:4]
+    # Build related products list with priority: same group -> matched tags -> same category
+    current_tags = set(product.get('tags', []))
+    current_group = product.get('group', '')
+    all_products = get_products()
+    category_products = [p for p in all_products if p['category'] == category and p['slug'] != slug]
+
+    # Separate into tiers
+    group_products = []
+    tag_products = []
+    other_products = []
+
+    for p in category_products:
+        if current_group and p.get('group') == current_group:
+            group_products.append(p)
+        elif current_tags and set(p.get('tags', [])) & current_tags:
+            # Count matching tags for sorting
+            match_count = len(set(p.get('tags', [])) & current_tags)
+            tag_products.append((match_count, p))
+        else:
+            other_products.append(p)
+
+    # Sort tag_products by match count (descending)
+    tag_products.sort(key=lambda x: -x[0])
+    tag_products = [p for _, p in tag_products]
+
+    # Combine: group first, then tag matches, then rest of category (max 16 items)
+    related = (group_products + tag_products + other_products)[:16]
 
     return render_template('public/product-detail.html',
                          product=product,
@@ -901,6 +938,192 @@ def codex_entry_page(slug):
     all_entries = get_codex_entries()
 
     return render_template('public/codex-entry.html', entry=entry, all_entries=all_entries)
+
+@app.route('/cart')
+def cart_page():
+    """Shopping cart/list page"""
+    telegram_username = os.environ.get('TELEGRAM_USERNAME', 'warpmonger')
+    return render_template('public/cart.html', telegram_username=telegram_username)
+
+
+@app.route('/cart/line')
+def cart_line_page():
+    """LINE contact page with instructions"""
+    line_id = os.environ.get('LINE_ID', '@warpmonger')
+    return render_template('public/line-contact.html', line_id=line_id)
+
+
+# === Shopping List Email API ===
+
+def format_shopping_list_html(items, user_name, user_email, user_message):
+    """Format shopping list as HTML for email"""
+    total = sum(item['price'] * item['quantity'] for item in items)
+
+    html = f"""
+    <html>
+    <body style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+        <h1 style="color: #8B0000; border-bottom: 2px solid #8B0000; padding-bottom: 10px;">Shopping List Inquiry</h1>
+
+        <p><strong>From:</strong> {user_name}</p>
+        <p><strong>Email:</strong> {user_email}</p>
+
+        {f'<p><strong>Message:</strong> {user_message}</p>' if user_message else ''}
+
+        <h2 style="color: #C9B037;">Items Requested:</h2>
+        <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
+            <thead>
+                <tr style="background: #1a1a1a; color: #d4d4d4;">
+                    <th style="padding: 10px; text-align: left; border: 1px solid #333;">Product</th>
+                    <th style="padding: 10px; text-align: center; border: 1px solid #333;">Qty</th>
+                    <th style="padding: 10px; text-align: right; border: 1px solid #333;">Price</th>
+                    <th style="padding: 10px; text-align: right; border: 1px solid #333;">Subtotal</th>
+                </tr>
+            </thead>
+            <tbody>
+    """
+
+    for item in items:
+        subtotal = item['price'] * item['quantity']
+        if item.get('inStock') == False:
+            status_prefix = '<span style="color: #8B0000; font-weight: bold;">[Out of Stock]</span> '
+        elif item.get('isPreOrder') == True:
+            status_prefix = '<span style="color: #0088cc; font-weight: bold;">[Pre-Order]</span> '
+        else:
+            status_prefix = ''
+        html += f"""
+                <tr>
+                    <td style="padding: 10px; border: 1px solid #ddd;">{status_prefix}{item['title']}</td>
+                    <td style="padding: 10px; text-align: center; border: 1px solid #ddd;">{item['quantity']}</td>
+                    <td style="padding: 10px; text-align: right; border: 1px solid #ddd;">${item['price']:.2f}</td>
+                    <td style="padding: 10px; text-align: right; border: 1px solid #ddd;">${subtotal:.2f}</td>
+                </tr>
+        """
+
+    html += f"""
+            </tbody>
+            <tfoot>
+                <tr style="background: #f5f5f5; font-weight: bold;">
+                    <td colspan="3" style="padding: 10px; text-align: right; border: 1px solid #ddd;">Total:</td>
+                    <td style="padding: 10px; text-align: right; border: 1px solid #ddd; color: #8B0000;">${total:.2f}</td>
+                </tr>
+            </tfoot>
+        </table>
+
+        <p style="color: #666; font-size: 0.9em;">This inquiry was sent from Warpmonger. Please respond to the customer at their provided email address.</p>
+    </body>
+    </html>
+    """
+    return html
+
+
+def format_shopping_list_text(items, user_name, user_email, user_message):
+    """Format shopping list as plain text for email"""
+    total = sum(item['price'] * item['quantity'] for item in items)
+
+    text = f"Shopping List Inquiry\n{'='*40}\n\n"
+    text += f"From: {user_name}\n"
+    text += f"Email: {user_email}\n"
+    if user_message:
+        text += f"Message: {user_message}\n"
+    text += "\nItems Requested:\n\n"
+
+    for i, item in enumerate(items, 1):
+        subtotal = item['price'] * item['quantity']
+        if item.get('inStock') == False:
+            status_prefix = '[Out of Stock] '
+        elif item.get('isPreOrder') == True:
+            status_prefix = '[Pre-Order] '
+        else:
+            status_prefix = ''
+        text += f"{i}. {status_prefix}{item['title']}\n"
+        text += f"   Qty: {item['quantity']} x ${item['price']:.2f} = ${subtotal:.2f}\n\n"
+
+    text += f"{'='*40}\n"
+    text += f"Total: ${total:.2f}\n"
+
+    return text
+
+
+def send_shopping_list_email(items, user_email, user_name, user_message):
+    """Send shopping list email to both shop owner and user"""
+    smtp_server = os.environ.get('SMTP_SERVER')
+    smtp_port = int(os.environ.get('SMTP_PORT', 587))
+    smtp_user = os.environ.get('SMTP_USERNAME')
+    smtp_pass = os.environ.get('SMTP_PASSWORD')
+    shop_email = os.environ.get('SHOP_EMAIL', smtp_user)
+
+    if not all([smtp_server, smtp_user, smtp_pass]):
+        raise ValueError("SMTP configuration is incomplete")
+
+    # Prepare content
+    text_content = format_shopping_list_text(items, user_name, user_email, user_message)
+    html_content = format_shopping_list_html(items, user_name, user_email, user_message)
+
+    with smtplib.SMTP(smtp_server, smtp_port) as server:
+        server.starttls()
+        server.login(smtp_user, smtp_pass)
+
+        # Email 1: Send to shop owner
+        msg_shop = MIMEMultipart('alternative')
+        msg_shop['Subject'] = f'Shopping List Inquiry from {user_name}'
+        msg_shop['From'] = smtp_user
+        msg_shop['To'] = shop_email
+        msg_shop['Reply-To'] = user_email
+        msg_shop.attach(MIMEText(text_content, 'plain'))
+        msg_shop.attach(MIMEText(html_content, 'html'))
+        server.send_message(msg_shop)
+
+        # Email 2: Send confirmation to user
+        msg_user = MIMEMultipart('alternative')
+        msg_user['Subject'] = 'Your Warpmonger Shopping List - We received your inquiry!'
+        msg_user['From'] = smtp_user
+        msg_user['To'] = user_email
+
+        user_text = f"Hi {user_name},\n\nThank you for your inquiry! We have received your shopping list and will get back to you soon.\n\n" + text_content
+        user_html = f"""
+        <html>
+        <body style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+            <h1 style="color: #8B0000;">Thank You for Your Inquiry!</h1>
+            <p>Hi {user_name},</p>
+            <p>We have received your shopping list and will get back to you soon to discuss the details.</p>
+            <hr style="border: 1px solid #333; margin: 20px 0;">
+            {html_content}
+        </body>
+        </html>
+        """
+
+        msg_user.attach(MIMEText(user_text, 'plain'))
+        msg_user.attach(MIMEText(user_html, 'html'))
+        server.send_message(msg_user)
+
+
+@app.route('/api/send-list', methods=['POST'])
+def send_list():
+    """Send shopping list via email"""
+    data = request.get_json()
+
+    items = data.get('items', [])
+    user_email = data.get('email', '').strip()
+    user_name = data.get('name', '').strip()
+    user_message = data.get('message', '').strip()
+
+    # Validation
+    if not items:
+        return jsonify({'success': False, 'error': 'No items in the list'}), 400
+    if not user_name:
+        return jsonify({'success': False, 'error': 'Name is required'}), 400
+    if not user_email:
+        return jsonify({'success': False, 'error': 'Email is required'}), 400
+
+    try:
+        send_shopping_list_email(items, user_email, user_name, user_message)
+        return jsonify({'success': True})
+    except ValueError as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+    except Exception as e:
+        print(f"Error sending email: {e}")
+        return jsonify({'success': False, 'error': 'Failed to send email. Please try again.'}), 500
+
 
 @app.route('/sitemap.xml')
 def sitemap():

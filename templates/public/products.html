@@ -83,7 +83,7 @@
 
             <div class="products-grid">
                 {% for product in products %}
-                <div class="product-card">
+                <div class="product-card" {% if product.group %}data-group="{{ product.group }}"{% endif %}>
                     <a href="/products/{{ product.category }}/{{ product.slug }}">
                         <div class="product-image-container">
                             {% if product.images %}
@@ -109,6 +109,7 @@
                                 <span class="badge badge-new">New</span>
                                 {% endif %}
                             </div>
+
                         </div>
 
                         <h3>{{ product.title }}</h3>

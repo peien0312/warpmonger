@@ -238,6 +238,13 @@
                             <small style="color: #666; font-size: 0.875rem;">Products with higher order weight appear first. Default is 0. Same weight = alphabetical order.</small>
                         </div>
 
+                        <div class="form-group">
+                            <label for="product-group">Product Group</label>
+                            <input type="text" id="product-group" list="groups-datalist" placeholder="e.g., Shadow Jaeger Squad">
+                            <datalist id="groups-datalist"></datalist>
+                            <small style="color: #666; font-size: 0.875rem;">Group related products together for visual clustering in catalog and carousel on detail page.</small>
+                        </div>
+
                         <h3 style="margin-top: 20px; margin-bottom: 10px; color: #667eea;">Pricing (Customer-facing)</h3>
                         <div class="form-row">
                             <div class="form-group">
@@ -486,6 +493,6 @@
         </div>
     </div>
 
-    <script src="/static/js/admin.js"></script>
+    <script src="/static/js/admin.js?v=2"></script>
 </body>
 </html>

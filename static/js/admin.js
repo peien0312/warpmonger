@@ -60,6 +60,7 @@ async function loadCategories() {
 
         renderCategories(categoriesMap);
         updateCategoriesDatalist(Object.keys(categoriesMap));
+        updateGroupsDatalist(data.products);
     } catch (error) {
         console.error('Error loading categories:', error);
     }
@@ -121,6 +122,21 @@ function updateCategoriesDatalist(categories) {
     categories.forEach(cat => {
         const option = document.createElement('option');
         option.value = cat;
+        datalist.appendChild(option);
+    });
+}
+
+function updateGroupsDatalist(products) {
+    const datalist = document.getElementById('groups-datalist');
+    if (!datalist) return;
+
+    // Extract unique groups from all products
+    const groups = [...new Set(products.map(p => p.group).filter(g => g && g.trim()))];
+
+    datalist.innerHTML = '';
+    groups.sort().forEach(group => {
+        const option = document.createElement('option');
+        option.value = group;
         datalist.appendChild(option);
     });
 }
@@ -396,6 +412,7 @@ async function editProduct(category, slug) {
         document.getElementById('product-size').value = currentProduct.size || '';
         document.getElementById('product-weight').value = currentProduct.weight || '';
         document.getElementById('product-order-weight').value = currentProduct.order_weight || 0;
+        document.getElementById('product-group').value = currentProduct.group || '';
 
         // Fill backend-only pricing fields
         document.getElementById('product-zhtw-price').value = currentProduct.zhtw_price || '';
@@ -546,7 +563,9 @@ async function saveProduct(e) {
         final_price: parseFloat(document.getElementById('product-final-price').value) || 0,
         cost_tw: parseFloat(document.getElementById('product-cost-tw').value) || 0,
         // Ordering
-        order_weight: parseInt(document.getElementById('product-order-weight').value) || 0
+        order_weight: parseInt(document.getElementById('product-order-weight').value) || 0,
+        // Grouping
+        group: document.getElementById('product-group').value
     };
 
     try {

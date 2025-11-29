@@ -1,0 +1,356 @@
+{% extends "public/base.html" %}
+
+{% block title %}Shopping List | Warpmonger{% endblock %}
+
+{% block meta_description %}Your shopping list - Review and send your product selections for a personalized quote.{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="cart-page">
+        <h1>Your Shopping List</h1>
+
+        <div id="cart-empty" class="cart-empty" style="display: none;">
+            <p>Your shopping list is empty.</p>
+            <a href="/products" class="btn btn-primary">Browse Products</a>
+        </div>
+
+        <div id="cart-content" style="display: none;">
+            <div id="cart-items" class="cart-items">
+                <!-- Populated by JavaScript -->
+            </div>
+
+            <div class="cart-summary">
+                <p class="cart-total">Total: $<span id="cart-total">0.00</span></p>
+                <button type="button" class="btn btn-primary btn-lg" id="send-list-btn" onclick="openContactModal()">
+                    Send List for Quote
+                </button>
+                <button type="button" class="btn btn-secondary" style="width: 100%; margin-top: 10px;" onclick="clearCart()">
+                    Clear List
+                </button>
+            </div>
+        </div>
+
+        <!-- Contact Modal -->
+        <div class="contact-modal" id="contact-modal" onclick="closeModalOnBackground(event)">
+            <div class="modal-content">
+                <button type="button" class="modal-close" onclick="closeContactModal()">&times;</button>
+                <h2>Send Your List</h2>
+
+                <!-- Preview Panel (always visible initially) -->
+                <div class="preview-panel" id="preview-panel">
+                    <label>Preview:</label>
+                    <pre id="preview-text"></pre>
+                    <button type="button" class="btn btn-primary" id="copy-btn" onclick="copyToClipboard()">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;margin-right:6px;vertical-align:middle;">
+                            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                        </svg>
+                        Copy to Clipboard
+                    </button>
+                </div>
+
+                <p style="margin-top: 20px;">Or send via:</p>
+
+                <div class="contact-options" id="contact-options">
+                    <button type="button" class="contact-btn email-btn" onclick="showEmailForm()">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                            <polyline points="22,6 12,13 2,6"></polyline>
+                        </svg>
+                        Email
+                    </button>
+                    <button type="button" class="contact-btn telegram-btn" onclick="sendViaTelegram()">
+                        <svg viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/>
+                        </svg>
+                        Telegram
+                    </button>
+                    <button type="button" class="contact-btn line-btn" onclick="sendViaLINE()">
+                        <svg viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H17.61v1.125h1.755c.349 0 .63.283.63.63 0 .344-.281.629-.63.629h-2.386c-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63h2.386c.346 0 .627.285.627.63 0 .349-.281.63-.63.63H17.61v1.125h1.755zm-3.855 3.016c0 .27-.174.51-.432.596-.064.021-.133.031-.199.031-.211 0-.391-.09-.51-.25l-2.443-3.317v2.94c0 .344-.279.629-.631.629-.346 0-.626-.285-.626-.629V8.108c0-.27.173-.51.43-.595.06-.023.136-.033.194-.033.195 0 .375.104.495.254l2.462 3.33V8.108c0-.345.282-.63.63-.63.345 0 .63.285.63.63v4.771zm-5.741 0c0 .344-.282.629-.631.629-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63.346 0 .628.285.628.63v4.771zm-2.466.629H4.917c-.345 0-.63-.285-.63-.629V8.108c0-.345.285-.63.63-.63.348 0 .63.285.63.63v4.141h1.756c.348 0 .629.283.629.63 0 .344-.282.629-.629.629M24 10.314C24 4.943 18.615.572 12 .572S0 4.943 0 10.314c0 4.811 4.27 8.842 10.035 9.608.391.082.923.258 1.058.59.12.301.079.766.038 1.08l-.164 1.02c-.045.301-.24 1.186 1.049.645 1.291-.539 6.916-4.078 9.436-6.975C23.176 14.393 24 12.458 24 10.314"/>
+                        </svg>
+                        LINE
+                    </button>
+                </div>
+
+                <!-- Email Form (hidden by default) -->
+                <div class="email-form" id="email-form" style="display: none;">
+                    <div class="form-group">
+                        <label for="user-name">Your Name</label>
+                        <input type="text" id="user-name" placeholder="Enter your name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="user-email">Your Email</label>
+                        <input type="email" id="user-email" placeholder="Enter your email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="user-message">Additional Notes (optional)</label>
+                        <textarea id="user-message" placeholder="Any special requests or questions..."></textarea>
+                    </div>
+                    <button type="button" class="btn btn-primary" onclick="submitEmail()">Send Email</button>
+                    <button type="button" class="btn btn-secondary" style="margin-top: 10px;" onclick="backToOptions()">Back</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Render cart items on page load
+document.addEventListener('DOMContentLoaded', function() {
+    renderCart();
+});
+
+function renderCart() {
+    var items = Cart.getItems();
+    var cartEmpty = document.getElementById('cart-empty');
+    var cartContent = document.getElementById('cart-content');
+    var cartItemsContainer = document.getElementById('cart-items');
+    var cartTotal = document.getElementById('cart-total');
+
+    if (items.length === 0) {
+        cartEmpty.style.display = 'block';
+        cartContent.style.display = 'none';
+        return;
+    }
+
+    cartEmpty.style.display = 'none';
+    cartContent.style.display = 'block';
+
+    // Build cart items HTML
+    var html = '';
+    items.forEach(function(item) {
+        var imageUrl = item.image
+            ? '/static/images/products/' + item.category + '/' + item.slug + '/thumb_' + item.image.replace(/\.[^/.]+$/, '') + '.jpg'
+            : '';
+
+        html += '<div class="cart-item" data-category="' + item.category + '" data-slug="' + item.slug + '">';
+        if (imageUrl) {
+            html += '<img src="' + imageUrl + '" alt="' + item.title + '" class="cart-item-image">';
+        } else {
+            html += '<div class="cart-item-image" style="display:flex;align-items:center;justify-content:center;color:#666;">No Image</div>';
+        }
+        html += '<div class="cart-item-info">';
+        html += '<a href="/products/' + item.category + '/' + item.slug + '" class="cart-item-title">' + item.title + '</a>';
+        html += '<p class="cart-item-price">$' + item.price.toFixed(2) + '</p>';
+        html += '</div>';
+        html += '<div class="cart-item-quantity">';
+        html += '<div class="quantity-selector">';
+        html += '<button type="button" class="qty-btn minus" onclick="updateItemQty(\'' + item.category + '\', \'' + item.slug + '\', -1)">-</button>';
+        html += '<input type="number" value="' + item.quantity + '" min="1" max="99" onchange="setItemQty(\'' + item.category + '\', \'' + item.slug + '\', this.value)">';
+        html += '<button type="button" class="qty-btn plus" onclick="updateItemQty(\'' + item.category + '\', \'' + item.slug + '\', 1)">+</button>';
+        html += '</div>';
+        html += '</div>';
+        html += '<button type="button" class="cart-item-remove" onclick="removeItem(\'' + item.category + '\', \'' + item.slug + '\')">Remove</button>';
+        html += '</div>';
+    });
+
+    cartItemsContainer.innerHTML = html;
+    cartTotal.textContent = Cart.getTotal().toFixed(2);
+}
+
+function updateItemQty(category, slug, delta) {
+    var items = Cart.getItems();
+    var item = items.find(function(i) { return i.category === category && i.slug === slug; });
+    if (item) {
+        var newQty = item.quantity + delta;
+        if (newQty >= 1 && newQty <= 99) {
+            Cart.updateQuantity(category, slug, newQty);
+            renderCart();
+        } else if (newQty < 1) {
+            removeItem(category, slug);
+        }
+    }
+}
+
+function setItemQty(category, slug, value) {
+    var qty = parseInt(value);
+    if (isNaN(qty) || qty < 1) {
+        removeItem(category, slug);
+    } else {
+        Cart.updateQuantity(category, slug, Math.min(qty, 99));
+        renderCart();
+    }
+}
+
+function removeItem(category, slug) {
+    Cart.removeItem(category, slug);
+    renderCart();
+}
+
+function clearCart() {
+    if (confirm('Are you sure you want to clear your shopping list?')) {
+        Cart.clear();
+        renderCart();
+    }
+}
+
+// Contact Modal functions
+function openContactModal() {
+    // Populate preview text when opening modal
+    var text = Cart.formatAsText();
+    document.getElementById('preview-text').textContent = text;
+
+    // Reset views
+    document.getElementById('preview-panel').style.display = 'block';
+    document.getElementById('contact-options').style.display = 'flex';
+    document.getElementById('email-form').style.display = 'none';
+
+    document.getElementById('contact-modal').classList.add('active');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeContactModal() {
+    document.getElementById('contact-modal').classList.remove('active');
+    document.body.style.overflow = '';
+    // Reset to default view
+    document.getElementById('preview-panel').style.display = 'block';
+    document.getElementById('contact-options').style.display = 'flex';
+    document.getElementById('email-form').style.display = 'none';
+}
+
+function closeModalOnBackground(e) {
+    if (e.target.id === 'contact-modal') {
+        closeContactModal();
+    }
+}
+
+function showEmailForm() {
+    document.getElementById('preview-panel').style.display = 'none';
+    document.getElementById('contact-options').style.display = 'none';
+    document.getElementById('email-form').style.display = 'block';
+}
+
+function backToOptions() {
+    document.getElementById('preview-panel').style.display = 'block';
+    document.getElementById('contact-options').style.display = 'flex';
+    document.getElementById('email-form').style.display = 'none';
+}
+
+function copyToClipboard() {
+    var text = Cart.formatAsText();
+    var btn = document.getElementById('copy-btn');
+
+    // Try modern clipboard API first
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(function() {
+            showCopySuccess(btn);
+        }).catch(function(err) {
+            fallbackCopy(text, btn);
+        });
+    } else {
+        fallbackCopy(text, btn);
+    }
+}
+
+function fallbackCopy(text, btn) {
+    var textarea = document.createElement('textarea');
+    textarea.value = text;
+    textarea.style.position = 'fixed';
+    textarea.style.left = '-9999px';
+    textarea.style.top = '0';
+    document.body.appendChild(textarea);
+    textarea.focus();
+    textarea.select();
+
+    try {
+        var successful = document.execCommand('copy');
+        if (successful) {
+            showCopySuccess(btn);
+        } else {
+            alert('Failed to copy. Please select the text manually and copy.');
+        }
+    } catch (err) {
+        alert('Failed to copy. Please select the text manually and copy.');
+    }
+
+    document.body.removeChild(textarea);
+}
+
+function showCopySuccess(btn) {
+    var originalHTML = btn.innerHTML;
+    btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;margin-right:6px;vertical-align:middle;"><polyline points="20 6 9 17 4 12"></polyline></svg>Copied!';
+    btn.style.background = '#00B900';
+    setTimeout(function() {
+        btn.innerHTML = originalHTML;
+        btn.style.background = '';
+    }, 2000);
+}
+
+function submitEmail() {
+    var name = document.getElementById('user-name').value.trim();
+    var email = document.getElementById('user-email').value.trim();
+    var message = document.getElementById('user-message').value.trim();
+
+    if (!name) {
+        alert('Please enter your name.');
+        return;
+    }
+    if (!email || !isValidEmail(email)) {
+        alert('Please enter a valid email address.');
+        return;
+    }
+
+    var items = Cart.getItems();
+    var btn = document.querySelector('#email-form .btn-primary');
+    btn.textContent = 'Sending...';
+    btn.disabled = true;
+
+    fetch('/api/send-list', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            name: name,
+            email: email,
+            message: message,
+            items: items
+        })
+    })
+    .then(function(response) { return response.json(); })
+    .then(function(data) {
+        if (data.success) {
+            alert('Your list has been sent! We will contact you soon.');
+            closeContactModal();
+            Cart.clear();
+            renderCart();
+        } else {
+            alert('Error sending list: ' + (data.error || 'Unknown error'));
+        }
+    })
+    .catch(function(error) {
+        alert('Error sending list. Please try again.');
+        console.error('Error:', error);
+    })
+    .finally(function() {
+        btn.textContent = 'Send Email';
+        btn.disabled = false;
+    });
+}
+
+function isValidEmail(email) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
+function sendViaTelegram() {
+    var text = Cart.formatAsText();
+    var encoded = encodeURIComponent(text);
+    // Note: Replace YOUR_USERNAME with actual Telegram username
+    var telegramUrl = 'https://t.me/{{ telegram_username|default("warpmonger", true) }}?text=' + encoded;
+    window.open(telegramUrl, '_blank');
+}
+
+function sendViaLINE() {
+    // Redirect to LINE contact page with instructions
+    window.location.href = '/cart/line';
+}
+
+// Keyboard navigation
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        closeContactModal();
+    }
+});
+</script>
+{% endblock %}

@@ -193,6 +193,26 @@
                 {% endif %}
             </div>
 
+            <!-- Add to Shopping List -->
+            <div class="product-actions">
+                <div class="quantity-selector">
+                    <button type="button" class="qty-btn minus" onclick="updateQty(-1)">-</button>
+                    <input type="number" id="product-qty" value="1" min="1" max="99" onchange="validateQty()">
+                    <button type="button" class="qty-btn plus" onclick="updateQty(1)">+</button>
+                </div>
+                <button type="button" class="btn btn-primary btn-lg" id="add-to-cart"
+                        data-category="{{ product.category }}"
+                        data-slug="{{ product.slug }}"
+                        data-title="{{ product.title }}"
+                        data-price="{{ product.sale_price if product.is_on_sale and product.sale_price else product.price }}"
+                        data-image="{{ product.images[0] if product.images else '' }}"
+                        data-in-stock="{{ 'true' if product.in_stock else 'false' }}"
+                        data-pre-order="{{ 'true' if product.is_pre_order else 'false' }}"
+                        onclick="addToCart()">
+                    Add to List
+                </button>
+            </div>
+
             <div class="product-description">
                 {{ product.description_html|safe }}
             </div>
@@ -209,25 +229,34 @@
         </div>
     </div>
 
+    {# Related Products Carousel - 4 items per row, max 4 rows, arrows navigate 4 at a time #}
     {% if related %}
-    <section class="related-products">
-        <h2>Related Products</h2>
-        <div class="products-grid">
-            {% for prod in related %}
-            <div class="product-card">
-                <a href="/products/{{ prod.category }}/{{ prod.slug }}">
-                    {% if prod.images %}
-                    <img src="/static/images/products/{{ prod.category }}/{{ prod.slug }}/thumb_{{ prod.images[0].rsplit('.', 1)[0] }}.jpg"
-                         alt="{{ prod.title }} - Premium action figure - ${{ '%.2f'|format(prod.price) }}"
-                         loading="lazy">
-                    {% else %}
-                    <div class="product-placeholder">No Image</div>
-                    {% endif %}
-                    <h3>{{ prod.title }}</h3>
-                    <p class="price">${{ "%.2f"|format(prod.price) }}</p>
-                </a>
+    <section class="related-products-carousel">
+        <div class="related-header">
+            <h2>Related Products</h2>
+            <div class="related-nav">
+                <button class="related-nav-btn prev" onclick="navigateRelated(-1)" aria-label="Previous">&lt;</button>
+                <button class="related-nav-btn next" onclick="navigateRelated(1)" aria-label="Next">&gt;</button>
             </div>
-            {% endfor %}
+        </div>
+        <div class="related-grid-container">
+            <div class="related-grid" id="related-grid">
+                {% for prod in related %}
+                <div class="related-card">
+                    <a href="/products/{{ prod.category }}/{{ prod.slug }}">
+                        {% if prod.images %}
+                        <img src="/static/images/products/{{ prod.category }}/{{ prod.slug }}/thumb_{{ prod.images[0].rsplit('.', 1)[0] }}.jpg"
+                             alt="{{ prod.title }}"
+                             loading="lazy">
+                        {% else %}
+                        <div class="product-placeholder">No Image</div>
+                        {% endif %}
+                        <h3>{{ prod.title }}</h3>
+                        <p class="price">${{ "%.2f"|format(prod.price) }}</p>
+                    </a>
+                </div>
+                {% endfor %}
+            </div>
         </div>
     </section>
     {% endif %}
@@ -362,6 +391,103 @@ document.addEventListener('keydown', function(e) {
         navigateLightbox(1);
     }
 });
+
+// Related products carousel - show 4 items at a time, scroll by 4 items
+let relatedStartIndex = 0;
+const ITEMS_PER_PAGE = 4; // Show 4 items at a time (1 row)
+
+function navigateRelated(direction) {
+    const grid = document.getElementById('related-grid');
+    if (!grid) return;
+
+    const cards = grid.querySelectorAll('.related-card');
+    const totalItems = cards.length;
+
+    // Move by 4 items
+    relatedStartIndex += direction * ITEMS_PER_PAGE;
+
+    // Clamp to valid range
+    if (relatedStartIndex < 0) relatedStartIndex = 0;
+    const maxStart = Math.max(0, totalItems - ITEMS_PER_PAGE);
+    if (relatedStartIndex > maxStart) relatedStartIndex = maxStart;
+
+    // Show/hide cards based on current window
+    cards.forEach(function(card, index) {
+        if (index >= relatedStartIndex && index < relatedStartIndex + ITEMS_PER_PAGE) {
+            card.style.display = 'block';
+        } else {
+            card.style.display = 'none';
+        }
+    });
+
+    // Update button states
+    updateRelatedNavButtons(totalItems);
+}
+
+function updateRelatedNavButtons(totalItems) {
+    var prevBtn = document.querySelector('.related-nav-btn.prev');
+    var nextBtn = document.querySelector('.related-nav-btn.next');
+    var maxStart = Math.max(0, totalItems - ITEMS_PER_PAGE);
+
+    if (prevBtn) {
+        prevBtn.disabled = relatedStartIndex <= 0;
+        prevBtn.style.opacity = relatedStartIndex <= 0 ? '0.3' : '1';
+    }
+    if (nextBtn) {
+        nextBtn.disabled = relatedStartIndex >= maxStart;
+        nextBtn.style.opacity = relatedStartIndex >= maxStart ? '0.3' : '1';
+    }
+}
+
+// Initialize related products display on page load
+document.addEventListener('DOMContentLoaded', function() {
+    var grid = document.getElementById('related-grid');
+    if (grid) {
+        var cards = grid.querySelectorAll('.related-card');
+        // Initially show first 4 items only
+        cards.forEach(function(card, index) {
+            card.style.display = index < ITEMS_PER_PAGE ? 'block' : 'none';
+        });
+        updateRelatedNavButtons(cards.length);
+    }
+});
+
+// Quantity selector functions
+function updateQty(delta) {
+    var input = document.getElementById('product-qty');
+    var newVal = parseInt(input.value) + delta;
+    if (newVal >= 1 && newVal <= 99) {
+        input.value = newVal;
+    }
+}
+
+function validateQty() {
+    var input = document.getElementById('product-qty');
+    var val = parseInt(input.value);
+    if (isNaN(val) || val < 1) {
+        input.value = 1;
+    } else if (val > 99) {
+        input.value = 99;
+    }
+}
+
+// Add to cart function
+function addToCart() {
+    var btn = document.getElementById('add-to-cart');
+    var qty = parseInt(document.getElementById('product-qty').value) || 1;
+
+    var product = {
+        category: btn.getAttribute('data-category'),
+        slug: btn.getAttribute('data-slug'),
+        title: btn.getAttribute('data-title'),
+        price: parseFloat(btn.getAttribute('data-price')),
+        image: btn.getAttribute('data-image'),
+        inStock: btn.getAttribute('data-in-stock') === 'true',
+        isPreOrder: btn.getAttribute('data-pre-order') === 'true'
+    };
+
+    Cart.addItem(product, qty);
+}
 </script>
 <script src="/static/js/codex.js"></script>
 {% endblock %}

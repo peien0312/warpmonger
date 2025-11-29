@@ -1,0 +1,217 @@
+{% extends "public/base.html" %}
+
+{% block title %}Contact via LINE | Warpmonger{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="line-contact-page">
+        <h1>Contact Us via LINE</h1>
+
+        <div class="line-steps">
+            <div class="step">
+                <span class="step-number">1</span>
+                <div class="step-content">
+                    <h3>Copy Your Shopping List</h3>
+                    <p>Click the button below to copy your list to clipboard</p>
+                    <div class="preview-panel">
+                        <pre id="list-preview"></pre>
+                        <button type="button" class="btn btn-primary" id="copy-btn" onclick="copyList()">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;margin-right:6px;vertical-align:middle;">
+                                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                            </svg>
+                            Copy to Clipboard
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="step">
+                <span class="step-number">2</span>
+                <div class="step-content">
+                    <h3>Add Our LINE Account</h3>
+                    <p>Click the button below to add us on LINE</p>
+                    <a href="https://line.me/R/ti/p/{{ line_id }}" target="_blank" class="btn btn-line">
+                        <svg viewBox="0 0 24 24" fill="currentColor" style="width:20px;height:20px;margin-right:8px;vertical-align:middle;">
+                            <path d="M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H17.61v1.125h1.755c.349 0 .63.283.63.63 0 .344-.281.629-.63.629h-2.386c-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63h2.386c.346 0 .627.285.627.63 0 .349-.281.63-.63.63H17.61v1.125h1.755zm-3.855 3.016c0 .27-.174.51-.432.596-.064.021-.133.031-.199.031-.211 0-.391-.09-.51-.25l-2.443-3.317v2.94c0 .344-.279.629-.631.629-.346 0-.626-.285-.626-.629V8.108c0-.27.173-.51.43-.595.06-.023.136-.033.194-.033.195 0 .375.104.495.254l2.462 3.33V8.108c0-.345.282-.63.63-.63.345 0 .63.285.63.63v4.771zm-5.741 0c0 .344-.282.629-.631.629-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63.346 0 .628.285.628.63v4.771zm-2.466.629H4.917c-.345 0-.63-.285-.63-.629V8.108c0-.345.285-.63.63-.63.348 0 .63.285.63.63v4.141h1.756c.348 0 .629.283.629.63 0 .344-.282.629-.629.629M24 10.314C24 4.943 18.615.572 12 .572S0 4.943 0 10.314c0 4.811 4.27 8.842 10.035 9.608.391.082.923.258 1.058.59.12.301.079.766.038 1.08l-.164 1.02c-.045.301-.24 1.186 1.049.645 1.291-.539 6.916-4.078 9.436-6.975C23.176 14.393 24 12.458 24 10.314"/>
+                        </svg>
+                        Add Friend on LINE
+                    </a>
+                </div>
+            </div>
+
+            <div class="step">
+                <span class="step-number">3</span>
+                <div class="step-content">
+                    <h3>Paste & Send</h3>
+                    <p>After adding us, paste the copied list in the chat and send!</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="back-link">
+            <a href="/cart">&larr; Back to Shopping List</a>
+        </div>
+    </div>
+</div>
+
+<style>
+.line-contact-page {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 40px 20px;
+}
+
+.line-contact-page h1 {
+    color: #C9B037;
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.line-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
+.step {
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+}
+
+.step-number {
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+    background: #00B900;
+    color: #fff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+.step-content {
+    flex: 1;
+}
+
+.step-content h3 {
+    color: #d4d4d4;
+    margin-bottom: 8px;
+}
+
+.step-content p {
+    color: #888;
+    margin-bottom: 15px;
+}
+
+.step .preview-panel {
+    margin-top: 10px;
+}
+
+.step .preview-panel pre {
+    background: #0a0a0a;
+    border: 1px solid #333;
+    border-radius: 4px;
+    padding: 15px;
+    color: #d4d4d4;
+    font-size: 0.8rem;
+    line-height: 1.4;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    max-height: 200px;
+    overflow-y: auto;
+    margin-bottom: 15px;
+}
+
+.btn-line {
+    display: inline-flex;
+    align-items: center;
+    background: #00B900;
+    color: #fff;
+    padding: 12px 24px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: background 0.2s;
+}
+
+.btn-line:hover {
+    background: #00a000;
+    color: #fff;
+}
+
+.back-link {
+    margin-top: 40px;
+    text-align: center;
+}
+
+.back-link a {
+    color: #888;
+    text-decoration: none;
+}
+
+.back-link a:hover {
+    color: #d4d4d4;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var text = Cart.formatAsText();
+    document.getElementById('list-preview').textContent = text;
+});
+
+function copyList() {
+    var text = Cart.formatAsText();
+    var btn = document.getElementById('copy-btn');
+
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(function() {
+            showCopySuccess(btn);
+        }).catch(function() {
+            fallbackCopy(text, btn);
+        });
+    } else {
+        fallbackCopy(text, btn);
+    }
+}
+
+function fallbackCopy(text, btn) {
+    var textarea = document.createElement('textarea');
+    textarea.value = text;
+    textarea.style.position = 'fixed';
+    textarea.style.left = '-9999px';
+    textarea.style.top = '0';
+    document.body.appendChild(textarea);
+    textarea.focus();
+    textarea.select();
+
+    try {
+        var successful = document.execCommand('copy');
+        if (successful) {
+            showCopySuccess(btn);
+        } else {
+            alert('Failed to copy. Please select the text manually and copy.');
+        }
+    } catch (err) {
+        alert('Failed to copy. Please select the text manually and copy.');
+    }
+
+    document.body.removeChild(textarea);
+}
+
+function showCopySuccess(btn) {
+    var originalHTML = btn.innerHTML;
+    btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;margin-right:6px;vertical-align:middle;"><polyline points="20 6 9 17 4 12"></polyline></svg>Copied!';
+    btn.style.background = '#00B900';
+    setTimeout(function() {
+        btn.innerHTML = originalHTML;
+        btn.style.background = '';
+    }, 2000);
+}
+</script>
+{% endblock %}
