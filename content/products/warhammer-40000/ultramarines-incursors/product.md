@@ -3,7 +3,7 @@ title: ULTRAMARINES INCURSORS
 price: 119.99
 sku: 6973130371286
 in_stock: false
-images: ["editor_001.jpg", "editor_1.jpg", "editor_002.jpg", "editor_2.jpg", "editor_003.jpg", "editor_3.jpg", "editor_4.jpg", "editor_004.jpg", "editor_5.jpg", "editor_005.jpg", "gallery_1.jpeg", "gallery_001.jpg", "gallery_2.jpg", "gallery_002.jpg", "gallery_3.jpg", "gallery_003.jpg", "gallery_4.jpg", "gallery_004.jpg", "gallery_5.jpg", "gallery_005.jpg", "gallery_6.jpg", "gallery_006.jpg"]
+images: ["editor_1.jpg", "editor_2.jpg", "editor_3.jpg", "editor_4.jpg", "editor_5.jpg", "gallery_1.jpeg", "gallery_2.jpg", "gallery_3.jpg", "gallery_4.jpg", "gallery_5.jpg", "gallery_6.jpg"]
 is_pre_order: false
 available_date: 
 is_on_sale: false

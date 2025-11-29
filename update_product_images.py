@@ -28,6 +28,9 @@ def get_images_from_directory(images_dir):
     images = []
 
     for filename in os.listdir(images_dir):
+        # Skip thumbnails
+        if filename.startswith('thumb_'):
+            continue
         if any(filename.lower().endswith(ext) for ext in image_extensions):
             images.append(filename)
 

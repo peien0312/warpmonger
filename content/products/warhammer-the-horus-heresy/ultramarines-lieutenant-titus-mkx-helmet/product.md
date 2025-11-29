@@ -12,16 +12,15 @@ is_new_arrival: false
 id: JT01741
 cn_name: 极限战士 副官泰图斯之MKX头盔
 zhtw_name: 極限戰士 副官泰圖斯之MKX頭盔
-series: Warhammer "The Horus Heresy"
+series: Warhammer 40,000
 scale: Scale：1/1
 size: 50*45*42
 weight: 4kg
-zhtw_price: 650.0
-cost: 530.0
-final_price: 3350.0
-cost_tw: 2263.0
+zhtw_price: 650
+cost: 530
+final_price: 3350
+cost_tw: 2263
 order_weight: 0
 ---
 
 A full-scale replica of Lieutenant Titus's Mark X helmet, the iconic headgear worn by the legendary [[Ultramarines]] warrior from Warhammer 40,000: Space Marine II. This 1:1 scale collectible captures every detail of the advanced Primaris armor, from the blue ceramite plating to the red eye lenses. A stunning display piece for any fan of the XIII Legion.
-

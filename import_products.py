@@ -88,6 +88,13 @@ def parse_preorder_date(date_str):
         if re.match(r'^\d{4}-\d{2}$', date_str):
             return f"{date_str}-01"
 
+        # Chinese format: 2025年12月 or 2025年11月
+        chinese_match = re.match(r'^(\d{4})年(\d{1,2})月$', date_str)
+        if chinese_match:
+            year = chinese_match.group(1)
+            month = chinese_match.group(2).zfill(2)
+            return f"{year}-{month}-01"
+
     except Exception as e:
         print(f"Warning: Could not parse date '{date_str}': {e}")
 
@@ -163,8 +170,8 @@ def import_from_csv(csv_path='products.csv', default_category='Warhammer 40,000'
                     else:
                         description = ''
                 else:
-                    # New products use series as category
-                    category = csv_category
+                    # New products use series as category (slugified)
+                    category = slugify(csv_category)
                     slug = slugify(english_name)
                     action = 'CREATE'
                     description = ''

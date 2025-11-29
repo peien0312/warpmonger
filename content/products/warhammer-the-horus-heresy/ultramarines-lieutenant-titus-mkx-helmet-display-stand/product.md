@@ -12,16 +12,15 @@ is_new_arrival: false
 id: JT01697
 cn_name: 极限战士 副官泰图斯之MKX头盔和底座
 zhtw_name: 極限戰士 副官泰圖斯之MKX頭盔與底座
-series: Warhammer "The Horus Heresy"
+series: Warhammer 40,000
 scale: Scale：1/1
 size: 57*50*43
 weight: 5.5kg
-zhtw_price: 780.0
-cost: 630.0
-final_price: 3990.0
-cost_tw: 2690.0
+zhtw_price: 780
+cost: 630
+final_price: 3990
+cost_tw: 2690
 order_weight: 0
 ---
 
 Lieutenant Titus's Mark X helmet with an illuminated display stand, showcasing the iconic [[Ultramarines]] helm in all its glory. This premium 1:1 scale replica includes a custom base that brings the helmet to life with integrated lighting. The complete package for collectors who want to display a piece of Space Marine history from Warhammer 40,000: Space Marine II.
-
