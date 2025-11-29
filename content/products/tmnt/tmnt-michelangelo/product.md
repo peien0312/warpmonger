@@ -5,7 +5,7 @@ sku: 6973130376144
 in_stock: true
 images: ["editor_35.jpg", "editor_36.jpg", "editor_37.jpg", "editor_38.jpg", "editor_39.jpg", "editor_40.jpg", "editor_41.jpg", "editor_42.jpg", "editor_43.jpg", "gallery_21.jpg", "gallery_22.jpg", "gallery_23.jpg", "gallery_24.jpg", "gallery_25.jpg", "gallery_26.jpg"]
 is_pre_order: true
-available_date: 
+available_date: 2025-11-01
 is_on_sale: false
 sale_price: 0
 is_new_arrival: false

@@ -9,7 +9,7 @@ available_date: 2026-01-01
 is_on_sale: false
 sale_price: 0
 is_new_arrival: false
-id: JT01697
+id: 7
 cn_name: 极限战士 副官泰图斯之MKX头盔和底座
 zhtw_name: 極限戰士 副官泰圖斯之MKX頭盔與底座
 series: Warhammer "The Horus Heresy"
