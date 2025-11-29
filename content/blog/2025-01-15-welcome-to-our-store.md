@@ -2,7 +2,7 @@
 title: Welcome to Our Toy Store!
 date: 2025-01-15
 author: Store Manager
-excerpt: We're excited to announce the launch of our new online toy store!
+excerpt: 
 tags: ["news", "announcement", "store"]
 ---
 
@@ -11,6 +11,8 @@ tags: ["news", "announcement", "store"]
 We're thrilled to announce the official launch of our online toy store! After months of preparation, we're finally ready to bring joy to children and families everywhere.
 
 ## What We Offer
+
+![IMG_2387.jpeg](/static/images/blog/IMG_2387_1764432506.jpeg)
 
 Our carefully curated selection includes:
 

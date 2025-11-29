@@ -80,6 +80,26 @@
                 <div class="nav-section">
                     <h3 class="nav-section-header collapsed" onclick="toggleNavSection(this)">
                         <span class="nav-section-toggle"></span>
+                        Promotions
+                    </h3>
+                    <div class="nav-section-content" style="display: none;">
+                        <button class="btn btn-primary btn-sm" onclick="showCreatePromotion()">+ New Promotion</button>
+                        <div class="admin-search-container">
+                            <input
+                                type="text"
+                                id="promotion-search-input"
+                                class="admin-search-input"
+                                placeholder="Search promotions..."
+                                onkeyup="filterPromotions(this.value)"
+                            >
+                        </div>
+                        <div id="promotion-list" class="promotion-list sidebar-list"></div>
+                    </div>
+                </div>
+
+                <div class="nav-section">
+                    <h3 class="nav-section-header collapsed" onclick="toggleNavSection(this)">
+                        <span class="nav-section-toggle"></span>
                         Codex
                     </h3>
                     <div class="nav-section-content" style="display: none;">
@@ -118,9 +138,32 @@
                 </div>
 
                 <div class="nav-section">
+                    <h3 class="nav-section-header collapsed" onclick="toggleNavSection(this)">
+                        <span class="nav-section-toggle"></span>
+                        Featured Tags
+                    </h3>
+                    <div class="nav-section-content" style="display: none;">
+                        <button class="btn btn-primary btn-sm" onclick="showCreateFeaturedTag()">+ New Featured Tag</button>
+                        <div id="featured-tags-list" class="featured-tags-list sidebar-list"></div>
+                    </div>
+                </div>
+
+                <div class="nav-section">
+                    <h3 class="nav-section-header collapsed" onclick="toggleNavSection(this)">
+                        <span class="nav-section-toggle"></span>
+                        Featured Products
+                    </h3>
+                    <div class="nav-section-content" style="display: none;">
+                        <button class="btn btn-primary btn-sm" onclick="showFeaturedProductsEditor()">Manage Featured</button>
+                        <div id="featured-products-count" style="padding: 10px; color: #999; font-size: 0.9rem;"></div>
+                    </div>
+                </div>
+
+                <div class="nav-section">
                     <h3>Quick Links</h3>
                     <a href="/" target="_blank" class="nav-link">View Site</a>
                     <a href="/codex" target="_blank" class="nav-link">View Codex</a>
+                    <a href="#" class="nav-link" onclick="clearCache(); return false;">Clear Cache</a>
                 </div>
             </nav>
         </div>
@@ -392,6 +435,15 @@
                         </div>
 
                         <div class="form-group">
+                            <label>Insert Image</label>
+                            <div style="display: flex; gap: 10px; align-items: center;">
+                                <input type="file" id="blog-image-upload" accept="image/*" style="flex: 1;">
+                                <button type="button" class="btn btn-secondary" onclick="uploadBlogImage()">Upload & Insert</button>
+                            </div>
+                            <small style="color: #666;">Uploads image and inserts markdown at cursor position in content</small>
+                        </div>
+
+                        <div class="form-group">
                             <label for="blog-tags">Tags (comma-separated)</label>
                             <input type="text" id="blog-tags" placeholder="news, toys, updates">
                         </div>
@@ -402,6 +454,108 @@
                             <button type="button" class="btn btn-danger" onclick="deleteBlogPost()" id="delete-blog-btn" style="display: none;">Delete</button>
                         </div>
                     </form>
+                </div>
+
+                <!-- Promotion Editor -->
+                <div id="promotion-editor" class="editor" style="display: none;">
+                    <h2 id="promotion-editor-title">Edit Promotion</h2>
+                    <form id="promotion-form">
+                        <input type="hidden" id="promotion-slug">
+
+                        <div class="form-group">
+                            <label for="promotion-title">Title *</label>
+                            <input type="text" id="promotion-title" required>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="promotion-date">Date</label>
+                                <input type="date" id="promotion-date">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="promotion-active">
+                                    <input type="checkbox" id="promotion-active">
+                                    Active (show banner on homepage)
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="promotion-excerpt">Excerpt</label>
+                            <textarea id="promotion-excerpt" rows="2"></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Banner Image</label>
+                            <div id="promotion-banner-preview" style="margin-bottom: 10px;"></div>
+                            <div style="display: flex; gap: 10px; align-items: center;">
+                                <input type="file" id="promotion-banner-upload" accept="image/*" style="flex: 1;">
+                                <button type="button" class="btn btn-secondary" onclick="uploadPromotionBanner()">Upload Banner</button>
+                            </div>
+                            <small style="color: #666;">Recommended size: 1200x400px. This image will be shown on homepage when promotion is active.</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="promotion-content">Content (Markdown)</label>
+                            <textarea id="promotion-content" rows="12"></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Insert Image</label>
+                            <div style="display: flex; gap: 10px; align-items: center;">
+                                <input type="file" id="promotion-image-upload" accept="image/*" style="flex: 1;">
+                                <button type="button" class="btn btn-secondary" onclick="uploadPromotionImage()">Upload & Insert</button>
+                            </div>
+                            <small style="color: #666;">Uploads image and inserts markdown at cursor position in content</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Featured Products</label>
+                            <div id="promotion-products-list" class="promotion-products-list" style="margin-bottom: 10px; max-height: 200px; overflow-y: auto; border: 1px solid #ddd; border-radius: 4px; padding: 10px;">
+                                <!-- Selected products will appear here -->
+                                <p class="no-products-msg" style="color: #666; margin: 0;">No products selected</p>
+                            </div>
+                            <div class="promo-product-search-container" style="position: relative; margin-bottom: 10px;">
+                                <input type="text" id="promotion-product-search" placeholder="Search products..." onkeyup="filterPromotionProductSelect(this.value)">
+                                <span class="promo-search-clear" onclick="clearPromotionProductSearch()" style="display: none;">&times;</span>
+                            </div>
+                            <div id="promotion-product-results" class="promotion-product-results"></div>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary">Save Promotion</button>
+                            <button type="button" class="btn btn-secondary" onclick="closeEditor()">Cancel</button>
+                            <button type="button" class="btn btn-danger" onclick="deletePromotion()" id="delete-promotion-btn" style="display: none;">Delete</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Featured Products Editor -->
+                <div id="featured-products-editor" class="editor" style="display: none;">
+                    <h2>Manage Featured Products</h2>
+                    <p style="color: #666; margin-bottom: 20px;">These products will be shown in the "Featured Products" section on the homepage. Drag to reorder.</p>
+
+                    <div class="form-group">
+                        <label>Current Featured Products</label>
+                        <div id="featured-products-list" class="featured-products-sortable" style="min-height: 100px; border: 1px solid #ddd; border-radius: 4px; padding: 10px; margin-bottom: 15px;">
+                            <p class="no-featured-msg" style="color: #999; margin: 0;">No featured products selected. Add products below.</p>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Add Products</label>
+                        <div class="promo-product-search-container" style="position: relative; margin-bottom: 10px;">
+                            <input type="text" id="featured-product-search" placeholder="Search products to add..." onkeyup="filterFeaturedProductSelect(this.value)">
+                            <span class="featured-search-clear" onclick="clearFeaturedProductSearch()" style="display: none;">&times;</span>
+                        </div>
+                        <div id="featured-product-results" class="promotion-product-results"></div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-primary" onclick="saveFeaturedProducts()">Save Changes</button>
+                        <button type="button" class="btn btn-secondary" onclick="closeEditor()">Cancel</button>
+                    </div>
                 </div>
 
                 <!-- Codex Editor -->
@@ -481,6 +635,40 @@
                         </div>
                     </form>
                 </div>
+
+                <!-- Featured Tag Editor -->
+                <div id="featured-tag-editor" class="editor" style="display: none;">
+                    <h2 id="featured-tag-editor-title">Edit Featured Tag</h2>
+                    <form id="featured-tag-form">
+                        <input type="hidden" id="featured-tag-original-name">
+
+                        <div class="form-group">
+                            <label for="featured-tag-name">Tag Name *</label>
+                            <input type="text" id="featured-tag-name" required placeholder="e.g., Ultramarines">
+                            <small style="color: #666; font-size: 0.875rem;">This must match an existing product tag exactly</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="featured-tag-order-weight">Display Order (higher = first)</label>
+                            <input type="number" id="featured-tag-order-weight" value="0" placeholder="0">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Icon</label>
+                            <div id="featured-tag-icon-preview" style="margin-bottom: 10px; width: 100px; height: 100px; background: #1a1a1a; border-radius: 4px; display: flex; align-items: center; justify-content: center;">
+                                <span style="color: #666;">No icon</span>
+                            </div>
+                            <input type="file" id="featured-tag-icon-upload" accept="image/*" onchange="uploadFeaturedTagIcon()">
+                            <small style="color: #666; font-size: 0.875rem;">Upload an icon for this featured tag</small>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary">Save Featured Tag</button>
+                            <button type="button" class="btn btn-secondary" onclick="closeEditor()">Cancel</button>
+                            <button type="button" class="btn btn-danger" onclick="deleteFeaturedTag()" id="delete-featured-tag-btn" style="display: none;">Delete</button>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
 
@@ -493,6 +681,6 @@
         </div>
     </div>
 
-    <script src="/static/js/admin.js?v=2"></script>
+    <script src="/static/js/admin.js?v=9"></script>
 </body>
 </html>

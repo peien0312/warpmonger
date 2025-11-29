@@ -21,7 +21,7 @@ cost: 155
 final_price: 960
 cost_tw: 662
 order_weight: 0
-group: Sisters of Battle
+group: 
 ---
 
 Sister Ludwenna is a Battle Sister of the [[Adepta Sororitas]], sworn to defend the Imperium and the faith of the God-Emperor with her life. Like all Sisters of Battle, she has undergone rigorous training in both combat and religious devotion, emerging as a warrior whose faith is as deadly as her bolter. In the fires of battle, she and her Sisters stand as living proof that faith can move mountains — or reduce heretics to ash.

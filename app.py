@@ -1,6 +1,7 @@
 import os
 import json
 import re
+import time
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
@@ -57,6 +58,15 @@ def add_cache_headers(response):
         response.headers['Cache-Control'] = 'public, max-age=604800'
     return response
 
+@app.context_processor
+def inject_nav_categories():
+    """Inject categories into all templates for navigation dropdown"""
+    from functools import lru_cache
+    # Only inject for public pages (not admin)
+    if request.path.startswith('/admin') or request.path.startswith('/api'):
+        return {}
+    return {'nav_categories': get_categories()}
+
 # Custom Jinja2 filter for formatting month
 @app.template_filter('format_month')
 def format_month(date_str):
@@ -78,20 +88,26 @@ def format_month(date_str):
 CONTENT_DIR = os.path.join(os.path.dirname(__file__), 'content')
 PRODUCTS_DIR = os.path.join(CONTENT_DIR, 'products')
 BLOG_DIR = os.path.join(CONTENT_DIR, 'blog')
+PROMOTIONS_DIR = os.path.join(CONTENT_DIR, 'promotions')
 CATEGORIES_DIR = os.path.join(CONTENT_DIR, 'categories')
 CODEX_DIR = os.path.join(CONTENT_DIR, 'codex')
 DATA_DIR = os.path.join(os.path.dirname(__file__), 'data')
 USERS_FILE = os.path.join(DATA_DIR, 'users.json')
+FEATURED_TAGS_FILE = os.path.join(DATA_DIR, 'featured_tags.json')
+FEATURED_PRODUCTS_FILE = os.path.join(DATA_DIR, 'featured_products.json')
+FEATURED_TAGS_ICONS_DIR = os.path.join(os.path.dirname(__file__), 'static', 'images', 'featured_tags')
 UPLOAD_FOLDER = os.path.join(os.path.dirname(__file__), 'static', 'images')
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'webp', 'mp4', 'mov', 'avi', 'webm'}
 
 # Ensure directories exist
 os.makedirs(PRODUCTS_DIR, exist_ok=True)
 os.makedirs(BLOG_DIR, exist_ok=True)
+os.makedirs(PROMOTIONS_DIR, exist_ok=True)
 os.makedirs(CATEGORIES_DIR, exist_ok=True)
 os.makedirs(CODEX_DIR, exist_ok=True)
 os.makedirs(DATA_DIR, exist_ok=True)
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+os.makedirs(FEATURED_TAGS_ICONS_DIR, exist_ok=True)
 
 # ===== Authentication =====
 
@@ -448,6 +464,66 @@ def get_all_tags():
     cache.set('all_tags', tags)
     return tags
 
+def get_featured_tags():
+    """Get featured tags for homepage display"""
+    cached = cache.get('featured_tags')
+    if cached is not None:
+        return cached
+
+    if not os.path.exists(FEATURED_TAGS_FILE):
+        return []
+
+    try:
+        with open(FEATURED_TAGS_FILE, 'r', encoding='utf-8') as f:
+            tags = json.load(f)
+        # Sort by order_weight (descending)
+        tags.sort(key=lambda t: -t.get('order_weight', 0))
+        cache.set('featured_tags', tags)
+        return tags
+    except:
+        return []
+
+def save_featured_tags(tags):
+    """Save featured tags to file"""
+    with open(FEATURED_TAGS_FILE, 'w', encoding='utf-8') as f:
+        json.dump(tags, f, indent=2, ensure_ascii=False)
+    cache.invalidate('featured_tags')
+    html_cache.invalidate()
+
+def get_featured_products_refs():
+    """Get list of featured product references (category/slug)"""
+    if not os.path.exists(FEATURED_PRODUCTS_FILE):
+        return []
+
+    try:
+        with open(FEATURED_PRODUCTS_FILE, 'r', encoding='utf-8') as f:
+            return json.load(f)
+    except:
+        return []
+
+def save_featured_products_refs(refs):
+    """Save featured product references to file"""
+    with open(FEATURED_PRODUCTS_FILE, 'w', encoding='utf-8') as f:
+        json.dump(refs, f, indent=2, ensure_ascii=False)
+    html_cache.invalidate()
+
+def get_featured_products_for_homepage():
+    """Get featured products with full details for homepage"""
+    refs = get_featured_products_refs()
+    if not refs:
+        return []
+
+    all_products = get_products()
+    featured = []
+
+    for ref in refs:
+        for product in all_products:
+            if f"{product['category']}/{product['slug']}" == ref:
+                featured.append(product)
+                break
+
+    return featured
+
 def get_product(category, slug):
     """Get single product by category slug and product slug"""
     product_path = os.path.join(PRODUCTS_DIR, category, slug)
@@ -633,6 +709,115 @@ def save_blog_post(slug, data):
 
     return True
 
+# ===== Promotion Functions =====
+
+def get_promotion_banner(slug):
+    """Get banner image URL for a promotion from static folder"""
+    static_promo_dir = os.path.join(app.static_folder, 'images', 'promotions', slug)
+    if not os.path.exists(static_promo_dir):
+        return None
+
+    # Look for banner with any extension
+    for filename in os.listdir(static_promo_dir):
+        if filename.startswith('banner.'):
+            return f"/static/images/promotions/{slug}/{filename}"
+    return None
+
+def get_promotions():
+    """Get all promotions"""
+    promotions = []
+
+    if not os.path.exists(PROMOTIONS_DIR):
+        return promotions
+
+    for slug in os.listdir(PROMOTIONS_DIR):
+        promo_dir = os.path.join(PROMOTIONS_DIR, slug)
+        if not os.path.isdir(promo_dir):
+            continue
+
+        promo_file = os.path.join(promo_dir, 'promotion.md')
+        if not os.path.exists(promo_file):
+            continue
+
+        with open(promo_file, 'r', encoding='utf-8') as f:
+            content = f.read()
+
+        frontmatter, body = parse_frontmatter(content)
+
+        # Get banner image from static folder
+        banner = get_promotion_banner(slug)
+
+        promotions.append({
+            'slug': slug,
+            'title': frontmatter.get('title', slug),
+            'date': frontmatter.get('date', ''),
+            'excerpt': frontmatter.get('excerpt', body[:200]),
+            'content': body,
+            'products': frontmatter.get('products', []),
+            'active': frontmatter.get('active', False),
+            'banner': banner
+        })
+
+    # Sort by date (newest first)
+    promotions.sort(key=lambda x: x['date'], reverse=True)
+    return promotions
+
+def get_promotion(slug):
+    """Get single promotion"""
+    promo_dir = os.path.join(PROMOTIONS_DIR, slug)
+    promo_file = os.path.join(promo_dir, 'promotion.md')
+
+    if not os.path.exists(promo_file):
+        return None
+
+    with open(promo_file, 'r', encoding='utf-8') as f:
+        content = f.read()
+
+    frontmatter, body = parse_frontmatter(content)
+
+    # Get banner image from static folder
+    banner = get_promotion_banner(slug)
+
+    return {
+        'slug': slug,
+        'title': frontmatter.get('title', slug),
+        'date': frontmatter.get('date', ''),
+        'excerpt': frontmatter.get('excerpt', ''),
+        'content': body,
+        'products': frontmatter.get('products', []),
+        'active': frontmatter.get('active', False),
+        'banner': banner
+    }
+
+def save_promotion(slug, data):
+    """Save promotion to file"""
+    promo_dir = os.path.join(PROMOTIONS_DIR, slug)
+    os.makedirs(promo_dir, exist_ok=True)
+
+    frontmatter_data = {
+        'title': data.get('title', ''),
+        'date': data.get('date', datetime.now().strftime('%Y-%m-%d')),
+        'excerpt': data.get('excerpt', ''),
+        'products': data.get('products', []),
+        'active': data.get('active', False)
+    }
+
+    promo_file = os.path.join(promo_dir, 'promotion.md')
+    content = create_frontmatter(frontmatter_data, data.get('content', ''))
+
+    with open(promo_file, 'w', encoding='utf-8') as f:
+        f.write(content)
+
+    return True
+
+def get_active_promotion():
+    """Get the currently active promotion for homepage banner"""
+    promotions = get_promotions()
+    for promo in promotions:
+        if promo.get('active') and promo.get('banner'):
+            return promo
+    return None
+
 # ===== Codex Functions =====
 
 def get_codex_entries():
@@ -758,20 +943,26 @@ def process_codex_links(text):
 def home():
     """Homepage"""
     all_products = get_products()
-    products = all_products[:8]  # Featured products
+
+    # Get featured products (manually selected) or fallback to first 8
+    featured = get_featured_products_for_homepage()
+    if not featured:
+        featured = all_products[:8]
 
     # Get special sections
     new_arrivals = [p for p in all_products if p.get('is_new_arrival', False)][:4]
     on_sale = [p for p in all_products if p.get('is_on_sale', False)][:4]
 
     posts = get_blog_posts()[:3]  # Recent posts
-    categories = get_categories()
+    featured_tags = get_featured_tags()
+    active_promo = get_active_promotion()
     return render_template('public/home.html',
-                         products=products,
+                         products=featured,
                          new_arrivals=new_arrivals,
                          on_sale=on_sale,
                          posts=posts,
-                         categories=categories)
+                         featured_tags=featured_tags,
+                         active_promo=active_promo)
 
 @app.route('/tags')
 def tags_page():
@@ -789,9 +980,10 @@ def products_page():
     show_on_sale = request.args.get('on_sale') == 'true'
     show_new_arrival = request.args.get('new_arrival') == 'true'
     show_in_stock = request.args.get('in_stock') == 'true'
+    sort_by = request.args.get('sort', 'default')  # default, price_asc, price_desc
 
     # Check HTML cache for simple category pages (no search/tag/filters)
-    is_simple_page = not tag and not search and not show_pre_order and not show_on_sale and not show_new_arrival and not show_in_stock
+    is_simple_page = not tag and not search and not show_pre_order and not show_on_sale and not show_new_arrival and not show_in_stock and sort_by == 'default'
     cache_key = f"html_products_{category or 'all'}"
 
     if is_simple_page:
@@ -822,8 +1014,16 @@ def products_page():
     if show_in_stock:
         products = [p for p in products if p.get('in_stock', True)]
 
-    # Sort by group for visual clustering (grouped products together, then by order_weight and title)
-    products.sort(key=lambda p: (p.get('group') or 'zzz', -p.get('order_weight', 0), p['title'].lower()))
+    # Sort products based on sort_by parameter
+    if sort_by == 'price_asc':
+        # Sort by price low to high (use sale_price if on sale)
+        products.sort(key=lambda p: p.get('sale_price', 0) if p.get('is_on_sale') and p.get('sale_price', 0) > 0 else p.get('price', 0))
+    elif sort_by == 'price_desc':
+        # Sort by price high to low (use sale_price if on sale)
+        products.sort(key=lambda p: p.get('sale_price', 0) if p.get('is_on_sale') and p.get('sale_price', 0) > 0 else p.get('price', 0), reverse=True)
+    else:
+        # Default: Sort by group for visual clustering (grouped products together, then by order_weight and title)
+        products.sort(key=lambda p: (p.get('group') or 'zzz', -p.get('order_weight', 0), p['title'].lower()))
 
     categories = get_categories()
 
@@ -844,7 +1044,8 @@ def products_page():
                          show_pre_order=show_pre_order,
                          show_on_sale=show_on_sale,
                          show_new_arrival=show_new_arrival,
-                         show_in_stock=show_in_stock)
+                         show_in_stock=show_in_stock,
+                         current_sort=sort_by)
 
     # Cache simple pages
     if is_simple_page:
@@ -917,6 +1118,34 @@ def blog_post_page(slug):
     post['content_html'] = markdown.markdown(post['content'])
 
     return render_template('public/blog-post.html', post=post)
+
+@app.route('/promotions')
+def promotions_page():
+    """Promotions listing page"""
+    promotions = get_promotions()
+    return render_template('public/promotions.html', promotions=promotions)
+
+@app.route('/promotions/<slug>')
+def promotion_page(slug):
+    """Promotion detail page"""
+    promo = get_promotion(slug)
+    if not promo:
+        return "Promotion not found", 404
+
+    # Convert markdown to HTML
+    promo['content_html'] = markdown.markdown(promo['content'])
+
+    # Get product details for the promotion
+    promo_products = []
+    all_products = get_products()
+    for product_ref in promo.get('products', []):
+        # product_ref format: "category/slug"
+        for product in all_products:
+            if f"{product['category']}/{product['slug']}" == product_ref:
+                promo_products.append(product)
+                break
+
+    return render_template('public/promotion.html', promotion=promo, products=promo_products)
 
 @app.route('/codex')
 def codex_page():
@@ -1251,6 +1480,14 @@ def admin_dashboard():
     """Admin dashboard"""
     return render_template('admin/dashboard.html')
 
+@app.route('/api/admin/clear-cache', methods=['POST'])
+@login_required
+def api_clear_cache():
+    """Clear all caches"""
+    cache.invalidate()
+    html_cache.invalidate()
+    return jsonify({'success': True, 'message': 'Cache cleared'})
+
 # ===== API Routes - Products =====
 
 @app.route('/api/products', methods=['GET'])
@@ -1509,6 +1746,167 @@ def api_delete_blog_post(slug):
     os.remove(filepath)
 
     return jsonify({'success': True})
+
+@app.route('/api/blog/upload-image', methods=['POST'])
+@login_required
+def api_upload_blog_image():
+    """Upload image for blog post"""
+    if 'image' not in request.files:
+        return jsonify({'error': 'No file provided'}), 400
+
+    file = request.files['image']
+    if file.filename == '':
+        return jsonify({'error': 'No file selected'}), 400
+
+    if file and allowed_file(file.filename):
+        filename = secure_filename(file.filename)
+
+        # Store in static/images/blog/
+        images_dir = os.path.join(app.static_folder, 'images', 'blog')
+        os.makedirs(images_dir, exist_ok=True)
+
+        # Add timestamp to avoid filename conflicts
+        name, ext = os.path.splitext(filename)
+        filename = f"{name}_{int(time.time())}{ext}"
+
+        filepath = os.path.join(images_dir, filename)
+        file.save(filepath)
+
+        image_url = f"/static/images/blog/{filename}"
+        return jsonify({'success': True, 'url': image_url})
+
+    return jsonify({'error': 'Invalid file type'}), 400
+
+# ===== API Routes - Promotions =====
+
+@app.route('/api/promotions', methods=['GET'])
+def api_get_promotions():
+    """Get all promotions"""
+    promotions = get_promotions()
+    return jsonify({'promotions': promotions})
+
+@app.route('/api/promotions/<slug>', methods=['GET'])
+def api_get_promotion(slug):
+    """Get single promotion"""
+    promo = get_promotion(slug)
+    if not promo:
+        return jsonify({'error': 'Promotion not found'}), 404
+    return jsonify({'promotion': promo})
+
+@app.route('/api/promotions', methods=['POST'])
+@login_required
+def api_create_promotion():
+    """Create new promotion"""
+    data = request.get_json()
+
+    title = data.get('title')
+    if not title:
+        return jsonify({'error': 'Title required'}), 400
+
+    slug = slugify(title)
+
+    # Check if already exists
+    if get_promotion(slug):
+        return jsonify({'error': 'Promotion already exists'}), 400
+
+    save_promotion(slug, data)
+
+    return jsonify({'success': True, 'slug': slug})
+
+@app.route('/api/promotions/<slug>', methods=['PUT'])
+@login_required
+def api_update_promotion(slug):
+    """Update promotion"""
+    data = request.get_json()
+
+    if not get_promotion(slug):
+        return jsonify({'error': 'Promotion not found'}), 404
+
+    save_promotion(slug, data)
+
+    return jsonify({'success': True})
+
+@app.route('/api/promotions/<slug>', methods=['DELETE'])
+@login_required
+def api_delete_promotion(slug):
+    """Delete promotion"""
+    import shutil
+    promo_dir = os.path.join(PROMOTIONS_DIR, slug)
+
+    if not os.path.exists(promo_dir):
+        return jsonify({'error': 'Promotion not found'}), 404
+
+    shutil.rmtree(promo_dir)
+
+    return jsonify({'success': True})
+
+@app.route('/api/promotions/upload-banner', methods=['POST'])
+@login_required
+def api_upload_promotion_banner():
+    """Upload banner image for promotion"""
+    if 'image' not in request.files:
+        return jsonify({'error': 'No file provided'}), 400
+
+    slug = request.form.get('slug')
+    if not slug:
+        return jsonify({'error': 'Slug required'}), 400
+
+    file = request.files['image']
+    if file.filename == '':
+        return jsonify({'error': 'No file selected'}), 400
+
+    if file and allowed_file(file.filename):
+        # Get file extension
+        ext = file.filename.rsplit('.', 1)[1].lower()
+
+        # Store in static/images/promotions/{slug}/
+        images_dir = os.path.join(app.static_folder, 'images', 'promotions', slug)
+        os.makedirs(images_dir, exist_ok=True)
+
+        # Remove old banners if exist
+        for old_file in os.listdir(images_dir):
+            if old_file.startswith('banner.'):
+                os.remove(os.path.join(images_dir, old_file))
+
+        # Save as banner.{timestamp}.{ext} to avoid caching
+        filename = f'banner.{int(time.time())}.{ext}'
+        filepath = os.path.join(images_dir, filename)
+        file.save(filepath)
+
+        image_url = f"/static/images/promotions/{slug}/{filename}"
+        return jsonify({'success': True, 'url': image_url})
+
+    return jsonify({'error': 'Invalid file type'}), 400
+
+@app.route('/api/promotions/upload-image', methods=['POST'])
+@login_required
+def api_upload_promotion_image():
+    """Upload content image for promotion"""
+    if 'image' not in request.files:
+        return jsonify({'error': 'No file provided'}), 400
+
+    file = request.files['image']
+    if file.filename == '':
+        return jsonify({'error': 'No file selected'}), 400
+
+    if file and allowed_file(file.filename):
+        filename = secure_filename(file.filename)
+
+        # Store in static/images/promotions/
+        images_dir = os.path.join(app.static_folder, 'images', 'promotions')
+        os.makedirs(images_dir, exist_ok=True)
+
+        # Add timestamp to avoid filename conflicts
+        name, ext = os.path.splitext(filename)
+        filename = f"{name}_{int(time.time())}{ext}"
+
+        filepath = os.path.join(images_dir, filename)
+        file.save(filepath)
+
+        image_url = f"/static/images/promotions/{filename}"
+        return jsonify({'success': True, 'url': image_url})
+
+    return jsonify({'error': 'Invalid file type'}), 400
 
 # ===== API Routes - Codex =====
 
@@ -1879,11 +2277,134 @@ def warm_cache():
     tags = get_all_tags()
     print(f"  - Loaded {len(tags)} tags")
 
+    # Load featured tags
+    featured_tags = get_featured_tags()
+    print(f"  - Loaded {len(featured_tags)} featured tags")
+
     # Note: HTML pages are cached on first request (can't pre-render due to request context)
     print("Cache warming complete! (HTML pages cache on first visit)")
 
 # Warm cache on import (works with gunicorn/uwsgi)
 warm_cache()
+
+# ===== API Routes - Featured Tags =====
+
+@app.route('/api/featured-tags', methods=['GET'])
+@login_required
+def api_get_featured_tags():
+    """Get all featured tags"""
+    return jsonify({'featured_tags': get_featured_tags()})
+
+@app.route('/api/featured-tags', methods=['POST'])
+@login_required
+def api_create_featured_tag():
+    """Create a new featured tag"""
+    data = request.get_json()
+    name = data.get('name', '').strip()
+
+    if not name:
+        return jsonify({'error': 'Tag name is required'}), 400
+
+    tags = get_featured_tags()
+
+    # Check if already exists
+    if any(t['name'] == name for t in tags):
+        return jsonify({'error': 'Featured tag already exists'}), 400
+
+    new_tag = {
+        'name': name,
+        'icon': data.get('icon', ''),
+        'order_weight': data.get('order_weight', 0)
+    }
+    tags.append(new_tag)
+    save_featured_tags(tags)
+
+    return jsonify({'success': True, 'tag': new_tag})
+
+@app.route('/api/featured-tags/<path:tag_name>', methods=['PUT'])
+@login_required
+def api_update_featured_tag(tag_name):
+    """Update a featured tag"""
+    data = request.get_json()
+    tags = get_featured_tags()
+
+    tag = next((t for t in tags if t['name'] == tag_name), None)
+    if not tag:
+        return jsonify({'error': 'Featured tag not found'}), 404
+
+    # Update fields
+    if 'name' in data:
+        tag['name'] = data['name'].strip()
+    if 'icon' in data:
+        tag['icon'] = data['icon']
+    if 'order_weight' in data:
+        tag['order_weight'] = data['order_weight']
+
+    save_featured_tags(tags)
+    return jsonify({'success': True, 'tag': tag})
+
+@app.route('/api/featured-tags/<path:tag_name>', methods=['DELETE'])
+@login_required
+def api_delete_featured_tag(tag_name):
+    """Delete a featured tag"""
+    tags = get_featured_tags()
+    tags = [t for t in tags if t['name'] != tag_name]
+    save_featured_tags(tags)
+    return jsonify({'success': True})
+
+@app.route('/api/featured-tags/<path:tag_name>/icon', methods=['POST'])
+@login_required
+def api_upload_featured_tag_icon(tag_name):
+    """Upload icon for a featured tag"""
+    if 'icon' not in request.files:
+        return jsonify({'error': 'No icon file provided'}), 400
+
+    file = request.files['icon']
+    if file.filename == '':
+        return jsonify({'error': 'No file selected'}), 400
+
+    if file:
+        # Create safe filename
+        ext = file.filename.rsplit('.', 1)[-1].lower()
+        if ext not in {'png', 'jpg', 'jpeg', 'webp'}:
+            return jsonify({'error': 'Invalid file type'}), 400
+
+        # Use tag name as filename (slugified)
+        from werkzeug.utils import secure_filename
+        safe_name = secure_filename(tag_name.lower().replace(' ', '-'))
+        filename = f"{safe_name}.{ext}"
+
+        # Save file
+        filepath = os.path.join(FEATURED_TAGS_ICONS_DIR, filename)
+        file.save(filepath)
+
+        # Update tag with icon filename
+        tags = get_featured_tags()
+        tag = next((t for t in tags if t['name'] == tag_name), None)
+        if tag:
+            tag['icon'] = filename
+            save_featured_tags(tags)
+
+        return jsonify({'success': True, 'icon': filename})
+
+    return jsonify({'error': 'Upload failed'}), 500
+
+# ===== API Routes - Featured Products =====
+
+@app.route('/api/featured-products', methods=['GET'])
+@login_required
+def api_get_featured_products():
+    """Get list of featured product references"""
+    return jsonify({'featured_products': get_featured_products_refs()})
+
+@app.route('/api/featured-products', methods=['PUT'])
+@login_required
+def api_update_featured_products():
+    """Update the entire featured products list (for reordering)"""
+    data = request.get_json()
+    refs = data.get('products', [])
+    save_featured_products_refs(refs)
+    return jsonify({'success': True})
 
 # ===== Main =====
 

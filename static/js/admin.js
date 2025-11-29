@@ -4,14 +4,19 @@ let currentProduct = null;
 let currentBlogPost = null;
 let currentCategory = null;
 let currentCodexEntry = null;
+let currentPromotion = null;
 let uploadedImages = [];
 let allProducts = []; // Store all products for filtering
 let allCategories = []; // Store all categories
 let allCodexEntries = []; // Store all codex entries
 let allTags = []; // Store all tags
+let allPromotions = []; // Store all promotions
+let promotionProducts = []; // Products selected for current promotion
 let currentTag = null; // Current tag being edited
 let newTagProducts = []; // Temporary storage for products when creating a new tag
 let isNewTag = false; // Flag to track if we're creating a new tag
+let allFeaturedTags = []; // Store all featured tags
+let currentFeaturedTag = null; // Current featured tag being edited
 
 // ===== Initialization =====
 
@@ -19,12 +24,32 @@ document.addEventListener('DOMContentLoaded', () => {
     loadCategoryEntities();
     loadCategories();
     loadBlogPosts();
+    loadPromotions();
     loadCodexEntries();
     loadTags();
+    loadFeaturedTags();
+    loadFeaturedProducts();
     setupImageUpload();
     setupForms();
     setupPreview();
 });
+
+// ===== Cache Management =====
+
+async function clearCache() {
+    try {
+        const response = await fetch('/api/admin/clear-cache', { method: 'POST' });
+        const data = await response.json();
+        if (data.success) {
+            alert('Cache cleared successfully!');
+        } else {
+            alert('Failed to clear cache');
+        }
+    } catch (error) {
+        console.error('Error clearing cache:', error);
+        alert('Error clearing cache');
+    }
+}
 
 // ===== Sidebar Section Toggle =====
 
@@ -351,6 +376,8 @@ function showEditor(editorId) {
     document.getElementById('category-editor').style.display = 'none';
     document.getElementById('product-editor').style.display = 'none';
     document.getElementById('blog-editor').style.display = 'none';
+    document.getElementById('promotion-editor').style.display = 'none';
+    document.getElementById('featured-products-editor').style.display = 'none';
     document.getElementById('codex-editor').style.display = 'none';
     document.getElementById('tag-editor').style.display = 'none';
 
@@ -362,6 +389,8 @@ function hideEditor() {
     document.getElementById('category-editor').style.display = 'none';
     document.getElementById('product-editor').style.display = 'none';
     document.getElementById('blog-editor').style.display = 'none';
+    document.getElementById('promotion-editor').style.display = 'none';
+    document.getElementById('featured-products-editor').style.display = 'none';
     document.getElementById('codex-editor').style.display = 'none';
     document.getElementById('tag-editor').style.display = 'none';
     document.getElementById('welcome-screen').style.display = 'block';
@@ -474,6 +503,7 @@ function setupForms() {
     document.getElementById('category-form').addEventListener('submit', saveCategory);
     document.getElementById('product-form').addEventListener('submit', saveProduct);
     document.getElementById('blog-form').addEventListener('submit', saveBlogPost);
+    document.getElementById('promotion-form').addEventListener('submit', savePromotion);
     document.getElementById('codex-form').addEventListener('submit', saveCodexEntry);
 }
 
@@ -701,6 +731,579 @@ async function deleteBlogPost() {
     } catch (error) {
         console.error('Error deleting blog post:', error);
         alert('Error deleting blog post');
+    }
+}
+
+async function uploadBlogImage() {
+    const fileInput = document.getElementById('blog-image-upload');
+    const file = fileInput.files[0];
+    if (!file) {
+        alert('Please select an image first');
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append('image', file);
+
+    try {
+        const response = await fetch('/api/blog/upload-image', {
+            method: 'POST',
+            body: formData
+        });
+        const data = await response.json();
+
+        if (data.success) {
+            // Insert markdown at cursor position in content textarea
+            const textarea = document.getElementById('blog-content');
+            const markdown = `\n![${file.name}](${data.url})\n`;
+
+            const start = textarea.selectionStart;
+            const end = textarea.selectionEnd;
+            const text = textarea.value;
+            textarea.value = text.substring(0, start) + markdown + text.substring(end);
+
+            // Move cursor after inserted text
+            textarea.selectionStart = textarea.selectionEnd = start + markdown.length;
+            textarea.focus();
+
+            // Clear file input
+            fileInput.value = '';
+        } else {
+            alert('Upload failed: ' + data.error);
+        }
+    } catch (err) {
+        console.error('Error uploading blog image:', err);
+        alert('Upload failed: ' + err.message);
+    }
+}
+
+// ===== Promotions =====
+
+async function loadPromotions() {
+    try {
+        const response = await fetch('/api/promotions');
+        const data = await response.json();
+        allPromotions = data.promotions || [];
+        renderPromotions(allPromotions);
+    } catch (error) {
+        console.error('Error loading promotions:', error);
+    }
+}
+
+function renderPromotions(promotions) {
+    const list = document.getElementById('promotion-list');
+    if (!list) return;
+
+    list.innerHTML = promotions.map(promo => `
+        <div class="sidebar-item ${promo.active ? 'active-promo' : ''}" onclick="editPromotion('${promo.slug}')">
+            ${promo.title}
+            ${promo.active ? '<span class="active-badge">Active</span>' : ''}
+        </div>
+    `).join('');
+}
+
+function showCreatePromotion() {
+    currentPromotion = null;
+    promotionProducts = [];
+
+    document.getElementById('promotion-editor-title').textContent = 'Create New Promotion';
+    document.getElementById('promotion-slug').value = '';
+    document.getElementById('promotion-title').value = '';
+    document.getElementById('promotion-date').value = new Date().toISOString().split('T')[0];
+    document.getElementById('promotion-active').checked = false;
+    document.getElementById('promotion-excerpt').value = '';
+    document.getElementById('promotion-content').value = '';
+    document.getElementById('promotion-banner-preview').innerHTML = '';
+    document.getElementById('delete-promotion-btn').style.display = 'none';
+
+    renderPromotionProducts();
+    populateProductSelect();
+    showEditor('promotion-editor');
+}
+
+async function editPromotion(slug) {
+    try {
+        const response = await fetch(`/api/promotions/${slug}`);
+        const data = await response.json();
+
+        if (data.promotion) {
+            currentPromotion = data.promotion;
+            promotionProducts = data.promotion.products || [];
+
+            document.getElementById('promotion-editor-title').textContent = 'Edit Promotion';
+            document.getElementById('promotion-slug').value = data.promotion.slug;
+            document.getElementById('promotion-title').value = data.promotion.title;
+            document.getElementById('promotion-date').value = data.promotion.date;
+            document.getElementById('promotion-active').checked = data.promotion.active;
+            document.getElementById('promotion-excerpt').value = data.promotion.excerpt || '';
+            document.getElementById('promotion-content').value = data.promotion.content;
+
+            // Show banner preview
+            const bannerPreview = document.getElementById('promotion-banner-preview');
+            if (data.promotion.banner) {
+                bannerPreview.innerHTML = `<img src="${data.promotion.banner}" style="max-width: 100%; max-height: 150px; border-radius: 4px;">`;
+            } else {
+                bannerPreview.innerHTML = '<p style="color: #666;">No banner uploaded</p>';
+            }
+
+            document.getElementById('delete-promotion-btn').style.display = 'inline-block';
+
+            renderPromotionProducts();
+            populateProductSelect();
+            showEditor('promotion-editor');
+        }
+    } catch (error) {
+        console.error('Error loading promotion:', error);
+        alert('Error loading promotion');
+    }
+}
+
+async function savePromotion(e) {
+    e.preventDefault();
+
+    const slug = document.getElementById('promotion-slug').value;
+    const isNew = !slug;
+
+    const data = {
+        title: document.getElementById('promotion-title').value,
+        date: document.getElementById('promotion-date').value,
+        active: document.getElementById('promotion-active').checked,
+        excerpt: document.getElementById('promotion-excerpt').value,
+        content: document.getElementById('promotion-content').value,
+        products: promotionProducts
+    };
+
+    try {
+        let response;
+        if (isNew) {
+            response = await fetch('/api/promotions', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+        } else {
+            response = await fetch(`/api/promotions/${slug}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+        }
+
+        const result = await response.json();
+
+        if (result.success) {
+            alert('Promotion saved successfully!');
+            loadPromotions();
+
+            // If new, update slug field for banner upload
+            if (isNew && result.slug) {
+                document.getElementById('promotion-slug').value = result.slug;
+            }
+        } else {
+            alert('Error: ' + result.error);
+        }
+    } catch (error) {
+        console.error('Error saving promotion:', error);
+        alert('Error saving promotion');
+    }
+}
+
+async function deletePromotion() {
+    if (!confirm('Are you sure you want to delete this promotion?')) return;
+
+    const slug = document.getElementById('promotion-slug').value;
+
+    try {
+        const response = await fetch(`/api/promotions/${slug}`, {
+            method: 'DELETE'
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            alert('Promotion deleted successfully!');
+            loadPromotions();
+            closeEditor();
+        } else {
+            alert('Error: ' + result.error);
+        }
+    } catch (error) {
+        console.error('Error deleting promotion:', error);
+        alert('Error deleting promotion');
+    }
+}
+
+async function uploadPromotionBanner() {
+    const slug = document.getElementById('promotion-slug').value;
+    if (!slug) {
+        alert('Please save the promotion first before uploading a banner');
+        return;
+    }
+
+    const fileInput = document.getElementById('promotion-banner-upload');
+    const file = fileInput.files[0];
+    if (!file) {
+        alert('Please select an image first');
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append('image', file);
+    formData.append('slug', slug);
+
+    try {
+        const response = await fetch('/api/promotions/upload-banner', {
+            method: 'POST',
+            body: formData
+        });
+        const data = await response.json();
+
+        if (data.success) {
+            // Show preview
+            const bannerPreview = document.getElementById('promotion-banner-preview');
+            bannerPreview.innerHTML = `<img src="${data.url}" style="max-width: 100%; max-height: 150px; border-radius: 4px;">`;
+            fileInput.value = '';
+            alert('Banner uploaded successfully!');
+        } else {
+            alert('Upload failed: ' + data.error);
+        }
+    } catch (err) {
+        console.error('Error uploading banner:', err);
+        alert('Upload failed: ' + err.message);
+    }
+}
+
+async function uploadPromotionImage() {
+    const fileInput = document.getElementById('promotion-image-upload');
+    const file = fileInput.files[0];
+    if (!file) {
+        alert('Please select an image first');
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append('image', file);
+
+    try {
+        const response = await fetch('/api/promotions/upload-image', {
+            method: 'POST',
+            body: formData
+        });
+        const data = await response.json();
+
+        if (data.success) {
+            // Insert markdown at cursor position
+            const textarea = document.getElementById('promotion-content');
+            const markdown = `\n![${file.name}](${data.url})\n`;
+
+            const start = textarea.selectionStart;
+            const end = textarea.selectionEnd;
+            const text = textarea.value;
+            textarea.value = text.substring(0, start) + markdown + text.substring(end);
+
+            textarea.selectionStart = textarea.selectionEnd = start + markdown.length;
+            textarea.focus();
+
+            fileInput.value = '';
+        } else {
+            alert('Upload failed: ' + data.error);
+        }
+    } catch (err) {
+        console.error('Error uploading promotion image:', err);
+        alert('Upload failed: ' + err.message);
+    }
+}
+
+function populateProductSelect(filterQuery = '') {
+    const resultsContainer = document.getElementById('promotion-product-results');
+    const clearBtn = document.querySelector('.promo-search-clear');
+    const query = filterQuery.trim().toLowerCase();
+
+    // Show/hide clear button
+    if (clearBtn) {
+        clearBtn.style.display = query ? 'inline-block' : 'none';
+    }
+
+    // If no query, hide results
+    if (!query) {
+        resultsContainer.innerHTML = '';
+        resultsContainer.style.display = 'none';
+        return;
+    }
+
+    // Filter products
+    const filtered = allProducts.filter(product => {
+        const ref = `${product.category}/${product.slug}`;
+        // Don't show products already selected
+        if (promotionProducts.includes(ref)) return false;
+
+        // Filter by search query
+        const titleMatch = product.title.toLowerCase().includes(query);
+        const skuMatch = product.sku && String(product.sku).toLowerCase().includes(query);
+        return titleMatch || skuMatch;
+    });
+
+    // Show results
+    if (filtered.length === 0) {
+        resultsContainer.innerHTML = '<div class="promo-product-item no-results">No products found</div>';
+    } else {
+        resultsContainer.innerHTML = filtered.slice(0, 10).map(product => {
+            const ref = `${product.category}/${product.slug}`;
+            return `<div class="promo-product-item" onclick="addPromotionProductByRef('${ref}')">${product.title}</div>`;
+        }).join('');
+    }
+    resultsContainer.style.display = 'block';
+}
+
+function filterPromotionProductSelect(query) {
+    populateProductSelect(query);
+}
+
+function clearPromotionProductSearch() {
+    document.getElementById('promotion-product-search').value = '';
+    populateProductSelect('');
+}
+
+function addPromotionProductByRef(ref) {
+    promotionProducts.push(ref);
+    renderPromotionProducts();
+
+    // Clear search
+    document.getElementById('promotion-product-search').value = '';
+    populateProductSelect('');
+}
+
+function addPromotionProduct() {
+    // Legacy function - no longer used with new UI
+}
+
+function removePromotionProduct(ref) {
+    promotionProducts = promotionProducts.filter(p => p !== ref);
+    renderPromotionProducts();
+}
+
+function renderPromotionProducts() {
+    const container = document.getElementById('promotion-products-list');
+
+    if (promotionProducts.length === 0) {
+        container.innerHTML = '<p class="no-products-msg" style="color: #666; margin: 0;">No products selected</p>';
+        return;
+    }
+
+    container.innerHTML = promotionProducts.map(ref => {
+        const product = allProducts.find(p => `${p.category}/${p.slug}` === ref);
+        const title = product ? product.title : ref;
+        return `
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 5px 0; border-bottom: 1px solid #eee;">
+                <span>${title}</span>
+                <button type="button" class="btn btn-sm" onclick="removePromotionProduct('${ref}')" style="padding: 2px 8px; font-size: 12px;">×</button>
+            </div>
+        `;
+    }).join('');
+}
+
+function filterPromotions(query) {
+    query = query.toLowerCase();
+    const filtered = allPromotions.filter(promo =>
+        promo.title.toLowerCase().includes(query)
+    );
+    renderPromotions(filtered);
+}
+
+// ===== Featured Products =====
+
+let featuredProducts = [];
+
+async function loadFeaturedProducts() {
+    try {
+        const response = await fetch('/api/featured-products');
+        const data = await response.json();
+        featuredProducts = data.featured_products || [];
+        updateFeaturedProductsCount();
+    } catch (error) {
+        console.error('Error loading featured products:', error);
+    }
+}
+
+function updateFeaturedProductsCount() {
+    const countEl = document.getElementById('featured-products-count');
+    if (countEl) {
+        countEl.textContent = featuredProducts.length > 0
+            ? `${featuredProducts.length} products selected`
+            : 'No products selected';
+    }
+}
+
+function showFeaturedProductsEditor() {
+    loadFeaturedProducts().then(() => {
+        renderFeaturedProductsList();
+        showEditor('featured-products-editor');
+    });
+}
+
+function renderFeaturedProductsList() {
+    const container = document.getElementById('featured-products-list');
+
+    if (featuredProducts.length === 0) {
+        container.innerHTML = '<p class="no-featured-msg" style="color: #999; margin: 0;">No featured products selected. Add products below.</p>';
+        return;
+    }
+
+    container.innerHTML = featuredProducts.map((ref, index) => {
+        const product = allProducts.find(p => `${p.category}/${p.slug}` === ref);
+        const title = product ? product.title : ref;
+        return `
+            <div class="featured-product-item" draggable="true" data-ref="${ref}" data-index="${index}">
+                <span class="drag-handle">☰</span>
+                <span class="featured-product-title">${title}</span>
+                <div class="featured-product-actions">
+                    <button type="button" onclick="moveFeaturedProduct(${index}, -1)" ${index === 0 ? 'disabled' : ''}>↑</button>
+                    <button type="button" onclick="moveFeaturedProduct(${index}, 1)" ${index === featuredProducts.length - 1 ? 'disabled' : ''}>↓</button>
+                    <button type="button" onclick="removeFeaturedProduct('${ref}')">×</button>
+                </div>
+            </div>
+        `;
+    }).join('');
+
+    // Setup drag and drop
+    setupFeaturedProductsDragDrop();
+}
+
+function setupFeaturedProductsDragDrop() {
+    const container = document.getElementById('featured-products-list');
+    const items = container.querySelectorAll('.featured-product-item');
+
+    items.forEach(item => {
+        item.addEventListener('dragstart', handleDragStart);
+        item.addEventListener('dragover', handleDragOver);
+        item.addEventListener('drop', handleDrop);
+        item.addEventListener('dragend', handleDragEnd);
+    });
+}
+
+let draggedItem = null;
+
+function handleDragStart(e) {
+    draggedItem = this;
+    this.classList.add('dragging');
+    e.dataTransfer.effectAllowed = 'move';
+}
+
+function handleDragOver(e) {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    this.classList.add('drag-over');
+}
+
+function handleDrop(e) {
+    e.preventDefault();
+    if (draggedItem !== this) {
+        const fromIndex = parseInt(draggedItem.dataset.index);
+        const toIndex = parseInt(this.dataset.index);
+
+        // Reorder array
+        const item = featuredProducts.splice(fromIndex, 1)[0];
+        featuredProducts.splice(toIndex, 0, item);
+
+        renderFeaturedProductsList();
+    }
+    this.classList.remove('drag-over');
+}
+
+function handleDragEnd(e) {
+    this.classList.remove('dragging');
+    document.querySelectorAll('.featured-product-item').forEach(item => {
+        item.classList.remove('drag-over');
+    });
+}
+
+function moveFeaturedProduct(index, direction) {
+    const newIndex = index + direction;
+    if (newIndex < 0 || newIndex >= featuredProducts.length) return;
+
+    const item = featuredProducts.splice(index, 1)[0];
+    featuredProducts.splice(newIndex, 0, item);
+    renderFeaturedProductsList();
+}
+
+function removeFeaturedProduct(ref) {
+    featuredProducts = featuredProducts.filter(r => r !== ref);
+    renderFeaturedProductsList();
+}
+
+function addFeaturedProduct(ref) {
+    if (!featuredProducts.includes(ref)) {
+        featuredProducts.push(ref);
+        renderFeaturedProductsList();
+    }
+    // Clear search
+    document.getElementById('featured-product-search').value = '';
+    filterFeaturedProductSelect('');
+}
+
+function filterFeaturedProductSelect(query) {
+    const resultsContainer = document.getElementById('featured-product-results');
+    const clearBtn = document.querySelector('.featured-search-clear');
+    query = query.trim().toLowerCase();
+
+    // Show/hide clear button
+    if (clearBtn) {
+        clearBtn.style.display = query ? 'inline-block' : 'none';
+    }
+
+    // If no query, hide results
+    if (!query) {
+        resultsContainer.innerHTML = '';
+        resultsContainer.style.display = 'none';
+        return;
+    }
+
+    // Filter products
+    const filtered = allProducts.filter(product => {
+        const ref = `${product.category}/${product.slug}`;
+        if (featuredProducts.includes(ref)) return false;
+
+        const titleMatch = product.title.toLowerCase().includes(query);
+        const skuMatch = product.sku && String(product.sku).toLowerCase().includes(query);
+        return titleMatch || skuMatch;
+    });
+
+    // Show results
+    if (filtered.length === 0) {
+        resultsContainer.innerHTML = '<div class="promo-product-item no-results">No products found</div>';
+    } else {
+        resultsContainer.innerHTML = filtered.slice(0, 10).map(product => {
+            const ref = `${product.category}/${product.slug}`;
+            return `<div class="promo-product-item" onclick="addFeaturedProduct('${ref}')">${product.title}</div>`;
+        }).join('');
+    }
+    resultsContainer.style.display = 'block';
+}
+
+function clearFeaturedProductSearch() {
+    document.getElementById('featured-product-search').value = '';
+    filterFeaturedProductSelect('');
+}
+
+async function saveFeaturedProducts() {
+    try {
+        const response = await fetch('/api/featured-products', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ products: featuredProducts })
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            alert('Featured products saved successfully!');
+            updateFeaturedProductsCount();
+        } else {
+            alert('Error: ' + result.error);
+        }
+    } catch (error) {
+        console.error('Error saving featured products:', error);
+        alert('Error saving featured products');
     }
 }
 
@@ -1717,4 +2320,204 @@ document.addEventListener('DOMContentLoaded', () => {
     if (tagForm) {
         tagForm.addEventListener('submit', saveTag);
     }
+
+    const featuredTagForm = document.getElementById('featured-tag-form');
+    if (featuredTagForm) {
+        featuredTagForm.addEventListener('submit', saveFeaturedTag);
+    }
 });
+
+// ===== Featured Tags =====
+
+async function loadFeaturedTags() {
+    try {
+        const response = await fetch('/api/featured-tags');
+        const data = await response.json();
+        allFeaturedTags = data.featured_tags || [];
+        renderFeaturedTagsList(allFeaturedTags);
+    } catch (error) {
+        console.error('Error loading featured tags:', error);
+    }
+}
+
+function renderFeaturedTagsList(tags) {
+    const container = document.getElementById('featured-tags-list');
+    if (!container) return;
+
+    container.innerHTML = '';
+
+    if (tags.length === 0) {
+        container.innerHTML = '<p style="color: #666; font-style: italic; padding: 10px;">No featured tags yet</p>';
+        return;
+    }
+
+    tags.forEach(tag => {
+        const tagLink = document.createElement('a');
+        tagLink.className = 'tag-link';
+        tagLink.href = '#';
+        tagLink.style.display = 'flex';
+        tagLink.style.alignItems = 'center';
+        tagLink.innerHTML = `
+            ${tag.icon ? `<img src="/static/images/featured_tags/${tag.icon}" style="width: 20px; height: 20px; margin-right: 8px; object-fit: contain; border-radius: 2px;">` : ''}
+            <span>${tag.name}</span>
+        `;
+        tagLink.onclick = (e) => {
+            e.preventDefault();
+            editFeaturedTag(tag.name);
+        };
+        container.appendChild(tagLink);
+    });
+}
+
+function showCreateFeaturedTag() {
+    currentFeaturedTag = null;
+
+    document.getElementById('featured-tag-editor-title').textContent = 'Create Featured Tag';
+    document.getElementById('featured-tag-original-name').value = '';
+    document.getElementById('featured-tag-name').value = '';
+    document.getElementById('featured-tag-order-weight').value = '0';
+    document.getElementById('featured-tag-icon-preview').innerHTML = '<span style="color: #666;">No icon</span>';
+    document.getElementById('delete-featured-tag-btn').style.display = 'none';
+
+    showEditor('featured-tag-editor');
+}
+
+function editFeaturedTag(tagName) {
+    const tag = allFeaturedTags.find(t => t.name === tagName);
+    if (!tag) return;
+
+    currentFeaturedTag = tag;
+
+    document.getElementById('featured-tag-editor-title').textContent = 'Edit Featured Tag';
+    document.getElementById('featured-tag-original-name').value = tag.name;
+    document.getElementById('featured-tag-name').value = tag.name;
+    document.getElementById('featured-tag-order-weight').value = tag.order_weight || 0;
+
+    const iconPreview = document.getElementById('featured-tag-icon-preview');
+    if (tag.icon) {
+        iconPreview.innerHTML = `<img src="/static/images/featured_tags/${tag.icon}" style="max-width: 100%; max-height: 100%; object-fit: contain;">`;
+    } else {
+        iconPreview.innerHTML = '<span style="color: #666;">No icon</span>';
+    }
+
+    document.getElementById('delete-featured-tag-btn').style.display = 'inline-block';
+
+    showEditor('featured-tag-editor');
+}
+
+async function saveFeaturedTag(e) {
+    e.preventDefault();
+
+    const originalName = document.getElementById('featured-tag-original-name').value;
+    const name = document.getElementById('featured-tag-name').value.trim();
+    const orderWeight = parseInt(document.getElementById('featured-tag-order-weight').value) || 0;
+
+    if (!name) {
+        alert('Tag name is required');
+        return;
+    }
+
+    try {
+        let response;
+        if (originalName) {
+            // Update existing
+            response = await fetch(`/api/featured-tags/${encodeURIComponent(originalName)}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, order_weight: orderWeight })
+            });
+        } else {
+            // Create new
+            response = await fetch('/api/featured-tags', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, order_weight: orderWeight })
+            });
+        }
+
+        const data = await response.json();
+
+        if (response.ok) {
+            await loadFeaturedTags();
+            if (!originalName) {
+                // If creating new, switch to edit mode so user can upload icon
+                editFeaturedTag(name);
+            }
+            alert('Featured tag saved!');
+        } else {
+            alert(data.error || 'Failed to save featured tag');
+        }
+    } catch (error) {
+        console.error('Error saving featured tag:', error);
+        alert('Failed to save featured tag');
+    }
+}
+
+async function uploadFeaturedTagIcon() {
+    const fileInput = document.getElementById('featured-tag-icon-upload');
+    const file = fileInput.files[0];
+
+    if (!file) return;
+
+    const tagName = document.getElementById('featured-tag-original-name').value || document.getElementById('featured-tag-name').value;
+
+    if (!tagName) {
+        alert('Please save the tag first before uploading an icon');
+        fileInput.value = '';
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append('icon', file);
+
+    try {
+        const response = await fetch(`/api/featured-tags/${encodeURIComponent(tagName)}/icon`, {
+            method: 'POST',
+            body: formData
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            // Update preview
+            const iconPreview = document.getElementById('featured-tag-icon-preview');
+            iconPreview.innerHTML = `<img src="/static/images/featured_tags/${data.icon}?t=${Date.now()}" style="max-width: 100%; max-height: 100%; object-fit: contain;">`;
+
+            await loadFeaturedTags();
+            alert('Icon uploaded!');
+        } else {
+            alert(data.error || 'Failed to upload icon');
+        }
+    } catch (error) {
+        console.error('Error uploading icon:', error);
+        alert('Failed to upload icon');
+    }
+
+    fileInput.value = '';
+}
+
+async function deleteFeaturedTag() {
+    if (!currentFeaturedTag) return;
+
+    if (!confirm(`Delete featured tag "${currentFeaturedTag.name}"?`)) {
+        return;
+    }
+
+    try {
+        const response = await fetch(`/api/featured-tags/${encodeURIComponent(currentFeaturedTag.name)}`, {
+            method: 'DELETE'
+        });
+
+        if (response.ok) {
+            await loadFeaturedTags();
+            closeEditor();
+            alert('Featured tag deleted!');
+        } else {
+            const data = await response.json();
+            alert(data.error || 'Failed to delete featured tag');
+        }
+    } catch (error) {
+        console.error('Error deleting featured tag:', error);
+        alert('Failed to delete featured tag');
+    }
+}

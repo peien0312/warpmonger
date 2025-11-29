@@ -1,0 +1,38 @@
+{% extends "public/base.html" %}
+
+{% block title %}Promotions & Deals | Warpmonger{% endblock %}
+
+{% block meta_description %}Check out our latest promotions, deals, and special offers on premium action figures and collectibles. Limited time offers and exclusive bundles.{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="promotions-page">
+        <h1>Promotions</h1>
+
+        {% if promotions %}
+        <div class="promotions-list">
+            {% for promo in promotions %}
+            <article class="promotion-preview">
+                {% if promo.banner %}
+                <a href="/promotions/{{ promo.slug }}" class="promotion-banner-link">
+                    <img src="{{ promo.banner }}" alt="{{ promo.title }}" class="promotion-banner-thumb">
+                </a>
+                {% endif %}
+                <div class="promotion-info">
+                    <h2><a href="/promotions/{{ promo.slug }}">{{ promo.title }}</a></h2>
+                    <p class="promo-meta">{{ promo.date }}</p>
+                    <p class="promo-excerpt">{{ promo.excerpt }}</p>
+                    {% if promo.active %}
+                    <span class="promo-badge active">Active</span>
+                    {% endif %}
+                    <a href="/promotions/{{ promo.slug }}" class="read-more">View Details →</a>
+                </div>
+            </article>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p class="no-promotions">No promotions available right now. Check back soon!</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

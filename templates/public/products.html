@@ -58,6 +58,16 @@
 
                 window.location.href = url.toString();
             }
+
+            function changeSort(sortValue) {
+                const url = new URL(window.location);
+                if (sortValue === 'default') {
+                    url.searchParams.delete('sort');
+                } else {
+                    url.searchParams.set('sort', sortValue);
+                }
+                window.location.href = url.toString();
+            }
             </script>
         </aside>
 
@@ -79,6 +89,13 @@
                 <h1>{% if current_category_name %}{{ current_category_name }}{% else %}All Products{% endif %}</h1>
                 <p>{{ products|length }} product{% if products|length != 1 %}s{% endif %} found</p>
                 {% endif %}
+
+            </div>
+
+            <div class="sort-controls">
+                <button class="sort-btn {% if current_sort == 'default' %}active{% endif %}" onclick="changeSort('default')">Default</button>
+                <button class="sort-btn {% if current_sort == 'price_asc' %}active{% endif %}" onclick="changeSort('price_asc')">Price ↑</button>
+                <button class="sort-btn {% if current_sort == 'price_desc' %}active{% endif %}" onclick="changeSort('price_desc')">Price ↓</button>
             </div>
 
             <div class="products-grid">

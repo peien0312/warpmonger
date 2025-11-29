@@ -13,23 +13,26 @@
     </div>
 </section>
 
+{% if active_promo %}
+<section class="promo-banner-section">
+    <div class="container">
+        <a href="/promotions/{{ active_promo.slug }}" class="promo-banner-link">
+            <img src="{{ active_promo.banner }}" alt="{{ active_promo.title }}">
+            <div class="promo-banner-overlay">
+                <h3>{{ active_promo.title }}</h3>
+                <p>View Promotion →</p>
+            </div>
+        </a>
+    </div>
+</section>
+{% endif %}
+
 <section class="categories-section">
     <div class="container">
-        <h2>Shop by Category</h2>
-        <div class="categories-grid">
-            {% for category in categories %}
-            <a href="/products?category={{ category.slug }}" class="category-card">
-                {% if category.icon %}
-                <div class="category-icon">
-                    <img src="/static/images/categories/{{ category.slug }}/{{ category.icon }}" alt="{{ category.name }}">
-                </div>
-                {% endif %}
-                <h3>{{ category.name }}</h3>
-            </a>
+        <div class="faction-tags">
+            {% for tag in featured_tags %}
+            <a href="/products?tag={{ tag.name|urlencode }}" class="faction-tag">{{ tag.name }}</a>
             {% endfor %}
-            {% if not categories %}
-            <p>No categories available yet.</p>
-            {% endif %}
         </div>
     </div>
 </section>
