@@ -12,14 +12,14 @@ is_new_arrival: false
 id: JT01697
 cn_name: 极限战士 副官泰图斯之MKX头盔和底座
 zhtw_name: 極限戰士 副官泰圖斯之MKX頭盔與底座
-series: Warhammer 40,000
+series: Warhammer "The Horus Heresy"
 scale: Scale：1/1
 size: 57*50*43
 weight: 5.5kg
-zhtw_price: 780
-cost: 630
-final_price: 3990
-cost_tw: 2690
+zhtw_price: 780.0
+cost: 630.0
+final_price: 3990.0
+cost_tw: 2690.0
 order_weight: 0
 ---
 

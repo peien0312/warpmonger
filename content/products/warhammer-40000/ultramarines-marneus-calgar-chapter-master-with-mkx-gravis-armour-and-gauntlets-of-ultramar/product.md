@@ -24,4 +24,3 @@ order_weight: 0
 ---
 
 Marneus Calgar is the Chapter Master of the [[Ultramarines]] and Lord of Macragge, one of the most powerful Space Marines in the Imperium. Clad in MkX Gravis armor and wielding the legendary Gauntlets of Ultramar, he leads his Chapter with the tactical brilliance and unwavering courage that has made him a hero across the Imperium. Calgar was the first Space Marine to successfully undergo the Rubicon Primaris, emerging more powerful than ever before.
-

@@ -24,4 +24,3 @@ order_weight: 0
 ---
 
 The White Feather Armored Horse serves the elite cavalry of the Northern Hanland Empire. This 1/18 scale mount features distinctive white plumage decoration and heavy armor befitting the empire's most prestigious units. A stunning companion piece for the White Feather cavalry figures.
-

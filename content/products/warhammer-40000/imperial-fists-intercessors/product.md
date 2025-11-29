@@ -24,4 +24,3 @@ order_weight: 0
 ---
 
 [[Imperial Fists]] Intercessors carry the proud legacy of [[Rogal Dorn]] into the 41st Millennium, their bright yellow armor marking them as the sons of the VII Legion. These Primaris Marines combine the stubborn determination of their Chapter with the advanced wargear developed by [[Belisarius Cawl]], making them elite warriors capable of holding any position against overwhelming odds. In the tradition of their Primarch, Imperial Fists Intercessors never retreat, never surrender.
-

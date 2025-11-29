@@ -24,4 +24,3 @@ order_weight: 0
 ---
 
 The Redemptor Dreadnought is the newest and most powerful pattern of Space Marine Dreadnought, its advanced systems allowing fallen heroes to continue the fight with devastating firepower. The [[Black Templars]] field these mighty war machines in their eternal crusades, their black hulls adorned with devotional chains and purity seals that mark each Dreadnought as a sacred relic of the Chapter. Armed with macro plasma incinerators and onslaught gatling cannons, a Black Templars Redemptor wades into the enemy with the same zeal as its battle-brothers, crushing heretics beneath its armored fists.
-

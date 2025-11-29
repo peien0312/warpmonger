@@ -24,4 +24,3 @@ order_weight: 0
 ---
 
 The Contemptor-Osiron Dreadnought was unique to the [[Thousand Sons]], its arcane sarcophagus allowing the entombed warrior to continue wielding psychic powers even in death. Armed with a Gravis force blade that channels warp energy and a devastating autocannon, this war machine combines the Legion's sorcerous traditions with overwhelming firepower. The Osiron pattern was lost after the burning of Prospero.
-

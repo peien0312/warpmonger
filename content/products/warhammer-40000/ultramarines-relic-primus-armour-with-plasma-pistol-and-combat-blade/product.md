@@ -24,4 +24,3 @@ order_weight: 0
 ---
 
 This [[Ultramarines]] warrior wears ancient relic Primus armor, a treasure of the Chapter armory granted to warriors who have distinguished themselves through exceptional service. Armed with a plasma pistol and combat blade, he combines versatile firepower with close-quarters lethality. The plasma pistol's superheated rounds can burn through the heaviest armor, while his blade allows him to finish wounded foes in melee.
-

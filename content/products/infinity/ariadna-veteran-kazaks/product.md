@@ -24,4 +24,3 @@ order_weight: 0
 ---
 
 The Veteran Kazaks are battle-hardened soldiers of Ariadna's Cossack heritage, survivors of countless engagements who refuse to yield. Their experience and determination make them the backbone of many Ariadna forces. This 1/18 scale figure captures the rugged resilience and Eastern European military tradition of these legendary fighters.
-

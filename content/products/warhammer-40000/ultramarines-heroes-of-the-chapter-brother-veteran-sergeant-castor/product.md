@@ -24,4 +24,3 @@ order_weight: 0
 ---
 
 Veteran Sergeant Castor leads his squad with the experience and wisdom earned through countless campaigns in service to the [[Ultramarines]]. As a hero of the Chapter, his name is recorded in the annals of Ultramar alongside the greatest warriors of the XIII Legion. His leadership and martial skill have saved countless lives and won decisive victories for the Imperium.
-

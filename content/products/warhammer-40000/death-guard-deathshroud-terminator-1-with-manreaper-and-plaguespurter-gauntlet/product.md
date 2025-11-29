@@ -24,4 +24,3 @@ order_weight: 0
 ---
 
 The Deathshroud are the elite bodyguard of Mortarion, silent sentinels who have guarded the Daemon Primarch since the days of the Great Crusade. This [[Death Guard]] Terminator wields a massive manreaper — a plague-touched scythe that can cleave through power armor — and a plaguespurter gauntlet that vomits streams of corrosive filth. Clad in corrupted Cataphractii armor bloated with decay, the Deathshroud are among the most feared warriors in the traitor forces, unstoppable harbingers of Nurgle's endless rot.
-

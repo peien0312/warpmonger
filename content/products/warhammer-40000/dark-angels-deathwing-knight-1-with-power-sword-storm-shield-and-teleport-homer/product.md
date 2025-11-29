@@ -4,7 +4,7 @@ price: 67.99
 sku: 6927054402489
 in_stock: true
 images: ["editor_003.jpg", "editor_004.jpg", "editor_005.jpg", "editor_006.jpg", "editor_007.jpg", "editor_008.jpg", "editor_009.jpg", "editor_010.jpg", "editor_011.jpg", "editor_012.jpg", "gallery_003.jpg", "gallery_004.jpg", "gallery_005.jpg", "gallery_006.jpg", "gallery_007.jpg", "gallery_008.jpg"]
-is_pre_order: false
+is_pre_order: true
 available_date: 2025-12-01
 is_on_sale: false
 sale_price: 0
@@ -24,4 +24,3 @@ order_weight: 0
 ---
 
 [[Deathwing]] Knights are the champions of the [[Dark Angels]]' First Company, ceremonial warriors entrusted with the Chapter's most sacred duties. This Knight carries a power sword and storm shield alongside a teleport homer, allowing his squad to call down reinforcements from orbit directly onto his position. Clad in bone-white Terminator armor adorned with the iconography of the Unforgiven, he stands ready to deliver judgment upon the enemies of the Emperor and hunt the Fallen wherever they hide.
-

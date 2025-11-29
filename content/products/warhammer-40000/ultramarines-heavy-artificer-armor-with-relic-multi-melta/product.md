@@ -24,4 +24,3 @@ order_weight: 0
 ---
 
 This [[Ultramarines]] warrior wears heavy artificer armor of exceptional quality and carries a relic multi-melta — an ancient weapon of devastating power capable of turning armored vehicles into molten slag. The combination of enhanced protection and anti-armor firepower makes this warrior a priority asset for engagements where enemy armor threatens the Chapter's advance.
-

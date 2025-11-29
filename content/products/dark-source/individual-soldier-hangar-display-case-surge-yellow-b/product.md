@@ -4,7 +4,7 @@ price: 9.99
 sku: 6927054402106
 in_stock: true
 images: ["editor_021.jpg", "editor_022.jpg", "gallery_017.jpg", "gallery_018.jpg"]
-is_pre_order: false
+is_pre_order: true
 available_date: 2025-10-01
 is_on_sale: false
 sale_price: 0
@@ -24,4 +24,3 @@ order_weight: 0
 ---
 
 The Surge Yellow B display case provides a bright, energetic backdrop for your 1/25 scale figures. The hangar-style design creates an immersive military aesthetic while protecting your collection. Part of the Individual Soldier display case series for dynamic figure presentation.
-

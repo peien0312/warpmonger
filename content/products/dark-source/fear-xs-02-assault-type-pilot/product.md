@@ -24,4 +24,3 @@ order_weight: 0
 ---
 
 This pilot operates the FEAR XS-02 Assault mech, trained for aggressive direct combat and breakthrough operations. Their reinforced suit provides protection during the intense maneuvers of assault mech warfare. This 1/25 scale figure complements the XS-02 Assault mech perfectly.
-

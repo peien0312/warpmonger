@@ -24,4 +24,3 @@ order_weight: 0
 ---
 
 Wagzuk is a Comms Boy among the [[Orks|Ork]] Kommandos, responsible for keeping the sneaky gits in contact with the rest of the warband. His ramshackle communications equipment somehow works despite being held together with bits of wire and optimism, a testament to the Orks' latent psychic abilities. As part of the Kommandos, Wagzuk has learned the un-Orky art of being quiet — at least until the shooting starts, when he howls with the rest of his mates.
-

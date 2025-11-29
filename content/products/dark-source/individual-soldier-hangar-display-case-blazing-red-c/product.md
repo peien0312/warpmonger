@@ -4,7 +4,7 @@ price: 9.99
 sku: 6927054402144
 in_stock: true
 images: ["editor_029.jpg", "editor_030.jpg", "gallery_025.jpg", "gallery_026.jpg"]
-is_pre_order: false
+is_pre_order: true
 available_date: 2025-10-01
 is_on_sale: false
 sale_price: 0
@@ -24,4 +24,3 @@ order_weight: 0
 ---
 
 The Blazing Red C display case offers a bold red backdrop for your 1/25 scale figures. The hangar-style design creates an immersive military aesthetic while protecting your collection. Part of the Individual Soldier display case series, this vibrant color makes your figures stand out.
-

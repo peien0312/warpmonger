@@ -4,7 +4,7 @@ price: 54.99
 sku: 6973130379947
 in_stock: true
 images: ["editor_15.jpg", "editor_16.jpg", "editor_17.jpg", "editor_18.jpg", "editor_19.jpg", "editor_20.jpg", "gallery_15.jpg", "gallery_16.jpg", "gallery_17.jpg", "gallery_18.jpg", "gallery_19.jpg", "gallery_20.jpg"]
-is_pre_order: false
+is_pre_order: true
 available_date: 2025-11-01
 is_on_sale: false
 sale_price: 0
@@ -24,4 +24,3 @@ order_weight: 0
 ---
 
 This [[Ultramarines]] Terminator carries an assault cannon, a rotary weapon capable of unleashing a storm of shells that can shred infantry and light vehicles alike. The assault cannon transforms the Terminator into a walking fire support platform, providing covering fire for his squad or laying down suppressive barrages during advances. In the cramped confines of space hulks and fortress corridors, such firepower proves devastating.
-

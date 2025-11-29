@@ -28,7 +28,6 @@ product_files = glob.glob('content/products/**/product.md', recursive=True)
 print(f"Found {len(product_files)} product.md files\n")
 
 updated_count = 0
-out_of_stock_count = 0
 pre_order_true_count = 0
 pre_order_false_count = 0
 matched_products = []
@@ -40,7 +39,6 @@ for filepath in product_files:
     # Extract the id field - now properly handles empty id
     id_match = re.search(r'^id:\s*(.*)$', content, re.MULTILINE)
     if not id_match:
-        print(f"Warning: No id field in {filepath}")
         continue
 
     product_id = id_match.group(1).strip()
@@ -48,13 +46,15 @@ for filepath in product_files:
         # Empty id field - skip this product
         continue
 
-    # Determine new values
-    in_csv = product_id in csv_products
-    new_in_stock = in_csv  # True if in CSV, False if not
-    new_is_pre_order = csv_products.get(product_id, False)  # True if contains 預購, False otherwise
+    # Only update products that are in the CSV, skip others
+    if product_id not in csv_products:
+        continue
 
-    if in_csv:
-        matched_products.append(product_id)
+    matched_products.append(product_id)
+
+    # Determine new values
+    new_in_stock = True  # Products in CSV are in stock
+    new_is_pre_order = csv_products[product_id]  # True if contains 預購, False otherwise
 
     # Update in_stock field
     new_content = re.sub(
@@ -77,20 +77,17 @@ for filepath in product_files:
             f.write(new_content)
         updated_count += 1
 
-        if not new_in_stock:
-            out_of_stock_count += 1
         if new_is_pre_order:
             pre_order_true_count += 1
             print(f"Set PRE-ORDER: {product_id}")
-        elif in_csv:
+        else:
             pre_order_false_count += 1
 
 print(f"\n=== Summary ===")
 print(f"Total products updated: {updated_count}")
-print(f"Products set to out of stock (not in CSV): {out_of_stock_count}")
 print(f"Products set to is_pre_order=true: {pre_order_true_count}")
-print(f"Products set to is_pre_order=false (in CSV but not pre-order): {pre_order_false_count}")
-print(f"\nMatched products from CSV: {len(matched_products)}")
+print(f"Products set to is_pre_order=false: {pre_order_false_count}")
+print(f"Matched products from CSV: {len(matched_products)}")
 
 # Check for pre-order products in CSV that weren't found in product files
 csv_preorder_ids = [pid for pid, is_preorder in csv_products.items() if is_preorder]

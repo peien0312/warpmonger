@@ -24,4 +24,3 @@ order_weight: 0
 ---
 
 [[Mortarion]], the Death Lord, stands as one of the most terrifying beings in the galaxy — a Daemon Primarch transformed by ten thousand years of devotion to Nurgle. He wields his ancient weapons: Silence, a massive scythe that can reap entire squads with a single sweep, and the Lantern, a sidearm whose beams of energy burn through armor and soul alike. This imposing figure captures the [[Death Guard]]'s master in all his terrible glory, wings of decay spread wide as he descends upon the enemies of the Plague God.
-

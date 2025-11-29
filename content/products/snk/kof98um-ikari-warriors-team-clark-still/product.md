@@ -24,4 +24,3 @@ order_weight: 0
 ---
 
 Clark Still of the Ikari Warriors Team brings his wrestling expertise to the KOF 98UM lineup. This 1/18 scale figure captures the sunglasses-wearing mercenary's imposing presence. Known for his devastating suplex techniques, Clark comes with accessories to display his powerful grappling style.
-

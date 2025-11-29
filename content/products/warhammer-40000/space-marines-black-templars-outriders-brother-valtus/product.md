@@ -24,4 +24,3 @@ order_weight: 0
 ---
 
 Brother Valtus rides to war as an Outrider of the [[Black Templars]], racing ahead of his brothers' eternal crusade on his armored attack bike. Armed with bolt pistol and chainsword, he hunts down fleeing enemies and scouts ahead for targets worthy of the Chapter's righteous fury. The Black Templars' Outriders combine the zeal of their Chapter with the speed and mobility of their machines, ensuring no heretic can escape the Emperor's judgment.
-

@@ -24,4 +24,3 @@ order_weight: 0
 ---
 
 Belial is the Grand Master of the [[Deathwing]], supreme commander of the [[Dark Angels]]' elite First Company and one of the Inner Circle's most trusted members. Armed with the legendary Sword of Silence and a storm bolter, he leads his bone-white warriors in the eternal hunt for the Fallen. Belial has earned his position through countless battles and successful captures of traitors who escaped the destruction of Caliban. As Grand Master, he knows many of the Chapter's darkest secrets and will stop at nothing to protect them.
-

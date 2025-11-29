@@ -24,4 +24,3 @@ order_weight: 0
 ---
 
 Lucas serves as an assault specialist in the UNSC military forces, leading offensive operations in hostile environments. His aggressive combat training and heavy weapons loadout make him ideal for breakthrough missions. This 1/25 scale figure showcases the futuristic combat armor and equipment of UNSC frontline soldiers.
-

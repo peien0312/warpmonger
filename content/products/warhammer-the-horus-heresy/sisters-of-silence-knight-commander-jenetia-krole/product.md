@@ -24,4 +24,3 @@ order_weight: 0
 ---
 
 Knight-Commander Jenetia Krole led the [[Sisters of Silence]] during the [[Horus Heresy]], her null aura so powerful that even Primarchs found her presence deeply unsettling. As one of the Talons of the Emperor, she fought alongside [[Constantin Valdor]] and the [[Legio Custodes]] in defense of Terra. Her blade, the Sword of Oblivion, was death to any psyker it touched.
-

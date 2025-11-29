@@ -24,4 +24,3 @@ order_weight: 0
 ---
 
 This [[Sisters of Silence]] Vigilator of the White Falcons carries the iconic weapons of her order: execution blade and bolter. Born as a psychic blank, she exists as a void in the Warp, her presence causing terror to psykers and daemons alike. During the Siege of Terra, the Sisters fought alongside the [[Legio Custodes]] against the traitor hordes.
-

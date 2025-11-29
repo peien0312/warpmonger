@@ -24,4 +24,3 @@ order_weight: 0
 ---
 
 The Sergeant leads his Cataphractii Terminator squad with the precision expected of the [[Ultramarines]] Legion. His power sword is a symbol of rank and a deadly weapon, while his Cataphractii armor provides unmatched protection against enemy fire. The XIII Legion's Terminator units were instrumental in the defense of Ultramar during the [[Horus Heresy]].
-

@@ -24,4 +24,3 @@ order_weight: 0
 ---
 
 The Vigilator Mistress commands the White Falcons Cadre, an elite hunting pack of the [[Sisters of Silence]]. Her authority is conveyed through the silent battle-cant of the Sisterhood, directing her warriors with gestures perfected over centuries. As a psychic blank, her very existence is anathema to the denizens of the Warp.
-

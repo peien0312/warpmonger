@@ -24,4 +24,3 @@ order_weight: 0
 ---
 
 Bearing the sacred encarmine sword, this [[Sanguinary Guard]] stands ready to defend the honor of the [[Blood Angels]] Chapter. The golden warriors of the Sanguinary Guard are hand-picked from among the Chapter's finest, their selection marked by solemn ritual and the blessing of the Sanguinary Priests. In battle, they form an impenetrable wall around their charges, their power swords carving through any who would threaten those they protect — a living embodiment of [[Sanguinius]]'s noble legacy.
-

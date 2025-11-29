@@ -24,4 +24,3 @@ order_weight: 0
 ---
 
 Leona Heidern, the elite mercenary with the Orochi bloodline, represents the Ikari Warriors Team in this 1/18 scale figure. Her military attire and stoic expression capture the deadly soldier who fights alongside Ralf and Clark. Includes effect parts for her signature slashing attacks and explosive moves.
-

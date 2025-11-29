@@ -24,4 +24,3 @@ order_weight: 0
 ---
 
 Huai-En Xu represents the Zongshi Tomb faction in the Dark Source Jianghu universe. This 1/18 scale figure showcases intricate costume details and comes with authentic martial arts weapons. His design reflects the mysterious traditions of his ancient sect within the Jianghu martial arts world.
-

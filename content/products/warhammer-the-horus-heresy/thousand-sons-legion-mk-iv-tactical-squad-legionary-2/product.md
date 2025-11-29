@@ -24,4 +24,3 @@ order_weight: 0
 ---
 
 This [[Thousand Sons]] legionary wears Mark IV armor decorated with the arcane symbols of his Legion. The XV Legion pursued knowledge above all else, and even their line troops were trained in both warfare and the mysteries of the Warp. Such warriors formed the backbone of [[Magnus the Red|Magnus's]] expeditionary forces during the Great Crusade.
-

@@ -24,4 +24,3 @@ order_weight: 0
 ---
 
 This [[Black Legion]] Chosen carries a plasma pistol and power axe, a combination that allows him to engage armored targets at range before closing for the killing blow. The volatile plasma pistol can burn through the thickest armor with superheated energy, while his power axe cleaves through shields and ceramite alike. The Chosen serve as the elite strike force of Chaos warbands, deployed where the fighting is thickest and victory most crucial to Abaddon's endless war.
-

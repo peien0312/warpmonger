@@ -24,4 +24,3 @@ order_weight: 0
 ---
 
 This versatile pilot operates the FEAR XS-03 Tactical mech, trained for multi-role combat operations requiring adaptability. Their flexible suit design reflects the tactical mech's mission-adaptable nature. This 1/25 scale figure pairs with the XS-03 Tactical mech for complete collection displays.
-

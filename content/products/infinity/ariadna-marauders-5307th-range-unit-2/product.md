@@ -24,4 +24,3 @@ order_weight: 0
 ---
 
 This second Marauder variant brings an alternate weapons loadout for tactical flexibility in your 5307th Ranger Unit. The Marauders' expertise in guerrilla warfare and irregular operations makes them invaluable in any Ariadna force. Collect multiple variants to create a complete ranger fireteam for your tabletop battles.
-

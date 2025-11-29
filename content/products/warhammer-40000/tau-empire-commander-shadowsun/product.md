@@ -24,4 +24,3 @@ order_weight: 0
 ---
 
 Commander Shadowsun is the supreme commander of the [[T'au Empire|T'au]] Fire Caste's military forces, a tactical genius who has led numerous successful campaigns against the Imperium. Piloting an advanced XV22 Stalker Battlesuit equipped with stealth technology, she strikes from the shadows with fusion blasters before vanishing from sight. Shadowsun is a proponent of the Mont'ka — the killing blow — preferring swift, decisive strikes that decapitate enemy leadership and shatter morale.
-

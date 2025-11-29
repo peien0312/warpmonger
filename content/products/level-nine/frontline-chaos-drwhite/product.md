@@ -24,4 +24,3 @@ order_weight: 0
 ---
 
 Dr. White brings a distinctive presence to the Frontline Chaos collection. This 1/12 scale figure showcases Level Nine's attention to detail with intricate costume elements and a unique character design. Fully articulated with multiple accessories, Dr. White is perfect for both collectors and photographers.
-

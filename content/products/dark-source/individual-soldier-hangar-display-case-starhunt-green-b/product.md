@@ -4,7 +4,7 @@ price: 9.99
 sku: 6927054402229
 in_stock: true
 images: ["editor_045.jpg", "editor_046.jpg", "gallery_041.jpg", "gallery_042.jpg"]
-is_pre_order: false
+is_pre_order: true
 available_date: 2025-10-01
 is_on_sale: false
 sale_price: 0
@@ -24,4 +24,3 @@ order_weight: 0
 ---
 
 The Starhunt Green B display case offers a military-inspired green backdrop for your 1/25 scale figures. The hangar-style design creates an immersive aesthetic perfect for military collections. Part of the Individual Soldier display case series for organized presentation.
-

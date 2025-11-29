@@ -16,10 +16,10 @@ series: Warhammer 40,000
 scale: Scale：1/18
 size: 20*18.5*7
 weight: 0.35kg
-zhtw_price: 329
-cost: 260
-final_price: 1620
-cost_tw: 1110
+zhtw_price: 329.0
+cost: 260.0
+final_price: 1620.0
+cost_tw: 1110.0
 order_weight: 0
 ---
 

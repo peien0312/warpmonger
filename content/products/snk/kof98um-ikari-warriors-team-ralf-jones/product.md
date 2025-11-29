@@ -24,4 +24,3 @@ order_weight: 0
 ---
 
 Ralf Jones leads the Ikari Warriors Team in this 1/18 scale KOF 98UM figure. The explosive mercenary commander is known for his devastating punch attacks and military precision. His iconic bandana and muscular build are faithfully recreated, complete with effect parts for his powerful striking techniques.
-

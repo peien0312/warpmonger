@@ -24,4 +24,3 @@ order_weight: 0
 ---
 
 A tactical legionary of the [[Thousand Sons]] clad in Mark III Iron Armor, the heavy plate favored for sieges and tunnel fighting. Even common battle-brothers of the XV Legion possessed some degree of psychic ability, making them uniquely versatile warriors. His crimson armor bears the arcane symbols of Prospero, marking him as a soldier-scholar of [[Magnus the Red|Magnus's]] Legion.
-

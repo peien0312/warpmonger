@@ -24,4 +24,3 @@ order_weight: 0
 ---
 
 A warrior of the White Falcons Cadre, this [[Sisters of Silence|Sister of Silence]] brings the Emperor's judgement to rogue psykers and daemonic entities. Her null aura creates a bubble of reality that the Warp cannot touch, making her invaluable during the daemon-haunted battles of the [[Horus Heresy]]. Where the Sisters walk, sorcery fails.
-

@@ -24,4 +24,3 @@ order_weight: 0
 ---
 
 The Chosen Champion leads his squad of elite warriors with the authority earned through ten thousand years of treachery and war. Armed with a bolter and crackling power maul, he directs the fury of the [[Black Legion]] against the armies of the Imperium that cast them out. Chosen are veterans who have earned the favor of the Chaos Gods through countless victories, their armor warped by warp energies and decorated with the skulls of fallen enemies. This champion stands ready to crush all who oppose the will of Abaddon the Despoiler.
-

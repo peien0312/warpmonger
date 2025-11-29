@@ -24,4 +24,3 @@ order_weight: 0
 ---
 
 The Monstruckers are eccentric engineers and mechanics who specialize in repairing and operating the heavy equipment of the Human Sphere's various factions. This male variant brings essential support capabilities to NA2 mercenary forces. The 1/18 scale figure captures the colorful, personality-rich aesthetic of these invaluable battlefield technicians.
-

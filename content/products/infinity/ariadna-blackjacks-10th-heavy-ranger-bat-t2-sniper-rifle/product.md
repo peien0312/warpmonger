@@ -24,4 +24,3 @@ order_weight: 0
 ---
 
 This T2 Sniper Rifle variant of the Blackjack brings devastating long-range firepower to Ariadna forces. The T2 ammunition creates devastating wounds, making this heavy TAG a terrifying presence on any battlefield. This 1/18 scale figure showcases the rugged, industrial design philosophy of Ariadna's walker technology.
-

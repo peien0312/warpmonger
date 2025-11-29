@@ -24,4 +24,3 @@ order_weight: 0
 ---
 
 This [[Ultramarines]] Captain wields a master-crafted heavy bolt rifle, a weapon of exceptional quality that delivers death at extended range. Armed thusly, he can lead his warriors from a commanding position, identifying and eliminating priority targets while directing his company's advance. The Ultramarines' emphasis on ranged firepower and tactical flexibility is embodied in this skilled marksman commander.
-

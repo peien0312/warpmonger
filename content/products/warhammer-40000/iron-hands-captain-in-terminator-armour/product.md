@@ -24,4 +24,3 @@ order_weight: 0
 ---
 
 This [[Iron Hands]] Captain wears the formidable Terminator armor that allows him to stride through the heaviest fire without flinching. The Iron Hands believe flesh is weak, and their officers often bear extensive bionic augmentation that enhances their already considerable combat abilities. As a Captain, he commands his company with cold logic and machine-like precision, purging weakness wherever he finds it — whether in the enemy or in his own warriors.
-

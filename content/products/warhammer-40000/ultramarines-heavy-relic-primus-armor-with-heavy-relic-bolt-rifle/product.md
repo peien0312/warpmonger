@@ -24,4 +24,3 @@ order_weight: 0
 ---
 
 Clad in heavy relic Primus armor and armed with a relic bolt rifle of exceptional craftsmanship, this [[Ultramarines]] warrior represents the pinnacle of Space Marine armament. Both his armor and weapon are ancient treasures of the Chapter armory, granted only to warriors who have proven themselves worthy through decades of exemplary service. Each shot from his relic bolt rifle carries the weight of centuries of tradition.
-

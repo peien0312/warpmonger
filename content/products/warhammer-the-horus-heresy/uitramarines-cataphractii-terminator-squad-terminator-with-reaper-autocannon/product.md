@@ -1,5 +1,5 @@
 ---
-title: Ultramarines Cataphractii Terminator Squad Terminator with Reaper Autocannon
+title: Uitramarines Cataphractii Terminator Squad Terminator with Reaper Autocannon
 price: 46.99
 sku: 6973130377486
 in_stock: true
@@ -16,12 +16,11 @@ series: Warhammer "The Horus Heresy"
 scale: Scale：1/18
 size: 20*18.5*7
 weight: 0.35kg
-zhtw_price: 198
-cost: 155
-final_price: 1110
-cost_tw: 662
+zhtw_price: 198.0
+cost: 155.0
+final_price: 1110.0
+cost_tw: 662.0
 order_weight: 0
 ---
 
 This [[Ultramarines]] Cataphractii Terminator provides heavy fire support with a reaper autocannon, capable of shredding infantry and light vehicles alike. The Cataphractii pattern's bulk easily accommodates such heavy weapons, allowing the warrior to lay down sustained fire while advancing. Such firepower was invaluable during the brutal battles of the [[Horus Heresy]].
-

@@ -24,4 +24,3 @@ order_weight: 0
 ---
 
 The Marauders of the 5307th Ranger Unit are USARF's elite special operations forces, combining Old West frontier spirit with cutting-edge combat training. These versatile operators excel in unconventional warfare and deep penetration missions. This 1/18 scale figure features the distinctive American-influenced gear of Ariadna's ranger units.
-

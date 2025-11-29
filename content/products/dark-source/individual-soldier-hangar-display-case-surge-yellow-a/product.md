@@ -4,7 +4,7 @@ price: 9.99
 sku: 6927054402090
 in_stock: true
 images: ["editor_019.jpg", "editor_020.jpg", "gallery_015.jpg", "gallery_016.jpg"]
-is_pre_order: false
+is_pre_order: true
 available_date: 2025-10-01
 is_on_sale: false
 sale_price: 0
@@ -24,4 +24,3 @@ order_weight: 0
 ---
 
 The Surge Yellow A display case provides a bright, energetic backdrop for your 1/25 scale figures. The hangar-style design creates an immersive military aesthetic while making your collection pop. Part of the Individual Soldier display case series for vibrant figure presentation.
-

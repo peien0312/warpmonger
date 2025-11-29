@@ -24,4 +24,3 @@ order_weight: 0
 ---
 
 Lieutenant Titus is a legendary hero of the [[Ultramarines]], a warrior whose exploits have been immortalized in the Chapter's records and beyond. This Collector's Edition captures Titus in exquisite detail, showcasing the battle-worn veteran who has faced horrors that would break lesser warriors. His return to active duty as a Primaris Marine marks a new chapter in his long and distinguished service to the XIII Legion.
-

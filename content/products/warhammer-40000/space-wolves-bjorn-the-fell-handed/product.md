@@ -24,4 +24,3 @@ order_weight: 0
 ---
 
 Bjorn the Fell-Handed is a living legend, the oldest warrior in the Imperium and one of the last souls to have fought alongside the Primarchs. Interred within a Dreadnought chassis for ten thousand years, this [[Space Wolves]] hero still takes to the battlefield when the Chapter faces its greatest threats. His claw has rended countless foes, and his wisdom guides the Great Wolf in matters of ancient lore. Bjorn remembers the Emperor as a living man, and his tales of the Great Crusade are sacred to his brothers.
-

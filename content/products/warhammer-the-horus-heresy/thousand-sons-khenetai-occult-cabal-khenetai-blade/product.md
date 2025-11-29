@@ -24,4 +24,3 @@ order_weight: 0
 ---
 
 A [[Khenetai]] blade-warrior of the [[Thousand Sons]], trained in the ancient sword-arts of Prospero and enhanced by psychic precognition. These elite warriors move with unnatural grace, their blades guided by visions of attacks before they land. Each Khenetai is both a deadly swordsman and a powerful psyker, embodying the Legion's fusion of martial and arcane mastery.
-

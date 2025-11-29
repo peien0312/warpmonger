@@ -24,4 +24,3 @@ order_weight: 0
 ---
 
 An [[Ultramarines]] Chaplain in Terminator armor is a fearsome presence on the battlefield, combining spiritual authority with near-invulnerable protection. Armed with a crozius arcanum and storm bolter, he leads his brothers in sacred litanies while crushing enemies beneath the weight of his armored strikes. Chaplains minister to the spiritual needs of their battle-brothers, inspiring them to feats of heroism while hunting for any sign of corruption or doubt.
-

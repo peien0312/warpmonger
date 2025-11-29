@@ -24,4 +24,3 @@ order_weight: 0
 ---
 
 Armed with a brutal chainfist capable of tearing through armor and bulkheads, this [[Sekhmet]] Terminator is equipped for heavy assault operations. The chainfist's whirring adamantium teeth can breach any fortification, while the warrior's psychic abilities allow him to anticipate and counter enemy defenses. The [[Thousand Sons]] deployed such warriors when brute force was required.
-

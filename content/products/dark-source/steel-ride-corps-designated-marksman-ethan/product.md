@@ -24,4 +24,3 @@ order_weight: 0
 ---
 
 Ethan is the designated marksman of the Steel Ride Corps, providing precision fire support during vehicular operations. His ability to engage targets at range while on the move makes him invaluable to mechanized assault teams. This 1/25 scale figure features specialized marksman equipment and optics.
-

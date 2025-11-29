@@ -24,4 +24,3 @@ order_weight: 0
 ---
 
 Clad in relic Secundus armor and armed with an artificer bolt rifle, chainsword, and bolt pistol, this [[Ultramarines]] warrior is prepared for any combat situation. The artificer bolt rifle provides enhanced range and stopping power, while his sidearms ensure he remains deadly at any distance. This combination of ancient armor and versatile armament represents the flexible warfare doctrine that has made the Ultramarines the standard for all Space Marines.
-

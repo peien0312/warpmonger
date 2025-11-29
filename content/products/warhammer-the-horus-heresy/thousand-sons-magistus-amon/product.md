@@ -24,4 +24,3 @@ order_weight: 0
 ---
 
 [[Amon|Magistus Amon]] served as equerry to [[Magnus the Red]] himself, one of the most trusted captains of the [[Thousand Sons]] Legion. A member of the elite Scarab Occult and master of the hidden arts, his psychic abilities and tactical acumen made him invaluable to his Primarch. His ornate armor bears the ancient symbols of Prospero's cult of sorcerers.
-

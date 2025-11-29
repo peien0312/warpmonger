@@ -24,4 +24,3 @@ order_weight: 0
 ---
 
 A [[Varagyr]] terminator of the [[Space Wolves]], one of the elite warriors sworn to protect the Wolf King himself. Clad in Cataphractii plate decorated with wolf totems and kill-markings, this warrior has proven his worth in hundreds of engagements. The Varagyr fight with the savage fury of Fenris, their frost weapons carving through armor and flesh with equal ease.
-

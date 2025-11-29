@@ -24,4 +24,3 @@ order_weight: 0
 ---
 
 This Collector's Edition presents Brother Chairon, an [[Ultramarines]] warrior rendered in exceptional detail. Chairon represents the countless heroes who serve in the ranks of the XIII Legion, warriors who uphold the legacy of [[Roboute Guilliman]] through their courage and discipline. The premium presentation befits a centerpiece of any Warhammer 40,000 collection.
-

@@ -24,4 +24,3 @@ order_weight: 0
 ---
 
 Lieutenant Erastus serves as a vital link in the [[Ultramarines]] chain of command, relaying orders from Captains to squad sergeants while leading from the front. As a Primaris Marine, he represents the new generation of Ultramarines warriors, combining the traditions of the XIII Legion with the enhanced capabilities granted by [[Belisarius Cawl]]'s innovations. His tactical acumen has earned him a place among the heroes of the Chapter.
-

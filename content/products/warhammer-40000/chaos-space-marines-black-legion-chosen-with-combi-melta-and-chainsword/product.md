@@ -24,4 +24,3 @@ order_weight: 0
 ---
 
 Armed with a combi-melta and chainsword, this [[Black Legion]] Chosen is equipped for hunting armored targets. The combi-melta's fusion beam can slag through tank armor at close range, while his chainsword makes short work of any infantry foolish enough to engage him. The Chosen of the Black Legion are drawn from traitors of every heritage — former Sons of Horus, renegade Chapter marines, and warriors from across the Traitor Legions, all united in their hatred of the Imperium they once served.
-

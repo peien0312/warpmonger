@@ -24,4 +24,3 @@ order_weight: 0
 ---
 
 A [[Sekhmet]] Terminator of the [[Thousand Sons]], armed with a volkite charger and power fist. The Sekhmet, also known as the Scarab Occult, combined devastating psychic powers with Terminator armor's protection. This warrior wields weapons that channel both advanced Imperial technology and warp-born energies, making him a terror on any battlefield.
-

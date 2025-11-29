@@ -24,4 +24,3 @@ order_weight: 0
 ---
 
 This [[Sekhmet]] carries a combi-melta for destroying armored targets and an Achea force weapon for close combat. The melta's fusion beam and the psychic energies channeled through the force weapon make this [[Thousand Sons]] Terminator equally deadly against vehicles and infantry. Few enemies can withstand such versatile firepower backed by warp-enhanced strength.
-

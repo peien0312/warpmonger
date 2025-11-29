@@ -24,4 +24,3 @@ order_weight: 0
 ---
 
 The Nemesis Dreadknight is the [[Grey Knights]]' answer to the Greater Daemons of Chaos — a towering battlesuit piloted by a single Grey Knight that can match the raw power of daemons in close combat. This set includes both the massive Dreadknight and its pilot figure, showcasing the devastating combination of psychic might and mechanical power. Armed with nemesis weapons and heavy firepower, the Dreadknight strides into battle against the most dangerous entities in the galaxy.
-

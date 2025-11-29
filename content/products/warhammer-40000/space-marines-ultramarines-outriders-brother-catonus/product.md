@@ -24,4 +24,3 @@ order_weight: 0
 ---
 
 Brother Catonus rides to war as an Outrider of the [[Ultramarines]], scouting ahead of his battle-brothers on his armored attack bike. Armed with bolt pistol and chainsword, he embodies the tactical flexibility that defines the sons of [[Roboute Guilliman]], striking at enemy flanks and pursuing fleeing foes. The Outriders of Ultramar serve as the eyes of their commanders, identifying threats and opportunities before the main force engages.
-

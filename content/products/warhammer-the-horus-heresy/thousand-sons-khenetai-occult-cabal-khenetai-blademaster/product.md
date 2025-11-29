@@ -24,4 +24,3 @@ order_weight: 0
 ---
 
 The Blademaster leads the [[Khenetai]] Occult Cabal, elite swordsmen of the [[Thousand Sons]] whose psychic abilities allow them to anticipate enemy attacks with supernatural precision. His force-imbued blade is an extension of his will, cutting through armor and flesh with equal ease. The Khenetai were among the deadliest close-combat warriors of the Great Crusade era.
-

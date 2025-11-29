@@ -24,4 +24,3 @@ order_weight: 0
 ---
 
 Bourbon from the Frontline Chaos series brings tactical elegance to your collection. This 1/12 scale figure features highly detailed sculpting, multiple points of articulation, and premium paint applications. Part of Level Nine's acclaimed Frontline Chaos line, Bourbon comes with character-specific accessories and weapons for dynamic posing options.
-

@@ -24,4 +24,3 @@ order_weight: 0
 ---
 
 Aiden serves as a breacher in UNSC assault teams, specializing in close-quarters combat and door-kicking operations. His training in explosive entry and room clearing makes him invaluable in urban warfare. This 1/25 scale figure showcases the heavy weapons and protective gear of UNSC breach teams.
-

@@ -24,4 +24,3 @@ order_weight: 0
 ---
 
 Primaris Ancient Posca carries the sacred banner of the [[Ultramarines]], a rallying point for his brothers and a symbol of the Chapter's millennia of glorious service. The position of Ancient is one of the highest honors a Space Marine can receive, entrusted only to warriors of unquestionable valor. Where Posca's banner flies, the Ultramarines fight with renewed vigor, knowing they carry the weight of history into battle.
-

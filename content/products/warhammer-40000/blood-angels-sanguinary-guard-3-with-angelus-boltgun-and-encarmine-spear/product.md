@@ -24,4 +24,3 @@ order_weight: 0
 ---
 
 This [[Sanguinary Guard]] warrior wields the traditional armaments of his ancient brotherhood — an encarmine spear crackling with power field energy and an angelus boltgun integrated into his vambrace. The golden artificer armor worn by the Sanguinary Guard dates back to the time of [[Sanguinius]], each suit a sacred relic maintained across ten thousand years. When the [[Blood Angels]] go to war, the Sanguinary Guard descend upon the enemy like avenging angels, their spears reaping a terrible toll among the foe.
-

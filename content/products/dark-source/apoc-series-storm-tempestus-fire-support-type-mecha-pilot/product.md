@@ -4,7 +4,7 @@ price: 17.99
 sku: 6927054401680
 in_stock: true
 images: ["editor_1.jpg", "editor_2.jpg", "editor_3.jpg", "editor_4.jpg", "editor_5.jpg", "editor_6.jpg", "editor_7.jpg", "editor_8.jpg", "gallery_1.jpg", "gallery_2.jpg", "gallery_3.jpg", "gallery_4.jpg", "gallery_5.jpg", "gallery_6.jpg"]
-is_pre_order: false
+is_pre_order: true
 available_date: 2025-10-01
 is_on_sale: false
 sale_price: 0
@@ -24,4 +24,3 @@ order_weight: 0
 ---
 
 This pilot figure represents the elite operator of the Storm Tempestus fire support mech, trained to coordinate devastating artillery barrages while maintaining battlefield awareness. Their specialized flight suit is designed for extended combat operations in the mech cockpit. This 1/25 scale figure pairs perfectly with the Tempestus mech.
-

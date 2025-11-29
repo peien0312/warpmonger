@@ -24,4 +24,3 @@ order_weight: 0
 ---
 
 [[Ultramarines]] Intercessors form the core of the Chapter's battle lines, Primaris Marines who embody the tactical discipline and martial excellence that has made the XIII Legion the most influential in the Imperium. Armed with bolt rifles developed by [[Belisarius Cawl]], they deliver precise, overwhelming firepower while advancing with the coordinated precision outlined in the Codex Astartes. These warriors are the standard by which all others are measured.
-

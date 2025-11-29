@@ -24,4 +24,3 @@ order_weight: 0
 ---
 
 [[Roboute Guilliman]], Primarch of the [[Ultramarines]], has returned to lead humanity in its darkest hour. After ten thousand years in stasis, the Avenging Son was resurrected through the combined efforts of [[Belisarius Cawl]] and the Ynnari to find the Imperium beset on all sides. Now he leads the [[Indomitus Crusade]], pushing back the darkness with the same strategic brilliance and unwavering determination that made him the greatest administrator among the Primarchs.
-

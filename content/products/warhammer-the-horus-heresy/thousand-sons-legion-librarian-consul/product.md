@@ -24,4 +24,3 @@ order_weight: 0
 ---
 
 Among the [[Thousand Sons]], the rank of Librarian Consul carried particular weight, for every battle-brother possessed psychic ability. This officer's powers far exceeded those of his brothers, his mind honed to channel devastating warp energies against the enemies of [[Magnus the Red|Magnus]]. His force staff crackles with barely-contained psychic potential.
-

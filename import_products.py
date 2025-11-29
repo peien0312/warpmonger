@@ -240,7 +240,11 @@ def import_from_csv(csv_path='products.csv', default_category='Warhammer 40,000'
                     product_data['is_on_sale'] = existing_product.get('is_on_sale', False)
                     product_data['sale_price'] = existing_product.get('sale_price', 0)
                     product_data['is_new_arrival'] = existing_product.get('is_new_arrival', False)
-                    product_data['order_weight'] = existing_product.get('order_weight', 0)  # Preserve order_weight
+                    product_data['order_weight'] = existing_product.get('order_weight', 0)
+                    # Preserve is_pre_order and available_date if CSV doesn't specify
+                    if not is_preorder:
+                        product_data['is_pre_order'] = existing_product.get('is_pre_order', False)
+                        product_data['available_date'] = existing_product.get('available_date', '')
 
                 # Save product
                 save_product(category, slug, product_data)

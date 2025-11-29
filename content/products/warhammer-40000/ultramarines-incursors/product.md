@@ -24,4 +24,3 @@ order_weight: 0
 ---
 
 [[Ultramarines]] Incursors are Primaris Marines specialized in reconnaissance and infiltration, deploying ahead of the main force to gather intelligence and eliminate priority targets. Equipped with occulus bolt carbines and haywire mines, they strike from concealment to disrupt enemy operations. This squad set captures the tactical flexibility that defines the sons of [[Roboute Guilliman]], warriors capable of operating independently deep behind enemy lines.
-

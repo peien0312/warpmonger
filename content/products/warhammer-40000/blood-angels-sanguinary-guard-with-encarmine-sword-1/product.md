@@ -24,4 +24,3 @@ order_weight: 0
 ---
 
 The encarmine sword is perhaps the most iconic weapon of the [[Sanguinary Guard]], a master-crafted power blade that channels the fighting style of [[Sanguinius]] himself. This warrior exemplifies the [[Blood Angels]]' dedication to close combat excellence, his golden armor gleaming as he descends from above to deliver swift death. The Sanguinary Guard are sworn to protect the Chapter's sacred bloodline and honor, a duty they fulfill with unmatched skill and devotion.
-

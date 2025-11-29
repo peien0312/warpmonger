@@ -24,4 +24,3 @@ order_weight: 0
 ---
 
 Elias is a skilled UNSC assault trooper trained for high-intensity combat operations in any environment. His proficiency with multiple weapon systems makes him adaptable to any tactical situation. This 1/25 scale figure captures the professional appearance and advanced gear of UNSC assault forces.
-

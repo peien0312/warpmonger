@@ -24,4 +24,3 @@ order_weight: 0
 ---
 
 [[Rogal Dorn]], Primarch of the [[Imperial Fists]] and Praetorian of Terra, stands as one of the most legendary figures in Imperial history. It was Dorn who fortified the Emperor's Palace against the traitor legions during the Horus Heresy, and who stood vigil over his wounded father in the aftermath. This figure captures the Primarch in his full martial glory, armed with the weapons that made him the terror of siege warfare and the bulwark of the Imperium during its darkest hour.
-

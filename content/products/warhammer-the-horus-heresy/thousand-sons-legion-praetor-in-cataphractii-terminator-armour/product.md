@@ -24,4 +24,3 @@ order_weight: 0
 ---
 
 A Praetor of the [[Thousand Sons]] encased in ancient Cataphractii Terminator armor, this warrior-sorcerer commands the Legion's elite forces. His psychic might is channeled through arcane weapons, combining the protection of Terminator plate with devastating warp powers. Few enemies survive an encounter with such a formidable commander.
-

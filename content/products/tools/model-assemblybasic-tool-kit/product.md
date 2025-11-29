@@ -24,4 +24,3 @@ order_weight: 0
 ---
 
 The essential starter kit for model enthusiasts, containing all the basic tools needed to assemble and customize your action figures. This compact set includes precision cutters, files, and other implements essential for clean assembly work. Perfect for beginners or as a travel kit for experienced collectors.
-

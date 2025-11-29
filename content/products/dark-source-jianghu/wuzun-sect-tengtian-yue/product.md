@@ -24,4 +24,3 @@ order_weight: 0
 ---
 
 Tengtian Yue represents the Wuzun Sect in the Dark Source Jianghu universe. This 1/18 scale figure captures the warrior's martial spirit with detailed costume design and authentic weapons. His presence adds depth to the faction dynamics of the Jianghu martial arts world.
-

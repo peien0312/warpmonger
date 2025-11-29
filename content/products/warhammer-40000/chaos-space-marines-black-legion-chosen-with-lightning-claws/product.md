@@ -24,4 +24,3 @@ order_weight: 0
 ---
 
 Lightning claws are among the most feared close combat weapons in the galaxy, their energy-sheathed talons capable of shredding through armor with terrifying speed. This [[Black Legion]] Chosen has dedicated himself to the art of close-quarters slaughter, his paired lightning claws allowing him to tear through multiple enemies in rapid succession. In the ten thousand years since the Heresy, the Black Legion has perfected the art of war, and this Chosen embodies their mastery of brutal, close-range annihilation.
-

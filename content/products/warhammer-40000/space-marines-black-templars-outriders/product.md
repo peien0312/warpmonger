@@ -4,7 +4,7 @@ price: 39.99
 sku: 6973130372856
 in_stock: true
 images: ["editor_001.jpg", "editor_002.jpg", "editor_003.jpg", "editor_004.jpg", "editor_005.jpg", "editor_006.jpg", "editor_007.jpg", "editor_008.jpg", "editor_009.jpg", "editor_010.jpg", "editor_011.jpg", "editor_012.jpg", "editor_013.jpg", "gallery_001.jpg", "gallery_002.jpg", "gallery_003.jpg", "gallery_004.jpg", "gallery_005.jpg", "gallery_006.jpg"]
-is_pre_order: false
+is_pre_order: true
 available_date: 2025-12-01
 is_on_sale: false
 sale_price: 0
@@ -24,4 +24,3 @@ order_weight: 0
 ---
 
 [[Black Templars]] Outriders race across the battlefield on their armored attack bikes, their black and white heraldry marking them as crusaders of the Emperor's eternal war. These Primaris Marines combine devastating speed with the Chapter's signature zealotry, running down enemies who attempt to flee and striking at vulnerable targets before the enemy can react. Each Outrider has sworn to never rest while heretics, mutants, and xenos still draw breath.
-

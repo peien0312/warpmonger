@@ -4,7 +4,7 @@ price: 9.99
 sku: 6927054402045
 in_stock: true
 images: ["editor_009.jpg", "editor_010.jpg", "gallery_005.jpg", "gallery_006.jpg"]
-is_pre_order: false
+is_pre_order: true
 available_date: 2025-10-01
 is_on_sale: false
 sale_price: 0
@@ -24,4 +24,3 @@ order_weight: 0
 ---
 
 The Armor White B display case provides a clean white backdrop for showcasing your 1/25 scale figures. The hangar-style design creates an immersive military aesthetic while protecting your collection. Part of the Individual Soldier display case series for professional figure presentation.
-

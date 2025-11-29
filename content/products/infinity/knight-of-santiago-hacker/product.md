@@ -24,4 +24,3 @@ order_weight: 0
 ---
 
 The Knight of Santiago Hacker combines the martial prowess of PanOceania's religious military orders with advanced cyberwarfare capabilities. These warrior-hackers can dominate both physical and digital battlefields with equal skill. This 1/18 scale figure showcases the unique fusion of crusader aesthetics and high-tech equipment that defines the Military Orders.
-

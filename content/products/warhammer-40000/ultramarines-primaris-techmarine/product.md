@@ -24,4 +24,3 @@ order_weight: 0
 ---
 
 The Primaris Techmarine serves dual masters — the [[Ultramarines]] Chapter and the Machine Cult of Mars. Equipped with a servo-arm and an array of repair tools, he maintains the Chapter's sacred wargear and vehicles while also wielding devastating weapons in combat. The red of his armor marks his training on Mars, while the blue of his helm proclaims his loyalty to Ultramar and [[Roboute Guilliman]].
-

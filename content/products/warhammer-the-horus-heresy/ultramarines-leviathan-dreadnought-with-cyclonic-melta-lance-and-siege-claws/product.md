@@ -24,4 +24,3 @@ order_weight: 0
 ---
 
 The Leviathan Dreadnought represents the pinnacle of Imperial war machine technology, dwarfing even the mighty Contemptor pattern. This [[Ultramarines]] Leviathan carries a cyclonic melta lance capable of breaching any fortification and siege claws that can tear through tank armor. The strain of piloting such a machine inevitably burns out even the mightiest of entombed warriors.
-

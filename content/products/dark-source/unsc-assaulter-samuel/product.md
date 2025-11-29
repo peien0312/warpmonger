@@ -24,4 +24,3 @@ order_weight: 0
 ---
 
 Samuel is a frontline assaulter in the UNSC military, trained for aggressive offensive operations against enemy positions. His combat instincts and weapons proficiency make him a formidable presence on any battlefield. This 1/25 scale figure showcases the advanced tactical gear of UNSC assault troops.
-

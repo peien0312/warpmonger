@@ -24,4 +24,3 @@ order_weight: 0
 ---
 
 This [[Legio Custodes]] Venatari wields the signature lance of their brotherhood, a weapon designed for devastating aerial strikes. The Venatari lance combines ranged firepower with devastating close-combat capability, allowing its bearer to engage enemies at any distance. Descending from the skies on wings of fire, the Venatari are death incarnate to the Emperor's foes.
-

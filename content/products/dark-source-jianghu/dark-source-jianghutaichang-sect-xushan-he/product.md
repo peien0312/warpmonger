@@ -24,4 +24,3 @@ order_weight: 0
 ---
 
 Xushan He serves the Taichang Sect in the Dark Source Jianghu universe. This 1/18 scale figure features traditional martial arts attire and authentic weapons. His detailed sculpt and articulation allow for dynamic posing that captures the fluid movements of Chinese martial arts.
-

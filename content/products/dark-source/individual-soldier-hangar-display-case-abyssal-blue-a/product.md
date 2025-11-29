@@ -4,7 +4,7 @@ price: 9.99
 sku: 6927054402182
 in_stock: true
 images: ["editor_037.jpg", "editor_038.jpg", "gallery_033.jpg", "gallery_034.jpg"]
-is_pre_order: false
+is_pre_order: true
 available_date: 2025-10-01
 is_on_sale: false
 sale_price: 0
@@ -24,4 +24,3 @@ order_weight: 0
 ---
 
 The Abyssal Blue A display case offers a deep, sophisticated blue backdrop for your 1/25 scale figures. The hangar-style design creates an immersive military aesthetic while protecting your collection. Part of the Individual Soldier display case series for elegant figure presentation.
-

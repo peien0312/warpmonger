@@ -24,4 +24,3 @@ order_weight: 0
 ---
 
 Benjamin is a UNSC breacher specialist trained to force entry into fortified enemy positions. His heavy firepower and demolition expertise make him essential for urban combat operations. This 1/25 scale figure features specialized breaching equipment and reinforced tactical armor.
-

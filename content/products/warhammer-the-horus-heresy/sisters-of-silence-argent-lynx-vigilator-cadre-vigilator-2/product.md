@@ -24,4 +24,3 @@ order_weight: 0
 ---
 
 This Vigilator of the Argent Lynx Cadre serves as a living weapon against the Warp. The [[Sisters of Silence]] create zones of psychic nullity wherever they go, their presence alone capable of banishing daemons and disrupting sorcerous rituals. Armed with execution blade and bolter, she is equally deadly to mundane threats.
-

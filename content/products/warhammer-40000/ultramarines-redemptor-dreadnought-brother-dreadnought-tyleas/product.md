@@ -1,5 +1,5 @@
 ---
-title: Ultramarines Redemptor Dreadnought Brother Dreadnought Tyleas
+title: UItramarines Redemptor Dreadnought Brother Dreadnought Tyleas
 price: 169.99
 sku: 6973130372757
 in_stock: true
@@ -16,10 +16,10 @@ series: Warhammer 40,000
 scale: Scale：1/18
 size: 33*33*18
 weight: 2.5kg
-zhtw_price: 469
-cost: 360
-final_price: 2950
-cost_tw: 1537
+zhtw_price: 469.0
+cost: 360.0
+final_price: 2950.0
+cost_tw: 1537.0
 order_weight: 0
 ---
 

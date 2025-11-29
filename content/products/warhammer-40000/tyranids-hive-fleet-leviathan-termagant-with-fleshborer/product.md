@@ -24,4 +24,3 @@ order_weight: 0
 ---
 
 Termagants are the most numerous of the [[Tyranids|Tyranid]] warrior-organisms, expendable creatures spawned in their billions to overwhelm enemies through sheer numbers. This Termagant carries a fleshborer, a living weapon that fires beetle-like organisms capable of burrowing through armor and flesh. In the colors of Hive Fleet Leviathan, this creature represents the endless tide that has consumed countless worlds, each individual meaningless but the swarm unstoppable.
-

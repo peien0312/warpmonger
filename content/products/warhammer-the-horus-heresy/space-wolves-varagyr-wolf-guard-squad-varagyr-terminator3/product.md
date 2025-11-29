@@ -24,4 +24,3 @@ order_weight: 0
 ---
 
 This [[Varagyr]] warrior exemplifies the savage nobility of the [[Space Wolves]] Legion. Armed with traditional Fenrisian weapons enhanced with advanced technology, he stands ready to defend his Primarch against any threat. The Varagyr were feared throughout the Great Crusade as the Wolf King's executioners, hunters who never failed to bring down their prey.
-

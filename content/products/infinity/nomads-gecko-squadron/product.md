@@ -24,4 +24,3 @@ order_weight: 0
 ---
 
 The Gecko Squadron fields Nomads' signature light Tactical Armored Gear, a perfect balance of mobility and firepower. These agile TAGs excel at urban combat and rapid flanking maneuvers that heavier walkers cannot match. This 1/18 scale figure showcases the distinctive, industrial punk aesthetic of Nomad military hardware.
-

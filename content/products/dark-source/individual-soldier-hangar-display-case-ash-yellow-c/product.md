@@ -4,7 +4,7 @@ price: 9.99
 sku: 6927054402083
 in_stock: true
 images: ["editor_017.jpg", "editor_018.jpg", "gallery_013.jpg", "gallery_014.jpg"]
-is_pre_order: false
+is_pre_order: true
 available_date: 2025-10-01
 is_on_sale: false
 sale_price: 0
@@ -24,4 +24,3 @@ order_weight: 0
 ---
 
 The Ash Yellow C display case provides a warm, muted backdrop for your 1/25 scale figures. The hangar-style design creates an immersive military aesthetic while protecting your collection. Part of the Individual Soldier display case series for organized presentation.
-
