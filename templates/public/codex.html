@@ -36,4 +36,19 @@
         {% endif %}
     </div>
 </div>
+
+<script>
+// GA4: Track codex entry clicks
+document.querySelectorAll('.codex-card').forEach(function(card) {
+    card.addEventListener('click', function() {
+        if (typeof gtag === 'function') {
+            var title = this.querySelector('h3')?.textContent?.trim();
+            gtag('event', 'select_content', {
+                content_type: 'codex_entry',
+                item_id: title || 'unknown'
+            });
+        }
+    });
+});
+</script>
 {% endblock %}

@@ -298,6 +298,19 @@ function switchToMedia(index, thumbnail) {
                 Your browser does not support the video tag.
             </video>
         `;
+        // GA4: Track video play
+        var video = mainImageContainer.querySelector('video');
+        if (video) {
+            video.addEventListener('play', function() {
+                if (typeof gtag === 'function' && !this.dataset.tracked) {
+                    this.dataset.tracked = 'true';
+                    gtag('event', 'video_start', {
+                        video_title: '{{ product.title|replace("'", "\\'") }}',
+                        video_url: media.src
+                    });
+                }
+            });
+        }
         // For videos, only open lightbox when clicking outside the video controls
         mainImageContainer.onclick = (e) => {
             // Don't open lightbox if clicking on video element itself (controls)
@@ -486,8 +499,42 @@ function addToCart() {
         isPreOrder: btn.getAttribute('data-pre-order') === 'true'
     };
 
+    // GA4: Track add_to_cart
+    if (typeof gtag === 'function') {
+        gtag('event', 'add_to_cart', {
+            currency: 'USD',
+            value: product.price * qty,
+            items: [{
+                item_id: product.category + '/' + product.slug,
+                item_name: product.title,
+                item_category: product.category,
+                price: product.price,
+                quantity: qty
+            }]
+        });
+    }
+
     Cart.addItem(product, qty);
 }
+
+// GA4: Track view_item on page load
+document.addEventListener('DOMContentLoaded', function() {
+    if (typeof gtag === 'function') {
+        var btn = document.getElementById('add-to-cart');
+        if (btn) {
+            gtag('event', 'view_item', {
+                currency: 'USD',
+                value: parseFloat(btn.getAttribute('data-price')),
+                items: [{
+                    item_id: btn.getAttribute('data-category') + '/' + btn.getAttribute('data-slug'),
+                    item_name: btn.getAttribute('data-title'),
+                    item_category: btn.getAttribute('data-category'),
+                    price: parseFloat(btn.getAttribute('data-price'))
+                }]
+            });
+        }
+    }
+});
 </script>
 <script src="/static/js/codex.js"></script>
 {% endblock %}

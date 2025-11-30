@@ -50,6 +50,14 @@
                 const url = new URL(window.location);
                 const checkbox = document.getElementById(`filter-${filterType.replace('_', '')}`);
 
+                // GA4: Track filter applied
+                if (typeof gtag === 'function') {
+                    gtag('event', 'filter_applied', {
+                        filter_type: filterType,
+                        filter_value: checkbox.checked ? 'true' : 'false'
+                    });
+                }
+
                 if (checkbox.checked) {
                     url.searchParams.set(filterType, 'true');
                 } else {
@@ -60,6 +68,14 @@
             }
 
             function changeSort(sortValue) {
+                // GA4: Track sort applied
+                if (typeof gtag === 'function') {
+                    gtag('event', 'filter_applied', {
+                        filter_type: 'sort',
+                        filter_value: sortValue
+                    });
+                }
+
                 const url = new URL(window.location);
                 if (sortValue === 'default') {
                     url.searchParams.delete('sort');
@@ -156,4 +172,34 @@
         </div>
     </div>
 </div>
+
+<script>
+// GA4: Track view_item_list on page load
+document.addEventListener('DOMContentLoaded', function() {
+    if (typeof gtag === 'function') {
+        var listName = '{{ current_category_name|default("All Products", true) }}';
+        {% if current_tag %}listName = 'Tag: {{ current_tag }}';{% endif %}
+        {% if current_search %}listName = 'Search: {{ current_search }}';{% endif %}
+
+        var items = [
+            {% for product in products[:20] %}
+            {
+                item_id: '{{ product.category }}/{{ product.slug }}',
+                item_name: '{{ product.title|replace("'", "\\'") }}',
+                item_category: '{{ product.category }}',
+                price: {{ product.sale_price if product.is_on_sale and product.sale_price else product.price }},
+                index: {{ loop.index0 }}
+            }{% if not loop.last %},{% endif %}
+            {% endfor %}
+        ];
+
+        if (items.length > 0) {
+            gtag('event', 'view_item_list', {
+                item_list_name: listName,
+                items: items
+            });
+        }
+    }
+});
+</script>
 {% endblock %}

@@ -1,9 +1,24 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <!-- Preconnect for performance -->
+    <link rel="preconnect" href="https://www.googletagmanager.com">
+    <link rel="preconnect" href="https://www.google-analytics.com">
+    <link rel="dns-prefetch" href="https://www.googletagmanager.com">
+    <link rel="dns-prefetch" href="https://www.google-analytics.com">
+
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-HYSSEZVZNK"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-HYSSEZVZNK');
+    </script>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Warpmonger - Premium Action Figures{% endblock %}</title>
+    <title>{% block title %}Warpmonger - JoyToy Warhammer & More by JohnActionFigure{% endblock %}</title>
 
     <!-- Meta Description -->
     <meta name="description" content="{% block meta_description %}Warpmonger - By John Action Figure. Premium action figures and collectibles. Shop our curated selection of high-quality figures from Warhammer, Infinity, Dark Source, and more.{% endblock %}">
@@ -25,6 +40,10 @@
     <meta property="twitter:description" content="{% block twitter_description %}{{ self.og_description() }}{% endblock %}">
     <meta property="twitter:image" content="{% block twitter_image %}{{ self.og_image() }}{% endblock %}">
 
+    <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
+    <link rel="icon" type="image/png" sizes="192x192" href="/static/favicon-192.png">
+    <link rel="apple-touch-icon" href="/static/favicon-192.png">
+    <link rel="alternate" type="application/rss+xml" title="Warpmonger Blog RSS Feed" href="/feed.xml">
     <link rel="stylesheet" href="/static/css/public.css?v=16">
     {% block extra_css %}{% endblock %}
 
@@ -106,6 +125,35 @@
 
     <script src="/static/js/search.js"></script>
     <script src="/static/js/cart.js"></script>
+
+    <!-- GA4 Event Tracking -->
+    <script>
+        // Track search submissions
+        document.querySelector('.search-form')?.addEventListener('submit', function(e) {
+            const searchTerm = document.getElementById('search-input')?.value?.trim();
+            if (searchTerm && typeof gtag === 'function') {
+                gtag('event', 'search', {
+                    search_term: searchTerm
+                });
+            }
+        });
+
+        // Track product clicks
+        document.querySelectorAll('.product-card a').forEach(function(link) {
+            link.addEventListener('click', function() {
+                const card = this.closest('.product-card');
+                const productName = card?.querySelector('.product-title')?.textContent?.trim();
+                const productPrice = card?.querySelector('.current-price')?.textContent?.trim();
+                if (typeof gtag === 'function') {
+                    gtag('event', 'select_item', {
+                        item_name: productName || 'Unknown',
+                        item_price: productPrice || ''
+                    });
+                }
+            });
+        });
+    </script>
+
     {% block extra_js %}{% endblock %}
 </body>
 </html>

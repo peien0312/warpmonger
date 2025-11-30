@@ -42,6 +42,57 @@ class SimpleCache:
 cache = SimpleCache()  # Permanent cache, invalidated only by admin
 html_cache = SimpleCache()  # Cache for rendered HTML pages
 
+# === Login Rate Limiter ===
+class LoginRateLimiter:
+    """Rate limiter to prevent brute-force login attacks"""
+    def __init__(self, max_attempts=5, lockout_seconds=900):
+        self._attempts = {}  # {ip: {'count': int, 'first_attempt': timestamp}}
+        self._lockouts = {}  # {ip: lockout_until_timestamp}
+        self._lock = Lock()
+        self.max_attempts = max_attempts
+        self.lockout_seconds = lockout_seconds  # 15 minutes default
+
+    def is_locked(self, ip):
+        with self._lock:
+            if ip in self._lockouts:
+                if time.time() < self._lockouts[ip]:
+                    return True
+                else:
+                    del self._lockouts[ip]
+                    self._attempts.pop(ip, None)
+            return False
+
+    def record_failure(self, ip):
+        with self._lock:
+            now = time.time()
+            if ip not in self._attempts:
+                self._attempts[ip] = {'count': 1, 'first_attempt': now}
+            else:
+                # Reset if first attempt was more than lockout period ago
+                if now - self._attempts[ip]['first_attempt'] > self.lockout_seconds:
+                    self._attempts[ip] = {'count': 1, 'first_attempt': now}
+                else:
+                    self._attempts[ip]['count'] += 1
+
+            if self._attempts[ip]['count'] >= self.max_attempts:
+                self._lockouts[ip] = now + self.lockout_seconds
+                return True  # Now locked
+            return False
+
+    def clear(self, ip):
+        with self._lock:
+            self._attempts.pop(ip, None)
+            self._lockouts.pop(ip, None)
+
+    def get_remaining_lockout(self, ip):
+        with self._lock:
+            if ip in self._lockouts:
+                remaining = self._lockouts[ip] - time.time()
+                return max(0, int(remaining))
+            return 0
+
+login_limiter = LoginRateLimiter(max_attempts=5, lockout_seconds=900)  # 5 attempts, 15 min lockout
+
 app = Flask(__name__)
 app.secret_key = os.getenv('SECRET_KEY', 'dev-secret-key-change-in-production')
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
@@ -1435,6 +1486,36 @@ def sitemap():
 
     return Response(xml, mimetype='application/xml')
 
+@app.route('/sitemap-images.xml')
+def sitemap_images():
+    """Generate image sitemap for better image search indexing"""
+    from flask import Response
+
+    products = get_products()
+
+    xml = '<?xml version="1.0" encoding="UTF-8"?>\n'
+    xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">\n'
+
+    for product in products:
+        if product.get('images'):
+            xml += '  <url>\n'
+            xml += f'    <loc>{request.url_root}products/{product["category"]}/{product["slug"]}</loc>\n'
+
+            for image in product['images'][:10]:  # Max 10 images per product
+                if not image.lower().endswith(('.mp4', '.mov', '.avi', '.webm')):  # Skip videos
+                    image_url = f'{request.url_root}static/images/products/{product["category"]}/{product["slug"]}/{image}'
+                    xml += '    <image:image>\n'
+                    xml += f'      <image:loc>{image_url}</image:loc>\n'
+                    xml += f'      <image:title>{product["title"]}</image:title>\n'
+                    xml += f'      <image:caption>{product["title"]} - Premium action figure</image:caption>\n'
+                    xml += '    </image:image>\n'
+
+            xml += '  </url>\n'
+
+    xml += '</urlset>'
+
+    return Response(xml, mimetype='application/xml')
+
 @app.route('/robots.txt')
 def robots():
     """Generate robots.txt"""
@@ -1444,16 +1525,69 @@ def robots():
 Allow: /
 
 Sitemap: {request.url_root}sitemap.xml
+Sitemap: {request.url_root}sitemap-images.xml
 """
 
     return Response(txt, mimetype='text/plain')
+
+@app.route('/feed.xml')
+@app.route('/rss.xml')
+def rss_feed():
+    """Generate RSS feed for blog posts"""
+    from flask import Response
+
+    posts = get_blog_posts()[:20]  # Latest 20 posts
+
+    xml = '<?xml version="1.0" encoding="UTF-8"?>\n'
+    xml += '<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">\n'
+    xml += '  <channel>\n'
+    xml += '    <title>Warpmonger Blog - Action Figure News &amp; Updates</title>\n'
+    xml += f'    <link>{request.url_root}blog</link>\n'
+    xml += '    <description>Latest news, tips, and updates about premium action figures and collectibles from Warpmonger.</description>\n'
+    xml += '    <language>en-us</language>\n'
+    xml += f'    <lastBuildDate>{datetime.now().strftime("%a, %d %b %Y %H:%M:%S +0000")}</lastBuildDate>\n'
+    xml += f'    <atom:link href="{request.url_root}feed.xml" rel="self" type="application/rss+xml"/>\n'
+
+    for post in posts:
+        xml += '    <item>\n'
+        xml += f'      <title>{post["title"]}</title>\n'
+        xml += f'      <link>{request.url_root}blog/{post["slug"]}</link>\n'
+        xml += f'      <guid isPermaLink="true">{request.url_root}blog/{post["slug"]}</guid>\n'
+        xml += f'      <description><![CDATA[{post.get("excerpt", "")}]]></description>\n'
+        if post.get('date'):
+            try:
+                pub_date = datetime.strptime(post['date'], '%Y-%m-%d').strftime('%a, %d %b %Y 00:00:00 +0000')
+                xml += f'      <pubDate>{pub_date}</pubDate>\n'
+            except:
+                pass
+        if post.get('author'):
+            xml += f'      <author>noreply@johnactionfigure.com ({post["author"]})</author>\n'
+        xml += '    </item>\n'
+
+    xml += '  </channel>\n'
+    xml += '</rss>'
+
+    return Response(xml, mimetype='application/rss+xml')
 
 # ===== Routes - Admin =====
 
 @app.route('/admin/login', methods=['GET', 'POST'])
 def admin_login():
     """Admin login page"""
+    # Get client IP (supports reverse proxy)
+    client_ip = request.headers.get('X-Forwarded-For', request.remote_addr)
+    if client_ip:
+        client_ip = client_ip.split(',')[0].strip()
+
     if request.method == 'POST':
+        # Check if IP is locked out
+        if login_limiter.is_locked(client_ip):
+            remaining = login_limiter.get_remaining_lockout(client_ip)
+            return jsonify({
+                'success': False,
+                'error': f'Too many failed attempts. Try again in {remaining // 60} minutes.'
+            }), 429
+
         data = request.get_json()
         username = data.get('username')
         password = data.get('password')
@@ -1461,8 +1595,17 @@ def admin_login():
         users = load_users()
 
         if username in users and check_password_hash(users[username]['password_hash'], password):
+            login_limiter.clear(client_ip)  # Clear on successful login
             session['username'] = username
             return jsonify({'success': True})
+
+        # Record failed attempt
+        now_locked = login_limiter.record_failure(client_ip)
+        if now_locked:
+            return jsonify({
+                'success': False,
+                'error': 'Too many failed attempts. Locked out for 15 minutes.'
+            }), 429
 
         return jsonify({'success': False, 'error': 'Invalid credentials'}), 401
 

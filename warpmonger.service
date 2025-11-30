@@ -1,0 +1,15 @@
+[Unit]
+Description=Warpmonger Flask Application (johnactionfigure.com)
+After=network.target
+
+[Service]
+User=ec2-user
+Group=ec2-user
+WorkingDirectory=/home/ec2-user/warpmonger
+Environment="PATH=/home/ec2-user/warpmonger/venv/bin"
+ExecStart=/home/ec2-user/warpmonger/venv/bin/gunicorn --workers 4 --bind 127.0.0.1:5006 app:app
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

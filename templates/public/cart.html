@@ -174,6 +174,22 @@ function setItemQty(category, slug, value) {
 }
 
 function removeItem(category, slug) {
+    // GA4: Track remove_from_cart
+    var items = Cart.getItems();
+    var item = items.find(function(i) { return i.category === category && i.slug === slug; });
+    if (item && typeof gtag === 'function') {
+        gtag('event', 'remove_from_cart', {
+            currency: 'USD',
+            value: item.price * item.quantity,
+            items: [{
+                item_id: category + '/' + slug,
+                item_name: item.title,
+                item_category: category,
+                price: item.price,
+                quantity: item.quantity
+            }]
+        });
+    }
     Cart.removeItem(category, slug);
     renderCart();
 }
@@ -198,6 +214,25 @@ function openContactModal() {
 
     document.getElementById('contact-modal').classList.add('active');
     document.body.style.overflow = 'hidden';
+
+    // GA4: Track begin_checkout
+    if (typeof gtag === 'function') {
+        var items = Cart.getItems();
+        var gaItems = items.map(function(item) {
+            return {
+                item_id: item.category + '/' + item.slug,
+                item_name: item.title,
+                item_category: item.category,
+                price: item.price,
+                quantity: item.quantity
+            };
+        });
+        gtag('event', 'begin_checkout', {
+            currency: 'USD',
+            value: Cart.getTotal(),
+            items: gaItems
+        });
+    }
 }
 
 function closeContactModal() {
@@ -311,6 +346,25 @@ function submitEmail() {
     .then(function(response) { return response.json(); })
     .then(function(data) {
         if (data.success) {
+            // GA4: Track purchase (conversion)
+            if (typeof gtag === 'function') {
+                var gaItems = items.map(function(item) {
+                    return {
+                        item_id: item.category + '/' + item.slug,
+                        item_name: item.title,
+                        item_category: item.category,
+                        price: item.price,
+                        quantity: item.quantity
+                    };
+                });
+                gtag('event', 'purchase', {
+                    transaction_id: 'EMAIL_' + Date.now(),
+                    currency: 'USD',
+                    value: Cart.getTotal(),
+                    affiliation: 'email',
+                    items: gaItems
+                });
+            }
             alert('Your list has been sent! We will contact you soon.');
             closeContactModal();
             Cart.clear();
@@ -334,6 +388,14 @@ function isValidEmail(email) {
 }
 
 function sendViaTelegram() {
+    // GA4: Track share via Telegram
+    if (typeof gtag === 'function') {
+        gtag('event', 'share', {
+            method: 'telegram',
+            content_type: 'shopping_list',
+            item_count: Cart.getItems().length
+        });
+    }
     var text = Cart.formatAsText();
     var encoded = encodeURIComponent(text);
     // Note: Replace YOUR_USERNAME with actual Telegram username
@@ -342,6 +404,14 @@ function sendViaTelegram() {
 }
 
 function sendViaLINE() {
+    // GA4: Track share via LINE
+    if (typeof gtag === 'function') {
+        gtag('event', 'share', {
+            method: 'line',
+            content_type: 'shopping_list',
+            item_count: Cart.getItems().length
+        });
+    }
     // Redirect to LINE contact page with instructions
     window.location.href = '/cart/line';
 }

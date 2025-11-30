@@ -1,8 +1,43 @@
 {% extends "public/base.html" %}
 
-{% block title %}Warpmonger - Premium Action Figures By John{% endblock %}
+{% block title %}Warpmonger - JoyToy Warhammer & More by JohnActionFigure{% endblock %}
 
 {% block meta_description %}Warpmonger - By John Action Figure. Shop our curated selection of premium action figures from Warhammer, Infinity, Dark Source, TMNT, and more. Quality collectibles with fast shipping and great prices.{% endblock %}
+
+{% block structured_data %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "Warpmonger by JohnActionFigure",
+  "url": "{{ request.url_root }}",
+  "logo": "{{ request.url_root }}static/images/warpmonger_logo_black.png",
+  "description": "Premium action figures and collectibles from Warhammer, Infinity, Dark Source, TMNT, and more.",
+  "contactPoint": {
+    "@type": "ContactPoint",
+    "contactType": "Customer Service",
+    "email": "sales@johnactionfigure.com",
+    "availableLanguage": ["English"]
+  },
+  "sameAs": [
+    "https://t.me/JohnActionFigure"
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "Warpmonger",
+  "url": "{{ request.url_root }}",
+  "potentialAction": {
+    "@type": "SearchAction",
+    "target": "{{ request.url_root }}products?search={search_term_string}",
+    "query-input": "required name=search_term_string"
+  }
+}
+</script>
+{% endblock %}
 
 {% block content %}
 <section class="hero">
@@ -190,4 +225,36 @@
     </div>
 </section>
 {% endif %}
+
+<script>
+// GA4: Track promotion banner click
+document.addEventListener('DOMContentLoaded', function() {
+    {% if active_promo %}
+    var promoBanner = document.querySelector('.promo-banner-link');
+    if (promoBanner) {
+        promoBanner.addEventListener('click', function() {
+            if (typeof gtag === 'function') {
+                gtag('event', 'select_promotion', {
+                    promotion_id: '{{ active_promo.slug }}',
+                    promotion_name: '{{ active_promo.title|replace("'", "\\'") }}'
+                });
+            }
+        });
+    }
+    {% endif %}
+
+    // Track blog post clicks
+    document.querySelectorAll('.post-card a').forEach(function(link) {
+        link.addEventListener('click', function() {
+            if (typeof gtag === 'function') {
+                var title = this.closest('.post-card').querySelector('h3 a')?.textContent?.trim();
+                gtag('event', 'select_content', {
+                    content_type: 'blog_post',
+                    item_id: title || 'unknown'
+                });
+            }
+        });
+    });
+});
+</script>
 {% endblock %}

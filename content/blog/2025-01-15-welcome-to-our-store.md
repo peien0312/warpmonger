@@ -12,8 +12,6 @@ We're thrilled to announce the official launch of our online toy store! After mo
 
 ## What We Offer
 
-![IMG_2387.jpeg](/static/images/blog/IMG_2387_1764432506.jpeg)
-
 Our carefully curated selection includes:
 
 - **Educational Toys**: Learning through play
