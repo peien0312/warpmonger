@@ -44,7 +44,7 @@
     <link rel="icon" type="image/png" sizes="192x192" href="/static/favicon-192.png">
     <link rel="apple-touch-icon" href="/static/favicon-192.png">
     <link rel="alternate" type="application/rss+xml" title="Warpmonger Blog RSS Feed" href="/feed.xml">
-    <link rel="stylesheet" href="/static/css/public.css?v=16">
+    <link rel="stylesheet" href="/static/css/public.css?v=22">
     {% block extra_css %}{% endblock %}
 
     <!-- Structured Data -->
@@ -54,6 +54,13 @@
     <header class="site-header">
         <div class="container">
             <div class="header-content">
+                <!-- Hamburger Menu Button (Mobile) -->
+                <button class="hamburger-btn" id="hamburger-btn" aria-label="Open menu" aria-expanded="false">
+                    <span class="hamburger-line"></span>
+                    <span class="hamburger-line"></span>
+                    <span class="hamburger-line"></span>
+                </button>
+
                 <div class="site-logo">
                     <a href="/">
                         <img src="/static/images/warpmonger_logo_black.png" alt="Warpmonger - By John Action Figure" class="logo-img">
@@ -61,7 +68,15 @@
                     </a>
                 </div>
 
-                <!-- Search Form -->
+                <!-- Mobile Search Icon -->
+                <button class="mobile-search-btn" id="mobile-search-btn" aria-label="Search">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <path d="m21 21-4.35-4.35"></path>
+                    </svg>
+                </button>
+
+                <!-- Search Form (Desktop) -->
                 <div class="search-container">
                     <form action="/products" method="get" class="search-form">
                         <input
@@ -83,22 +98,26 @@
                     </form>
                 </div>
 
-                <nav class="main-nav">
-                    <a href="/">Home</a>
-                    <div class="nav-dropdown">
-                        <a href="/products" class="nav-dropdown-trigger">Products</a>
-                        <div class="nav-dropdown-content">
-                            <a href="/products">All Products</a>
-                            {% for category in nav_categories %}
-                            <a href="/products?category={{ category.slug }}">{{ category.name }}</a>
-                            {% endfor %}
+                <!-- Desktop Navigation -->
+                <div class="header-right">
+                    <nav class="main-nav">
+                        <a href="/">Home</a>
+                        <div class="nav-dropdown">
+                            <a href="/products" class="nav-dropdown-trigger">Products</a>
+                            <div class="nav-dropdown-content">
+                                <a href="/products">All Products</a>
+                                {% for category in nav_categories %}
+                                <a href="/products?category={{ category.slug }}">{{ category.name }}</a>
+                                {% endfor %}
+                            </div>
                         </div>
-                    </div>
-                    <a href="/tags">Tags</a>
-                    <a href="/codex">Codex</a>
-                    <a href="/blog">Blog</a>
-                </nav>
+                        <a href="/tags">Tags</a>
+                        <a href="/codex">Codex</a>
+                        <a href="/blog">Blog</a>
+                    </nav>
+                </div>
 
+                <!-- Cart Icon (visible on both desktop and mobile) -->
                 <div class="cart-icon-container">
                     <a href="/cart" class="cart-icon" title="Shopping List">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -110,6 +129,63 @@
                     </a>
                 </div>
             </div>
+
+            <!-- Mobile Search Bar (Hidden by default) -->
+            <div class="mobile-search-container" id="mobile-search-container">
+                <form action="/products" method="get" class="search-form">
+                    <input
+                        type="text"
+                        name="search"
+                        id="mobile-search-input"
+                        class="search-input"
+                        placeholder="Search products..."
+                        autocomplete="off"
+                        value="{{ current_search if current_search is defined else '' }}"
+                    >
+                    <button type="submit" class="search-button">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <path d="m21 21-4.35-4.35"></path>
+                        </svg>
+                    </button>
+                </form>
+            </div>
+
+            <!-- Mobile Menu Overlay -->
+            <div class="mobile-menu-overlay" id="mobile-menu-overlay"></div>
+
+            <!-- Mobile Menu -->
+            <nav class="mobile-menu" id="mobile-menu">
+                <div class="mobile-menu-header">
+                    <span class="mobile-menu-title">Menu</span>
+                    <button class="mobile-menu-close" id="mobile-menu-close" aria-label="Close menu">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M18 6L6 18M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+                <div class="mobile-menu-links">
+                    <a href="/">Home</a>
+                    <a href="/products">All Products</a>
+                    <div class="mobile-menu-section">
+                        <span class="mobile-menu-section-title">Categories</span>
+                        {% for category in nav_categories %}
+                        <a href="/products?category={{ category.slug }}" class="mobile-menu-category">{{ category.name }}</a>
+                        {% endfor %}
+                    </div>
+                    <a href="/tags">Tags</a>
+                    <a href="/codex">Codex</a>
+                    <a href="/blog">Blog</a>
+                    <a href="/cart" class="mobile-menu-cart">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="9" cy="21" r="1"></circle>
+                            <circle cx="20" cy="21" r="1"></circle>
+                            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+                        </svg>
+                        Shopping List
+                    </a>
+                </div>
+            </nav>
         </div>
     </header>
 
@@ -125,6 +201,79 @@
 
     <script src="/static/js/search.js"></script>
     <script src="/static/js/cart.js"></script>
+
+    <!-- Mobile Menu -->
+    <script>
+    (function() {
+        var hamburgerBtn = document.getElementById('hamburger-btn');
+        var mobileMenu = document.getElementById('mobile-menu');
+        var mobileMenuOverlay = document.getElementById('mobile-menu-overlay');
+        var mobileMenuClose = document.getElementById('mobile-menu-close');
+        var mobileSearchBtn = document.getElementById('mobile-search-btn');
+        var mobileSearchContainer = document.getElementById('mobile-search-container');
+
+        function openMobileMenu() {
+            hamburgerBtn.classList.add('active');
+            hamburgerBtn.setAttribute('aria-expanded', 'true');
+            mobileMenu.classList.add('active');
+            mobileMenuOverlay.classList.add('active');
+            document.body.classList.add('menu-open');
+        }
+
+        function closeMobileMenu() {
+            hamburgerBtn.classList.remove('active');
+            hamburgerBtn.setAttribute('aria-expanded', 'false');
+            mobileMenu.classList.remove('active');
+            mobileMenuOverlay.classList.remove('active');
+            document.body.classList.remove('menu-open');
+        }
+
+        function toggleMobileSearch() {
+            mobileSearchContainer.classList.toggle('active');
+            if (mobileSearchContainer.classList.contains('active')) {
+                document.getElementById('mobile-search-input').focus();
+            }
+        }
+
+        // Event listeners
+        if (hamburgerBtn) {
+            hamburgerBtn.addEventListener('click', function() {
+                if (mobileMenu.classList.contains('active')) {
+                    closeMobileMenu();
+                } else {
+                    openMobileMenu();
+                }
+            });
+        }
+
+        if (mobileMenuClose) {
+            mobileMenuClose.addEventListener('click', closeMobileMenu);
+        }
+
+        if (mobileMenuOverlay) {
+            mobileMenuOverlay.addEventListener('click', closeMobileMenu);
+        }
+
+        if (mobileSearchBtn) {
+            mobileSearchBtn.addEventListener('click', toggleMobileSearch);
+        }
+
+        // Close menu on escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && mobileMenu.classList.contains('active')) {
+                closeMobileMenu();
+            }
+        });
+
+        // Close menu when clicking a link
+        var menuLinks = mobileMenu ? mobileMenu.querySelectorAll('a') : [];
+        menuLinks.forEach(function(link) {
+            link.addEventListener('click', function() {
+                closeMobileMenu();
+            });
+        });
+    })();
+    </script>
 
     <!-- GA4 Event Tracking -->
     <script>
