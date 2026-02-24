@@ -109,6 +109,234 @@ def add_cache_headers(response):
         response.headers['Cache-Control'] = 'public, max-age=604800'
     return response
 
+# === Locale / i18n ===
+
+TRANSLATIONS = {
+    'en': {
+        'home': 'Home',
+        'products': 'Products',
+        'all_products': 'All Products',
+        'tags': 'Tags',
+        'codex': 'Codex',
+        'blog': 'Blog',
+        'cart': 'Shopping List',
+        'search_placeholder': 'Search products...',
+        'add_to_list': 'Add to List',
+        'sold_out': 'Sold Out',
+        'pre_order': 'Pre-order',
+        'sale': 'Sale',
+        'new': 'New',
+        'in_stock': 'In Stock',
+        'out_of_stock': 'Out of Stock',
+        'quantity': 'Quantity',
+        'menu': 'Menu',
+        'categories': 'Categories',
+        'shop_now': 'Shop Now',
+        'new_arrivals': 'New Arrivals',
+        'on_sale': 'On Sale Now',
+        'featured': 'Featured Products',
+        'view_all': 'View All',
+        'view_all_new': 'View All New Arrivals',
+        'view_all_sale': 'View All Sale Items',
+        'view_all_posts': 'View All Posts',
+        'currency_symbol': '$',
+        'send_for_quote': 'Send List for Quote',
+        'clear_list': 'Clear List',
+        'added_to_list': 'Added to list!',
+        'welcome': 'Welcome to Warpmonger',
+        'tagline': 'PREMIUM ACTION FIGURES',
+        'hero_subtitle': 'Premium Action Figures & Collectibles',
+        'browse_products': 'Browse Products',
+        'related_products': 'Related Products',
+        'search_results': 'Search Results',
+        'showing_results_for': 'Showing results for',
+        'clear_search': 'Clear search',
+        'clear_filter': 'Clear filter',
+        'browse_all_tags': 'Browse all tags',
+        'products_found': 'product(s) found',
+        'no_products_search': 'No products found matching',
+        'no_products_category': 'No products found in this category.',
+        'filters': 'Filters',
+        'sort_default': 'Default',
+        'sort_price_asc': 'Price ↑',
+        'sort_price_desc': 'Price ↓',
+        'series': 'Series',
+        'scale': 'Scale',
+        'size': 'Size',
+        'weight': 'Weight',
+        'tags_label': 'Tags',
+        'sku': 'SKU',
+        'expected': 'Expected',
+        'your_shopping_list': 'Your Shopping List',
+        'list_empty': 'Your shopping list is empty.',
+        'total': 'Total',
+        'send_your_list': 'Send Your List',
+        'preview': 'Preview',
+        'copy_to_clipboard': 'Copy to Clipboard',
+        'or_send_via': 'Or send via:',
+        'email': 'Email',
+        'your_name': 'Your Name',
+        'your_email': 'Your Email',
+        'additional_notes': 'Additional Notes (optional)',
+        'send_email': 'Send Email',
+        'back': 'Back',
+        'remove': 'Remove',
+        'recent_blog': 'Recent Blog Posts',
+        'read_more': 'Read more →',
+        'view_promotion': 'View Promotion →',
+        'view_details': 'View Details →',
+        'browse_by_tags': 'Browse by Tags',
+        'click_tag': 'Click a tag to see all products with that tag',
+        'no_tags': 'No tags found.',
+        'promotions': 'Promotions',
+        'active_promotion': 'Active Promotion',
+        'back_to_promotions': '← Back to Promotions',
+        'back_to_blog': '← Back to Blog',
+        'back_to_codex': 'Back to Codex',
+        'codex_entries': 'Codex Entries',
+        'contact_price': 'Contact for Price',
+        'contact_via_line': 'Contact Us via LINE',
+        'copy_list': 'Copy Your Shopping List',
+        'copy_list_desc': 'Click the button below to copy your list to clipboard',
+        'add_line': 'Add Our LINE Account',
+        'add_line_desc': 'Click the button below to add us on LINE',
+        'add_friend_line': 'Add Friend on LINE',
+        'paste_send': 'Paste & Send',
+        'paste_send_desc': 'After adding us, paste the copied list in the chat and send!',
+        'back_to_list': '← Back to Shopping List',
+        'clear_confirm': 'Are you sure you want to clear your shopping list?',
+        'no_image': 'No Image',
+        'no_products_yet': 'No products available yet.',
+        'tag_label': 'Tag',
+    },
+    'zhtw': {
+        'home': '首頁',
+        'products': '商品',
+        'all_products': '所有商品',
+        'tags': '標籤',
+        'codex': 'Codex',
+        'blog': '部落格',
+        'cart': '購物清單',
+        'search_placeholder': '搜尋商品...',
+        'add_to_list': '加入清單',
+        'sold_out': '已售完',
+        'pre_order': '預購',
+        'sale': '特價',
+        'new': '新品',
+        'in_stock': '有庫存',
+        'out_of_stock': '缺貨',
+        'quantity': '數量',
+        'menu': '選單',
+        'categories': '分類',
+        'shop_now': '立即選購',
+        'new_arrivals': '新品上架',
+        'on_sale': '特價商品',
+        'featured': '精選商品',
+        'view_all': '查看全部',
+        'view_all_new': '查看所有新品',
+        'view_all_sale': '查看所有特價商品',
+        'view_all_posts': '查看所有文章',
+        'currency_symbol': 'NT$',
+        'send_for_quote': '傳送詢價清單',
+        'clear_list': '清空清單',
+        'added_to_list': '已加入清單！',
+        'welcome': '歡迎來到 Warpmonger',
+        'tagline': '精品模型公仔',
+        'hero_subtitle': '精品模型公仔與收藏品',
+        'browse_products': '瀏覽商品',
+        'related_products': '相關商品',
+        'search_results': '搜尋結果',
+        'showing_results_for': '搜尋結果：',
+        'clear_search': '清除搜尋',
+        'clear_filter': '清除篩選',
+        'browse_all_tags': '瀏覽所有標籤',
+        'products_found': '件商品',
+        'no_products_search': '找不到符合的商品',
+        'no_products_category': '此分類目前沒有商品。',
+        'filters': '篩選',
+        'sort_default': '預設',
+        'sort_price_asc': '價格 ↑',
+        'sort_price_desc': '價格 ↓',
+        'series': '系列',
+        'scale': '比例',
+        'size': '尺寸',
+        'weight': '重量',
+        'tags_label': '標籤',
+        'sku': '貨號',
+        'expected': '預計到貨',
+        'your_shopping_list': '您的購物清單',
+        'list_empty': '您的購物清單是空的。',
+        'total': '合計',
+        'send_your_list': '傳送清單',
+        'preview': '預覽',
+        'copy_to_clipboard': '複製到剪貼簿',
+        'or_send_via': '或透過以下方式傳送：',
+        'email': '電子郵件',
+        'your_name': '您的姓名',
+        'your_email': '您的電子郵件',
+        'additional_notes': '備註（選填）',
+        'send_email': '傳送郵件',
+        'back': '返回',
+        'remove': '移除',
+        'recent_blog': '最新部落格文章',
+        'read_more': '閱讀更多 →',
+        'view_promotion': '查看活動 →',
+        'view_details': '查看詳情 →',
+        'browse_by_tags': '依標籤瀏覽',
+        'click_tag': '點擊標籤查看相關商品',
+        'no_tags': '目前沒有標籤。',
+        'promotions': '促銷活動',
+        'active_promotion': '進行中',
+        'back_to_promotions': '← 返回促銷活動',
+        'back_to_blog': '← 返回部落格',
+        'back_to_codex': '返回 Codex',
+        'codex_entries': 'Codex 條目',
+        'contact_price': '請洽詢價格',
+        'contact_via_line': '透過 LINE 聯繫我們',
+        'copy_list': '複製您的購物清單',
+        'copy_list_desc': '點擊下方按鈕複製清單至剪貼簿',
+        'add_line': '加入我們的 LINE 帳號',
+        'add_line_desc': '點擊下方按鈕加入我們的 LINE',
+        'add_friend_line': '加入好友',
+        'paste_send': '貼上並傳送',
+        'paste_send_desc': '加入好友後，在聊天室貼上清單並傳送！',
+        'back_to_list': '← 返回購物清單',
+        'clear_confirm': '確定要清空購物清單嗎？',
+        'no_image': '無圖片',
+        'no_products_yet': '目前沒有商品。',
+        'tag_label': '標籤',
+    }
+}
+
+def public_route(rule, **options):
+    """Register a route for both EN and ZH-TW locales."""
+    def decorator(f):
+        app.add_url_rule(rule, view_func=f, **options)
+        zhtw_endpoint = options.get('endpoint', f.__name__) + '_zhtw'
+        app.add_url_rule('/zhtw' + rule, view_func=f, endpoint=zhtw_endpoint, **options)
+        return f
+    return decorator
+
+@app.before_request
+def detect_locale():
+    from flask import g
+    g.locale = 'zhtw' if request.path.startswith('/zhtw') else 'en'
+
+@app.context_processor
+def inject_locale():
+    """Inject locale-related variables into all templates"""
+    if request.path.startswith('/admin') or request.path.startswith('/api'):
+        return {}
+    from flask import g
+    locale = getattr(g, 'locale', 'en')
+    is_zhtw = locale == 'zhtw'
+    return {
+        'locale': locale,
+        'is_zhtw': is_zhtw,
+        't': TRANSLATIONS.get(locale, TRANSLATIONS['en']),
+        'url_prefix': '/zhtw' if is_zhtw else '',
+    }
+
 @app.context_processor
 def inject_nav_categories():
     """Inject categories into all templates for navigation dropdown"""
@@ -117,6 +345,15 @@ def inject_nav_categories():
     if request.path.startswith('/admin') or request.path.startswith('/api'):
         return {}
     return {'nav_categories': get_categories()}
+
+# Custom Jinja2 filter for NTD price formatting
+@app.template_filter('ntd')
+def format_ntd(value):
+    """Format number as NTD integer with comma separators"""
+    try:
+        return f"{int(value):,}"
+    except (ValueError, TypeError):
+        return "0"
 
 # Custom Jinja2 filter for formatting month
 @app.template_filter('format_month')
@@ -971,6 +1208,9 @@ def build_codex_lookup():
 
 def process_codex_links(text):
     """Convert [[term]] syntax to codex links"""
+    from flask import g
+    locale = getattr(g, 'locale', 'en')
+    prefix = '/zhtw' if locale == 'zhtw' else ''
     codex_lookup = build_codex_lookup()
 
     def replace_codex_link(match):
@@ -979,7 +1219,7 @@ def process_codex_links(text):
 
         if term_lower in codex_lookup:
             slug = codex_lookup[term_lower]
-            return f'<a href="/codex/{slug}" class="codex-term" data-codex="{slug}">{term}</a>'
+            return f'<a href="{prefix}/codex/{slug}" class="codex-term" data-codex="{slug}">{term}</a>'
         else:
             # Term not found in codex, just return the text without brackets
             return term
@@ -990,7 +1230,7 @@ def process_codex_links(text):
 
 # ===== Routes - Public =====
 
-@app.route('/')
+@public_route('/')
 def home():
     """Homepage"""
     all_products = get_products()
@@ -1015,13 +1255,13 @@ def home():
                          featured_tags=featured_tags,
                          active_promo=active_promo)
 
-@app.route('/tags')
+@public_route('/tags')
 def tags_page():
     """Tag cloud page"""
     tags = get_all_tags()
     return render_template('public/tags.html', tags=tags)
 
-@app.route('/products')
+@public_route('/products')
 def products_page():
     """Product catalog page"""
     category = request.args.get('category')
@@ -1034,8 +1274,10 @@ def products_page():
     sort_by = request.args.get('sort', 'default')  # default, price_asc, price_desc
 
     # Check HTML cache for simple category pages (no search/tag/filters)
+    from flask import g
+    locale = getattr(g, 'locale', 'en')
     is_simple_page = not tag and not search and not show_pre_order and not show_on_sale and not show_new_arrival and not show_in_stock and sort_by == 'default'
-    cache_key = f"html_products_{category or 'all'}"
+    cache_key = f"html_products_{locale}_{category or 'all'}"
 
     if is_simple_page:
         cached_html = html_cache.get(cache_key)
@@ -1104,7 +1346,7 @@ def products_page():
 
     return html
 
-@app.route('/products/<category>/<slug>')
+@public_route('/products/<category>/<slug>')
 def product_detail(category, slug):
     """Product detail page"""
     product = get_product(category, slug)
@@ -1152,13 +1394,13 @@ def product_detail(category, slug):
                          category_name=category_name,
                          related=related)
 
-@app.route('/blog')
+@public_route('/blog')
 def blog_page():
     """Blog listing page"""
     posts = get_blog_posts()
     return render_template('public/blog.html', posts=posts)
 
-@app.route('/blog/<slug>')
+@public_route('/blog/<slug>')
 def blog_post_page(slug):
     """Blog post detail page"""
     post = get_blog_post(slug)
@@ -1170,13 +1412,13 @@ def blog_post_page(slug):
 
     return render_template('public/blog-post.html', post=post)
 
-@app.route('/promotions')
+@public_route('/promotions')
 def promotions_page():
     """Promotions listing page"""
     promotions = get_promotions()
     return render_template('public/promotions.html', promotions=promotions)
 
-@app.route('/promotions/<slug>')
+@public_route('/promotions/<slug>')
 def promotion_page(slug):
     """Promotion detail page"""
     promo = get_promotion(slug)
@@ -1198,13 +1440,13 @@ def promotion_page(slug):
 
     return render_template('public/promotion.html', promotion=promo, products=promo_products)
 
-@app.route('/codex')
+@public_route('/codex')
 def codex_page():
     """Codex listing page"""
     entries = get_codex_entries()
     return render_template('public/codex.html', entries=entries)
 
-@app.route('/codex/<slug>')
+@public_route('/codex/<slug>')
 def codex_entry_page(slug):
     """Codex entry detail page"""
     entry = get_codex_entry(slug)
@@ -1219,14 +1461,14 @@ def codex_entry_page(slug):
 
     return render_template('public/codex-entry.html', entry=entry, all_entries=all_entries)
 
-@app.route('/cart')
+@public_route('/cart')
 def cart_page():
     """Shopping cart/list page"""
     telegram_username = os.environ.get('TELEGRAM_USERNAME', 'warpmonger')
     return render_template('public/cart.html', telegram_username=telegram_username)
 
 
-@app.route('/cart/line')
+@public_route('/cart/line')
 def cart_line_page():
     """LINE contact page with instructions"""
     line_id = os.environ.get('LINE_ID', '@warpmonger')
@@ -1470,16 +1712,32 @@ def sitemap():
             'priority': '0.6'
         })
 
-    # Generate XML
+    # Generate XML with hreflang alternates
     xml = '<?xml version="1.0" encoding="UTF-8"?>\n'
-    xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
+    xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">\n'
 
     for page in pages:
+        # EN version
         xml += '  <url>\n'
         xml += f'    <loc>{page["loc"]}</loc>\n'
         xml += f'    <lastmod>{page["lastmod"]}</lastmod>\n'
         xml += f'    <changefreq>{page["changefreq"]}</changefreq>\n'
         xml += f'    <priority>{page["priority"]}</priority>\n'
+        # Build the zhtw loc by inserting /zhtw after the root
+        en_loc = page["loc"]
+        zhtw_loc = en_loc.replace(request.url_root, request.url_root + 'zhtw/', 1)
+        xml += f'    <xhtml:link rel="alternate" hreflang="en" href="{en_loc}"/>\n'
+        xml += f'    <xhtml:link rel="alternate" hreflang="zh-TW" href="{zhtw_loc}"/>\n'
+        xml += '  </url>\n'
+
+        # ZH-TW version
+        xml += '  <url>\n'
+        xml += f'    <loc>{zhtw_loc}</loc>\n'
+        xml += f'    <lastmod>{page["lastmod"]}</lastmod>\n'
+        xml += f'    <changefreq>{page["changefreq"]}</changefreq>\n'
+        xml += f'    <priority>{page["priority"]}</priority>\n'
+        xml += f'    <xhtml:link rel="alternate" hreflang="en" href="{en_loc}"/>\n'
+        xml += f'    <xhtml:link rel="alternate" hreflang="zh-TW" href="{zhtw_loc}"/>\n'
         xml += '  </url>\n'
 
     xml += '</urlset>'

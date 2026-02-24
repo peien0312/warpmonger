@@ -13,7 +13,7 @@ id: JT9206
 cn_name: 黑暗天使 装备赦免槌的死翼骑士 1
 zhtw_name: 黑暗天使 裝備赦免槌的死翼騎士 1
 series: Warhammer 40,000
-scale: Scale: 1/18
+scale: "Scale: 1/18"
 size: 20*18.5*6.5
 weight: 0.35kg
 zhtw_price: 269.0

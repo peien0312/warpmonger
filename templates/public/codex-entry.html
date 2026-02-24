@@ -8,18 +8,18 @@
 <div class="container">
     <div class="codex-entry-page">
         <nav class="breadcrumb">
-            <a href="/">Home</a> /
-            <a href="/codex">Codex</a> /
+            <a href="{{ url_prefix }}/">{{ t.home }}</a> /
+            <a href="{{ url_prefix }}/codex">{{ t.codex }}</a> /
             <span>{{ entry.title }}</span>
         </nav>
 
         <div class="codex-entry-layout">
             <aside class="codex-sidebar">
-                <h3>Codex Entries</h3>
+                <h3>{{ t.codex_entries }}</h3>
                 <ul class="codex-nav-list">
                     {% for e in all_entries %}
                     <li>
-                        <a href="/codex/{{ e.slug }}" class="{% if e.slug == entry.slug %}active{% endif %}">
+                        <a href="{{ url_prefix }}/codex/{{ e.slug }}" class="{% if e.slug == entry.slug %}active{% endif %}">
                             {{ e.title }}
                         </a>
                     </li>
@@ -45,7 +45,7 @@
                 </div>
 
                 <footer class="entry-footer">
-                    <a href="/codex" class="btn btn-secondary">Back to Codex</a>
+                    <a href="{{ url_prefix }}/codex" class="btn btn-secondary">{{ t.back_to_codex }}</a>
                 </footer>
             </article>
         </div>

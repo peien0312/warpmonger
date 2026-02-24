@@ -14,7 +14,7 @@
 <div class="container">
     <article class="promotion-detail">
         <nav class="breadcrumb">
-            <a href="/promotions">Promotions</a> / <span>{{ promotion.title }}</span>
+            <a href="{{ url_prefix }}/promotions">{{ t.promotions }}</a> / <span>{{ promotion.title }}</span>
         </nav>
 
         {% if promotion.banner %}
@@ -41,7 +41,7 @@
             <div class="products-grid">
                 {% for product in products %}
                 <div class="product-card">
-                    <a href="/products/{{ product.category }}/{{ product.slug }}">
+                    <a href="{{ url_prefix }}/products/{{ product.category }}/{{ product.slug }}">
                         <div class="product-image-container">
                             {% if product.images %}
                             <img src="/static/images/products/{{ product.category }}/{{ product.slug }}/thumb_{{ product.images[0].rsplit('.', 1)[0] }}.jpg"
@@ -53,26 +53,32 @@
 
                             <div class="product-badges">
                                 {% if not product.in_stock %}
-                                <span class="badge badge-soldout">Sold Out</span>
+                                <span class="badge badge-soldout">{{ t.sold_out }}</span>
                                 {% endif %}
                                 {% if product.is_pre_order %}
-                                <span class="badge badge-preorder">Pre-order</span>
+                                <span class="badge badge-preorder">{{ t.pre_order }}</span>
                                 {% endif %}
                                 {% if product.is_on_sale %}
-                                <span class="badge badge-sale">Sale</span>
+                                <span class="badge badge-sale">{{ t.sale }}</span>
                                 {% endif %}
                             </div>
                         </div>
 
-                        <h3>{{ product.title }}</h3>
+                        <h3>{{ product.zhtw_name if is_zhtw and product.zhtw_name else product.title }}</h3>
 
-                        {% if product.is_on_sale and product.sale_price > 0 %}
-                        <p class="price">
-                            <span class="original-price">${{ "%.2f"|format(product.price) }}</span>
-                            <span class="sale-price">${{ "%.2f"|format(product.sale_price) }}</span>
-                        </p>
+                        {% if is_zhtw %}
+                            {% if product.final_price %}
+                            <p class="price">NT${{ product.final_price|ntd }}</p>
+                            {% endif %}
                         {% else %}
-                        <p class="price">${{ "%.2f"|format(product.price) }}</p>
+                            {% if product.is_on_sale and product.sale_price > 0 %}
+                            <p class="price">
+                                <span class="original-price">${{ "%.2f"|format(product.price) }}</span>
+                                <span class="sale-price">${{ "%.2f"|format(product.sale_price) }}</span>
+                            </p>
+                            {% else %}
+                            <p class="price">${{ "%.2f"|format(product.price) }}</p>
+                            {% endif %}
                         {% endif %}
                     </a>
                 </div>
@@ -82,7 +88,7 @@
         {% endif %}
 
         <footer class="promotion-footer">
-            <a href="/promotions" class="btn btn-secondary">← Back to Promotions</a>
+            <a href="{{ url_prefix }}/promotions" class="btn btn-secondary">{{ t.back_to_promotions }}</a>
         </footer>
     </article>
 </div>

@@ -1,17 +1,17 @@
 {% extends "public/base.html" %}
 
-{% block title %}Shopping List | Warpmonger{% endblock %}
+{% block title %}{{ t.cart }} | Warpmonger{% endblock %}
 
 {% block meta_description %}Your shopping list - Review and send your product selections for a personalized quote.{% endblock %}
 
 {% block content %}
 <div class="container">
     <div class="cart-page">
-        <h1>Your Shopping List</h1>
+        <h1>{{ t.your_shopping_list }}</h1>
 
         <div id="cart-empty" class="cart-empty" style="display: none;">
-            <p>Your shopping list is empty.</p>
-            <a href="/products" class="btn btn-primary">Browse Products</a>
+            <p>{{ t.list_empty }}</p>
+            <a href="{{ url_prefix }}/products" class="btn btn-primary">{{ t.browse_products }}</a>
         </div>
 
         <div id="cart-content" style="display: none;">
@@ -20,12 +20,12 @@
             </div>
 
             <div class="cart-summary">
-                <p class="cart-total">Total: $<span id="cart-total">0.00</span></p>
+                <p class="cart-total">{{ t.total }}: {{ t.currency_symbol }}<span id="cart-total">0.00</span></p>
                 <button type="button" class="btn btn-primary btn-lg" id="send-list-btn" onclick="openContactModal()">
-                    Send List for Quote
+                    {{ t.send_for_quote }}
                 </button>
                 <button type="button" class="btn btn-secondary" style="width: 100%; margin-top: 10px;" onclick="clearCart()">
-                    Clear List
+                    {{ t.clear_list }}
                 </button>
             </div>
         </div>
@@ -34,22 +34,22 @@
         <div class="contact-modal" id="contact-modal" onclick="closeModalOnBackground(event)">
             <div class="modal-content">
                 <button type="button" class="modal-close" onclick="closeContactModal()">&times;</button>
-                <h2>Send Your List</h2>
+                <h2>{{ t.send_your_list }}</h2>
 
                 <!-- Preview Panel (always visible initially) -->
                 <div class="preview-panel" id="preview-panel">
-                    <label>Preview:</label>
+                    <label>{{ t.preview }}:</label>
                     <pre id="preview-text"></pre>
                     <button type="button" class="btn btn-primary" id="copy-btn" onclick="copyToClipboard()">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;margin-right:6px;vertical-align:middle;">
                             <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
                             <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
                         </svg>
-                        Copy to Clipboard
+                        {{ t.copy_to_clipboard }}
                     </button>
                 </div>
 
-                <p style="margin-top: 20px;">Or send via:</p>
+                <p style="margin-top: 20px;">{{ t.or_send_via }}</p>
 
                 <div class="contact-options" id="contact-options">
                     <button type="button" class="contact-btn email-btn" onclick="showEmailForm()">
@@ -57,7 +57,7 @@
                             <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
                             <polyline points="22,6 12,13 2,6"></polyline>
                         </svg>
-                        Email
+                        {{ t.email }}
                     </button>
                     <button type="button" class="contact-btn telegram-btn" onclick="sendViaTelegram()">
                         <svg viewBox="0 0 24 24" fill="currentColor">
@@ -76,19 +76,19 @@
                 <!-- Email Form (hidden by default) -->
                 <div class="email-form" id="email-form" style="display: none;">
                     <div class="form-group">
-                        <label for="user-name">Your Name</label>
+                        <label for="user-name">{{ t.your_name }}</label>
                         <input type="text" id="user-name" placeholder="Enter your name" required>
                     </div>
                     <div class="form-group">
-                        <label for="user-email">Your Email</label>
+                        <label for="user-email">{{ t.your_email }}</label>
                         <input type="email" id="user-email" placeholder="Enter your email" required>
                     </div>
                     <div class="form-group">
-                        <label for="user-message">Additional Notes (optional)</label>
+                        <label for="user-message">{{ t.additional_notes }}</label>
                         <textarea id="user-message" placeholder="Any special requests or questions..."></textarea>
                     </div>
-                    <button type="button" class="btn btn-primary" onclick="submitEmail()">Send Email</button>
-                    <button type="button" class="btn btn-secondary" style="margin-top: 10px;" onclick="backToOptions()">Back</button>
+                    <button type="button" class="btn btn-primary" onclick="submitEmail()">{{ t.send_email }}</button>
+                    <button type="button" class="btn btn-secondary" style="margin-top: 10px;" onclick="backToOptions()">{{ t.back }}</button>
                 </div>
             </div>
         </div>
@@ -96,6 +96,8 @@
 </div>
 
 <script>
+var clearConfirmText = {{ t.clear_confirm|tojson }};
+
 // Render cart items on page load
 document.addEventListener('DOMContentLoaded', function() {
     renderCart();
@@ -107,6 +109,10 @@ function renderCart() {
     var cartContent = document.getElementById('cart-content');
     var cartItemsContainer = document.getElementById('cart-items');
     var cartTotal = document.getElementById('cart-total');
+
+    var isZhtw = document.body.getAttribute('data-locale') === 'zhtw';
+    var urlPrefix = isZhtw ? '/zhtw' : '';
+    var removeText = isZhtw ? '\u79FB\u9664' : 'Remove';
 
     if (items.length === 0) {
         cartEmpty.style.display = 'block';
@@ -131,8 +137,8 @@ function renderCart() {
             html += '<div class="cart-item-image" style="display:flex;align-items:center;justify-content:center;color:#666;">No Image</div>';
         }
         html += '<div class="cart-item-info">';
-        html += '<a href="/products/' + item.category + '/' + item.slug + '" class="cart-item-title">' + item.title + '</a>';
-        html += '<p class="cart-item-price">$' + item.price.toFixed(2) + '</p>';
+        html += '<a href="' + urlPrefix + '/products/' + item.category + '/' + item.slug + '" class="cart-item-title">' + item.title + '</a>';
+        html += '<p class="cart-item-price">' + (isZhtw ? 'NT$' + Math.round(item.price).toLocaleString() : '$' + item.price.toFixed(2)) + '</p>';
         html += '</div>';
         html += '<div class="cart-item-quantity">';
         html += '<div class="quantity-selector">';
@@ -141,12 +147,12 @@ function renderCart() {
         html += '<button type="button" class="qty-btn plus" onclick="updateItemQty(\'' + item.category + '\', \'' + item.slug + '\', 1)">+</button>';
         html += '</div>';
         html += '</div>';
-        html += '<button type="button" class="cart-item-remove" onclick="removeItem(\'' + item.category + '\', \'' + item.slug + '\')">Remove</button>';
+        html += '<button type="button" class="cart-item-remove" onclick="removeItem(\'' + item.category + '\', \'' + item.slug + '\')">' + removeText + '</button>';
         html += '</div>';
     });
 
     cartItemsContainer.innerHTML = html;
-    cartTotal.textContent = Cart.getTotal().toFixed(2);
+    cartTotal.textContent = isZhtw ? Math.round(Cart.getTotal()).toLocaleString() : Cart.getTotal().toFixed(2);
 }
 
 function updateItemQty(category, slug, delta) {
@@ -179,7 +185,7 @@ function removeItem(category, slug) {
     var item = items.find(function(i) { return i.category === category && i.slug === slug; });
     if (item && typeof gtag === 'function') {
         gtag('event', 'remove_from_cart', {
-            currency: 'USD',
+            currency: document.body.getAttribute('data-locale') === 'zhtw' ? 'TWD' : 'USD',
             value: item.price * item.quantity,
             items: [{
                 item_id: category + '/' + slug,
@@ -195,7 +201,7 @@ function removeItem(category, slug) {
 }
 
 function clearCart() {
-    if (confirm('Are you sure you want to clear your shopping list?')) {
+    if (confirm(clearConfirmText)) {
         Cart.clear();
         renderCart();
     }
@@ -228,7 +234,7 @@ function openContactModal() {
             };
         });
         gtag('event', 'begin_checkout', {
-            currency: 'USD',
+            currency: document.body.getAttribute('data-locale') === 'zhtw' ? 'TWD' : 'USD',
             value: Cart.getTotal(),
             items: gaItems
         });
@@ -413,7 +419,7 @@ function sendViaLINE() {
         });
     }
     // Redirect to LINE contact page with instructions
-    window.location.href = '/cart/line';
+    window.location.href = '{{ url_prefix }}/cart/line';
 }
 
 // Keyboard navigation

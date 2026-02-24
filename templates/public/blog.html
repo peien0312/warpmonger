@@ -13,7 +13,7 @@
         <div class="blog-posts">
             {% for post in posts %}
             <article class="blog-post-preview">
-                <h2><a href="/blog/{{ post.slug }}">{{ post.title }}</a></h2>
+                <h2><a href="{{ url_prefix }}/blog/{{ post.slug }}">{{ post.title }}</a></h2>
                 <p class="post-meta">
                     {{ post.date }}
                     {% if post.author %}by {{ post.author }}{% endif %}
@@ -26,7 +26,7 @@
                     {% endfor %}
                 </div>
                 {% endif %}
-                <a href="/blog/{{ post.slug }}" class="read-more">Read more →</a>
+                <a href="{{ url_prefix }}/blog/{{ post.slug }}" class="read-more">{{ t.read_more }}</a>
             </article>
             {% endfor %}
         </div>

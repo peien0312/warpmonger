@@ -3,12 +3,17 @@
  */
 
 const Cart = {
-    KEY: 'warpmonger_cart',
+    _getLocale: function() {
+        return (document.body && document.body.getAttribute('data-locale')) || 'en';
+    },
+    _getKey: function() {
+        return this._getLocale() === 'zhtw' ? 'warpmonger_cart_zhtw' : 'warpmonger_cart';
+    },
 
     // Get all items from cart
     getItems: function() {
         try {
-            const data = localStorage.getItem(this.KEY);
+            const data = localStorage.getItem(this._getKey());
             return data ? JSON.parse(data) : [];
         } catch (e) {
             console.error('Error reading cart:', e);
@@ -19,7 +24,7 @@ const Cart = {
     // Save items to cart
     saveItems: function(items) {
         try {
-            localStorage.setItem(this.KEY, JSON.stringify(items));
+            localStorage.setItem(this._getKey(), JSON.stringify(items));
             this.updateBadge();
         } catch (e) {
             console.error('Error saving cart:', e);
@@ -54,7 +59,7 @@ const Cart = {
         }
 
         this.saveItems(items);
-        this.showToast('Added to list!');
+        this.showToast(this._getLocale() === 'zhtw' ? '已加入清單！' : 'Added to list!');
         return true;
     },
 
@@ -86,7 +91,7 @@ const Cart = {
 
     // Clear all items
     clear: function() {
-        localStorage.removeItem(this.KEY);
+        localStorage.removeItem(this._getKey());
         this.updateBadge();
     },
 
@@ -147,21 +152,32 @@ const Cart = {
     // Format cart as text for sharing
     formatAsText: function() {
         const items = this.getItems();
-        if (items.length === 0) return 'Shopping list is empty';
+        const isZhtw = this._getLocale() === 'zhtw';
+        const urlPrefix = isZhtw ? '/zhtw' : '';
 
-        let text = 'Shopping List:\n\n';
+        if (items.length === 0) return isZhtw ? '購物清單是空的' : 'Shopping list is empty';
+
+        let text = (isZhtw ? '購物清單：\n\n' : 'Shopping List:\n\n');
         items.forEach(function(item, index) {
             var statusPrefix = '';
             if (item.inStock === false) {
-                statusPrefix = '[Out of Stock] ';
+                statusPrefix = isZhtw ? '[缺貨] ' : '[Out of Stock] ';
             } else if (item.isPreOrder === true) {
-                statusPrefix = '[Pre-Order] ';
+                statusPrefix = isZhtw ? '[預購] ' : '[Pre-Order] ';
             }
             text += (index + 1) + '. ' + statusPrefix + item.title + '\n';
-            text += '   Qty: ' + item.quantity + ' x $' + item.price.toFixed(2) + ' = $' + (item.quantity * item.price).toFixed(2) + '\n';
-            text += '   Link: ' + window.location.origin + '/products/' + item.category + '/' + item.slug + '\n\n';
+            if (isZhtw) {
+                text += '   ' + item.quantity + ' x NT$' + Math.round(item.price).toLocaleString() + ' = NT$' + Math.round(item.quantity * item.price).toLocaleString() + '\n';
+            } else {
+                text += '   Qty: ' + item.quantity + ' x $' + item.price.toFixed(2) + ' = $' + (item.quantity * item.price).toFixed(2) + '\n';
+            }
+            text += '   Link: ' + window.location.origin + urlPrefix + '/products/' + item.category + '/' + item.slug + '\n\n';
         });
-        text += 'Total: $' + this.getTotal().toFixed(2);
+        if (isZhtw) {
+            text += '合計: NT$' + Math.round(this.getTotal()).toLocaleString();
+        } else {
+            text += 'Total: $' + this.getTotal().toFixed(2);
+        }
         return text;
     }
 };

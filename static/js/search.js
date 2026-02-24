@@ -10,6 +10,11 @@
         return; // Search not on this page
     }
 
+    // Locale detection for zh-TW support
+    const locale = (document.body && document.body.getAttribute('data-locale')) || 'en';
+    const isZhtw = locale === 'zhtw';
+    const urlPrefix = isZhtw ? '/zhtw' : '';
+
     // Debounce function to limit API calls
     function debounce(func, delay) {
         return function() {
@@ -73,7 +78,7 @@
             item.addEventListener('click', function() {
                 const category = this.getAttribute('data-category');
                 const slug = this.getAttribute('data-slug');
-                window.location.href = `/products/${category}/${slug}`;
+                window.location.href = `${urlPrefix}/products/${category}/${slug}`;
             });
 
             item.addEventListener('mouseenter', function() {
@@ -84,8 +89,11 @@
         });
     }
 
-    // Get display name (prefer English, fallback to Chinese)
+    // Get display name (locale-aware)
     function getDisplayName(product) {
+        if (isZhtw) {
+            return product.zhtw_name || product.title || product.cn_name;
+        }
         return product.title || product.cn_name || product.zhtw_name;
     }
 

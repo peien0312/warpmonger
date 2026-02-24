@@ -1,11 +1,11 @@
 {% extends "public/base.html" %}
 
-{% block title %}{{ product.title }} - {{ category_name }} | Warpmonger{% endblock %}
+{% block title %}{{ product.zhtw_name if is_zhtw and product.zhtw_name else product.title }} - {{ category_name }} | Warpmonger{% endblock %}
 
-{% block meta_description %}Buy {{ product.title }} for ${{ "%.2f"|format(product.price) }}. {{ product.description[:150] }}...{% endblock %}
+{% block meta_description %}{% if is_zhtw %}{{ product.zhtw_name or product.title }}{% if product.final_price %} - NT${{ product.final_price|ntd }}{% endif %}{% else %}Buy {{ product.title }} for ${{ "%.2f"|format(product.price) }}. {{ product.description[:150] }}...{% endif %}{% endblock %}
 
 {% block og_type %}product{% endblock %}
-{% block og_title %}{{ product.title }} - ${{ "%.2f"|format(product.price) }}{% endblock %}
+{% block og_title %}{{ product.zhtw_name if is_zhtw and product.zhtw_name else product.title }} - {% if is_zhtw and product.final_price %}NT${{ product.final_price|ntd }}{% else %}${{ "%.2f"|format(product.price) }}{% endif %}{% endblock %}
 {% block og_description %}{{ product.description[:200] }}{% endblock %}
 {% if product.images %}
 {% block og_image %}{{ request.url_root }}static/images/products/{{ product.category }}/{{ product.slug }}/{{ product.images[0] }}{% endblock %}
@@ -16,7 +16,7 @@
 {
   "@context": "https://schema.org/",
   "@type": "Product",
-  "name": "{{ product.title }}",
+  "name": "{{ product.zhtw_name if is_zhtw and product.zhtw_name else product.title }}",
   "description": "{{ product.description|replace('\n', ' ')|replace('"', '\\"') }}",
   {% if product.images %}
   "image": [
@@ -35,8 +35,8 @@
   "offers": {
     "@type": "Offer",
     "url": "{{ request.url }}",
-    "priceCurrency": "USD",
-    "price": "{% if product.is_on_sale and product.sale_price > 0 %}{{ product.sale_price }}{% else %}{{ product.price }}{% endif %}",
+    "priceCurrency": "{% if is_zhtw %}TWD{% else %}USD{% endif %}",
+    "price": "{% if is_zhtw %}{{ product.final_price or 0 }}{% elif product.is_on_sale and product.sale_price > 0 %}{{ product.sale_price }}{% else %}{{ product.price }}{% endif %}",
     "availability": "https://schema.org/{% if product.is_pre_order %}PreOrder{% elif product.in_stock %}InStock{% else %}OutOfStock{% endif %}"
   }
 }
@@ -62,7 +62,7 @@
     {
       "@type": "ListItem",
       "position": 3,
-      "name": "{{ product.title }}"
+      "name": "{{ product.zhtw_name if is_zhtw and product.zhtw_name else product.title }}"
     }
   ]
 }
@@ -119,76 +119,84 @@
                 </div>
                 {% endif %}
             {% else %}
-                <div class="product-placeholder-large">No Image Available</div>
+                <div class="product-placeholder-large">{{ t.no_image }}</div>
             {% endif %}
         </div>
 
         <div class="product-info">
             <nav class="breadcrumb">
-                <a href="/products">Products</a> /
-                <a href="/products?category={{ product.category }}">{{ category_name }}</a> /
-                <span>{{ product.title }}</span>
+                <a href="{{ url_prefix }}/products">{{ t.products }}</a> /
+                <a href="{{ url_prefix }}/products?category={{ product.category }}">{{ category_name }}</a> /
+                <span>{{ product.zhtw_name if is_zhtw and product.zhtw_name else product.title }}</span>
             </nav>
 
-            <h1>{{ product.title }}</h1>
+            <h1>{{ product.zhtw_name if is_zhtw and product.zhtw_name else product.title }}</h1>
 
             {# Product badges #}
             <div class="product-badges-detail">
                 {% if not product.in_stock %}
-                <span class="badge badge-soldout">Sold Out</span>
+                <span class="badge badge-soldout">{{ t.sold_out }}</span>
                 {% endif %}
                 {% if product.is_pre_order %}
-                <span class="badge badge-preorder">Pre-order</span>
+                <span class="badge badge-preorder">{{ t.pre_order }}</span>
                 {% endif %}
                 {% if product.is_on_sale %}
-                <span class="badge badge-sale">Sale</span>
+                <span class="badge badge-sale">{{ t.sale }}</span>
                 {% endif %}
                 {% if product.is_new_arrival %}
-                <span class="badge badge-new">New</span>
+                <span class="badge badge-new">{{ t.new }}</span>
                 {% endif %}
             </div>
 
             <div class="product-meta">
                 {# Pricing #}
-                {% if product.is_on_sale and product.sale_price > 0 %}
-                <p class="price">
-                    <span class="original-price">${{ "%.2f"|format(product.price) }}</span>
-                    <span class="sale-price">${{ "%.2f"|format(product.sale_price) }}</span>
-                    <span class="savings">Save ${{ "%.2f"|format(product.price - product.sale_price) }}</span>
-                </p>
+                {% if is_zhtw %}
+                    {% if product.final_price %}
+                    <p class="price">NT${{ product.final_price|ntd }}</p>
+                    {% else %}
+                    <p class="price contact-price">{{ t.contact_price }}</p>
+                    {% endif %}
                 {% else %}
-                <p class="price">${{ "%.2f"|format(product.price) }}</p>
+                    {% if product.is_on_sale and product.sale_price > 0 %}
+                    <p class="price">
+                        <span class="original-price">${{ "%.2f"|format(product.price) }}</span>
+                        <span class="sale-price">${{ "%.2f"|format(product.sale_price) }}</span>
+                        <span class="savings">Save ${{ "%.2f"|format(product.price - product.sale_price) }}</span>
+                    </p>
+                    {% else %}
+                    <p class="price">${{ "%.2f"|format(product.price) }}</p>
+                    {% endif %}
                 {% endif %}
 
                 {% if product.sku %}
-                <p class="sku">SKU: {{ product.sku }}</p>
+                <p class="sku">{{ t.sku }}: {{ product.sku }}</p>
                 {% endif %}
 
                 {# Product Specifications #}
                 {% if product.series %}
-                <p class="product-spec"><strong>Series:</strong> {{ product.series }}</p>
+                <p class="product-spec"><strong>{{ t.series }}:</strong> {{ product.series }}</p>
                 {% endif %}
                 {% if product.scale %}
-                <p class="product-spec"><strong>Scale:</strong> {{ product.scale }}</p>
+                <p class="product-spec"><strong>{{ t.scale }}:</strong> {{ product.scale }}</p>
                 {% endif %}
                 {% if product.size %}
-                <p class="product-spec"><strong>Size:</strong> {{ product.size }}</p>
+                <p class="product-spec"><strong>{{ t.size }}:</strong> {{ product.size }}</p>
                 {% endif %}
                 {% if product.weight %}
-                <p class="product-spec"><strong>Weight:</strong> {{ product.weight }}</p>
+                <p class="product-spec"><strong>{{ t.weight }}:</strong> {{ product.weight }}</p>
                 {% endif %}
 
                 {# Stock and Pre-order status #}
                 {% if product.is_pre_order %}
                 <p class="pre-order-status">
-                    Pre-order
+                    {{ t.pre_order }}
                     {% if product.available_date %}
-                    - Expected: {{ product.available_date|format_month }}
+                    - {{ t.expected }}: {{ product.available_date|format_month }}
                     {% endif %}
                 </p>
                 {% else %}
                 <p class="stock {% if product.in_stock %}in-stock{% else %}out-of-stock{% endif %}">
-                    {% if product.in_stock %}In Stock{% else %}Out of Stock{% endif %}
+                    {% if product.in_stock %}{{ t.in_stock }}{% else %}{{ t.out_of_stock }}{% endif %}
                 </p>
                 {% endif %}
             </div>
@@ -203,13 +211,13 @@
                 <button type="button" class="btn btn-primary btn-lg" id="add-to-cart"
                         data-category="{{ product.category }}"
                         data-slug="{{ product.slug }}"
-                        data-title="{{ product.title }}"
-                        data-price="{{ product.sale_price if product.is_on_sale and product.sale_price else product.price }}"
+                        data-title="{{ product.zhtw_name if is_zhtw and product.zhtw_name else product.title }}"
+                        data-price="{% if is_zhtw %}{{ product.final_price or 0 }}{% else %}{{ product.sale_price if product.is_on_sale and product.sale_price else product.price }}{% endif %}"
                         data-image="{{ product.images[0] if product.images else '' }}"
                         data-in-stock="{{ 'true' if product.in_stock else 'false' }}"
                         data-pre-order="{{ 'true' if product.is_pre_order else 'false' }}"
                         onclick="addToCart()">
-                    Add to List
+                    {{ t.add_to_list }}
                 </button>
             </div>
 
@@ -219,9 +227,9 @@
 
             {% if product.tags %}
             <div class="product-tags">
-                <strong>Tags:</strong>
+                <strong>{{ t.tags_label }}:</strong>
                 {% for tag in product.tags %}
-                <a href="/products?tag={{ tag|urlencode }}" class="tag tag-link">{{ tag }}</a>
+                <a href="{{ url_prefix }}/products?tag={{ tag|urlencode }}" class="tag tag-link">{{ tag }}</a>
                 {% endfor %}
             </div>
             {% endif %}
@@ -233,7 +241,7 @@
     {% if related %}
     <section class="related-products-carousel">
         <div class="related-header">
-            <h2>Related Products</h2>
+            <h2>{{ t.related_products }}</h2>
             <div class="related-nav">
                 <button class="related-nav-btn prev" onclick="navigateRelated(-1)" aria-label="Previous">&lt;</button>
                 <button class="related-nav-btn next" onclick="navigateRelated(1)" aria-label="Next">&gt;</button>
@@ -243,16 +251,20 @@
             <div class="related-grid" id="related-grid">
                 {% for prod in related %}
                 <div class="related-card">
-                    <a href="/products/{{ prod.category }}/{{ prod.slug }}">
+                    <a href="{{ url_prefix }}/products/{{ prod.category }}/{{ prod.slug }}">
                         {% if prod.images %}
                         <img src="/static/images/products/{{ prod.category }}/{{ prod.slug }}/thumb_{{ prod.images[0].rsplit('.', 1)[0] }}.jpg"
-                             alt="{{ prod.title }}"
+                             alt="{{ prod.zhtw_name if is_zhtw and prod.zhtw_name else prod.title }}"
                              loading="lazy">
                         {% else %}
-                        <div class="product-placeholder">No Image</div>
+                        <div class="product-placeholder">{{ t.no_image }}</div>
                         {% endif %}
-                        <h3>{{ prod.title }}</h3>
-                        <p class="price">${{ "%.2f"|format(prod.price) }}</p>
+                        <h3>{{ prod.zhtw_name if is_zhtw and prod.zhtw_name else prod.title }}</h3>
+                        {% if is_zhtw %}
+                            {% if prod.final_price %}<p class="price">NT${{ prod.final_price|ntd }}</p>{% endif %}
+                        {% else %}
+                            <p class="price">${{ "%.2f"|format(prod.price) }}</p>
+                        {% endif %}
                     </a>
                 </div>
                 {% endfor %}
@@ -502,7 +514,7 @@ function addToCart() {
     // GA4: Track add_to_cart
     if (typeof gtag === 'function') {
         gtag('event', 'add_to_cart', {
-            currency: 'USD',
+            currency: document.documentElement.lang === 'zh-TW' ? 'TWD' : 'USD',
             value: product.price * qty,
             items: [{
                 item_id: product.category + '/' + product.slug,
@@ -523,7 +535,7 @@ document.addEventListener('DOMContentLoaded', function() {
         var btn = document.getElementById('add-to-cart');
         if (btn) {
             gtag('event', 'view_item', {
-                currency: 'USD',
+                currency: document.documentElement.lang === 'zh-TW' ? 'TWD' : 'USD',
                 value: parseFloat(btn.getAttribute('data-price')),
                 items: [{
                     item_id: btn.getAttribute('data-category') + '/' + btn.getAttribute('data-slug'),

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ 'zh-TW' if is_zhtw else 'en' }}">
 <head>
     <!-- Preconnect for performance -->
     <link rel="preconnect" href="https://www.googletagmanager.com">
@@ -26,6 +26,15 @@
     <!-- Canonical URL -->
     <link rel="canonical" href="{{ request.url }}">
 
+    <!-- Hreflang Alternate Links -->
+    {% if is_zhtw %}
+    <link rel="alternate" hreflang="en" href="{{ request.url|replace('/zhtw/', '/') }}">
+    <link rel="alternate" hreflang="zh-TW" href="{{ request.url }}">
+    {% else %}
+    <link rel="alternate" hreflang="en" href="{{ request.url }}">
+    <link rel="alternate" hreflang="zh-TW" href="{{ request.url|replace(request.url_root, request.url_root + 'zhtw/') }}">
+    {% endif %}
+
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="{% block og_type %}website{% endblock %}">
     <meta property="og:url" content="{{ request.url }}">
@@ -50,7 +59,7 @@
     <!-- Structured Data -->
     {% block structured_data %}{% endblock %}
 </head>
-<body>
+<body data-locale="{{ locale }}">
     <header class="site-header">
         <div class="container">
             <div class="header-content">
@@ -62,9 +71,9 @@
                 </button>
 
                 <div class="site-logo">
-                    <a href="/">
+                    <a href="{{ url_prefix }}/">
                         <img src="/static/images/warpmonger_logo_black.png" alt="Warpmonger - By John Action Figure" class="logo-img">
-                        <span class="logo-tagline">PREMIUM ACTION FIGURES</span>
+                        <span class="logo-tagline">{{ t.tagline }}</span>
                     </a>
                 </div>
 
@@ -78,13 +87,13 @@
 
                 <!-- Search Form (Desktop) -->
                 <div class="search-container">
-                    <form action="/products" method="get" class="search-form">
+                    <form action="{{ url_prefix }}/products" method="get" class="search-form">
                         <input
                             type="text"
                             name="search"
                             id="search-input"
                             class="search-input"
-                            placeholder="Search products..."
+                            placeholder="{{ t.search_placeholder }}"
                             autocomplete="off"
                             value="{{ current_search if current_search is defined else '' }}"
                         >
@@ -101,25 +110,32 @@
                 <!-- Desktop Navigation -->
                 <div class="header-right">
                     <nav class="main-nav">
-                        <a href="/">Home</a>
+                        <a href="{{ url_prefix }}/">{{ t.home }}</a>
                         <div class="nav-dropdown">
-                            <a href="/products" class="nav-dropdown-trigger">Products</a>
+                            <a href="{{ url_prefix }}/products" class="nav-dropdown-trigger">{{ t.products }}</a>
                             <div class="nav-dropdown-content">
-                                <a href="/products">All Products</a>
+                                <a href="{{ url_prefix }}/products">{{ t.all_products }}</a>
                                 {% for category in nav_categories %}
-                                <a href="/products?category={{ category.slug }}">{{ category.name }}</a>
+                                <a href="{{ url_prefix }}/products?category={{ category.slug }}">{{ category.name }}</a>
                                 {% endfor %}
                             </div>
                         </div>
-                        <a href="/tags">Tags</a>
-                        <a href="/codex">Codex</a>
-                        <a href="/blog">Blog</a>
+                        <a href="{{ url_prefix }}/tags">{{ t.tags }}</a>
+                        <a href="{{ url_prefix }}/codex">{{ t.codex }}</a>
+                        <a href="{{ url_prefix }}/blog">{{ t.blog }}</a>
                     </nav>
+                    <div class="lang-switcher">
+                        {% if is_zhtw %}
+                        <a href="{{ request.path|replace('/zhtw', '', 1) or '/' }}">EN</a>
+                        {% else %}
+                        <a href="/zhtw{{ request.path }}">繁中</a>
+                        {% endif %}
+                    </div>
                 </div>
 
                 <!-- Cart Icon (visible on both desktop and mobile) -->
                 <div class="cart-icon-container">
-                    <a href="/cart" class="cart-icon" title="Shopping List">
+                    <a href="{{ url_prefix }}/cart" class="cart-icon" title="{{ t.cart }}">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <circle cx="9" cy="21" r="1"></circle>
                             <circle cx="20" cy="21" r="1"></circle>
@@ -132,13 +148,13 @@
 
             <!-- Mobile Search Bar (Hidden by default) -->
             <div class="mobile-search-container" id="mobile-search-container">
-                <form action="/products" method="get" class="search-form">
+                <form action="{{ url_prefix }}/products" method="get" class="search-form">
                     <input
                         type="text"
                         name="search"
                         id="mobile-search-input"
                         class="search-input"
-                        placeholder="Search products..."
+                        placeholder="{{ t.search_placeholder }}"
                         autocomplete="off"
                         value="{{ current_search if current_search is defined else '' }}"
                     >
@@ -157,7 +173,7 @@
             <!-- Mobile Menu -->
             <nav class="mobile-menu" id="mobile-menu">
                 <div class="mobile-menu-header">
-                    <span class="mobile-menu-title">Menu</span>
+                    <span class="mobile-menu-title">{{ t.menu }}</span>
                     <button class="mobile-menu-close" id="mobile-menu-close" aria-label="Close menu">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M18 6L6 18M6 6l12 12"></path>
@@ -165,24 +181,24 @@
                     </button>
                 </div>
                 <div class="mobile-menu-links">
-                    <a href="/">Home</a>
-                    <a href="/products">All Products</a>
+                    <a href="{{ url_prefix }}/">{{ t.home }}</a>
+                    <a href="{{ url_prefix }}/products">{{ t.all_products }}</a>
                     <div class="mobile-menu-section">
-                        <span class="mobile-menu-section-title">Categories</span>
+                        <span class="mobile-menu-section-title">{{ t.categories }}</span>
                         {% for category in nav_categories %}
-                        <a href="/products?category={{ category.slug }}" class="mobile-menu-category">{{ category.name }}</a>
+                        <a href="{{ url_prefix }}/products?category={{ category.slug }}" class="mobile-menu-category">{{ category.name }}</a>
                         {% endfor %}
                     </div>
-                    <a href="/tags">Tags</a>
-                    <a href="/codex">Codex</a>
-                    <a href="/blog">Blog</a>
-                    <a href="/cart" class="mobile-menu-cart">
+                    <a href="{{ url_prefix }}/tags">{{ t.tags }}</a>
+                    <a href="{{ url_prefix }}/codex">{{ t.codex }}</a>
+                    <a href="{{ url_prefix }}/blog">{{ t.blog }}</a>
+                    <a href="{{ url_prefix }}/cart" class="mobile-menu-cart">
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <circle cx="9" cy="21" r="1"></circle>
                             <circle cx="20" cy="21" r="1"></circle>
                             <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
                         </svg>
-                        Shopping List
+                        {{ t.cart }}
                     </a>
                 </div>
             </nav>

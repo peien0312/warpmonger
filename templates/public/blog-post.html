@@ -62,7 +62,7 @@
 <div class="container">
     <article class="blog-post">
         <nav class="breadcrumb">
-            <a href="/blog">Blog</a> / <span>{{ post.title }}</span>
+            <a href="{{ url_prefix }}/blog">{{ t.blog }}</a> / <span>{{ post.title }}</span>
         </nav>
 
         <header class="post-header">
@@ -85,7 +85,7 @@
         </div>
 
         <footer class="post-footer">
-            <a href="/blog" class="btn btn-secondary">← Back to Blog</a>
+            <a href="{{ url_prefix }}/blog" class="btn btn-secondary">{{ t.back_to_blog }}</a>
         </footer>
     </article>
 </div>

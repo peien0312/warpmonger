@@ -1,6 +1,6 @@
 {% extends "public/base.html" %}
 
-{% block title %}{% if current_category_name %}{{ current_category_name }} Action Figures{% else %}All Products{% endif %} | Warpmonger{% endblock %}
+{% block title %}{% if current_category_name %}{{ current_category_name }}{% elif is_zhtw %}{{ t.all_products }}{% else %}All Products{% endif %} | Warpmonger{% endblock %}
 
 {% block meta_description %}Browse our selection of {% if current_category_name %}{{ current_category_name|lower }} action figures{% else %}premium action figures and collectibles{% endif %}. Find the perfect collectible figures with fast shipping and great prices.{% endblock %}
 
@@ -8,36 +8,36 @@
 <div class="container">
     <div class="products-page">
         <aside class="products-sidebar">
-            <h3>Filters</h3>
+            <h3>{{ t.filters }}</h3>
             <div class="filters">
                 <label class="filter-checkbox">
                     <input type="checkbox" id="filter-preorder" {% if show_pre_order %}checked{% endif %}
                            onchange="toggleFilter('pre_order')">
-                    Pre-order
+                    {{ t.pre_order }}
                 </label>
                 <label class="filter-checkbox">
                     <input type="checkbox" id="filter-onsale" {% if show_on_sale %}checked{% endif %}
                            onchange="toggleFilter('on_sale')">
-                    On Sale
+                    {{ t.on_sale }}
                 </label>
                 <label class="filter-checkbox">
                     <input type="checkbox" id="filter-newarrival" {% if show_new_arrival %}checked{% endif %}
                            onchange="toggleFilter('new_arrival')">
-                    New Arrivals
+                    {{ t.new_arrivals }}
                 </label>
                 <label class="filter-checkbox">
                     <input type="checkbox" id="filter-instock" {% if show_in_stock %}checked{% endif %}
                            onchange="toggleFilter('in_stock')">
-                    In Stock
+                    {{ t.in_stock }}
                 </label>
             </div>
 
-            <h3 style="margin-top: 2rem;">Categories</h3>
+            <h3 style="margin-top: 2rem;">{{ t.categories }}</h3>
             <ul class="category-list">
-                <li><a href="/products{% if show_pre_order or show_on_sale or show_new_arrival or show_in_stock %}?{% endif %}{% if show_pre_order %}pre_order=true{% endif %}{% if show_on_sale %}{% if show_pre_order %}&{% endif %}on_sale=true{% endif %}{% if show_new_arrival %}{% if show_pre_order or show_on_sale %}&{% endif %}new_arrival=true{% endif %}{% if show_in_stock %}{% if show_pre_order or show_on_sale or show_new_arrival %}&{% endif %}in_stock=true{% endif %}" {% if not current_category %}class="active"{% endif %}>All Products</a></li>
+                <li><a href="{{ url_prefix }}/products{% if show_pre_order or show_on_sale or show_new_arrival or show_in_stock %}?{% endif %}{% if show_pre_order %}pre_order=true{% endif %}{% if show_on_sale %}{% if show_pre_order %}&{% endif %}on_sale=true{% endif %}{% if show_new_arrival %}{% if show_pre_order or show_on_sale %}&{% endif %}new_arrival=true{% endif %}{% if show_in_stock %}{% if show_pre_order or show_on_sale or show_new_arrival %}&{% endif %}in_stock=true{% endif %}" {% if not current_category %}class="active"{% endif %}>{{ t.all_products }}</a></li>
                 {% for category in categories %}
                 <li>
-                    <a href="/products?category={{ category.slug }}{% if show_pre_order %}&pre_order=true{% endif %}{% if show_on_sale %}&on_sale=true{% endif %}{% if show_new_arrival %}&new_arrival=true{% endif %}{% if show_in_stock %}&in_stock=true{% endif %}"
+                    <a href="{{ url_prefix }}/products?category={{ category.slug }}{% if show_pre_order %}&pre_order=true{% endif %}{% if show_on_sale %}&on_sale=true{% endif %}{% if show_new_arrival %}&new_arrival=true{% endif %}{% if show_in_stock %}&in_stock=true{% endif %}"
                        {% if current_category == category.slug %}class="active"{% endif %}>
                         {{ category.name }}
                     </a>
@@ -90,71 +90,77 @@
         <div class="products-main">
             <div class="products-header">
                 {% if current_search %}
-                <h1>Search Results</h1>
-                <p class="search-query">Showing results for: <strong>"{{ current_search }}"</strong></p>
-                <p>{{ products|length }} product{% if products|length != 1 %}s{% endif %} found</p>
+                <h1>{{ t.search_results }}</h1>
+                <p class="search-query">{{ t.showing_results_for }} <strong>"{{ current_search }}"</strong></p>
+                <p>{{ products|length }} {{ t.products_found }}</p>
                 {% if products|length > 0 %}
-                <a href="/products" class="clear-search">Clear search</a>
+                <a href="{{ url_prefix }}/products" class="clear-search">{{ t.clear_search }}</a>
                 {% endif %}
                 {% elif current_tag %}
-                <h1>Tag: {{ current_tag }}</h1>
-                <p>{{ products|length }} product{% if products|length != 1 %}s{% endif %} found</p>
-                <a href="/products" class="clear-search">Clear filter</a>
-                <a href="/tags" class="clear-search" style="margin-left: 1rem;">Browse all tags</a>
+                <h1>{{ t.tag_label }}: {{ current_tag }}</h1>
+                <p>{{ products|length }} {{ t.products_found }}</p>
+                <a href="{{ url_prefix }}/products" class="clear-search">{{ t.clear_filter }}</a>
+                <a href="{{ url_prefix }}/tags" class="clear-search" style="margin-left: 1rem;">{{ t.browse_all_tags }}</a>
                 {% else %}
-                <h1>{% if current_category_name %}{{ current_category_name }}{% else %}All Products{% endif %}</h1>
-                <p>{{ products|length }} product{% if products|length != 1 %}s{% endif %} found</p>
+                <h1>{% if current_category_name %}{{ current_category_name }}{% else %}{{ t.all_products }}{% endif %}</h1>
+                <p>{{ products|length }} {{ t.products_found }}</p>
                 {% endif %}
 
             </div>
 
             <div class="sort-controls">
-                <button class="sort-btn {% if current_sort == 'default' %}active{% endif %}" onclick="changeSort('default')">Default</button>
-                <button class="sort-btn {% if current_sort == 'price_asc' %}active{% endif %}" onclick="changeSort('price_asc')">Price ↑</button>
-                <button class="sort-btn {% if current_sort == 'price_desc' %}active{% endif %}" onclick="changeSort('price_desc')">Price ↓</button>
+                <button class="sort-btn {% if current_sort == 'default' %}active{% endif %}" onclick="changeSort('default')">{{ t.sort_default }}</button>
+                <button class="sort-btn {% if current_sort == 'price_asc' %}active{% endif %}" onclick="changeSort('price_asc')">{{ t.sort_price_asc }}</button>
+                <button class="sort-btn {% if current_sort == 'price_desc' %}active{% endif %}" onclick="changeSort('price_desc')">{{ t.sort_price_desc }}</button>
             </div>
 
             <div class="products-grid">
                 {% for product in products %}
                 <div class="product-card" {% if product.group %}data-group="{{ product.group }}"{% endif %}>
-                    <a href="/products/{{ product.category }}/{{ product.slug }}">
+                    <a href="{{ url_prefix }}/products/{{ product.category }}/{{ product.slug }}">
                         <div class="product-image-container">
                             {% if product.images %}
                             <img src="/static/images/products/{{ product.category }}/{{ product.slug }}/thumb_{{ product.images[0].rsplit('.', 1)[0] }}.jpg"
                                  alt="{{ product.title }} - Premium action figure - ${{ '%.2f'|format(product.price) }}"
                                  loading="lazy">
                             {% else %}
-                            <div class="product-placeholder">No Image</div>
+                            <div class="product-placeholder">{{ t.no_image }}</div>
                             {% endif %}
 
                             {# Product badges #}
                             <div class="product-badges">
                                 {% if not product.in_stock %}
-                                <span class="badge badge-soldout">Sold Out</span>
+                                <span class="badge badge-soldout">{{ t.sold_out }}</span>
                                 {% endif %}
                                 {% if product.is_pre_order %}
-                                <span class="badge badge-preorder">Pre-order</span>
+                                <span class="badge badge-preorder">{{ t.pre_order }}</span>
                                 {% endif %}
                                 {% if product.is_on_sale %}
-                                <span class="badge badge-sale">Sale</span>
+                                <span class="badge badge-sale">{{ t.sale }}</span>
                                 {% endif %}
                                 {% if product.is_new_arrival %}
-                                <span class="badge badge-new">New</span>
+                                <span class="badge badge-new">{{ t.new }}</span>
                                 {% endif %}
                             </div>
 
                         </div>
 
-                        <h3>{{ product.title }}</h3>
+                        <h3>{{ product.zhtw_name if is_zhtw and product.zhtw_name else product.title }}</h3>
 
                         {# Pricing #}
-                        {% if product.is_on_sale and product.sale_price > 0 %}
-                        <p class="price">
-                            <span class="original-price">${{ "%.2f"|format(product.price) }}</span>
-                            <span class="sale-price">${{ "%.2f"|format(product.sale_price) }}</span>
-                        </p>
+                        {% if is_zhtw %}
+                            {% if product.final_price %}
+                            <p class="price">NT${{ product.final_price|ntd }}</p>
+                            {% endif %}
                         {% else %}
-                        <p class="price">${{ "%.2f"|format(product.price) }}</p>
+                            {% if product.is_on_sale and product.sale_price > 0 %}
+                            <p class="price">
+                                <span class="original-price">${{ "%.2f"|format(product.price) }}</span>
+                                <span class="sale-price">${{ "%.2f"|format(product.sale_price) }}</span>
+                            </p>
+                            {% else %}
+                            <p class="price">${{ "%.2f"|format(product.price) }}</p>
+                            {% endif %}
                         {% endif %}
                     </a>
                 </div>
@@ -162,9 +168,9 @@
                 {% if not products %}
                 <p class="no-products">
                     {% if current_search %}
-                    No products found matching "{{ current_search }}". Try a different search term.
+                    {{ t.no_products_search }} "{{ current_search }}"
                     {% else %}
-                    No products found in this category.
+                    {{ t.no_products_category }}
                     {% endif %}
                 </p>
                 {% endif %}

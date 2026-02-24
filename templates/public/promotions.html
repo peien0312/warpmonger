@@ -14,18 +14,18 @@
             {% for promo in promotions %}
             <article class="promotion-preview">
                 {% if promo.banner %}
-                <a href="/promotions/{{ promo.slug }}" class="promotion-banner-link">
+                <a href="{{ url_prefix }}/promotions/{{ promo.slug }}" class="promotion-banner-link">
                     <img src="{{ promo.banner }}" alt="{{ promo.title }}" class="promotion-banner-thumb">
                 </a>
                 {% endif %}
                 <div class="promotion-info">
-                    <h2><a href="/promotions/{{ promo.slug }}">{{ promo.title }}</a></h2>
+                    <h2><a href="{{ url_prefix }}/promotions/{{ promo.slug }}">{{ promo.title }}</a></h2>
                     <p class="promo-meta">{{ promo.date }}</p>
                     <p class="promo-excerpt">{{ promo.excerpt }}</p>
                     {% if promo.active %}
                     <span class="promo-badge active">Active</span>
                     {% endif %}
-                    <a href="/promotions/{{ promo.slug }}" class="read-more">View Details →</a>
+                    <a href="{{ url_prefix }}/promotions/{{ promo.slug }}" class="read-more">{{ t.view_details }}</a>
                 </div>
             </article>
             {% endfor %}

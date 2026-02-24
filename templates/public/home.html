@@ -42,20 +42,20 @@
 {% block content %}
 <section class="hero">
     <div class="container">
-        <h2>Welcome to Warpmonger</h2>
-        <p>Premium Action Figures & Collectibles</p>
-        <a href="/products" class="btn btn-primary btn-lg">Shop Now</a>
+        <h2>{{ t.welcome }}</h2>
+        <p>{{ t.hero_subtitle }}</p>
+        <a href="{{ url_prefix }}/products" class="btn btn-primary btn-lg">{{ t.shop_now }}</a>
     </div>
 </section>
 
 {% if active_promo %}
 <section class="promo-banner-section">
     <div class="container">
-        <a href="/promotions/{{ active_promo.slug }}" class="promo-banner-link">
+        <a href="{{ url_prefix }}/promotions/{{ active_promo.slug }}" class="promo-banner-link">
             <img src="{{ active_promo.banner }}" alt="{{ active_promo.title }}">
             <div class="promo-banner-overlay">
                 <h3>{{ active_promo.title }}</h3>
-                <p>View Promotion →</p>
+                <p>{{ t.view_promotion }}</p>
             </div>
         </a>
     </div>
@@ -66,7 +66,7 @@
     <div class="container">
         <div class="faction-tags">
             {% for tag in featured_tags %}
-            <a href="/products?tag={{ tag.name|urlencode }}" class="faction-tag">{{ tag.name }}</a>
+            <a href="{{ url_prefix }}/products?tag={{ tag.name|urlencode }}" class="faction-tag">{{ tag.name }}</a>
             {% endfor %}
         </div>
     </div>
@@ -75,40 +75,46 @@
 {% if new_arrivals %}
 <section class="new-arrivals">
     <div class="container">
-        <h2>New Arrivals</h2>
+        <h2>{{ t.new_arrivals }}</h2>
         <div class="products-grid">
             {% for product in new_arrivals %}
             <div class="product-card">
-                <a href="/products/{{ product.category }}/{{ product.slug }}">
+                <a href="{{ url_prefix }}/products/{{ product.category }}/{{ product.slug }}">
                     <div class="product-image-container">
                         {% if product.images %}
                         <img src="/static/images/products/{{ product.category }}/{{ product.slug }}/thumb_{{ product.images[0].rsplit('.', 1)[0] }}.jpg"
                              alt="{{ product.title }} - Premium action figure - ${{ '%.2f'|format(product.price) }}"
                              loading="lazy">
                         {% else %}
-                        <div class="product-placeholder">No Image</div>
+                        <div class="product-placeholder">{{ t.no_image }}</div>
                         {% endif %}
 
                         <div class="product-badges">
-                            <span class="badge badge-new">New</span>
+                            <span class="badge badge-new">{{ t.new }}</span>
                         </div>
                     </div>
 
-                    <h3>{{ product.title }}</h3>
+                    <h3>{{ product.zhtw_name if is_zhtw and product.zhtw_name else product.title }}</h3>
 
-                    {% if product.is_on_sale and product.sale_price > 0 %}
-                    <p class="price">
-                        <span class="original-price">${{ "%.2f"|format(product.price) }}</span>
-                        <span class="sale-price">${{ "%.2f"|format(product.sale_price) }}</span>
-                    </p>
+                    {% if is_zhtw %}
+                        {% if product.final_price %}
+                        <p class="price">NT${{ product.final_price|ntd }}</p>
+                        {% endif %}
                     {% else %}
-                    <p class="price">${{ "%.2f"|format(product.price) }}</p>
+                        {% if product.is_on_sale and product.sale_price > 0 %}
+                        <p class="price">
+                            <span class="original-price">${{ "%.2f"|format(product.price) }}</span>
+                            <span class="sale-price">${{ "%.2f"|format(product.sale_price) }}</span>
+                        </p>
+                        {% else %}
+                        <p class="price">${{ "%.2f"|format(product.price) }}</p>
+                        {% endif %}
                     {% endif %}
                 </a>
             </div>
             {% endfor %}
         </div>
-        <a href="/products?new_arrival=true" class="btn btn-secondary">View All New Arrivals</a>
+        <a href="{{ url_prefix }}/products?new_arrival=true" class="btn btn-secondary">{{ t.view_all_new }}</a>
     </div>
 </section>
 {% endif %}
@@ -116,92 +122,104 @@
 {% if on_sale %}
 <section class="on-sale">
     <div class="container">
-        <h2>On Sale Now</h2>
+        <h2>{{ t.on_sale }}</h2>
         <div class="products-grid">
             {% for product in on_sale %}
             <div class="product-card">
-                <a href="/products/{{ product.category }}/{{ product.slug }}">
+                <a href="{{ url_prefix }}/products/{{ product.category }}/{{ product.slug }}">
                     <div class="product-image-container">
                         {% if product.images %}
                         <img src="/static/images/products/{{ product.category }}/{{ product.slug }}/thumb_{{ product.images[0].rsplit('.', 1)[0] }}.jpg"
                              alt="{{ product.title }} - Premium action figure - ${{ '%.2f'|format(product.price) }}"
                              loading="lazy">
                         {% else %}
-                        <div class="product-placeholder">No Image</div>
+                        <div class="product-placeholder">{{ t.no_image }}</div>
                         {% endif %}
 
                         <div class="product-badges">
-                            <span class="badge badge-sale">Sale</span>
+                            <span class="badge badge-sale">{{ t.sale }}</span>
                         </div>
                     </div>
 
-                    <h3>{{ product.title }}</h3>
+                    <h3>{{ product.zhtw_name if is_zhtw and product.zhtw_name else product.title }}</h3>
 
-                    {% if product.sale_price > 0 %}
-                    <p class="price">
-                        <span class="original-price">${{ "%.2f"|format(product.price) }}</span>
-                        <span class="sale-price">${{ "%.2f"|format(product.sale_price) }}</span>
-                    </p>
+                    {% if is_zhtw %}
+                        {% if product.final_price %}
+                        <p class="price">NT${{ product.final_price|ntd }}</p>
+                        {% endif %}
                     {% else %}
-                    <p class="price">${{ "%.2f"|format(product.price) }}</p>
+                        {% if product.sale_price > 0 %}
+                        <p class="price">
+                            <span class="original-price">${{ "%.2f"|format(product.price) }}</span>
+                            <span class="sale-price">${{ "%.2f"|format(product.sale_price) }}</span>
+                        </p>
+                        {% else %}
+                        <p class="price">${{ "%.2f"|format(product.price) }}</p>
+                        {% endif %}
                     {% endif %}
                 </a>
             </div>
             {% endfor %}
         </div>
-        <a href="/products?on_sale=true" class="btn btn-secondary">View All Sale Items</a>
+        <a href="{{ url_prefix }}/products?on_sale=true" class="btn btn-secondary">{{ t.view_all_sale }}</a>
     </div>
 </section>
 {% endif %}
 
 <section class="featured-products">
     <div class="container">
-        <h2>Featured Products</h2>
+        <h2>{{ t.featured }}</h2>
         <div class="products-grid">
             {% for product in products %}
             <div class="product-card">
-                <a href="/products/{{ product.category }}/{{ product.slug }}">
+                <a href="{{ url_prefix }}/products/{{ product.category }}/{{ product.slug }}">
                     <div class="product-image-container">
                         {% if product.images %}
                         <img src="/static/images/products/{{ product.category }}/{{ product.slug }}/thumb_{{ product.images[0].rsplit('.', 1)[0] }}.jpg"
                              alt="{{ product.title }} - Premium action figure - ${{ '%.2f'|format(product.price) }}"
                              loading="lazy">
                         {% else %}
-                        <div class="product-placeholder">No Image</div>
+                        <div class="product-placeholder">{{ t.no_image }}</div>
                         {% endif %}
 
                         {# Product badges #}
                         <div class="product-badges">
                             {% if not product.in_stock %}
-                            <span class="badge badge-soldout">Sold Out</span>
+                            <span class="badge badge-soldout">{{ t.sold_out }}</span>
                             {% endif %}
                             {% if product.is_pre_order %}
-                            <span class="badge badge-preorder">Pre-order</span>
+                            <span class="badge badge-preorder">{{ t.pre_order }}</span>
                             {% endif %}
                             {% if product.is_on_sale %}
-                            <span class="badge badge-sale">Sale</span>
+                            <span class="badge badge-sale">{{ t.sale }}</span>
                             {% endif %}
                             {% if product.is_new_arrival %}
-                            <span class="badge badge-new">New</span>
+                            <span class="badge badge-new">{{ t.new }}</span>
                             {% endif %}
                         </div>
                     </div>
 
-                    <h3>{{ product.title }}</h3>
+                    <h3>{{ product.zhtw_name if is_zhtw and product.zhtw_name else product.title }}</h3>
 
-                    {% if product.is_on_sale and product.sale_price > 0 %}
-                    <p class="price">
-                        <span class="original-price">${{ "%.2f"|format(product.price) }}</span>
-                        <span class="sale-price">${{ "%.2f"|format(product.sale_price) }}</span>
-                    </p>
+                    {% if is_zhtw %}
+                        {% if product.final_price %}
+                        <p class="price">NT${{ product.final_price|ntd }}</p>
+                        {% endif %}
                     {% else %}
-                    <p class="price">${{ "%.2f"|format(product.price) }}</p>
+                        {% if product.is_on_sale and product.sale_price > 0 %}
+                        <p class="price">
+                            <span class="original-price">${{ "%.2f"|format(product.price) }}</span>
+                            <span class="sale-price">${{ "%.2f"|format(product.sale_price) }}</span>
+                        </p>
+                        {% else %}
+                        <p class="price">${{ "%.2f"|format(product.price) }}</p>
+                        {% endif %}
                     {% endif %}
                 </a>
             </div>
             {% endfor %}
             {% if not products %}
-            <p>No products available yet.</p>
+            <p>{{ t.no_products_yet }}</p>
             {% endif %}
         </div>
     </div>
@@ -210,18 +228,18 @@
 {% if posts %}
 <section class="recent-posts">
     <div class="container">
-        <h2>Recent Blog Posts</h2>
+        <h2>{{ t.recent_blog }}</h2>
         <div class="posts-grid">
             {% for post in posts %}
             <article class="post-card">
-                <h3><a href="/blog/{{ post.slug }}">{{ post.title }}</a></h3>
+                <h3><a href="{{ url_prefix }}/blog/{{ post.slug }}">{{ post.title }}</a></h3>
                 <p class="post-meta">{{ post.date }} {% if post.author %}by {{ post.author }}{% endif %}</p>
                 <p>{{ post.excerpt }}</p>
-                <a href="/blog/{{ post.slug }}" class="read-more">Read more →</a>
+                <a href="{{ url_prefix }}/blog/{{ post.slug }}" class="read-more">{{ t.read_more }}</a>
             </article>
             {% endfor %}
         </div>
-        <a href="/blog" class="btn btn-secondary">View All Posts</a>
+        <a href="{{ url_prefix }}/blog" class="btn btn-secondary">{{ t.view_all_posts }}</a>
     </div>
 </section>
 {% endif %}
