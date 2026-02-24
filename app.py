@@ -208,6 +208,9 @@ TRANSLATIONS = {
         'no_image': 'No Image',
         'no_products_yet': 'No products available yet.',
         'tag_label': 'Tag',
+        'return_policy': 'Return & Exchange Policy',
+        'terms_of_service': 'Terms of Service',
+        'shopping_guide': 'Shopping Guide',
     },
     'zhtw': {
         'home': '首頁',
@@ -305,6 +308,9 @@ TRANSLATIONS = {
         'no_image': '無圖片',
         'no_products_yet': '目前沒有商品。',
         'tag_label': '標籤',
+        'return_policy': '退換貨說明',
+        'terms_of_service': '服務條款',
+        'shopping_guide': '購物須知',
     }
 }
 
@@ -379,6 +385,7 @@ BLOG_DIR = os.path.join(CONTENT_DIR, 'blog')
 PROMOTIONS_DIR = os.path.join(CONTENT_DIR, 'promotions')
 CATEGORIES_DIR = os.path.join(CONTENT_DIR, 'categories')
 CODEX_DIR = os.path.join(CONTENT_DIR, 'codex')
+PAGES_DIR = os.path.join(CONTENT_DIR, 'pages')
 DATA_DIR = os.path.join(os.path.dirname(__file__), 'data')
 USERS_FILE = os.path.join(DATA_DIR, 'users.json')
 FEATURED_TAGS_FILE = os.path.join(DATA_DIR, 'featured_tags.json')
@@ -393,6 +400,7 @@ os.makedirs(BLOG_DIR, exist_ok=True)
 os.makedirs(PROMOTIONS_DIR, exist_ok=True)
 os.makedirs(CATEGORIES_DIR, exist_ok=True)
 os.makedirs(CODEX_DIR, exist_ok=True)
+os.makedirs(PAGES_DIR, exist_ok=True)
 os.makedirs(DATA_DIR, exist_ok=True)
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 os.makedirs(FEATURED_TAGS_ICONS_DIR, exist_ok=True)
@@ -1475,6 +1483,42 @@ def cart_line_page():
     return render_template('public/line-contact.html', line_id=line_id)
 
 
+# === Static Pages (Policy / Info) ===
+
+def get_page(slug):
+    """Load a static page from content/pages/ with locale support"""
+    from flask import g
+    locale = getattr(g, 'locale', 'en')
+    # Try locale-specific file first, then fallback to default
+    if locale != 'en':
+        path = os.path.join(PAGES_DIR, f'{slug}.{locale}.md')
+        if os.path.exists(path):
+            with open(path, 'r', encoding='utf-8') as f:
+                meta, body = parse_frontmatter(f.read())
+            meta['content'] = body
+            return meta
+    path = os.path.join(PAGES_DIR, f'{slug}.md')
+    if os.path.exists(path):
+        with open(path, 'r', encoding='utf-8') as f:
+            meta, body = parse_frontmatter(f.read())
+        meta['content'] = body
+        return meta
+    return None
+
+ALLOWED_PAGES = ['return-policy', 'terms', 'shopping-guide']
+
+@public_route('/page/<slug>')
+def static_page(slug):
+    """Render a static info/policy page"""
+    if slug not in ALLOWED_PAGES:
+        return "Page not found", 404
+    page = get_page(slug)
+    if not page:
+        return "Page not found", 404
+    page['content_html'] = markdown.markdown(page['content'])
+    return render_template('public/page.html', page=page)
+
+
 # === Shopping List Email API ===
 
 def format_shopping_list_html(items, user_name, user_email, user_message):
@@ -1710,6 +1754,21 @@ def sitemap():
             'lastmod': lastmod,
             'changefreq': 'monthly',
             'priority': '0.6'
+        })
+
+    # Static pages (policy / info)
+    for page_slug in ALLOWED_PAGES:
+        page_path = os.path.join(PAGES_DIR, f'{page_slug}.md')
+        if os.path.exists(page_path):
+            mtime = os.path.getmtime(page_path)
+            lastmod = datetime.fromtimestamp(mtime).strftime('%Y-%m-%d')
+        else:
+            lastmod = datetime.now().strftime('%Y-%m-%d')
+        pages.append({
+            'loc': f"{request.url_root}page/{page_slug}",
+            'lastmod': lastmod,
+            'changefreq': 'monthly',
+            'priority': '0.4'
         })
 
     # Generate XML with hreflang alternates

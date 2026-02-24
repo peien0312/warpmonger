@@ -211,9 +211,32 @@
 
     <footer class="site-footer">
         <div class="container">
+            <div class="footer-links">
+                <a href="{{ url_prefix }}/page/return-policy">{{ t.return_policy }}</a>
+                <a href="{{ url_prefix }}/page/terms">{{ t.terms_of_service }}</a>
+                <a href="{{ url_prefix }}/page/shopping-guide">{{ t.shopping_guide }}</a>
+            </div>
             <p>&copy; 2025 Warpmonger - By John Action Figure. All rights reserved.</p>
         </div>
     </footer>
+
+    <style>
+    .footer-links {
+        margin-bottom: 1rem;
+        display: flex;
+        gap: 1.5rem;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+    .footer-links a {
+        color: #888;
+        text-decoration: none;
+        font-size: 0.85rem;
+    }
+    .footer-links a:hover {
+        color: #d4d4d4;
+    }
+    </style>
 
     <script src="/static/js/search.js"></script>
     <script src="/static/js/cart.js"></script>
