@@ -2,8 +2,8 @@
 title: Sons of Horus Justaerin Terminator Squad Justaerin with Carsoran Power Axe
 price: 57.99
 sku: 6973130379718
-in_stock: true
-images: ["editor_3.jpg", "editor_4.jpg", "editor_5.jpg", "editor_6.jpg", "editor_7.jpg", "gallery_3.jpg", "gallery_4.jpg", "gallery_5.jpg", "gallery_6.jpg", "gallery_7.jpg", "gallery_8.jpg"]
+in_stock: false
+images: ["7bc46ba73760.jpg", "06730c6c3266.jpg", "8d8481f045a0.jpg", "e61a504a4fd5.jpg", "7d890c69e7d8.jpg", "0bc50ba6cbd1.jpg", "17cca6966ab9.jpg", "9ca4ed13e52f.jpg", "73d01670896c.jpg", "0a64de990fc1.jpg", "6a4414e72a44.jpg"]
 is_pre_order: false
 available_date: 
 is_on_sale: false
@@ -19,8 +19,9 @@ weight: 0.35kg
 zhtw_price: 229.0
 cost: 180.0
 final_price: 1220.0
-cost_tw: 769.0
+cost_tw: 844
 order_weight: 0
+group: 
 ---
 
 The [[Justaerin]] were the elite First Company of the [[Sons of Horus]], clad in distinctive black [[Terminator Armour]] that set them apart from their brothers. This warrior wields a Carsoran power axe, a weapon pattern unique to the XVI Legion, capable of cleaving through armor with terrifying efficiency. As the Warmaster's personal guard, the Justaerin were feared throughout the galaxy.

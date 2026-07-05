@@ -3,7 +3,7 @@ title: Astra Militarum Tempestus Scions Command Squad 55th Kappic Eagles Grenadi
 price: 45.99
 sku: 6973130375161
 in_stock: false
-images: ["editor_1.jpg", "editor_2.jpg", "editor_3.jpg", "editor_4.jpg", "editor_5.jpg", "editor_6.jpg", "editor_7.jpg", "editor_8.jpg", "gallery_1.jpg", "gallery_2.jpg", "gallery_3.jpg", "gallery_4.jpg", "gallery_5.jpg", "gallery_6.png"]
+images: ["c1d4b76b3d3d.jpg", "a769f4e12ab2.jpg", "3396e4f62a70.jpg", "ccd219e5472c.jpg", "51d06edcda8b.jpg", "622e1ee304f1.jpg", "4a31c06eab92.jpg", "094426e78d8f.jpg", "a9a50148fec3.jpg", "0f8152874894.jpg", "58a3bc927444.jpg", "45b8c3be6ab3.jpg", "c47d29791fa3.jpg", "f953e9c1e520.jpg"]
 is_pre_order: false
 available_date: 
 is_on_sale: false
@@ -18,9 +18,10 @@ size: 15*11*5
 weight: 0.22kg
 zhtw_price: 198.0
 cost: 155.0
-final_price: 1090.0
-cost_tw: 662.0
+final_price: 1110.0
+cost_tw: 727
 order_weight: 0
+group: 
 ---
 
 The Grenadier of the 55th Kappic Eagles provides heavy fire support for his Tempestus Scion squad, wielding weapons that can crack open bunkers and obliterate enemy armor. As elite operatives of the [[Astra Militarum]], Scions are trained to handle specialized weaponry far beyond what standard Guardsmen receive. The Grenadier's devastating firepower ensures that no enemy position is safe when the Kappic Eagles come calling.

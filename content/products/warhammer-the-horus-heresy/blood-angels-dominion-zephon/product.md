@@ -2,8 +2,8 @@
 title: Blood Angels Dominion Zephon
 price: 62.99
 sku: 6927054401154
-in_stock: true
-images: ["editor_1.jpg", "editor_2.jpg", "editor_3.jpg", "editor_4.jpg", "editor_5.jpg", "editor_6.jpg", "editor_7.jpg", "editor_8.jpg", "editor_9.jpg", "editor_10.jpg", "editor_11.jpg", "gallery_1.jpg", "gallery_2.jpg", "gallery_3.jpg", "gallery_4.jpg", "gallery_5.jpg", "gallery_6.jpg"]
+in_stock: false
+images: ["11409b21ea67.jpg", "b35684eaa66b.jpg", "85b1d0f86035.jpg", "b8400f40e325.jpg", "9fad1eeebe27.jpg", "d894a83518cb.jpg", "594b8d9e2996.jpg", "e3781934a7a4.jpg", "0e2ca3f67f4d.jpg", "7bed5c3b4797.jpg", "918c68534d53.jpg", "250ce3d5bfd9.jpg", "fc5a5c92e639.jpg", "26777ef51cbd.jpg", "8f1a3a93d69a.jpg", "ba453fee9e55.jpg", "5c032ff1ef6a.jpg"]
 is_pre_order: false
 available_date: 
 is_on_sale: false
@@ -18,9 +18,10 @@ size: 20*18*5
 weight: 0.35kg
 zhtw_price: 269.0
 cost: 215.0
-final_price: 1430.0
-cost_tw: 918.0
+final_price: 1650.0
+cost_tw: 1008
 order_weight: 0
+group: 
 ---
 
 Dominion Zephon of the [[Blood Angels]] was once called "The Bringer of Sorrow" for his mastery of the jump pack assault. When grievous wounds cost him his hands, [[Belisarius Cawl|Arkhan Land]] crafted him augmetic replacements, allowing him to continue serving the IX Legion. This figure depicts Zephon with his distinctive bionic arms, a testament to the Blood Angels' determination to continue fighting despite any obstacle.

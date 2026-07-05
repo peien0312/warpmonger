@@ -2,8 +2,8 @@
 title: Ultramarines MK lll Tactical Legionary
 price: 35.99
 sku: 6927054402663
-in_stock: true
-images: ["editor_001.jpg", "editor_002.jpg", "editor_003.jpg", "editor_004.jpg", "editor_005.jpg", "editor_006.jpg", "editor_007.jpg", "editor_008.jpg", "editor_009.jpg", "editor_010.jpg", "editor_011.jpg", "editor_012.jpg", "gallery_001.jpg", "gallery_002.jpg", "gallery_003.jpg", "gallery_004.jpg", "gallery_005.jpg", "gallery_006.jpg"]
+in_stock: false
+images: ["3a7ad164fb1a.jpg", "e6cd7fac4332.jpg", "fb1648e04484.jpg", "96d0e1ee1352.jpg", "bf7eb36a70f9.jpg", "8a55bb954ac4.jpg", "0a46f70614fc.jpg", "d3d051592f2b.jpg", "882904f09f23.jpg", "74be2c7c30d5.jpg", "3dfe984fcb89.jpg", "5b8828283709.jpg", "4c280cb4ecb6.jpg", "cead765e525f.jpg", "7ce62dd48543.jpg", "00a6a8b3ca1b.jpg", "90b006fa6370.jpg"]
 is_pre_order: false
 available_date: 
 is_on_sale: false
@@ -18,9 +18,10 @@ size: 20*18.5*5.5
 weight: 0.35
 zhtw_price: 179.0
 cost: 120.0
-final_price: 850.0
-cost_tw: 512.0
+final_price: 1000.0
+cost_tw: 563
 order_weight: 0
+group: 
 ---
 
 A tactical legionary of the [[Ultramarines]] clad in Mark III Iron Armor, the pattern preferred for boarding actions and siege warfare during the Great Crusade. The XIII Legion fielded vast numbers of such warriors, their discipline and tactical acumen making them the template for all future Space Marine doctrine. This soldier represents the might of [[Roboute Guilliman|Guilliman's]] five hundred worlds.

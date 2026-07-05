@@ -3,9 +3,9 @@ title: Sons of Horus Legion Cataphractii Praetor with Combi-Melta and Power Maul
 price: 76.99
 sku: 6927054402441
 in_stock: true
-images: ["editor_001.jpg", "editor_002.jpg", "editor_003.jpg", "editor_004.jpg", "editor_005.jpg", "editor_006.jpg", "editor_007.jpg", "editor_008.jpg", "editor_009.jpg", "editor_010.jpg", "editor_011.jpg", "gallery_001.jpg", "gallery_002.jpg", "gallery_003.jpg", "gallery_004.jpg", "gallery_005.jpg", "gallery_006.jpg"]
+images: ["82f2263b71f7.jpg", "07f5ebe6cc4c.jpg", "30df5218020a.jpg", "f6015be86b14.jpg", "a0e98661037d.jpg", "2bd5fa3cb6d8.jpg", "a1b9f193b71c.jpg", "a5ea8368c6e7.jpg", "be1aab005054.jpg", "6fd4704bb54b.jpg", "cdd8fb4b6def.jpg", "b85aea153cf8.jpg", "ed653e03bebb.jpg", "1bc816a4620a.jpg", "3e45c2b03f62.jpg", "acd990a7a7f6.jpg", "11f4bacdcf7a.jpg", "ef3267a76728.jpg"]
 is_pre_order: false
-available_date: 2025-12-01
+available_date: 
 is_on_sale: false
 sale_price: 0
 is_new_arrival: false
@@ -18,9 +18,10 @@ size: 20*18.5*7
 weight: 0.35kg
 zhtw_price: 329.0
 cost: 255.0
-final_price: 1640.0
-cost_tw: 1089.0
+final_price: 1950.0
+cost_tw: 1196
 order_weight: 0
+group: 
 ---
 
 This [[Sons of Horus]] Praetor in Cataphractii [[Terminator Armour]] wields a devastating combination of combi-melta and power maul, perfect for cracking open enemy fortifications and crushing defenders. The combi-melta allows for anti-armor capability at close range, while the power maul delivers crushing blows that can fell even the most heavily armored opponents. A veteran commander for the Warmaster's elite forces.

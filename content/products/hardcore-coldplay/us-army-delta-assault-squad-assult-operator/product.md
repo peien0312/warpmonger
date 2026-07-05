@@ -3,7 +3,7 @@ title: U.S. Army Delta Assault Squad -Assult Operator
 price: 19.99
 sku: 6973130379534
 in_stock: false
-images: ["editor_23.jpg", "editor_24.jpg", "editor_25.jpg", "editor_26.jpg", "editor_27.jpg", "gallery_27.jpg", "gallery_28.jpg", "gallery_29.jpg", "gallery_30.jpg", "gallery_31.jpg", "gallery_32.jpg"]
+images: ["dbc90f1e8fe3.jpg", "bcf63ed3f863.jpg", "823c0fd352e6.jpg", "a7b94a2e7bd6.jpg", "565fb0e167d5.jpg", "266fe92c1d2e.jpg", "0207e9b9917d.jpg", "a03f6f231084.jpg", "4a4010ea6caa.jpg", "fc7c9ba1376a.jpg", "515d5d992f58.jpg"]
 is_pre_order: false
 available_date: 
 is_on_sale: false
@@ -18,9 +18,10 @@ size: 17.2*14*5
 weight: 0.2kg
 zhtw_price: 89.0
 cost: 65.0
-final_price: 540.0
-cost_tw: 278.0
+final_price: 800.0
+cost_tw: 305
 order_weight: 0
+group: 
 ---
 
 The Assault Operator serves as the primary combatant of the Delta Force squad, trained in advanced warfare techniques. This 1/18 scale figure features the authentic tactical equipment used by America's elite counter-terrorism unit. Part of the complete Delta Assault Squad series for building your elite special operations team.

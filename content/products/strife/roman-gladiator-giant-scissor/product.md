@@ -2,8 +2,8 @@
 title: Roman Gladiator Giant Scissor
 price: 24.99
 sku: 6927054400522
-in_stock: true
-images: ["editor_23.jpg", "editor_24.jpg", "editor_25.jpg", "editor_26.jpg", "editor_27.jpg", "gallery_21.jpg", "gallery_22.jpg", "gallery_23.jpg", "gallery_24.jpg", "gallery_25.jpg", "gallery_26.jpg"]
+in_stock: false
+images: ["d4027e650afc.jpg", "ca0c6c05f058.jpg", "1983bae3c4d9.jpg", "b2b0297b4b94.jpg", "6b3398e2bd92.jpg", "a6574182b3ba.jpg", "31721aa2add7.jpg", "2b06a0039dc9.jpg", "acd0c1d4df4c.jpg", "74eedccf9d25.jpg", "1e67976ea136.jpg"]
 is_pre_order: false
 available_date: 
 is_on_sale: false
@@ -18,9 +18,10 @@ size: 18*14*5
 weight: 0.2kg
 zhtw_price: 118.0
 cost: 85.0
-final_price: 690.0
-cost_tw: 363.0
+final_price: 800.0
+cost_tw: 399
 order_weight: 0
+group: 
 ---
 
 The Giant Scissor gladiator wields an oversized version of the distinctive scissor blade, a crescent-shaped weapon designed to hook around shields and deliver devastating slashing attacks. This imposing warrior variant traded subtlety for raw intimidation, their massive weapon capable of cleaving through armor. The figure showcases the unique scissor weapon and the heavy build required to wield such a formidable arm in combat.

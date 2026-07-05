@@ -2,8 +2,8 @@
 title: Alpha Legion Harrowmaster Armillus Dynat
 price: 69.99
 sku: 6927054401222
-in_stock: true
-images: ["editor_1.jpg", "editor_2.jpg", "editor_3.jpg", "editor_4.jpg", "editor_5.jpg", "editor_6.jpg", "editor_7.jpg", "editor_8.jpg", "editor_9.jpg", "editor_10.jpg", "editor_11.jpg", "gallery_1.jpg", "gallery_2.jpg", "gallery_3.jpg", "gallery_4.jpg", "gallery_5.jpg", "gallery_6.jpg"]
+in_stock: false
+images: ["7cff22275e84.jpg", "8c201894afdc.jpg", "d6cb065b1183.jpg", "3da50160bb4e.jpg", "11c0143bb679.jpg", "1e8fab1ab71e.jpg", "9a47e764e13b.jpg", "4bc113987cdd.jpg", "b68536f673b9.jpg", "f0d827dd6cad.jpg", "72c693ecbbcb.jpg", "43393270c3cf.jpg", "a523c666c01f.jpg", "84415edad6f9.jpg", "6bb716ce787c.jpg", "80aedf333608.jpg", "00d67c09cc49.jpg"]
 is_pre_order: false
 available_date: 
 is_on_sale: false
@@ -18,9 +18,10 @@ size: 20*18*5
 weight: 0.35kg
 zhtw_price: 279.0
 cost: 225.0
-final_price: 1400.0
-cost_tw: 961.0
+final_price: 1750.0
+cost_tw: 1055
 order_weight: 0
+group: 
 ---
 
 Armillus Dynat, Harrowmaster of the [[Alpha Legion]], was one of the XX Legion's most accomplished field commanders, specializing in void warfare and planetary assault. His tactical acumen made him invaluable during the [[Horus Heresy]], orchestrating devastating attacks that left enemies reeling. This figure captures the Harrowmaster in his ornate armor, ready to execute another of the Alpha Legion's labyrinthine battle plans.

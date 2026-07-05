@@ -2,25 +2,26 @@
 title: KOF'98UM '97 Special Team Billy Kane
 price: 45.99
 sku: 6927054402618
-in_stock: true
-images: ["editor_001.jpg", "editor_002.jpg", "editor_003.jpg", "editor_004.jpg", "editor_005.jpg", "editor_006.jpg", "editor_007.jpg", "editor_008.jpg", "editor_009.jpg", "editor_010.jpg", "editor_011.jpg", "editor_012.jpg", "editor_013.jpg", "editor_014.jpg", "editor_015.jpg", "gallery_001.jpg", "gallery_002.jpg", "gallery_003.jpg", "gallery_004.jpg", "gallery_005.jpg", "gallery_006.jpg"]
-is_pre_order: true
-available_date: 2026-01-01
+in_stock: false
+images: ["428416f8e3ba.jpg", "5a819bd36cb0.jpg", "afebd29c3c84.jpg", "d18c589b06ca.jpg", "2c6f3ea5355e.jpg", "1c18ac9313fd.jpg", "267eef4d3b6a.jpg", "11a75bb23b0a.jpg", "00b11d72f6ed.jpg", "9e6ff9d741d7.jpg", "d5aad80beaed.jpg", "0c8947724a7e.jpg", "a65a5f15e2ba.jpg", "e3e0188f65b5.jpg", "b59a34ed800b.jpg", "5a4dfeef31bb.jpg", "41b511d1ce4a.jpg", "53dba54557a0.jpg"]
+is_pre_order: false
+available_date: 
 is_on_sale: false
 sale_price: 0
 is_new_arrival: false
 id: JT02618
 cn_name: 拳皇 '98UM '97特别队 比利·凯恩
-zhtw_name: 拳皇 '98UM '97特別隊 比利凱恩
-series: SNK KOF
+zhtw_name: 拳皇 '98UM '97特別隊 比利·凱恩
+series: SNK
 scale: Scale：1/18
 size: 25*20*7
 weight: 0.35kg
 zhtw_price: 228.0
 cost: 158.0
-final_price: 980.0
-cost_tw: 675.0
+final_price: 1190.0
+cost_tw: 741
 order_weight: 0
+group: 
 ---
 
 Billy Kane, the bo staff-wielding enforcer from The King of Fighters, represents the '97 Special Team in this 1/18 scale figure. His iconic red outfit and signature three-section staff are faithfully reproduced. A longtime rival of the Fatal Fury heroes, Billy brings attitude and style to any KOF collection.

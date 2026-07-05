@@ -2,8 +2,8 @@
 title: Thousand Sons Sekhmet Terminator Cabal Sekhmet With Combi-Melta And Achea Force Weapon
 price: 46.99
 sku: 6973130378605
-in_stock: true
-images: ["editor_21.jpg", "editor_22.jpg", "editor_23.jpg", "editor_24.jpg", "editor_25.jpg", "editor_26.jpg", "gallery_21.jpg", "gallery_22.jpg", "gallery_23.jpg", "gallery_24.jpg", "gallery_25.jpg", "gallery_26.jpg"]
+in_stock: false
+images: ["ca30bb0835dc.jpg", "0b5534029e2f.jpg", "57e9fed460c6.jpg", "4746c1d6d0fa.jpg", "4214a967abec.jpg", "5eb2b02eb4f9.jpg", "0980cd72f053.jpg", "792acb19f4f0.jpg", "1147561d4f60.jpg", "a858edf0b89a.jpg", "13f1d92d73d8.jpg", "c62d2896504f.jpg"]
 is_pre_order: false
 available_date: 
 is_on_sale: false
@@ -18,9 +18,10 @@ size: 20*18.5*7
 weight: 0.35kg
 zhtw_price: 189.0
 cost: 155.0
-final_price: 1070.0
-cost_tw: 662.0
+final_price: 1150.0
+cost_tw: 727
 order_weight: 0
+group: 
 ---
 
 This [[Sekhmet]] carries a combi-melta for destroying armored targets and an Achea force weapon for close combat. The melta's fusion beam and the psychic energies channeled through the force weapon make this [[Thousand Sons]] Terminator equally deadly against vehicles and infantry. Few enemies can withstand such versatile firepower backed by warp-enhanced strength.

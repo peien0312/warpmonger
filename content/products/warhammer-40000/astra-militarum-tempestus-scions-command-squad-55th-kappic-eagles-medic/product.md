@@ -2,8 +2,8 @@
 title: Astra Militarum Tempestus Scions Command Squad 55th Kappic Eagles Medic
 price: 45.99
 sku: 6973130375154
-in_stock: true
-images: ["editor_1.jpg", "editor_2.jpg", "editor_3.jpg", "editor_4.jpg", "editor_5.jpg", "editor_6.jpg", "editor_7.jpg", "editor_8.jpg", "gallery_1.jpg", "gallery_2.jpg", "gallery_3.jpg", "gallery_4.jpg", "gallery_5.jpg", "gallery_6.png"]
+in_stock: false
+images: ["770abca5634e.jpg", "acbe432be0a0.jpg", "87ec87524eb7.jpg", "9302cd916f68.jpg", "2338957990db.jpg", "09ebaebfbc22.jpg", "2972b55fad37.jpg", "6e8b59dbcb69.jpg", "9605bed33545.jpg", "49b12b8c54b9.jpg", "2aa367b82c19.jpg", "297bceba6278.jpg", "fc5720aedd7f.jpg", "e095410abfb5.jpg"]
 is_pre_order: false
 available_date: 
 is_on_sale: false
@@ -18,9 +18,10 @@ size: 15*11*5
 weight: 0.22kg
 zhtw_price: 198.0
 cost: 155.0
-final_price: 1090.0
-cost_tw: 662.0
+final_price: 1190.0
+cost_tw: 727
 order_weight: 0
+group: 
 ---
 
 The Medic of the 55th Kappic Eagles keeps his elite comrades fighting through injuries that would fell lesser soldiers. Tempestus Scions of the [[Astra Militarum]] are expensive investments — years of Schola Progenium training cannot be easily replaced — making battlefield medicine crucial to maintaining squad effectiveness. Armed with stimulants, surgical tools, and unwavering resolve, the Medic ensures that wounded Scions return to combat rather than the grave.

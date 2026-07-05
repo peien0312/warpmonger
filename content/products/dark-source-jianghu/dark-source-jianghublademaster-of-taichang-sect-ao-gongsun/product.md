@@ -2,8 +2,8 @@
 title: Dark Source-JiangHuBlademaster of Taichang Sect Ao Gongsun
 price: 39.99
 sku: 6973130374348
-in_stock: true
-images: ["editor_1.jpg", "editor_2.jpg", "editor_3.jpg", "editor_4.jpg", "editor_5.jpg", "editor_6.jpg", "editor_7.jpg", "editor_8.jpg", "editor_9.jpg", "editor_10.jpg", "editor_11.jpg", "editor_12.jpg", "gallery_1.jpg", "gallery_2.jpg", "gallery_3.jpg", "gallery_4.jpg", "gallery_5.jpg"]
+in_stock: false
+images: ["ceda01d6dd18.jpg", "785396edc1ec.jpg", "b87dcc6626ae.jpg", "e27a2dc73d1b.jpg", "728afd5899b1.jpg", "f391228b2a7d.jpg", "3ba888a0bb53.jpg", "2a6c8658968b.jpg", "010df0742c2b.jpg", "9e1f8d9d62d8.jpg", "b31a0d8347fa.jpg", "a2c796fc9484.jpg", "c448fe4e547b.jpg", "180a19d464dc.jpg", "7f1ee9cdaf69.jpg", "afb82219fc4d.jpg", "b5eba1ac6374.jpg"]
 is_pre_order: false
 available_date: 
 is_on_sale: false
@@ -17,10 +17,11 @@ scale: Scale:1/18
 size: 15*11*5
 weight: 0.25kg
 zhtw_price: 158.0
-cost: 130.0
-final_price: 900.0
-cost_tw: 555.0
+cost: 90.0
+final_price: 850.0
+cost_tw: 422
 order_weight: 0
+group: 
 ---
 
 Ao Gongsun holds the title of Blademaster within the Taichang Sect, a position earned through supreme swordsmanship. This 1/18 scale Dark Source Jianghu figure comes with exquisitely detailed weapons befitting his legendary status. His dynamic pose captures the essence of Chinese sword martial arts.

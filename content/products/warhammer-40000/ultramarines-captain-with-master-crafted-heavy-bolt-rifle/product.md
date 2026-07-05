@@ -3,7 +3,7 @@ title: Ultramarines Captain with Master-crafted Heavy Bolt rifle
 price: 69.99
 sku: 6973130373556
 in_stock: true
-images: ["editor_1.jpg", "editor_2.jpg", "editor_3.jpg", "editor_4.jpg", "editor_5.jpg", "editor_6.jpg", "editor_7.jpg", "gallery_1.jpg", "gallery_2.jpg", "gallery_3.jpg", "gallery_4.jpg"]
+images: ["ae711fa8b7c0.jpg", "3d8468bc799b.jpg", "e2afbcfb3707.jpg", "4ec18e7ce4f2.jpg", "6555f27ced84.jpg", "50b89c9c7156.jpg", "b6db6afc8315.jpg", "d6cee47c6f42.jpg", "17afcce49414.jpg", "122056fce2c7.jpg", "e28b8939f770.jpg"]
 is_pre_order: false
 available_date: 
 is_on_sale: false
@@ -18,9 +18,10 @@ size: 20*18.5*7
 weight: 0.35kg
 zhtw_price: 269.0
 cost: 210.0
-final_price: 1430.0
-cost_tw: 897.0
+final_price: 1600.0
+cost_tw: 985
 order_weight: 0
+group: 
 ---
 
 This [[Ultramarines]] Captain wields a master-crafted heavy bolt rifle, a weapon of exceptional quality that delivers death at extended range. Armed thusly, he can lead his warriors from a commanding position, identifying and eliminating priority targets while directing his company's advance. The Ultramarines' emphasis on ranged firepower and tactical flexibility is embodied in this skilled marksman commander.

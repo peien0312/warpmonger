@@ -2,8 +2,8 @@
 title: Roman Gladiator Secutor Gladiator
 price: 24.99
 sku: 6927054400690
-in_stock: true
-images: ["editor_15.jpg", "editor_16.jpg", "editor_17.jpg", "editor_18.jpg", "editor_19.jpg", "editor_20.jpg", "gallery_15.jpg", "gallery_16.jpg", "gallery_17.jpg", "gallery_18.jpg", "gallery_19.jpg", "gallery_20.jpg"]
+in_stock: false
+images: ["a9480c385cfc.jpg", "397736367497.jpg", "a4428e5b379c.jpg", "2fa676205a0e.jpg", "a68a86250d98.jpg", "f52f196d1406.jpg", "4971a012bdfb.jpg", "7a2f415dc1ad.jpg", "9f630aceda69.jpg", "a79008ef5e7d.jpg", "ad3e6877ce1a.jpg", "dacd15c75c5c.jpg", "df24b3164e1f.jpg", "280f8a91c9b0.jpg", "071c9158cad2.jpg"]
 is_pre_order: false
 available_date: 
 is_on_sale: false
@@ -18,9 +18,10 @@ size: 18*14*5
 weight: 0.2kg
 zhtw_price: 118.0
 cost: 85.0
-final_price: 690.0
-cost_tw: 363.0
+final_price: 800.0
+cost_tw: 399
 order_weight: 0
+group: 
 ---
 
 The Secutor, meaning "pursuer," was specifically designed to fight against the Retiarius, their smooth egg-shaped helmet offering no edges for nets to catch. These relentless warriors pressed forward aggressively, seeking to close distance before their lightly-armored opponents could entangle them. This figure features the distinctive smooth helmet and heavy equipment that made the Secutor a formidable counter to net-wielding gladiators.

@@ -3,7 +3,7 @@ title: Ultramarines Heroes of the Chapter Primaris Ancient Posca
 price: 39.99
 sku: 6973130372498
 in_stock: false
-images: ["editor_1.jpg", "editor_2.jpg", "editor_3.jpg", "editor_4.jpg", "editor_5.jpg", "editor_6.jpg", "editor_7.jpg", "editor_8.jpg", "editor_9.jpg", "editor_10.jpg", "gallery_1.jpg", "gallery_2.jpg", "gallery_3.jpg", "gallery_4.jpg", "gallery_5.jpg", "gallery_6.jpg", "gallery_7.png"]
+images: ["96bbec46a60c.jpg", "f576e4cfb0a4.jpg", "e5ae8da0a7cc.jpg", "16be00a6fad2.jpg", "9fcfe4480350.jpg", "c5463ec89a72.jpg", "5c0e912d8176.jpg", "ed3579cf9dfa.jpg", "c3bf95acbec5.jpg", "748fba1af5be.jpg", "bac941ebd35b.jpg", "aeaee2fe4482.jpg", "6822b931ae6e.jpg", "aabd7e9df3b4.jpg", "973c3d1bd908.jpg", "91767983eac9.jpg", "80bf39950ccc.jpg"]
 is_pre_order: false
 available_date: 
 is_on_sale: false
@@ -19,8 +19,9 @@ weight: 0.27kg
 zhtw_price: 158.0
 cost: 125.0
 final_price: 900.0
-cost_tw: 534.0
+cost_tw: 586
 order_weight: 0
+group: 
 ---
 
 Primaris Ancient Posca carries the sacred banner of the [[Ultramarines]], a rallying point for his brothers and a symbol of the Chapter's millennia of glorious service. The position of Ancient is one of the highest honors a Space Marine can receive, entrusted only to warriors of unquestionable valor. Where Posca's banner flies, the Ultramarines fight with renewed vigor, knowing they carry the weight of history into battle.

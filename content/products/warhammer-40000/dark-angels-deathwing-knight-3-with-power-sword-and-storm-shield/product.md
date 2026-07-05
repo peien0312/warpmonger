@@ -2,10 +2,10 @@
 title: Dark Angels Deathwing Knight 3 With Power Sword and Storm Shield
 price: 67.99
 sku: 6927054402502
-in_stock: true
-images: ["editor_023.jpg", "editor_024.jpg", "editor_025.jpg", "editor_026.jpg", "editor_027.jpg", "editor_028.jpg", "editor_029.jpg", "editor_030.jpg", "editor_031.jpg", "editor_032.jpg", "gallery_015.jpg", "gallery_016.jpg", "gallery_017.jpg", "gallery_018.jpg", "gallery_019.jpg", "gallery_020.jpg"]
+in_stock: false
+images: ["721b544a2bae.jpg", "baebcfe2d8d3.jpg", "670a12366aab.jpg", "1e5ad62e64a8.jpg", "ad9e429d4b9b.jpg", "4afc8608caf2.jpg", "b40b00904380.jpg", "9b303bbecddd.jpg", "c7014255b54a.jpg", "3b62800ae3d8.jpg", "4874378996a4.jpg", "90859982cfc1.jpg", "e13602c9c506.jpg", "98938d9822ee.jpg", "721dbe680a7e.jpg", "307d98015d7a.jpg"]
 is_pre_order: false
-available_date: 2025-12-01
+available_date: 
 is_on_sale: false
 sale_price: 0
 is_new_arrival: false
@@ -18,9 +18,10 @@ size: 20*18.5*7
 weight: 0.35kg
 zhtw_price: 289.0
 cost: 230.0
-final_price: 1520.0
-cost_tw: 982.0
+final_price: 1800.0
+cost_tw: 1079
 order_weight: 0
+group: 
 ---
 
 The [[Deathwing]] Knights are inducted into the Inner Circle of the [[Dark Angels]], learning the terrible truth about the Fallen and swearing oaths of silence that bind them until death. This Knight wields his power sword and storm shield with the skill of centuries of combat, his Terminator armor proof against all but the most devastating weapons. When the Chapter hunts the most dangerous of the Fallen, it is the Deathwing Knights who lead the assault.

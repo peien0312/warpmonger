@@ -2,8 +2,8 @@
 title: Astra Militarum Tempestus Scions Command Squad 55th Kappic Eagles Vox Operator
 price: 45.99
 sku: 6973130375147
-in_stock: true
-images: ["editor_1.jpg", "editor_2.jpg", "editor_3.jpg", "editor_4.jpg", "editor_5.jpg", "editor_6.jpg", "editor_7.jpg", "editor_8.jpg", "gallery_1.jpg", "gallery_2.jpg", "gallery_3.jpg", "gallery_4.jpg", "gallery_5.jpg", "gallery_6.png"]
+in_stock: false
+images: ["38d511257194.jpg", "3c5e05246918.jpg", "f13606bf843b.jpg", "93cf3629db9b.jpg", "144d526c8095.jpg", "679a87e614b3.jpg", "af007b7238d0.jpg", "4c010de44949.jpg", "e6b7768ee03d.jpg", "debd12e65c07.jpg", "d5442fe33059.jpg", "ca9d4224b4db.jpg", "09dd682b35d7.jpg", "396c1727fc18.jpg"]
 is_pre_order: false
 available_date: 
 is_on_sale: false
@@ -18,9 +18,10 @@ size: 15*11*5
 weight: 0.22kg
 zhtw_price: 198.0
 cost: 155.0
-final_price: 1070.0
-cost_tw: 662.0
+final_price: 1190.0
+cost_tw: 727
 order_weight: 0
+group: 
 ---
 
 The Vox Operator of the 55th Kappic Eagles maintains vital communications during Tempestus Scion operations, coordinating with command and calling in support strikes. For elite operatives of the [[Astra Militarum]] conducting deep-strike missions behind enemy lines, reliable vox communications can mean the difference between a successful extraction and total annihilation. This operator ensures that no matter how far the Kappic Eagles venture into hostile territory, they are never truly alone.

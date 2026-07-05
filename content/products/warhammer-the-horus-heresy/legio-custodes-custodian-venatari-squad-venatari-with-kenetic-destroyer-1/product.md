@@ -2,8 +2,8 @@
 title: Legio Custodes Custodian Venatari Squad Venatari with Kenetic Destroyer 1
 price: 59.99
 sku: 6927054400775
-in_stock: true
-images: ["editor_3.jpg", "editor_4.jpg", "editor_5.jpg", "editor_6.jpg", "editor_7.jpg", "editor_8.jpg", "editor_9.jpg", "editor_10.jpg", "gallery_3.jpg", "gallery_4.jpg", "gallery_5.jpg", "gallery_6.jpg", "gallery_7.jpg", "gallery_8.jpg"]
+in_stock: false
+images: ["9cc616beca7f.jpg", "40877b82466a.jpg", "a865ebf8ce54.jpg", "eb9b573afe64.jpg", "d6ab15d543f7.jpg", "08572253c84a.jpg", "7ca794c676e0.jpg", "34ca83179571.jpg", "aa55f7da5cf2.jpg", "45f61dbdbe10.jpg", "e666b3b5d860.jpg", "9cb7d516377c.jpg", "4c451a446327.jpg", "ecf76d98a773.jpg"]
 is_pre_order: false
 available_date: 
 is_on_sale: false
@@ -18,9 +18,10 @@ size: 20*18.5*6.5
 weight: 0.35kg
 zhtw_price: 259.0
 cost: 210.0
-final_price: 1380.0
-cost_tw: 897.0
+final_price: 1600.0
+cost_tw: 985
 order_weight: 0
+group: 
 ---
 
 The Venatari are the airborne hunters of the [[Legio Custodes]], equipped with jump packs that allow them to strike from unexpected angles. This Custodian carries a kinetic destroyer, a weapon that fires hyper-accelerated projectiles capable of punching through the heaviest armor. The Venatari excel at hunting down enemy commanders and eliminating high-value targets.

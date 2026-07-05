@@ -2,8 +2,8 @@
 title: Tyrant-Squad 03 Tactical Type
 price: 129.99
 sku: 6927054401291
-in_stock: true
-images: ["editor_1.jpg", "editor_2.jpg", "editor_3.jpg", "editor_4.jpg", "editor_5.jpg", "editor_6.jpg", "editor_7.jpg", "editor_8.jpg", "editor_9.jpg", "editor_10.jpg", "editor_11.jpg", "editor_12.jpg", "editor_13.jpg", "editor_14.jpg", "editor_15.jpg", "editor_16.jpg", "editor_17.jpg", "editor_18.jpg", "editor_19.jpg", "editor_20.jpg", "editor_21.jpg", "editor_22.jpg", "editor_23.jpg", "editor_24.jpg", "editor_25.jpg", "editor_26.jpg", "editor_27.jpg", "gallery_1.jpg", "gallery_2.jpg", "gallery_3.jpg", "gallery_4.jpg", "gallery_5.jpg", "gallery_6.jpg", "gallery_7.jpg", "gallery_8.jpg", "gallery_9.jpg", "gallery_10.jpg", "gallery_11.jpg"]
+in_stock: false
+images: ["dcd0fcf5d91c.jpg", "dadb883146cc.jpg", "947f48c89636.jpg", "4b0dc3526637.jpg", "e6cf4a080216.jpg", "9d04d5817852.jpg", "fd01978ca2d9.jpg", "4f4c3b901392.jpg", "d09814d82ab7.jpg", "a42960fd0a21.jpg", "bbd8aeac676c.jpg", "62f4032c1b1d.jpg", "2b5aa2cf6e4d.jpg", "3b5ddf70999c.jpg", "35b33991b558.jpg", "67e42c2f76dd.jpg", "2a34941f9c33.jpg", "4d1925ad993a.jpg", "e24270f1eedf.jpg", "106e42433db0.jpg"]
 is_pre_order: false
 available_date: 
 is_on_sale: false
@@ -18,9 +18,10 @@ size: 36*28*18
 weight: 2.3kg
 zhtw_price: 549.0
 cost: 435.0
-final_price: 2900.0
-cost_tw: 1857.0
+final_price: 3500.0
+cost_tw: 2040
 order_weight: 0
+group: 
 ---
 
 The Tyrant-03 Tactical Type represents the pinnacle of powered combat armor, combining devastating firepower with advanced battlefield mobility. This walking weapons platform can engage multiple targets simultaneously while shrugging off small arms fire that would shred conventional infantry. The highly detailed mecha features multiple weapon hardpoints, articulated joints, and the imposing silhouette that has earned the Tyrant series its fearsome reputation across countless warzones.

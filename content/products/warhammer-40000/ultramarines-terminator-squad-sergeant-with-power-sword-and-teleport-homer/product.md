@@ -2,10 +2,10 @@
 title: Ultramarines Terminator Squad Sergeant with Power Sword and Teleport Homer
 price: 57.99
 sku: 6973130379923
-in_stock: true
-images: ["editor_3.jpg", "editor_4.jpg", "editor_5.jpg", "editor_6.jpg", "editor_7.jpg", "editor_8.jpg", "gallery_3.jpg", "gallery_4.jpg", "gallery_5.jpg", "gallery_6.jpg", "gallery_7.jpg", "gallery_8.jpg"]
+in_stock: false
+images: ["e0ea2ffe7040.jpg", "4c0eb188312a.jpg", "28a3e616c738.jpg", "99ed51e0420f.jpg", "c6eb1290558a.jpg", "4522e8ea2803.jpg", "c23d545af4b2.jpg", "bf60ac187f1f.jpg", "d085f7fb93cb.jpg", "b1f137399c40.jpg", "1e79b7cf0e8e.jpg", "897d689887be.jpg"]
 is_pre_order: false
-available_date: 2025-11-01
+available_date: 
 is_on_sale: false
 sale_price: 0
 is_new_arrival: false
@@ -18,9 +18,10 @@ size: 20*18*7
 weight: 0.35kg
 zhtw_price: 229.0
 cost: 180.0
-final_price: 1220.0
-cost_tw: 769.0
+final_price: 1300.0
+cost_tw: 844
 order_weight: 0
+group: 
 ---
 
 The Terminator Sergeant leads his elite warriors into the most dangerous combat zones, his power sword ready to cut down any who threaten his squad. Armed with a teleport homer, he can call down additional reinforcements directly onto his position, ensuring the [[Ultramarines]] maintain tactical superiority. Terminator armor grants near-invulnerability, allowing the sergeant to wade through enemy fire while directing his squad's devastating attacks.

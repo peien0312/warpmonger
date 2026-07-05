@@ -1,9 +1,9 @@
 ---
-title: Army Builder Promotion Pack Figure 19
+title: Army Builder Promotion PackFigure 19
 price: 19.99
 sku: 6973130379657
-in_stock: true
-images: ["editor_16.jpg", "editor_17.jpg", "editor_18.jpg", "editor_19.jpg", "editor_20.jpg", "gallery_20.jpg", "gallery_21.jpg", "gallery_22.jpg", "gallery_23.jpg", "gallery_24.jpg", "gallery_25.jpg"]
+in_stock: false
+images: ["a3c579e03ba9.jpg", "026c2a78e82c.jpg", "3152704f4875.jpg", "2cbaa3a14af6.jpg", "7bcfbb799b2e.jpg", "f5202aaa67fb.jpg", "339c837d555c.jpg", "c07b7462c2a1.jpg", "dd230dc655d9.jpg", "bfacabaecbbe.jpg", "abf9a4cdd57d.jpg"]
 is_pre_order: false
 available_date: 
 is_on_sale: false
@@ -18,9 +18,10 @@ size: 19*12.5*4
 weight: 0.2kg
 zhtw_price: 89.0
 cost: 65.0
-final_price: 540.0
-cost_tw: 278.0
+final_price: 800.0
+cost_tw: 305
 order_weight: 0
+group: 
 ---
 
 Army Builder Figure 19 continues the series with another distinct military operative for your growing collection. The 1/18 scale figure includes detailed weapons and equipment that bring authenticity to any military display. Collect multiple figures to assemble complete tactical units for your dioramas.

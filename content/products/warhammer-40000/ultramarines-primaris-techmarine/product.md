@@ -3,7 +3,7 @@ title: Ultramarines Primaris Techmarine
 price: 59.99
 sku: 6973130373761
 in_stock: true
-images: ["editor_1.jpg", "editor_2.jpg", "editor_3.jpg", "editor_4.jpg", "editor_5.jpg", "editor_6.jpg", "editor_7.jpg", "editor_8.jpg", "editor_9.jpg", "editor_10.jpg", "gallery_1.jpg", "gallery_2.jpg", "gallery_3.jpg", "gallery_4.jpg", "gallery_5.png"]
+images: ["e2cc35640f88.jpg", "820065cee8ff.jpg", "b2f2c93e69db.jpg", "4f98faf89f91.jpg", "e4b8076e6064.jpg", "afd6be630894.jpg", "0c4e9c0d6804.jpg", "843f21b91139.jpg", "c874b0db2a70.jpg", "6a619f6cb06c.jpg", "6948f7edb022.jpg", "bee994168ac8.jpg", "aa3f617b9a2f.jpg", "e3ebb584d74d.jpg", "510ed96e9420.jpg", "f67e0bcd517e.jpg"]
 is_pre_order: false
 available_date: 
 is_on_sale: false
@@ -18,9 +18,10 @@ size: 24*20*6
 weight: 0.35kg
 zhtw_price: 269.0
 cost: 210.0
-final_price: 1430.0
-cost_tw: 897.0
+final_price: 1600.0
+cost_tw: 985
 order_weight: 0
+group: 
 ---
 
 The Primaris Techmarine serves dual masters — the [[Ultramarines]] Chapter and the Machine Cult of Mars. Equipped with a servo-arm and an array of repair tools, he maintains the Chapter's sacred wargear and vehicles while also wielding devastating weapons in combat. The red of his armor marks his training on Mars, while the blue of his helm proclaims his loyalty to Ultramar and [[Roboute Guilliman]].

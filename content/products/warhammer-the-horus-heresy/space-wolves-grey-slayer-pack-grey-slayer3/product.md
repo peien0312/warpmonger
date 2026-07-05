@@ -2,8 +2,8 @@
 title: Space Wolves Grey Slayer Pack Grey Slayer3
 price: 39.99
 sku: 6973130376076
-in_stock: true
-images: ["editor_33.jpg", "editor_34.jpg", "editor_35.jpg", "editor_36.jpg", "editor_37.jpg", "editor_38.jpg", "editor_39.jpg", "gallery_27.jpg", "gallery_28.jpg", "gallery_29.jpg", "gallery_30.jpg", "gallery_31.jpg", "gallery_32.jpg"]
+in_stock: false
+images: ["06e1b836821a.jpg", "35407562535a.jpg", "454ae9777b1e.jpg", "d9de13fe3b04.jpg", "3d59e1d9dd84.jpg", "1494a6f4a747.jpg", "6810f26d586e.jpg", "dcde957ace6d.jpg", "0780a05da267.jpg", "31934bc696f4.jpg", "176fa61f49a8.jpg", "2f5cdd910728.jpg", "73d78467acb1.jpg"]
 is_pre_order: false
 available_date: 
 is_on_sale: false
@@ -17,10 +17,11 @@ scale: Scale：1/18
 size: 20*18.5*7
 weight: 0.35kg
 zhtw_price: 188.0
-cost: 145.0
-final_price: 1060.0
-cost_tw: 619.0
+cost: 100.0
+final_price: 950.0
+cost_tw: 469
 order_weight: 0
+group: 
 ---
 
 A Grey Slayer of the [[Space Wolves]], armed and armored for the close-quarters violence the VI Legion excelled at. Grey Slayers disdained ranged warfare, preferring to close with their enemies and settle matters with blade and axe. Each warrior bore trophies from countless kills, testament to their prowess in the savage style of warfare [[Leman Russ]] taught his sons.

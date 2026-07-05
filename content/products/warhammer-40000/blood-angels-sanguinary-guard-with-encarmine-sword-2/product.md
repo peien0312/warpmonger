@@ -2,8 +2,8 @@
 title: Blood Angels Sanguinary Guard with Encarmine Sword 2
 price: 63.99
 sku: 6973130377066
-in_stock: true
-images: ["editor_14.jpg", "editor_15.jpg", "editor_16.jpg", "editor_17.jpg", "editor_18.jpg", "editor_19.jpg", "gallery_15.jpg", "gallery_16.jpg", "gallery_17.jpg", "gallery_18.jpg", "gallery_19.jpg", "gallery_20.jpg"]
+in_stock: false
+images: ["5ee25e162a1d.jpg", "d6ceb073173c.jpg", "06bf2e495023.jpg", "5dcc2f064481.jpg", "33d3af4dae2f.jpg", "9ff797f19567.jpg", "3d6d97299709.jpg", "b70620717f09.jpg", "efcbe80a2cd6.jpg", "6c7509a69335.jpg", "63aff0b036b0.jpg", "ace2d7e2ccda.jpg"]
 is_pre_order: false
 available_date: 
 is_on_sale: false
@@ -18,9 +18,10 @@ size: 22*18*7
 weight: 0.35kg
 zhtw_price: 259.0
 cost: 210.0
-final_price: 1380.0
-cost_tw: 897.0
+final_price: 1600.0
+cost_tw: 985
 order_weight: 0
+group: 
 ---
 
 Bearing the sacred encarmine sword, this [[Sanguinary Guard]] stands ready to defend the honor of the [[Blood Angels]] Chapter. The golden warriors of the Sanguinary Guard are hand-picked from among the Chapter's finest, their selection marked by solemn ritual and the blessing of the Sanguinary Priests. In battle, they form an impenetrable wall around their charges, their power swords carving through any who would threaten those they protect — a living embodiment of [[Sanguinius]]'s noble legacy.

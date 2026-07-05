@@ -2,8 +2,8 @@
 title: TMNT-Triceraton Infantryman
 price: 46.99
 sku: 6927054401130
-in_stock: true
-images: ["editor_23.jpg", "editor_24.jpg", "editor_25.jpg", "editor_26.jpg", "editor_27.jpg", "editor_28.jpg", "editor_29.jpg", "editor_30.jpg", "editor_31.jpg", "editor_32.jpg", "gallery_15.jpg", "gallery_16.jpg", "gallery_17.jpg", "gallery_18.jpg", "gallery_19.jpg", "gallery_20.jpg"]
+in_stock: false
+images: ["87b3eedce572.jpg", "eb988d9341b9.jpg", "fdc12c7785a6.jpg", "9ebc02bc8785.jpg", "2904d5cf704f.jpg", "6a04022dbc07.jpg", "3a7d86bce860.jpg", "e6c6a1c9275d.jpg", "76dd99babef5.jpg", "b53e26126d63.jpg", "d0003cd69131.jpg", "ab0d18d1d215.jpg", "8d890c1dfa15.jpg", "e5a4991ab6b2.jpg", "af874de81de6.jpg", "796d880faad4.jpg"]
 is_pre_order: false
 available_date: 
 is_on_sale: false
@@ -18,9 +18,10 @@ size: 20*18*5
 weight: 0.2kg
 zhtw_price: 188.0
 cost: 155.0
-final_price: 1060.0
-cost_tw: 662.0
+final_price: 1140.0
+cost_tw: 727
 order_weight: 0
+group: 
 ---
 
 The Triceraton Infantryman is a soldier from the warlike dinosaur-like alien species who have repeatedly clashed with the Turtles. These formidable warriors combine the natural durability of their triceratops-like biology with advanced alien weaponry. The figure captures the Triceraton's distinctive three-horned appearance and military equipment from this iconic alien race.

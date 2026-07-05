@@ -1,11 +1,11 @@
 ---
-title: Iron Warriors Iron Circle Domitar-Ferrum Class Battle-automata with Karceri Battle Shield and Graviton Crusher
+title: Iron WarriorsIron Circle Domitar-Ferrum Class Battle-automata with Karceri Battle Shield and Graviton Crusher
 price: 139.99
 sku: 6927054402847
-in_stock: true
-images: ["editor_001.jpg", "editor_002.jpg", "editor_003.jpg", "editor_004.jpg", "editor_005.jpg", "editor_006.jpg", "editor_007.jpg", "editor_008.jpg", "editor_009.jpg", "editor_010.jpg", "editor_011.jpg", "editor_012.jpg", "editor_013.jpg", "editor_014.jpg", "editor_015.jpg", "editor_016.jpg", "gallery_001.jpg", "gallery_002.jpg", "gallery_003.jpg", "gallery_004.jpg", "gallery_005.jpg", "gallery_006.jpg"]
-is_pre_order: true
-available_date: 2026-01-01
+in_stock: false
+images: ["50bb5b8bbdb6.jpg", "c1baa9b5bc57.jpg", "196446ed28d9.jpg", "4d5ea4a0df05.jpg", "320cfd948e88.jpg", "c8b522b461ad.jpg", "1ade4c4e7d9f.jpg", "357623ce9a94.jpg", "128e36082c74.jpg", "1bb3479e4a0d.jpg", "8e8ead5b9126.jpg", "65cba2baae07.jpg", "a70f4a88f505.jpg", "5d8db0dba195.jpg", "db238295a64d.jpg", "0208238dd730.jpg", "90239d5c329e.jpg", "b379d780c9be.jpg", "c9355d047433.jpg", "871b805e9dba.jpg"]
+is_pre_order: false
+available_date: 
 is_on_sale: false
 sale_price: 0
 is_new_arrival: false
@@ -18,9 +18,10 @@ size: 32*26*12
 weight: 1kg
 zhtw_price: 699.0
 cost: 475.0
-final_price: 3320.0
-cost_tw: 2028.0
+final_price: 3600.0
+cost_tw: 2228
 order_weight: 0
+group: 
 ---
 
 The Iron Circle were [[Perturabo|Perturabo's]] personal bodyguard automata, Domitar-Ferrum class battle-automata designed to the Primarch's own specifications. Armed with a Karceri battle shield and graviton crusher, this war machine combined defensive capability with devastating anti-armor power. [[Perturabo]] trusted these constructs more than his own sons, their machine loyalty free from the resentments that plagued the [[Iron Warriors]].

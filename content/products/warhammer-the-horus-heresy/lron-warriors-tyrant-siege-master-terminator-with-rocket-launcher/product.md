@@ -1,9 +1,9 @@
 ---
-title: lron Warriors Tyrant Siege Master Terminator with Rocket launcher
+title: Iron Warriors Tyrant Siege Master Terminator with Rocket launcher
 price: 45.99
 sku: 6927054401482
 in_stock: false
-images: ["editor_11.jpg", "editor_12.jpg", "editor_13.jpg", "editor_14.jpg", "editor_15.jpg", "editor_16.jpg", "editor_17.jpg", "editor_18.jpg", "editor_19.jpg", "editor_20.jpg", "editor_21.jpg", "gallery_9.jpg", "gallery_10.jpg", "gallery_11.jpg", "gallery_12.jpg", "gallery_13.jpg", "gallery_14.jpg"]
+images: ["185a6f014e53.jpg", "95332776911b.jpg", "70beb1c2be3f.jpg", "5bdc5c74f45f.jpg", "08e95aa19dd1.jpg", "f80ae8572b15.jpg", "8f85833c5750.jpg", "f4f17a30b59b.jpg", "9297bd18756c.jpg", "ba897d302233.jpg", "9ec673464e5a.jpg", "4e019e58f337.jpg", "5f1c7e4abf1d.jpg", "22934cbe9f8e.jpg", "5205202f7d11.jpg", "6bea49343c16.jpg", "4881aa854aed.jpg"]
 is_pre_order: false
 available_date: 
 is_on_sale: false
@@ -17,10 +17,11 @@ scale: Scale：1/18
 size: 20*18.5*7
 weight: 0.35kg
 zhtw_price: 199.0
-cost: 160.0
-final_price: 1120.0
-cost_tw: 683.0
+cost: 157.0
+final_price: 1300.0
+cost_tw: 736
 order_weight: 0
+group: 
 ---
 
 Tyrant Siege Masters were the elite commanders of the [[Iron Warriors|Iron Warriors']] heavy siege units, leading Terminator squads equipped to crack open even the most formidable fortifications. Armed with a rocket launcher for anti-armor and fortification destruction, this veteran embodies the IV Legion's doctrine of overwhelming firepower. His [[Terminator Armour]] allows him to advance through withering defensive fire.

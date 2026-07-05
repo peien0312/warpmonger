@@ -3,7 +3,7 @@ title: Space Wolves Varagyr Wolf Guard Squad Varagyr Thegn
 price: 44.99
 sku: 6973130376908
 in_stock: false
-images: ["editor_3.jpg", "editor_4.jpg", "editor_5.jpg", "editor_6.jpg", "editor_7.jpg", "editor_8.jpg", "gallery_3.jpg", "gallery_4.jpg", "gallery_5.jpg", "gallery_6.jpg", "gallery_7.jpg", "gallery_8.jpg"]
+images: ["f585ba3465cc.jpg", "143edf799fb2.jpg", "b7b3aca796b4.jpg", "a42aa6481742.jpg", "58441c785df2.jpg", "376d7e3a64b4.jpg", "b8a5b6b10598.jpg", "bff325c2338f.jpg", "658552a5f297.jpg", "88aa20d73c79.jpg", "2c907f6c37ec.jpg", "e86a4a6ac2b2.jpg"]
 is_pre_order: false
 available_date: 
 is_on_sale: false
@@ -19,8 +19,9 @@ weight: 0.35kg
 zhtw_price: 208.0
 cost: 165.0
 final_price: 1110.0
-cost_tw: 705.0
+cost_tw: 774
 order_weight: 0
+group: 
 ---
 
 The Varagyr Thegn commands the Wolf King's elite bodyguard, the dreaded [[Varagyr]] terminators of the [[Space Wolves]]. Chosen for his ferocity and unwavering loyalty to [[Leman Russ]], the Thegn leads his brothers into the heart of battle where the fighting is thickest. His frost blade has ended champions and warlords alike, and his presence ensures the Wolf King's will is enforced without question.

@@ -2,10 +2,10 @@
 title: UNSC Sniper Mason
 price: 19.99
 sku: 6927054402366
-in_stock: true
-images: ["editor_001.jpg", "editor_002.jpg", "editor_003.jpg", "editor_004.jpg", "editor_005.jpg", "editor_006.jpg", "editor_007.jpg", "editor_008.jpg", "editor_009.jpg", "editor_010.jpg", "gallery_001.jpg", "gallery_002.jpg", "gallery_003.jpg", "gallery_004.jpg", "gallery_005.jpg", "gallery_006.jpg"]
-is_pre_order: true
-available_date: 2025-10-01
+in_stock: false
+images: ["36e483ca2690.jpg", "2bd16b8ae0d9.jpg", "6bd586683a94.jpg", "939fa9a460b6.jpg", "90e593ecf783.jpg", "36490502d278.jpg", "42da31a23fc2.jpg", "1d5ae52933f4.jpg", "8e80184206b0.jpg", "176154a69011.jpg", "e0ceef082334.jpg", "ee99b8b7c60d.jpg", "ff52d4d91365.jpg", "6b82e1738522.jpg", "90912c7be119.jpg", "1d2c04c8e425.jpg"]
+is_pre_order: false
+available_date: 
 is_on_sale: false
 sale_price: 0
 is_new_arrival: false
@@ -18,9 +18,10 @@ size: 22.5*16.5*2.5
 weight: 0.2kg
 zhtw_price: 89.0
 cost: 68.0
-final_price: 540.0
-cost_tw: 290.0
+final_price: 700.0
+cost_tw: 319
 order_weight: 0
+group: 
 ---
 
 Mason is a highly trained UNSC sniper who specializes in reconnaissance and precision elimination. His patience and accuracy have earned him a fearsome reputation among enemy forces. This 1/25 scale figure features the distinctive marksman equipment and camouflage gear of UNSC special operations.

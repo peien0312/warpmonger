@@ -2,8 +2,8 @@
 title: Ultramarines Brother Chairon-Collectors Edition
 price: 59.99
 sku: 6927054401383
-in_stock: true
-images: ["editor_1.jpg", "editor_2.jpg", "editor_3.jpg", "editor_4.jpg", "editor_5.jpg", "editor_6.jpg", "editor_7.jpg", "editor_8.jpg", "editor_9.jpg", "editor_10.jpg", "editor_11.jpg", "editor_12.jpg", "editor_13.jpg", "editor_14.jpg", "editor_15.jpg", "editor_16.jpg", "gallery_1.jpg", "gallery_2.jpg", "gallery_3.jpg", "gallery_4.jpg", "gallery_5.jpg", "gallery_6.jpg"]
+in_stock: false
+images: ["de35ef63df75.jpg", "ca963321568f.jpg", "e156c0ddb38d.jpg", "66dae0f5f9b0.jpg", "99c8f6bdbb21.jpg", "c3561bc5e6d8.jpg", "0c9d72191dc5.jpg", "2273f2840c3e.jpg", "554d6feda42f.jpg", "ad0cb397957e.jpg", "935a8d2509fb.jpg", "cc14cc5be12a.jpg", "1b5d0c6f58d5.jpg", "56f4ac447bb4.jpg", "c78e76081799.jpg", "e99e716b07bd.jpg", "81880501f036.jpg", "63a27e91a2f1.jpg"]
 is_pre_order: false
 available_date: 
 is_on_sale: false
@@ -18,9 +18,10 @@ size: 20*18.5*7
 weight: 0.35kg
 zhtw_price: 299.0
 cost: 235.0
-final_price: 1590.0
-cost_tw: 1003.0
+final_price: 2000.0
+cost_tw: 1102
 order_weight: 0
+group: 
 ---
 
 This Collector's Edition presents Brother Chairon, an [[Ultramarines]] warrior rendered in exceptional detail. Chairon represents the countless heroes who serve in the ranks of the XIII Legion, warriors who uphold the legacy of [[Roboute Guilliman]] through their courage and discipline. The premium presentation befits a centerpiece of any Warhammer 40,000 collection.

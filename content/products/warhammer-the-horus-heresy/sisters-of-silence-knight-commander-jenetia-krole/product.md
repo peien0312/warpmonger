@@ -2,8 +2,8 @@
 title: Sisters of Silence Knight-Commander Jenetia Krole
 price: 59.99
 sku: 6927054400829
-in_stock: true
-images: ["editor_17.jpg", "editor_18.jpg", "editor_19.jpg", "editor_20.jpg", "editor_21.jpg", "editor_22.jpg", "editor_23.jpg", "gallery_15.jpg", "gallery_16.jpg", "gallery_17.jpg", "gallery_18.jpg", "gallery_19.jpg", "gallery_20.jpg"]
+in_stock: false
+images: ["63d5070e6e82.jpg", "19e378d2a2d5.jpg", "fbc4dd9ea684.jpg", "2a9e4786d866.jpg", "2f8b46b3c5a6.jpg", "70bc98e01b73.jpg", "a60394533f3d.jpg", "e9887070f4d6.jpg", "9c636d7942cb.jpg", "bfb50fba55b0.jpg", "bf48a58ac81f.jpg", "37cad4dd5f5b.jpg"]
 is_pre_order: false
 available_date: 
 is_on_sale: false
@@ -18,9 +18,10 @@ size: 20*18*7
 weight: 0.35kg
 zhtw_price: 259.0
 cost: 205.0
-final_price: 1380.0
-cost_tw: 875.0
+final_price: 1560.0
+cost_tw: 961
 order_weight: 0
+group: 
 ---
 
 Knight-Commander Jenetia Krole led the [[Sisters of Silence]] during the [[Horus Heresy]], her null aura so powerful that even Primarchs found her presence deeply unsettling. As one of the Talons of the Emperor, she fought alongside [[Constantin Valdor]] and the [[Legio Custodes]] in defense of Terra. Her blade, the Sword of Oblivion, was death to any psyker it touched.

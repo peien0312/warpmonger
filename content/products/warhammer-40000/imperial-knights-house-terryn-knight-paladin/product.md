@@ -2,8 +2,8 @@
 title: Imperial Knights House Terryn Knight Paladin
 price: 699.0
 sku: 6973130379299
-in_stock: true
-images: ["editor_1.jpg", "editor_2.jpg", "editor_3.jpg", "editor_4.jpg", "editor_5.jpg", "editor_6.jpg", "editor_7.jpg", "editor_8.jpg", "editor_9.jpg", "editor_10.jpg", "editor_11.jpg", "editor_12.jpg", "editor_13.jpg", "editor_14.jpg", "editor_15.jpg", "editor_16.jpg", "editor_17.jpg", "editor_18.jpg", "editor_19.jpg", "editor_20.jpg", "editor_21.jpg", "editor_22.jpg", "editor_23.jpg", "editor_24.jpg", "editor_25.jpg", "editor_26.jpg", "editor_27.jpg", "editor_28.jpg", "editor_29.jpg", "editor_30.jpg", "editor_31.jpg", "editor_32.jpg", "editor_33.jpg", "editor_34.jpg", "editor_35.jpg", "gallery_1.jpg", "gallery_2.jpg", "gallery_3.jpg", "gallery_4.jpg", "gallery_5.jpg", "gallery_6.jpg", "gallery_7.jpg", "gallery_8.jpg", "gallery_9.jpg", "gallery_10.jpg", "gallery_11.jpg"]
+in_stock: false
+images: ["ad5c5bb389e3.jpg", "7f8aa1f7fe72.jpg", "10d32e22e8c0.jpg", "67ef25be0b89.jpg", "2d60a96cb73b.jpg", "030b2e2c0d50.jpg", "d7c07bf7606e.jpg", "86b421a1ad44.jpg", "9af471b30a3b.jpg", "1433491111cb.jpg", "cc37f7be8a51.jpg", "837fc77f79db.jpg", "eab5422d3ace.jpg", "fb140055f41d.jpg", "a7e2dcc7f0a7.jpg", "ea03e5b7bb9e.jpg", "421b0faf7834.jpg", "84f526a24014.jpg", "648805c61da6.jpg", "80659d4d07e8.jpg"]
 is_pre_order: false
 available_date: 
 is_on_sale: false
@@ -18,9 +18,10 @@ size: 56.7*49.6*49.8
 weight: 9kg
 zhtw_price: 2399.0
 cost: 1940.0
-final_price: 13000.0
-cost_tw: 8284.0
+final_price: 15000.0
+cost_tw: 9099
 order_weight: 0
+group: 
 ---
 
 House Terryn's Knight Paladin is a legendary war machine, its blue and white heraldry recognized across the Imperium as a symbol of nobility and martial prowess. The Knight Paladin is the most common pattern of [[Imperial Knights]], a versatile war engine armed with a rapid-fire battle cannon and a thunderstrike gauntlet for crushing enemy vehicles. House Terryn has fought alongside the armies of the Imperium for millennia, their Nobles upholding traditions of honor and duty that predate even the Imperium itself.

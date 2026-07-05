@@ -2,8 +2,8 @@
 title: Ultramarines Intercessors
 price: 24.99
 sku: 6973130376632
-in_stock: true
-images: ["editor_001.jpg", "editor_002.jpg", "editor_003.jpg", "editor_004.jpg", "editor_005.jpg", "editor_006.jpg", "editor_007.jpg", "editor_008.jpg", "editor_009.jpg", "gallery_001.jpg", "gallery_002.jpg", "gallery_003.jpg", "gallery_004.jpg", "gallery_005.jpg", "gallery_006.jpg"]
+in_stock: false
+images: ["5c74634a6046.jpg", "c1553a5e445f.jpg", "dc6e89fa140e.jpg", "44e98a51e7dd.jpg", "114064e0cdf4.jpg", "9dcd4869d453.jpg", "32f2a09b428d.jpg", "fbb7466deb6e.jpg", "54d214699259.jpg", "6db5a6f9fcb0.jpg", "ba145b132286.jpg", "bf779c485e08.jpg", "a4324378c695.jpg", "ed6498548f70.jpg", "b7b664667258.jpg"]
 is_pre_order: false
 available_date: 
 is_on_sale: false
@@ -18,9 +18,10 @@ size: 19*17.5*5
 weight: 0.25kg
 zhtw_price: 118.0
 cost: 85.0
-final_price: 750.0
-cost_tw: 363.0
+final_price: 900.0
+cost_tw: 399
 order_weight: 0
+group: 
 ---
 
 [[Ultramarines]] Intercessors form the core of the Chapter's battle lines, Primaris Marines who embody the tactical discipline and martial excellence that has made the XIII Legion the most influential in the Imperium. Armed with bolt rifles developed by [[Belisarius Cawl]], they deliver precise, overwhelming firepower while advancing with the coordinated precision outlined in the Codex Astartes. These warriors are the standard by which all others are measured.

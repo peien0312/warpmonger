@@ -2,8 +2,8 @@
 title: Dark Angels Master with Power Fist
 price: 59.99
 sku: 6973130377691
-in_stock: true
-images: ["editor_1.jpg", "editor_2.jpg", "editor_3.jpg", "editor_4.jpg", "editor_5.jpg", "editor_6.jpg", "editor_7.jpg", "editor_8.jpg", "gallery_1.jpg", "gallery_2.jpg", "gallery_3.jpg", "gallery_4.jpg", "gallery_5.jpg", "gallery_6.jpg"]
+in_stock: false
+images: ["e9f946245fa7.jpg", "231fb06c04f6.jpg", "49e8a0e6f50e.jpg", "a5452ed9349f.jpg", "9d852c8b1f4b.jpg", "7b8d7f91fa58.jpg", "a7ad1e0fa3a8.jpg", "24664ce990f6.jpg", "407d87dcb705.jpg", "2abcdfebf18f.jpg", "ddd96902cab7.jpg", "c16d07b7fc0b.jpg", "f95102d137cf.jpg", "28bd844a11cc.jpg", "5965bd1ffdbc.jpg", "1b74891ac459.jpg"]
 is_pre_order: false
 available_date: 
 is_on_sale: false
@@ -18,9 +18,10 @@ size: 20*18.5*7
 weight: 0.35kg
 zhtw_price: 269.0
 cost: 210.0
-final_price: 1430.0
-cost_tw: 897.0
+final_price: 1600.0
+cost_tw: 985
 order_weight: 0
+group: 
 ---
 
 A [[Dark Angels]] Master commands one of the Chapter's companies, a position of great authority and responsibility within the Unforgiven. Armed with a crushing power fist, this commander leads his warriors from the front, his tactical acumen matched only by his prowess in combat. Dark Angels Masters are members of the Inner Circle, privy to the Chapter's secret shame and sworn to hunt the Fallen until every last traitor has been captured or destroyed.

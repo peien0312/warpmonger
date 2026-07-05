@@ -2,8 +2,8 @@
 title: TMNT-Groundchuck
 price: 49.99
 sku: 6927054401512
-in_stock: true
-images: ["editor_1.jpg", "editor_2.jpg", "editor_3.jpg", "editor_4.jpg", "editor_5.jpg", "editor_6.jpg", "editor_7.jpg", "editor_8.jpg", "editor_9.jpg", "editor_10.jpg", "editor_11.jpg", "editor_12.jpg", "editor_13.jpg", "editor_14.jpg", "gallery_1.jpg", "gallery_2.jpg", "gallery_3.jpg", "gallery_4.jpg", "gallery_5.jpg", "gallery_6.jpg"]
+in_stock: false
+images: ["efaa56cf56d4.jpg", "e6c0d537c797.jpg", "7ddb4abbb47b.jpg", "eb4b2ba30710.jpg", "688cacbaf222.jpg", "54ab9f1ef320.jpg", "556ca5b651d5.jpg", "27da793784af.jpg", "a1d4fe3804ab.jpg", "e226e007594c.jpg", "f8c8a5a0ec04.jpg", "b22841e81659.jpg", "f5a77cb30fa7.jpg", "fff28f6b0e46.jpg", "c307612bc65f.jpg", "4a5987fa403c.jpg", "56d2c3b9d307.jpg", "45ab91e07c52.jpg"]
 is_pre_order: false
 available_date: 
 is_on_sale: false
@@ -18,9 +18,10 @@ size: 20*18*5
 weight: 0.2kg
 zhtw_price: 208.0
 cost: 167.0
-final_price: 1110.0
-cost_tw: 713.0
+final_price: 1230.0
+cost_tw: 783
 order_weight: 0
+group: 
 ---
 
 Groundchuck is the massive mutant bull whose brute strength and short temper make him a dangerous adversary. Usually teamed with his partner Dirtbag, this bovine bruiser charges into battle with little regard for strategy or subtlety. The figure showcases Groundchuck's intimidating horns and muscular build that make him one of the Turtles' toughest opponents.

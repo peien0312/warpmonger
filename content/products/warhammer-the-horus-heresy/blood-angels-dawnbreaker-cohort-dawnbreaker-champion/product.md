@@ -2,8 +2,8 @@
 title: Blood Angels Dawnbreaker Cohort Dawnbreaker Champion
 price: 49.99
 sku: 6927054400461
-in_stock: true
-images: ["editor_1.jpg", "editor_2.jpg", "editor_3.jpg", "editor_18.jpg", "editor_19.jpg", "editor_20.jpg", "editor_21.jpg", "editor_22.jpg", "editor_23.jpg", "editor_24.jpg", "gallery_1.jpg", "gallery_2.jpg", "gallery_15.jpg", "gallery_16.jpg", "gallery_17.jpg", "gallery_18.jpg", "gallery_19.jpg", "gallery_20.jpg"]
+in_stock: false
+images: ["5c2bef00523b.jpg", "389e12f26605.jpg", "bd9cd63897d8.jpg", "9556359528aa.jpg", "3463c6c0e7bd.jpg", "9e867b39c369.jpg", "96ff64b40ee3.jpg", "044f503b1cbf.jpg", "caf0d3f36178.jpg", "93dcbfa1d667.jpg", "3d6b92abfce4.jpg", "4a23cdac6eda.jpg", "c37947b48dc5.jpg"]
 is_pre_order: false
 available_date: 
 is_on_sale: false
@@ -18,9 +18,10 @@ size: 20*18.5*6.5
 weight: 0.35kg
 zhtw_price: 218.0
 cost: 170.0
-final_price: 1160.0
-cost_tw: 726.0
+final_price: 1240.0
+cost_tw: 797
 order_weight: 0
+group: 
 ---
 
 The Dawnbreaker Champion leads his Cohort with unmatched skill and fury, a veteran of countless assault actions for the [[Blood Angels]]. Champions were chosen for their exceptional combat abilities and inspiring presence, wielding master-crafted weapons and wearing ornate artificer armor. In battle, they are the first to descend upon the enemy, their example driving their brothers to ever greater feats of valor.

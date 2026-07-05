@@ -2,8 +2,8 @@
 title: Ultramarines Sergeant Gadriel-Collectors Edition
 price: 59.99
 sku: 6927054401376
-in_stock: true
-images: ["editor_1.jpg", "editor_2.jpg", "editor_3.jpg", "editor_4.jpg", "editor_5.jpg", "editor_6.jpg", "editor_7.jpg", "editor_8.jpg", "editor_9.jpg", "editor_10.jpg", "editor_11.jpg", "editor_12.jpg", "editor_13.jpg", "editor_14.jpg", "editor_15.jpg", "editor_16.jpg", "gallery_1.jpg", "gallery_2.jpg", "gallery_3.jpg", "gallery_4.jpg", "gallery_5.jpg", "gallery_6.jpg"]
+in_stock: false
+images: ["556cfbfad5bd.jpg", "eab78fdec2b6.jpg", "34413852c6ba.jpg", "10b15b771c93.jpg", "7e931413dd65.jpg", "b1737cbec434.jpg", "6a01c9991819.jpg", "a3ab2246929e.jpg", "9db2d58ad887.jpg", "cf22efc51ba7.jpg", "4e7486680585.jpg", "7151540af99a.jpg", "7badf327db1a.jpg", "6799eb5b4a9c.jpg", "d79083777e8b.jpg", "840bbae30009.jpg", "eda68c6a78c5.jpg", "c7b5994116cc.jpg"]
 is_pre_order: false
 available_date: 
 is_on_sale: false
@@ -18,9 +18,10 @@ size: 20*18.5*7
 weight: 0.35kg
 zhtw_price: 299.0
 cost: 235.0
-final_price: 1590.0
-cost_tw: 1003.0
+final_price: 2000.0
+cost_tw: 1102
 order_weight: 0
+group: 
 ---
 
 Sergeant Gadriel leads his squad with the unwavering determination that defines the [[Ultramarines]]. This Collector's Edition captures the veteran sergeant in exceptional detail, showcasing the wargear and bearing of a warrior who has risen through the ranks through merit and valor. Gadriel represents the countless sergeants who form the backbone of Space Marine leadership, translating their Captains' orders into battlefield reality.

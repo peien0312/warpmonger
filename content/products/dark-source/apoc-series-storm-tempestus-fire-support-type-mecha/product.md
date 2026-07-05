@@ -2,10 +2,10 @@
 title: APOC Series Storm Tempestus Fire Support Type Mecha
 price: 59.99
 sku: 6927054401666
-in_stock: true
-images: ["editor_1.jpg", "editor_2.jpg", "editor_3.jpg", "editor_4.jpg", "editor_5.jpg", "editor_6.jpg", "editor_7.jpg", "editor_8.jpg", "editor_9.jpg", "editor_10.jpg", "editor_11.jpg", "editor_12.jpg", "editor_13.jpg", "editor_14.jpg", "editor_15.jpg", "editor_16.jpg", "gallery_1.jpg", "gallery_2.jpg", "gallery_3.jpg", "gallery_4.jpg", "gallery_5.jpg", "gallery_6.jpg"]
+in_stock: false
+images: ["2cd539a792af.jpg", "8a287f784c1b.jpg", "ac4a2e541652.jpg", "f4bf4f4aa5df.jpg", "90eb02d2e940.jpg", "c8e45807c856.jpg", "306b26214529.jpg", "d6c326a684ef.jpg", "e8d4789d094b.jpg", "56ee1765a3be.jpg", "847abc7ec63a.jpg", "61bf9e3ebcd0.jpg", "4d158fc2f64a.jpg", "7934a25af522.jpg", "0b0b55eccc4e.jpg", "a8fb84e2e5aa.jpg", "b521bd96337d.jpg", "de1d61ee13bb.jpg"]
 is_pre_order: false
-available_date: 2025-10-01
+available_date: 
 is_on_sale: false
 sale_price: 0
 is_new_arrival: false
@@ -18,9 +18,10 @@ size: 50.5*31.5*6.2
 weight: 1.3kg
 zhtw_price: 239.0
 cost: 188.0
-final_price: 1270.0
-cost_tw: 803.0
+final_price: 1500.0
+cost_tw: 882
 order_weight: 0
+group: 
 ---
 
 The Storm Tempestus is a devastating fire support mech from the APOC Series, bristling with heavy weapons designed to provide overwhelming long-range firepower. Its massive armament can suppress entire enemy formations while supporting allied advance. This 1/25 scale model captures the imposing artillery platform in impressive detail.

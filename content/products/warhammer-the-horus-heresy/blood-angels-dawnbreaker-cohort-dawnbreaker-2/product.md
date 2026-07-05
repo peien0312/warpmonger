@@ -2,8 +2,8 @@
 title: Blood Angels Dawnbreaker Cohort Dawnbreaker 2
 price: 49.99
 sku: 6927054400485
-in_stock: true
-images: ["editor_11.jpg", "editor_12.jpg", "editor_13.jpg", "editor_14.jpg", "editor_15.jpg", "editor_16.jpg", "editor_17.jpg", "gallery_9.jpg", "gallery_10.jpg", "gallery_11.jpg", "gallery_12.jpg", "gallery_13.jpg", "gallery_14.jpg"]
+in_stock: false
+images: ["8d21e1f9291d.jpg", "6f05543e368c.jpg", "c67c692bb5d7.jpg", "7b248b455dcd.jpg", "0d3798d15448.jpg", "d5d0b4f7e4f7.jpg", "bdca5224108a.jpg", "11f571fda2d0.jpg", "a965adb14f34.jpg", "614d25793658.jpg", "5f6fb25a10fa.jpg", "b0c2e248a5ca.jpg", "2b7123344900.jpg"]
 is_pre_order: false
 available_date: 
 is_on_sale: false
@@ -18,9 +18,10 @@ size: 20*18.5*6.5
 weight: 0.35kg
 zhtw_price: 218.0
 cost: 170.0
-final_price: 1160.0
-cost_tw: 726.0
+final_price: 1240.0
+cost_tw: 797
 order_weight: 0
+group: 
 ---
 
 [[Blood Angels]] Dawnbreakers carved a bloody path through enemy formations with their deadly combination of jump pack mobility and close-combat prowess. Equipped with power weapons and falling star grenades, these warriors struck with the fury of [[Sanguinius]] himself. The ornate crimson armor and angelic motifs of the Dawnbreakers reflected the IX Legion's artistic traditions even in warfare.

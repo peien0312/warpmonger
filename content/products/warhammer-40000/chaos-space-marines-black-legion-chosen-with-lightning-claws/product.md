@@ -2,8 +2,8 @@
 title: Chaos Space Marines Black Legion Chosen with Lightning Claws
 price: 67.99
 sku: 6927054400973
-in_stock: true
-images: ["editor_18.jpg", "editor_19.jpg", "editor_20.jpg", "editor_21.jpg", "editor_22.jpg", "editor_23.jpg", "editor_24.jpg", "gallery_15.jpg", "gallery_16.jpg", "gallery_17.jpg", "gallery_18.jpg", "gallery_19.jpg", "gallery_20.jpg"]
+in_stock: false
+images: ["9e00ce933c06.jpg", "ce1d5778051f.jpg", "886ac12c81a0.jpg", "00ee4811b880.jpg", "1239332675e2.jpg", "ba5caa7988f4.jpg", "9a5ed4fba220.jpg", "f7459dec762e.jpg", "779e374babed.jpg", "0189dbb5e2cd.jpg", "596a2e167548.jpg", "36697ddc3de5.jpg", "8854f68c209c.jpg"]
 is_pre_order: false
 available_date: 
 is_on_sale: false
@@ -18,9 +18,10 @@ size: 20*18.5*7
 weight: 0.35kg
 zhtw_price: 279.0
 cost: 225.0
-final_price: 1480.0
-cost_tw: 961.0
+final_price: 1750.0
+cost_tw: 1055
 order_weight: 0
+group: 
 ---
 
 Lightning claws are among the most feared close combat weapons in the galaxy, their energy-sheathed talons capable of shredding through armor with terrifying speed. This [[Black Legion]] Chosen has dedicated himself to the art of close-quarters slaughter, his paired lightning claws allowing him to tear through multiple enemies in rapid succession. In the ten thousand years since the Heresy, the Black Legion has perfected the art of war, and this Chosen embodies their mastery of brutal, close-range annihilation.

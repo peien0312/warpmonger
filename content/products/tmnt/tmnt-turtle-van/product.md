@@ -3,9 +3,9 @@ title: TMNT-Turtle Van
 price: 159.99
 sku: 6927054402540
 in_stock: true
-images: ["editor_001.jpg", "editor_002.jpg", "editor_003.jpg", "editor_004.jpg", "editor_005.jpg", "editor_006.jpg", "editor_007.jpg", "editor_008.jpg", "editor_009.jpg", "editor_010.jpg", "editor_011.jpg", "editor_012.jpg", "editor_013.jpg", "editor_014.jpg", "editor_015.jpg", "editor_016.jpg", "editor_017.jpg", "editor_018.jpg", "editor_019.jpg", "editor_020.jpg", "editor_021.jpg", "editor_022.jpg", "editor_023.jpg", "editor_024.jpg", "editor_025.jpg", "editor_026.jpg", "editor_027.jpg", "editor_028.jpg", "editor_029.jpg", "editor_030.jpg", "editor_031.jpg", "editor_032.jpg", "editor_033.jpg", "editor_034.jpg", "editor_035.jpg", "editor_036.jpg", "gallery_001.jpg", "gallery_002.jpg", "gallery_003.jpg", "gallery_004.jpg", "gallery_005.jpg", "gallery_006.jpg"]
+images: ["569edb976677.jpg", "cd276480ccfe.jpg", "ab26bceb6965.jpg", "c3cbdeaa3bee.jpg", "b1cd048b7d74.jpg", "8d8f6b8e0ed6.jpg", "2dbe75e0c877.jpg", "8837ccda5c36.jpg", "45312cf12b27.jpg", "cb787de8604b.jpg", "97ebed693079.jpg", "80b7183e44be.jpg", "f94963f5afd8.jpg", "c44828046078.jpg", "d0e5bf422cd0.jpg", "6eed4402cbe7.jpg", "b8a57c968909.jpg", "20e6529c9d8e.jpg", "610c8be28f40.jpg", "2a9e4a5710f3.jpg", "e3247dfa9885.jpg"]
 is_pre_order: true
-available_date: 2026-01-01
+available_date: 2026-06-01
 is_on_sale: false
 sale_price: 0
 is_new_arrival: false
@@ -18,9 +18,10 @@ size: 23*21*30
 weight: 1.8kg
 zhtw_price: 679.0
 cost: 535.0
-final_price: 3100.0
-cost_tw: 2284.0
+final_price: 4000.0
+cost_tw: 2509
 order_weight: 0
+group: 
 ---
 
 The Turtle Van, also known as the Party Wagon, is the iconic mobile headquarters that transports the Teenage Mutant Ninja Turtles across New York City. Modified by Donatello with weapons, surveillance equipment, and of course a pizza warmer, this vehicle is as much a character as the Turtles themselves. This impressive 1/18 scale model captures every detail of the beloved van's distinctive green-and-yellow design.

@@ -2,8 +2,8 @@
 title: Blood Angels Sanguinary Guard with Encarmine Axe and Inferno Pistol
 price: 63.99
 sku: 6973130377172
-in_stock: true
-images: ["editor_26.jpg", "editor_27.jpg", "editor_28.jpg", "editor_29.jpg", "editor_30.jpg", "editor_31.jpg", "gallery_27.jpg", "gallery_28.jpg", "gallery_29.jpg", "gallery_30.jpg", "gallery_31.jpg", "gallery_32.jpg"]
+in_stock: false
+images: ["fcf42f2dd332.jpg", "4b472cb5032f.jpg", "01fbc5c4aa0e.jpg", "f770527168c7.jpg", "02d348b096b6.jpg", "f669805a689c.jpg", "246e9578aa60.jpg", "3ef318d99ded.jpg", "6b1135a31a84.jpg", "ebe0c8be7e66.jpg", "2ce706ffc8f0.jpg", "7204ead3f68d.jpg"]
 is_pre_order: false
 available_date: 
 is_on_sale: false
@@ -18,9 +18,10 @@ size: 22*18*7
 weight: 0.35kg
 zhtw_price: 259.0
 cost: 210.0
-final_price: 1380.0
-cost_tw: 897.0
+final_price: 1460.0
+cost_tw: 985
 order_weight: 0
+group: 
 ---
 
 The encarmine axe is a brutal variant of the [[Sanguinary Guard]]'s signature weapons, trading the precision of sword or spear for devastating cleaving power. This guardian carries his axe alongside an inferno pistol, allowing him to crack open armored targets at range before finishing them in glorious melee combat. The [[Blood Angels]] Sanguinary Guard are chosen from veterans who have proven themselves worthy of bearing [[Sanguinius]]'s legacy, and each fights with the fury of their fallen Primarch.

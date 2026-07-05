@@ -3,9 +3,9 @@ title: APOC Series Bedrock Standard Combat Type Mecha Pilot
 price: 17.99
 sku: 6927054401673
 in_stock: true
-images: ["editor_1.jpg", "editor_2.jpg", "editor_3.jpg", "editor_4.jpg", "editor_5.jpg", "editor_6.jpg", "editor_7.jpg", "editor_8.jpg", "gallery_1.jpg", "gallery_2.jpg", "gallery_3.jpg", "gallery_4.jpg", "gallery_5.jpg", "gallery_6.jpg"]
+images: ["697517e83feb.jpg", "d2d9f2a945d9.jpg", "7b8374197a0f.jpg", "dc9ece71eb69.jpg", "598dc560acf6.jpg", "855c6eb9af41.jpg", "fe09d464424b.jpg", "4c9b44d54ffd.jpg", "cb3d96ffc64b.jpg", "28cd59fbc2d0.jpg", "e5ff85533b76.jpg", "df90ac5ae4a1.jpg", "9e4cbe6fa743.jpg", "9bb392c90f58.jpg", "ceec3fe8a813.jpg"]
 is_pre_order: false
-available_date: 2025-10-01
+available_date: 
 is_on_sale: false
 sale_price: 0
 is_new_arrival: false
@@ -18,9 +18,10 @@ size: 22.5*16.5*2.5
 weight: 0.2kg
 zhtw_price: 89.0
 cost: 58.0
-final_price: 540.0
-cost_tw: 248.0
+final_price: 700.0
+cost_tw: 272
 order_weight: 0
+group: 
 ---
 
 This pilot figure represents the reliable operator of the Bedrock standard combat mech, trained in versatile battlefield tactics and direct engagement. Their practical flight suit reflects the no-nonsense approach of frontline mech warfare. This 1/25 scale figure complements the Bedrock mech perfectly.

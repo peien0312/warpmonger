@@ -2,8 +2,8 @@
 title: Ariadna Marauders 5307th Range Unit 3
 price: 31.99
 sku: 6973130374478
-in_stock: true
-images: ["editor_1.jpg", "editor_2.jpg", "editor_3.jpg", "editor_4.jpg", "editor_5.jpg", "editor_6.jpg", "editor_7.jpg", "editor_8.jpg", "gallery_1.jpg", "gallery_2.jpg", "gallery_3.jpg", "gallery_4.jpg", "gallery_5.jpg"]
+in_stock: false
+images: ["5ff29f8b25ac.jpg", "63406b539260.jpg", "5ab6599dedd9.jpg", "4baeac5ea00b.jpg", "bfb72642d5a1.jpg", "9861757b45d9.jpg", "a513af5aaa7a.jpg", "2a88036b5609.jpg", "6e637fe24f4b.jpg", "57a17b35c20d.jpg", "d330d12f0960.jpg", "6335211de7d6.jpg", "d387784fce64.jpg"]
 is_pre_order: false
 available_date: 
 is_on_sale: false
@@ -18,9 +18,10 @@ size: 15.5*15*5
 weight: 0.2kg
 zhtw_price: 148.0
 cost: 110.0
-final_price: 850.0
-cost_tw: 470.0
+final_price: 930.0
+cost_tw: 516
 order_weight: 0
+group: 
 ---
 
 The third Marauder variant offers yet another weapons configuration for your USARF forces. These rangers are known for their tenacity and self-reliance in hostile territory, embodying the pioneer spirit of Ariadna's American settlers. The detailed 1/18 scale sculpt showcases their practical, combat-focused equipment.

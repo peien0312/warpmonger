@@ -3,9 +3,9 @@ title: Dark Angels MkX Helmet & Display Stand
 price: 299.99
 sku: 6927054402762
 in_stock: true
-images: ["editor_001.jpg", "editor_002.jpg", "editor_003.jpg", "editor_004.jpg", "editor_005.jpg", "editor_006.jpg", "editor_007.jpg", "editor_008.jpg", "editor_009.jpg", "editor_010.jpg", "editor_011.jpg", "editor_012.jpg", "editor_013.jpg", "editor_014.jpg", "editor_015.jpg", "editor_016.jpg", "editor_017.jpg", "editor_018.jpg", "editor_019.jpg", "editor_020.jpg", "editor_021.jpg", "editor_022.jpg", "editor_023.jpg", "editor_024.jpg", "editor_025.jpg", "gallery_001.jpg", "gallery_002.jpg", "gallery_003.jpg", "gallery_004.jpg", "gallery_005.jpg", "gallery_006.jpg", "gallery_007.jpg"]
-is_pre_order: true
-available_date: 2026-01-01
+images: ["06bcaaafc755.jpg", "e8ee0a4bb511.jpg", "849fdda6444e.jpg", "88dc7a325806.jpg", "1c6c18950b7f.jpg", "0ec6df6c5298.jpg", "76e801bc0dc2.jpg", "54fd60a7bbeb.jpg", "078c73a58cec.jpg", "8b39d41f51ae.jpg", "bfecbc02cf08.jpg", "35dbd447f84e.jpg", "2f01555d7276.jpg", "f5fc90f838b4.jpg", "b1027e299ad3.jpg", "d40251fb9e86.jpg", "630a7ff5ff79.jpg", "4de59045a3e8.jpg", "7ab2ecd3a80d.jpg"]
+is_pre_order: false
+available_date: 
 is_on_sale: false
 sale_price: 0
 is_new_arrival: false
@@ -18,9 +18,10 @@ size: 46*39*58
 weight: 5.5kg
 zhtw_price: 899.0
 cost: 630.0
-final_price: 3990.0
-cost_tw: 2690.0
+final_price: 5000.0
+cost_tw: 2955
 order_weight: 0
+group: 
 ---
 
 This premium set includes a life-size [[Dark Angels]] Mark X helmet with a custom display stand designed to showcase this iconic piece of Space Marine wargear. The helmet is finished in the dark green of the First Legion, complete with the Chapter's heraldry and authentic weathering details. The display stand features Dark Angels iconography and provides an impressive presentation worthy of any serious collector of Warhammer 40,000 merchandise.

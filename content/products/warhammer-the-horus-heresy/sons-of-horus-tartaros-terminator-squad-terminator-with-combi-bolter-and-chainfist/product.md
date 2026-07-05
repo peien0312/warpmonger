@@ -3,7 +3,7 @@ title: Sons Of Horus Tartaros Terminator Squad Terminator With Combi-Bolter And 
 price: 49.99
 sku: 6973130377271
 in_stock: false
-images: ["editor_15.jpg", "editor_16.jpg", "editor_17.jpg", "editor_18.jpg", "editor_19.jpg", "editor_20.jpg", "gallery_15.jpg", "gallery_16.jpg", "gallery_17.jpg", "gallery_18.jpg", "gallery_19.jpg", "gallery_20.jpg"]
+images: ["eac76d8c7d24.jpg", "4a1df1a963db.jpg", "4d2cb92733cc.jpg", "7d42f4bda098.jpg", "7f96180d2e3f.jpg", "f869df0eb733.jpg", "0f41343e3a67.jpg", "292cde670efc.jpg", "9ee60b863e39.jpg", "cc5c80010eb2.jpg", "ea2c13a3530b.jpg", "0d6c46c95018.jpg"]
 is_pre_order: false
 available_date: 
 is_on_sale: false
@@ -19,8 +19,9 @@ weight: 0.35kg
 zhtw_price: 208.0
 cost: 165.0
 final_price: 1110.0
-cost_tw: 705.0
+cost_tw: 774
 order_weight: 0
+group: 
 ---
 
 [[Sons of Horus]] Terminators in Tartaros pattern armor combined the protection of tactical dreadnought armor with greater mobility than other variants. This warrior carries a combi-bolter for ranged firepower and a chainfist capable of ripping through bulkheads and enemy armor alike. The Tartaros pattern was favored by the XVI Legion's aggressive commanders for teleport assaults requiring swift action.

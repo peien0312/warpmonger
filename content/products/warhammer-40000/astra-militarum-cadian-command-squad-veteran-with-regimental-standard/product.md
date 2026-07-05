@@ -2,8 +2,8 @@
 title: Astra Militarum Cadian Command Squad Veteran with Regimental Standard
 price: 44.99
 sku: 6973130377929
-in_stock: true
-images: ["editor_1.jpg", "editor_2.jpg", "editor_3.jpg", "editor_4.jpg", "editor_5.jpg", "editor_6.jpg", "editor_7.jpg", "editor_8.jpg", "editor_9.jpg", "editor_10.jpg", "editor_11.jpg", "editor_12.jpg", "gallery_1.jpg", "gallery_2.jpg", "gallery_3.jpg", "gallery_4.jpg", "gallery_5.jpg", "gallery_6.jpg", "gallery_7.jpg", "gallery_8.jpg"]
+in_stock: false
+images: ["bc6fe308ef64.jpg", "c40670ff821e.jpg", "40671c31fb28.jpg", "6f44c8a35bc0.jpg", "6818e08d507e.jpg", "15f4dc6d6d20.jpg", "54f2d241b32c.jpg", "9cc615eb0378.jpg", "7d7a0764cdc2.jpg", "0d58ac708696.jpg", "01cd562c9e0d.jpg", "317107943c46.jpg", "c430abe7c2f7.jpg", "492287362102.jpg", "aaebccce615c.jpg", "2377103b6d37.jpg", "3f8691aea3cb.jpg", "a0e0f4f399cb.jpg", "cb718186e86e.jpg", "57b282a0cf0b.jpg"]
 is_pre_order: false
 available_date: 
 is_on_sale: false
@@ -18,9 +18,10 @@ size: 15*11*5
 weight: 0.22kg
 zhtw_price: 198.0
 cost: 155.0
-final_price: 1070.0
-cost_tw: 662.0
+final_price: 1110.0
+cost_tw: 727
 order_weight: 0
+group: 
 ---
 
 This veteran of the [[Astra Militarum]] bears the sacred Regimental Standard of his Cadian unit — a responsibility given only to the most steadfast soldiers. The Standard represents the regiment's history, honors, and fallen comrades, serving as a rallying point that inspires nearby Guardsmen to fight with renewed determination. To let the Standard fall is unthinkable; its bearer will fight to the death before allowing such dishonor. In the grim calculus of Imperial warfare, a single fluttering banner can mean the difference between routing and victory.

@@ -3,9 +3,9 @@ title: TMNT-Foot Clan B
 price: 39.99
 sku: 6927054400171
 in_stock: true
-images: ["editor_001.jpg", "editor_002.jpg", "editor_003.jpg", "editor_004.jpg", "editor_005.jpg", "editor_006.jpg", "editor_007.jpg", "editor_008.jpg", "editor_009.jpg", "editor_010.jpg", "editor_011.jpg", "editor_012.jpg", "editor_013.jpg", "editor_014.jpg", "editor_015.jpg", "editor_016.jpg", "gallery_001.jpg", "gallery_002.jpg", "gallery_003.jpg", "gallery_004.jpg", "gallery_005.jpg", "gallery_006.jpg"]
-is_pre_order: true
-available_date: 2026-01-01
+images: ["ce46ea047a41.jpg", "29e028f9e4e9.jpg", "bc51c5a65f91.jpg", "0541a6f6f2ac.jpg", "ad5a9d017317.jpg", "45bdc6c41ae9.jpg", "cf0d4cba6150.jpg", "c4e7edc868e8.jpg", "c1ef80897e88.jpg", "13dc4ab84e61.jpg", "bdd700656cda.jpg", "43c3b2a95eae.jpg", "7f70e7f30b96.jpg", "1dc7b07bd3b3.jpg", "bab2e838a2fe.jpg", "738376d5eb72.jpg", "b44e816e3d0d.jpg", "799adf84b94b.jpg", "c019ec2bc4c3.jpg", "efdc94e03c41.jpg", "20b87b7530fb.jpg"]
+is_pre_order: false
+available_date: 
 is_on_sale: false
 sale_price: 0
 is_new_arrival: false
@@ -18,9 +18,10 @@ size: 20*18*5
 weight: 0.2kg
 zhtw_price: 199.0
 cost: 140.0
-final_price: 950.0
-cost_tw: 598.0
+final_price: 1090.0
+cost_tw: 657
 order_weight: 0
+group: 
 ---
 
 This Foot Clan ninja variant offers a different loadout for Shredder's endless army of loyal warriors. The Foot Soldiers' interchangeable weapons and combat styles make each encounter unpredictable for the heroes in a half shell. Pair with Foot Clan A to create diverse squads of ninja opponents for your TMNT display battles.

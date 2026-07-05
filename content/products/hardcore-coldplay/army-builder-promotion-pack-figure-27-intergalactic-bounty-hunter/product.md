@@ -2,8 +2,8 @@
 title: Army Builder Promotion Pack Figure 27 -Intergalactic Bounty Hunter
 price: 19.99
 sku: 6973130371736
-in_stock: true
-images: ["editor_11.jpg", "editor_12.jpg", "editor_13.jpg", "editor_14.jpg", "editor_15.jpg", "gallery_12.jpg", "gallery_13.jpg", "gallery_14.jpg", "gallery_15.jpg", "gallery_16.jpg"]
+in_stock: false
+images: ["1709c0635141.jpg", "e2c5ebf34119.jpg", "6f77b16cb114.jpg", "3fab56cee35c.jpg", "2b7d24bbf6fe.jpg", "2fd71b0d220f.jpg", "b5e374bc6dc9.jpg", "74aeab2bcae4.jpg", "14d86572b89d.jpg", "1bf76794c29c.jpg"]
 is_pre_order: false
 available_date: 
 is_on_sale: false
@@ -17,10 +17,11 @@ scale: Scale：1/18
 size: 19*12.5*4
 weight: 0.2kg
 zhtw_price: 89.0
-cost: 65.0
-final_price: 540.0
-cost_tw: 278.0
+cost: 55.0
+final_price: 700.0
+cost_tw: 258
 order_weight: 0
+group: 
 ---
 
 The Intergalactic Bounty Hunter tracks targets across the stars with specialized alien-hunting equipment. This sci-fi themed 1/18 scale figure features space-age armor and weapons designed for extraterrestrial contracts. A unique addition to collections that span both military realism and science fiction genres.

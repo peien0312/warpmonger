@@ -2,8 +2,8 @@
 title: Thousand Sons Magistus Amon
 price: 69.99
 sku: 6973130375826
-in_stock: true
-images: ["editor_1.jpg", "editor_2.jpg", "editor_3.jpg", "editor_4.jpg", "editor_5.jpg", "editor_6.jpg", "editor_7.jpg", "editor_8.jpg", "gallery_1.jpg", "gallery_2.jpg", "gallery_3.jpg", "gallery_4.jpg", "gallery_5.jpg", "gallery_6.jpg"]
+in_stock: false
+images: ["0b1884479724.jpg", "b04b260db444.jpg", "d600049d1d28.jpg", "07b6839e5a48.jpg", "23ec28f0ee7c.jpg", "bb7a6eb09642.jpg", "2538c1711f83.jpg", "676864cd972c.jpg", "a8dd180c6440.jpg", "f4f9480da164.jpg", "0ecc8adbb9e1.jpg", "afd02ce582a1.jpg", "6acf4196ed42.jpg", "422054ee99aa.jpg"]
 is_pre_order: false
 available_date: 
 is_on_sale: false
@@ -17,10 +17,11 @@ scale: Scale：1/18
 size: 20*18.5*7
 weight: 0.35kg
 zhtw_price: 299.0
-cost: 240.0
-final_price: 1590.0
-cost_tw: 1025.0
+cost: 160.0
+final_price: 1350.0
+cost_tw: 750
 order_weight: 0
+group: 
 ---
 
 [[Amon|Magistus Amon]] served as equerry to [[Magnus the Red]] himself, one of the most trusted captains of the [[Thousand Sons]] Legion. A member of the elite Scarab Occult and master of the hidden arts, his psychic abilities and tactical acumen made him invaluable to his Primarch. His ornate armor bears the ancient symbols of Prospero's cult of sorcerers.

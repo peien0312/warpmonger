@@ -3,9 +3,9 @@ title: Chaos Space Marines Cypher, Lord of the Fallen
 price: 69.99
 sku: 6927054401826
 in_stock: true
-images: ["editor_001.jpg", "editor_002.jpg", "editor_003.jpg", "editor_004.jpg", "editor_005.jpg", "editor_006.jpg", "editor_007.jpg", "editor_008.jpg", "editor_009.jpg", "gallery_001.jpg", "gallery_002.jpg", "gallery_003.jpg", "gallery_004.jpg", "gallery_005.jpg", "gallery_006.jpg"]
+images: ["d7b8d09bed03.jpg", "0a779e5754ce.jpg", "cd390c75852c.jpg", "7b88cfaf4a02.jpg", "e6da3364ce21.jpg", "43f09bcb1cc1.jpg", "d97977792217.jpg", "863ddc2848a0.jpg", "46619e92b00e.jpg", "371ad4049289.jpg", "ffa6d3a43116.jpg", "09b5475781a8.jpg", "d003a41d7b32.jpg", "c35c3642546d.jpg", "c391f9b0c3f4.jpg"]
 is_pre_order: false
-available_date: 2025-10-01
+available_date: 
 is_on_sale: false
 sale_price: 0
 is_new_arrival: false
@@ -18,9 +18,10 @@ size: 20*18.5*5.5
 weight: 0.35kg
 zhtw_price: 309.0
 cost: 245.0
-final_price: 1450.0
-cost_tw: 1046.0
+final_price: 1850.0
+cost_tw: 1149
 order_weight: 0
+group: 
 ---
 
 [[Cypher]] is one of the most enigmatic figures in the galaxy, a hooded warrior who has evaded capture for ten thousand years while being relentlessly hunted by the Dark Angels. Armed with two ancient pistols that he wields with preternatural speed, Cypher appears at crucial moments across the Imperium, his motives forever unclear. Upon his back he carries a sword that some believe to be the Lion Sword of the Dark Angels Primarch, though none have ever seen him draw it. The Lord of the Fallen walks a path known only to himself, his ultimate destination a mystery that haunts those who hunt him.

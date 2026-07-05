@@ -2,8 +2,8 @@
 title: Fear XS-03 Tactical type
 price: 39.99
 sku: 6927054401208
-in_stock: true
-images: ["editor_3.jpg", "editor_4.jpg", "editor_5.jpg", "editor_6.jpg", "editor_7.jpg", "editor_8.jpg", "editor_9.jpg", "editor_10.jpg", "editor_11.jpg", "editor_12.jpg", "gallery_3.jpg", "gallery_4.jpg", "gallery_5.jpg", "gallery_6.jpg", "gallery_7.jpg", "gallery_8.jpg"]
+in_stock: false
+images: ["db2732e57c7b.jpg", "011f7a8d0622.jpg", "c53b544d443a.jpg", "6a9cb3a3292d.jpg", "1cf056cc16d7.jpg", "a423889fae63.jpg", "2aa2976a380e.jpg", "48b72347aaae.jpg", "38e8069cdfa7.jpg", "61c3000541a4.jpg", "ce2594275c3c.jpg", "93fa823d8259.jpg", "39c00fe8dcf3.jpg", "5c2bdd9e25ff.jpg", "c0a0b97f369a.jpg", "f17fa3e3f146.jpg"]
 is_pre_order: false
 available_date: 
 is_on_sale: false
@@ -18,9 +18,10 @@ size: 18*20*7
 weight: 0.35kg
 zhtw_price: 179.0
 cost: 142.0
-final_price: 1010.0
-cost_tw: 606.0
+final_price: 1300.0
+cost_tw: 666
 order_weight: 0
+group: 
 ---
 
 The FEAR XS-03 Tactical type is a versatile combat mech designed for balanced performance across various mission profiles. Its modular weapon systems allow rapid reconfiguration for different tactical situations. This 1/25 scale model showcases the practical, mission-adaptable design of multi-role combat mechs.

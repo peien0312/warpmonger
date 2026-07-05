@@ -2,8 +2,8 @@
 title: Cyclone Assauit Armored Car
 price: 129.99
 sku: 6973130379459
-in_stock: true
-images: ["editor_1.jpg", "editor_2.jpg", "editor_3.jpg", "editor_4.jpg", "editor_5.jpg", "editor_6.jpg", "editor_7.jpg", "editor_8.jpg", "editor_9.jpg", "editor_10.jpg", "editor_11.jpg", "editor_12.jpg", "editor_13.jpg", "editor_14.jpg", "editor_15.jpg", "editor_16.jpg", "gallery_1.jpg", "gallery_2.jpg", "gallery_3.jpg", "gallery_4.jpg", "gallery_5.jpg", "gallery_6.jpg", "gallery_7.jpg"]
+in_stock: false
+images: ["b0b3eb35422e.jpg", "a29fb94b92cd.jpg", "0dbac898d6ea.jpg", "41a760806bba.jpg", "1c376cce513b.jpg", "f89681f35c00.jpg", "9aec83faf80c.jpg", "9185244bacdd.jpg", "46eb6a1088ef.jpg", "b16694d27e98.jpg", "96363189250a.jpg", "bd1acfc71f3c.jpg", "d548c2b7234b.jpg", "91fbc943388d.jpg", "98643d040cb9.jpg", "3ecf15865f08.jpg", "5617158414d6.jpg", "ccfbf5be4f4e.jpg", "82b0c9c5ad7d.jpg"]
 is_pre_order: false
 available_date: 
 is_on_sale: false
@@ -17,10 +17,11 @@ scale: Scale：1/18
 size: 41.5*23*20
 weight: 3kg
 zhtw_price: 399.0
-cost: 320.0
-final_price: 2200.0
-cost_tw: 1366.0
+cost: 220.0
+final_price: 1800.0
+cost_tw: 1032
 order_weight: 0
+group: 
 ---
 
 The Cyclone Assault Armored Car is a formidable tactical vehicle designed for rapid deployment and heavy combat operations. This impressive 1/18 scale model features detailed armor plating, weapon systems, and military vehicle authenticity. The perfect centerpiece for your military collection, compatible with Hardcore Coldplay figures for complete tactical displays.

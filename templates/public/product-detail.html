@@ -163,8 +163,12 @@
                         <span class="sale-price">${{ "%.2f"|format(product.sale_price) }}</span>
                         <span class="savings">Save ${{ "%.2f"|format(product.price - product.sale_price) }}</span>
                     </p>
-                    {% else %}
+                    {% elif product.price %}
                     <p class="price">${{ "%.2f"|format(product.price) }}</p>
+                    {% elif product.final_price %}
+                    <p class="price">NT${{ product.final_price|ntd }}</p>
+                    {% else %}
+                    <p class="price contact-price">{{ t.contact_price }}</p>
                     {% endif %}
                 {% endif %}
 

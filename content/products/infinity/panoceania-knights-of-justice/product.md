@@ -2,8 +2,8 @@
 title: PanOceania Knights of Justice
 price: 37.99
 sku: 6973130376359
-in_stock: true
-images: ["editor_1.jpg", "editor_2.jpg", "editor_3.jpg", "editor_4.jpg", "editor_5.jpg", "editor_6.jpg", "editor_7.jpg", "editor_8.jpg", "gallery_1.jpg", "gallery_2.jpg", "gallery_3.jpg", "gallery_4.jpg", "gallery_5.jpg", "gallery_6.jpg", "gallery_7.jpg"]
+in_stock: false
+images: ["765266926be9.jpg", "3bb416159b97.jpg", "1f46a31e66ea.jpg", "a35b930e6da9.jpg", "3dc9924784a4.jpg", "d10b8736332e.jpg", "eeea0a15a12b.jpg", "758bab82073e.jpg", "d223caa9f124.jpg", "b7bbbc2682d6.jpg", "56f18e044be3.jpg", "4665abac8375.jpg", "5a8d3912bada.jpg", "f42f915971f8.jpg", "9a6c7c7d6dbe.jpg"]
 is_pre_order: false
 available_date: 
 is_on_sale: false
@@ -17,10 +17,11 @@ scale: Scale:1/18
 size: 15.5*15*5
 weight: 0.2kg
 zhtw_price: 168.0
-cost: 130.0
-final_price: 960.0
-cost_tw: 555.0
+cost: 70.0
+final_price: 750.0
+cost_tw: 328
 order_weight: 0
+group: 
 ---
 
 The Knights of Justice uphold PanOceania's ideals through force of arms, their power armor making them walking fortresses on the battlefield. These elite warriors are deployed when overwhelming force is required to secure victory. This 1/18 scale figure captures the imposing presence of these armored champions.

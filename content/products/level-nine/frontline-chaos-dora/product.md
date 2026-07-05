@@ -2,8 +2,8 @@
 title: FRONTLINE CHAOS DORA
 price: 99.99
 sku: 6973130375611
-in_stock: true
-images: ["editor_1.jpg", "editor_2.jpg", "editor_3.jpg", "editor_4.jpg", "editor_5.jpg", "editor_6.jpg", "editor_7.jpg", "editor_8.jpg", "gallery_1.jpg", "gallery_2.jpg", "gallery_3.jpg", "gallery_4.jpg", "gallery_5.jpg", "gallery_6.jpg"]
+in_stock: false
+images: ["e8fea9f7a834.jpg", "5282741e7bb8.jpg", "c07b4afe6d61.jpg", "d02d93f1db02.jpg", "90ed881e5eca.jpg", "5646534e1d75.jpg", "606975eb75d5.jpg", "f37cf23615e2.jpg", "89a7f7b5e3ef.jpg", "bd4bc97a5aa6.jpg", "df36e6bc8adb.jpg", "637ab96bd549.jpg", "d96087682655.jpg", "c2a4457e4b12.jpg"]
 is_pre_order: false
 available_date: 
 is_on_sale: false
@@ -18,9 +18,10 @@ size: 23*11*5
 weight: 0.3kg
 zhtw_price: 399.0
 cost: 350.0
-final_price: 2120.0
-cost_tw: 1495.0
+final_price: 2200.0
+cost_tw: 1642
 order_weight: 0
+group: 
 ---
 
 Dora completes your Frontline Chaos squad with her unique character design and combat-ready appearance. This 1/12 scale Level Nine figure offers exceptional articulation and detail. Includes signature weapons and accessories that capture Dora's personality and role in the Frontline Chaos universe.

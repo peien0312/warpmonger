@@ -1,9 +1,9 @@
 ---
-title: Army Builder Promotion Pack Figure 18
+title: Army Builder Promotion PackFigure 18
 price: 19.99
 sku: 6973130379640
-in_stock: true
-images: ["editor_11.jpg", "editor_12.jpg", "editor_13.jpg", "editor_14.jpg", "editor_15.jpg", "gallery_14.jpg", "gallery_15.jpg", "gallery_16.jpg", "gallery_17.jpg", "gallery_18.jpg", "gallery_19.jpg"]
+in_stock: false
+images: ["4de96d5f35fa.jpg", "4fad64dc7439.jpg", "8a578b75f3a0.jpg", "08aeec1e9615.jpg", "c527ed351656.jpg", "b57e0b645d3f.jpg", "9e307d1a0c78.jpg", "8ecab5e3adc4.jpg", "350bbe752a5f.jpg", "2fa251e71f4a.jpg", "4f84b4409757.jpg"]
 is_pre_order: false
 available_date: 
 is_on_sale: false
@@ -18,9 +18,10 @@ size: 19*12.5*4
 weight: 0.2kg
 zhtw_price: 89.0
 cost: 65.0
-final_price: 540.0
-cost_tw: 278.0
+final_price: 800.0
+cost_tw: 305
 order_weight: 0
+group: 
 ---
 
 Army Builder Figure 18 adds another specialized soldier to your military collection. This highly detailed 1/18 scale figure features authentic tactical equipment and combat-ready posing. Designed to work alongside other Army Builder figures for creating realistic squad compositions and battle displays.

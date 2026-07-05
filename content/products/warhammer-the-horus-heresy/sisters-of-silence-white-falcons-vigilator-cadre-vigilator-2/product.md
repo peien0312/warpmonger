@@ -2,8 +2,8 @@
 title: Sisters of Silence White Falcons Vigilator Cadre Vigilator 2
 price: 46.99
 sku: 6927054400874
-in_stock: true
-images: ["editor_10.jpg", "editor_11.jpg", "editor_12.jpg", "editor_13.jpg", "editor_14.jpg", "editor_15.jpg", "editor_16.jpg", "gallery_9.jpg", "gallery_10.jpg", "gallery_11.jpg", "gallery_12.jpg", "gallery_13.jpg", "gallery_14.jpg"]
+in_stock: false
+images: ["ae5c501f983c.jpg", "417bae70c516.jpg", "70f48237d6f9.jpg", "8e235a86dd00.jpg", "849cd44ea92a.jpg", "0c37ce37838c.jpg", "3c78ecfb6a6c.jpg", "e47eedb791ab.jpg", "b1bd79f002ab.jpg", "e98687f723e3.jpg", "75ff03363e9b.jpg", "b54f0650ce83.jpg", "161cf775ced1.jpg"]
 is_pre_order: false
 available_date: 
 is_on_sale: false
@@ -18,9 +18,10 @@ size: 20*18*7
 weight: 0.35kg
 zhtw_price: 188.0
 cost: 155.0
-final_price: 1060.0
-cost_tw: 662.0
+final_price: 1140.0
+cost_tw: 727
 order_weight: 0
+group: 
 ---
 
 This [[Sisters of Silence]] Vigilator of the White Falcons carries the iconic weapons of her order: execution blade and bolter. Born as a psychic blank, she exists as a void in the Warp, her presence causing terror to psykers and daemons alike. During the Siege of Terra, the Sisters fought alongside the [[Legio Custodes]] against the traitor hordes.

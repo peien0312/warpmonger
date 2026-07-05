@@ -2,8 +2,8 @@
 title: Nomads Gecko Squadron
 price: 76.99
 sku: 6973130379428
-in_stock: true
-images: ["editor_1.jpg", "editor_2.jpg", "editor_3.jpg", "editor_4.jpg", "editor_5.jpg", "editor_6.jpg", "editor_7.jpg", "editor_8.jpg", "editor_9.jpg", "gallery_1.jpg", "gallery_2.jpg", "gallery_3.jpg", "gallery_4.jpg", "gallery_5.jpg", "gallery_6.jpg", "gallery_7.jpg"]
+in_stock: false
+images: ["a996168108e9.jpg", "d8b831ab3f2b.jpg", "5ca6442f21d2.jpg", "3e6d00857422.jpg", "dcf2f1fcb59c.jpg", "c13dd52212aa.jpg", "4e27f529d1b9.jpg", "e950511779f7.jpg", "3143f34febc2.jpg", "886ab2d61513.jpg", "40b756b90324.jpg", "669c40047a43.jpg", "5b4859bd9bce.jpg", "18d61ff097b4.jpg", "0aeb4e5bd1d0.jpg", "e9d757ab4206.jpg"]
 is_pre_order: false
 available_date: 
 is_on_sale: false
@@ -17,10 +17,11 @@ scale: Scale：1/18
 size: 24*20*10
 weight: 0.5kg
 zhtw_price: 329.0
-cost: 255.0
-final_price: 1750.0
-cost_tw: 1089.0
+cost: 160.0
+final_price: 1350.0
+cost_tw: 750
 order_weight: 0
+group: 
 ---
 
 The Gecko Squadron fields Nomads' signature light Tactical Armored Gear, a perfect balance of mobility and firepower. These agile TAGs excel at urban combat and rapid flanking maneuvers that heavier walkers cannot match. This 1/18 scale figure showcases the distinctive, industrial punk aesthetic of Nomad military hardware.

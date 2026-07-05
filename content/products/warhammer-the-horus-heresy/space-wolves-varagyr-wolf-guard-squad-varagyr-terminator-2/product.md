@@ -2,8 +2,8 @@
 title: Space Wolves Varagyr Wolf Guard Squad Varagyr Terminator 2
 price: 44.99
 sku: 6973130375772
-in_stock: true
-images: ["editor_15.jpg", "editor_16.jpg", "editor_17.jpg", "editor_18.jpg", "editor_19.jpg", "editor_20.jpg", "gallery_15.jpg", "gallery_16.jpg", "gallery_17.jpg", "gallery_18.jpg", "gallery_19.jpg", "gallery_20.jpg"]
+in_stock: false
+images: ["82a98eaaff70.jpg", "1e85bb6f48a5.jpg", "45f5468f9f0c.jpg", "11d62724fd16.jpg", "a68c73327dbb.jpg", "a15bfe6d63ab.jpg", "6a560fdfa4ce.jpg", "948d6488fd7e.jpg", "463ba3d5e4c3.jpg", "b65bba326cd5.jpg", "b10a4ba5edbe.jpg", "c7f841b34ca9.jpg"]
 is_pre_order: false
 available_date: 
 is_on_sale: false
@@ -17,10 +17,11 @@ scale: Scale：1/18
 size: 20*18.5*7
 weight: 0.35kg
 zhtw_price: 208.0
-cost: 165.0
-final_price: 1120.0
-cost_tw: 705.0
+cost: 110.0
+final_price: 1050.0
+cost_tw: 516
 order_weight: 0
+group: 
 ---
 
 Among the [[Varagyr]], only the most ferocious hunters earn a place at [[Leman Russ|Leman Russ's]] side. This [[Space Wolves]] terminator carries weapons that have tasted the blood of xenos warlords and traitor champions. His Cataphractii armor bears the scars of countless battles, each mark a testament to enemies slain in the Wolf King's name.

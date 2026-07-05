@@ -3,7 +3,7 @@ title: Space Wolves Varagyr Wolf Guard Squad Varagyr Terminator 4
 price: 44.99
 sku: 6973130375857
 in_stock: false
-images: ["editor_27.jpg", "editor_28.jpg", "editor_29.jpg", "editor_30.jpg", "editor_31.jpg", "editor_32.jpg", "gallery_27.jpg", "gallery_28.jpg", "gallery_29.jpg", "gallery_30.jpg", "gallery_31.jpg", "gallery_32.jpg"]
+images: ["edd717f96fae.jpg", "ba2fa2fb6c79.jpg", "58eda6ea844a.jpg", "d31bbf088b6b.jpg", "8187e03c15d9.jpg", "1776a1b83274.jpg", "f43eae1c9ff8.jpg", "11146ecb4874.jpg", "9c783f998298.jpg", "fb1e52606890.jpg", "1054131f8c4d.jpg", "15321e37ce79.jpg"]
 is_pre_order: false
 available_date: 
 is_on_sale: false
@@ -18,9 +18,10 @@ size: 20*18.5*7
 weight: 0.35kg
 zhtw_price: 208.0
 cost: 165.0
-final_price: 1120.0
-cost_tw: 705.0
+final_price: 1110.0
+cost_tw: 774
 order_weight: 0
+group: 
 ---
 
 The [[Varagyr]] Wolf Guard were [[Leman Russ|Russ's]] chosen killers, warriors whose loyalty was beyond question and whose skill in combat was unmatched within the [[Space Wolves]] Legion. This terminator's heavy armor and deadly weapons make him a devastating opponent, capable of holding against overwhelming odds while his packmates hunt down their quarry.

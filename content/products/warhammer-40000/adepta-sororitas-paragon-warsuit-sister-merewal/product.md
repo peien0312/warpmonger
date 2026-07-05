@@ -2,8 +2,8 @@
 title: Adepta Sororitas Paragon Warsuit Sister Merewal
 price: 99.99
 sku: 6973130374508
-in_stock: true
-images: ["editor_1.jpg", "editor_2.jpg", "editor_3.jpg", "editor_4.jpg", "editor_5.jpg", "editor_6.jpg", "editor_7.jpg", "editor_8.jpg", "editor_9.jpg", "editor_10.jpg", "editor_11.jpg", "gallery_1.jpg", "gallery_2.jpg", "gallery_3.jpg", "gallery_4.jpg", "gallery_5.jpg", "gallery_6.jpg"]
+in_stock: false
+images: ["6609e3a0d98d.jpg", "e12b6fae2a79.jpg", "e26f9fd877a7.jpg", "6062db092ea1.jpg", "ef666c7ab00b.jpg", "f5c1f9ba171f.jpg", "49ded9983cb7.jpg", "6d3e6fbcc51f.jpg", "c8aed21ab7ff.jpg", "af1f7500c28f.jpg", "b4918ca01eb2.jpg", "b912f6e4b61d.jpg", "4a4b8213edca.jpg", "3c27313949eb.jpg", "83c643ad318b.jpg", "976384d7e6d2.jpg", "54710fd8a260.jpg"]
 is_pre_order: false
 available_date: 
 is_on_sale: false
@@ -18,9 +18,10 @@ size: 15*25*12
 weight: 0.5kg
 zhtw_price: 399.0
 cost: 320.0
-final_price: 2120.0
-cost_tw: 1366.0
+final_price: 2200.0
+cost_tw: 1501
 order_weight: 0
+group: 
 ---
 
 Sister Merewal pilots a Paragon Warsuit into battle for the [[Adepta Sororitas]], her faith magnified by the tremendous firepower at her command. The Paragon Warsuit is a marvel of Imperial engineering, a walking shrine of destruction that allows a single Battle Sister to engage tanks, monsters, and heretic champions on equal footing. Encased in blessed ceramite and armed with weapons that would normally require entire weapons teams, Sister Merewal represents the pinnacle of the Sororitas war machine.

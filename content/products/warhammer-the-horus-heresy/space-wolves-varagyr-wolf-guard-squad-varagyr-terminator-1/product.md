@@ -2,8 +2,8 @@
 title: Space Wolves Varagyr Wolf Guard Squad Varagyr Terminator 1
 price: 44.99
 sku: 6973130375734
-in_stock: true
-images: ["editor_9.jpg", "editor_10.jpg", "editor_11.jpg", "editor_12.jpg", "editor_13.jpg", "editor_14.jpg", "gallery_9.jpg", "gallery_10.jpg", "gallery_11.jpg", "gallery_12.jpg", "gallery_13.jpg", "gallery_14.jpg"]
+in_stock: false
+images: ["44280edcb548.jpg", "80dd983647a0.jpg", "b737772a948a.jpg", "937ffaae9e13.jpg", "7be0543181fe.jpg", "44ae1dbd2e08.jpg", "9d236f1df349.jpg", "d898948aee12.jpg", "c36f3d4dbd34.jpg", "f71cee92ea8c.jpg", "a0b61e3b9d9f.jpg", "92880d69a197.jpg"]
 is_pre_order: false
 available_date: 
 is_on_sale: false
@@ -17,10 +17,11 @@ scale: Scale：1/18
 size: 20*18.5*7
 weight: 0.35kg
 zhtw_price: 208.0
-cost: 165.0
-final_price: 1120.0
-cost_tw: 705.0
+cost: 110.0
+final_price: 1050.0
+cost_tw: 516
 order_weight: 0
+group: 
 ---
 
 A [[Varagyr]] terminator of the [[Space Wolves]], one of the elite warriors sworn to protect the Wolf King himself. Clad in Cataphractii plate decorated with wolf totems and kill-markings, this warrior has proven his worth in hundreds of engagements. The Varagyr fight with the savage fury of Fenris, their frost weapons carving through armor and flesh with equal ease.

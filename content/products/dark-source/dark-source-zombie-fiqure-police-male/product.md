@@ -3,24 +3,25 @@ title: Dark Source Zombie Fiqure Police (Male)
 price: 19.99
 sku: 6927054401635
 in_stock: true
-images: ["editor_1.jpg", "editor_2.jpg", "editor_3.jpg", "editor_4.jpg", "editor_5.jpg", "editor_6.jpg", "gallery_1.jpg", "gallery_2.jpg", "gallery_3.jpg", "gallery_4.jpg", "gallery_5.jpg"]
+images: ["d627ccf52ecd.jpg", "0cf4dcdf5e9f.jpg", "079395e08ad1.jpg", "c9db8739f08b.jpg", "8e780fbeae85.jpg", "586b8b478578.jpg", "8b2bcfe2aeec.jpg", "0bace7b3930b.jpg", "eff0773da2bf.jpg", "0c8da452b7a2.jpg", "c52ece1f5557.jpg", "cf058cd2e179.jpg"]
 is_pre_order: false
-available_date: 2025-09-01
+available_date: 
 is_on_sale: false
 sale_price: 0
 is_new_arrival: false
 id: JT01635
 cn_name: 暗源丧尸兵人 警察（男）
-zhtw_name: 暗源殭屍兵人 警察（男）
+zhtw_name: 暗源喪屍兵人 警察（男）
 series: Dark Source
 scale: Scale：1/25
 size: 20*15*5
 weight: 0.2kg
 zhtw_price: 99.0
 cost: 68.0
-final_price: 590.0
-cost_tw: 290.0
+final_price: 700.0
+cost_tw: 319
 order_weight: 0
+group: 
 ---
 
 These male police officer zombies were once the first responders to the outbreak, now they hunt the survivors they once swore to protect. Their torn uniforms and equipment tell stories of desperate last stands. This 1/25 scale set is ideal for urban zombie apocalypse scenes.

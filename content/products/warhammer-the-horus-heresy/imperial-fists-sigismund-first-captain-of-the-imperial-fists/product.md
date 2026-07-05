@@ -2,8 +2,8 @@
 title: Imperial Fists Sigismund, First Captain of the Imperial Fists
 price: 69.99
 sku: 6973130379237
-in_stock: true
-images: ["editor_1.jpg", "editor_2.jpg", "editor_3.jpg", "editor_4.jpg", "editor_5.jpg", "editor_6.jpg", "editor_7.jpg", "editor_8.jpg", "editor_9.jpg", "gallery_1.jpg", "gallery_2.jpg", "gallery_3.jpg", "gallery_4.jpg", "gallery_5.jpg", "gallery_6.jpg", "gallery_7.jpg"]
+in_stock: false
+images: ["0b0ade9d8814.jpg", "6f20ef27cf61.jpg", "93227b7b8c1a.jpg", "ef1cd5ac3e7b.jpg", "43b619223c9a.jpg", "cb716de2bdb1.jpg", "ed10588172fe.jpg", "0c1362919b04.jpg", "f5d47b8c2e4a.jpg", "82f02e1c31b6.jpg", "b07f295de47d.jpg", "18fa82d3fae4.jpg", "ec0d376cdda1.jpg", "7a23ae9e77a0.jpg", "ccdb7f152d81.jpg", "5748df3897be.jpg"]
 is_pre_order: false
 available_date: 
 is_on_sale: false
@@ -18,9 +18,10 @@ size: 20*18*7
 weight: 0.35kg
 zhtw_price: 289.0
 cost: 230.0
-final_price: 1540.0
-cost_tw: 982.0
+final_price: 1800.0
+cost_tw: 1079
 order_weight: 0
+group: 
 ---
 
 [[Sigismund]], First Captain of the [[Imperial Fists]], was acclaimed as the finest swordsman in all the Legiones Astartes. His skill with a blade was so legendary that even Primarchs respected his prowess. During the [[Horus Heresy]] and the Siege of Terra, Sigismund led the Templars, elite warriors whose fervor would later found the [[Black Templars]] Chapter. Armed with the Black Sword, he remained undefeated in single combat.

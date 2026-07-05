@@ -3,7 +3,7 @@ title: Space Wolves Varagyr Wolf Guard Squad Varagyr Terminator3
 price: 44.99
 sku: 6973130375833
 in_stock: true
-images: ["editor_21.jpg", "editor_22.jpg", "editor_23.jpg", "editor_24.jpg", "editor_25.jpg", "editor_26.jpg", "gallery_21.jpg", "gallery_22.jpg", "gallery_23.jpg", "gallery_24.jpg", "gallery_25.jpg", "gallery_26.jpg"]
+images: ["1bdbfb3001b2.jpg", "c9f513a8f3be.jpg", "424ef91f7a22.jpg", "53f12a83111c.jpg", "192f16a13e2b.jpg", "136af598af11.jpg", "bb6abae36bf5.jpg", "f7230a6bd63d.jpg", "63380f156fff.jpg", "b69646c2c9ba.jpg", "c9a1e4a805cb.jpg", "0587ba053741.jpg"]
 is_pre_order: false
 available_date: 
 is_on_sale: false
@@ -17,10 +17,11 @@ scale: Scale：1/18
 size: 20*18.5*7
 weight: 0.35kg
 zhtw_price: 208.0
-cost: 165.0
-final_price: 1120.0
-cost_tw: 705.0
+cost: 110.0
+final_price: 1050.0
+cost_tw: 516
 order_weight: 0
+group: 
 ---
 
 This [[Varagyr]] warrior exemplifies the savage nobility of the [[Space Wolves]] Legion. Armed with traditional Fenrisian weapons enhanced with advanced technology, he stands ready to defend his Primarch against any threat. The Varagyr were feared throughout the Great Crusade as the Wolf King's executioners, hunters who never failed to bring down their prey.

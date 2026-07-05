@@ -2,8 +2,8 @@
 title: TMNT-Adjutant Zork
 price: 46.99
 sku: 6927054401123
-in_stock: true
-images: ["editor_14.jpg", "editor_15.jpg", "editor_16.jpg", "editor_17.jpg", "editor_18.jpg", "editor_19.jpg", "editor_20.jpg", "editor_21.jpg", "editor_22.jpg", "gallery_9.jpg", "gallery_10.jpg", "gallery_11.jpg", "gallery_12.jpg", "gallery_13.jpg", "gallery_14.jpg"]
+in_stock: false
+images: ["f1b63eba0eea.jpg", "2c5fd2499fe0.jpg", "a9668c92f24e.jpg", "42369521eea7.jpg", "7ede4c3f54cd.jpg", "eb98483d30a1.jpg", "43aab8ff13f5.jpg", "86bd3a4f025b.jpg", "0309df706672.jpg", "58b8b6b45c05.jpg", "5dc0d6b231ae.jpg", "c5f40d8153cb.jpg", "a552829a6572.jpg", "f0a63152b828.jpg", "01c1bd4a6dfd.jpg"]
 is_pre_order: false
 available_date: 
 is_on_sale: false
@@ -18,9 +18,10 @@ size: 20*18*5
 weight: 0.2kg
 zhtw_price: 188.0
 cost: 155.0
-final_price: 1060.0
-cost_tw: 662.0
+final_price: 1140.0
+cost_tw: 727
 order_weight: 0
+group: 
 ---
 
 Adjutant Zork serves as second-in-command to Captain Zorax, executing orders with the ruthless efficiency expected of Triceraton military officers. His loyalty to his captain and dedication to the Triceraton Empire make him a formidable opponent. The figure showcases Zork's distinctive officer equipment and the intimidating presence of this alien warrior.

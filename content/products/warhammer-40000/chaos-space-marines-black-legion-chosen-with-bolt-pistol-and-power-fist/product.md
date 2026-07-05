@@ -2,8 +2,8 @@
 title: Chaos Space Marines Black Legion Chosen with Bolt Pistol and Power Fist
 price: 67.99
 sku: 6927054400966
-in_stock: true
-images: ["editor_10.jpg", "editor_11.jpg", "editor_12.jpg", "editor_13.jpg", "editor_14.jpg", "editor_15.jpg", "editor_16.jpg", "editor_17.jpg", "gallery_9.jpg", "gallery_10.jpg", "gallery_11.jpg", "gallery_12.jpg", "gallery_13.jpg", "gallery_14.jpg"]
+in_stock: false
+images: ["2db2c0e23023.jpg", "3117bea9745e.jpg", "e9c15dd5546a.jpg", "f7af35f2f663.jpg", "4475e3451cf6.jpg", "7b1b5d0131c5.jpg", "30670311e45d.jpg", "684e92f7fbeb.jpg", "97bc5171ee94.jpg", "4d6f4ba3b87b.jpg", "b5bbaa87b724.jpg", "8afa9b0e0149.jpg", "b8a4176c40f8.jpg", "277ae5b826e9.jpg"]
 is_pre_order: false
 available_date: 
 is_on_sale: false
@@ -18,9 +18,10 @@ size: 20*18.5*7
 weight: 0.35kg
 zhtw_price: 279.0
 cost: 225.0
-final_price: 1480.0
-cost_tw: 961.0
+final_price: 1750.0
+cost_tw: 1055
 order_weight: 0
+group: 
 ---
 
 This [[Black Legion]] Chosen warrior wields a devastating power fist capable of crushing ceramite armor and bone alike. The Chosen are the elite infantry of Chaos Space Marine warbands, veterans who have proven their worth through millennia of warfare against the Imperium. His bolt pistol provides close-range firepower, but it is in the brutal press of melee that this warrior truly excels, his power fist delivering killing blows with every swing. Such is the fate of any who stand against the Black Crusade.

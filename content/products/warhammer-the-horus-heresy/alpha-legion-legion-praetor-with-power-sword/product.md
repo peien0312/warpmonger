@@ -3,9 +3,9 @@ title: Alpha Legion Legion Praetor with Power Sword
 price: 64.99
 sku: 6927054401215
 in_stock: false
-images: ["editor_1.jpg", "editor_2.jpg", "editor_3.jpg", "editor_4.jpg", "editor_5.jpg", "editor_6.jpg", "editor_7.jpg", "editor_8.jpg", "editor_9.jpg", "editor_10.jpg", "gallery_1.jpg", "gallery_2.jpg", "gallery_3.jpg", "gallery_4.jpg", "gallery_5.jpg", "gallery_6.jpg"]
-is_pre_order: false
-available_date: 
+images: ["7a3909aa7bfa.jpg", "8e5ebb21cb9d.jpg", "a296fb43aca4.jpg", "aa98751b998c.jpg", "19759cb8ea70.jpg", "72e25fbb7f94.jpg", "8439f000d0eb.jpg", "046015558f1f.jpg", "9bdb4ff07899.jpg", "d08bd65f1ba3.jpg", "593f585a690c.jpg", "20528ae847a7.jpg", "89c8aa38d4b3.jpg", "9e2efcefd251.jpg", "20b67727f4a3.jpg", "1131aec91e49.jpg"]
+is_pre_order: true
+available_date: 2026-07-01
 is_on_sale: false
 sale_price: 0
 is_new_arrival: false
@@ -18,9 +18,10 @@ size: 20*18*5
 weight: 0.35kg
 zhtw_price: 259.0
 cost: 205.0
-final_price: 1380.0
-cost_tw: 875.0
+final_price: 1600.0
+cost_tw: 961
 order_weight: 0
+group: 
 ---
 
 [[Alpha Legion]] Praetors wielded both blade and subterfuge with equal skill, commanding their forces through complex operational cells and layered battle plans. Armed with an elegant power sword, this commander can match any foe in single combat while orchestrating wider strategic maneuvers. In the XX Legion, every action serves multiple purposes, and this Praetor is no exception.

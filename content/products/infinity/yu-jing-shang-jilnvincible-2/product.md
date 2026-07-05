@@ -2,8 +2,8 @@
 title: Yu Jing shang Jilnvincible-2
 price: 29.99
 sku: 6973130377158
-in_stock: true
-images: ["editor_14.jpg", "editor_15.jpg", "editor_16.jpg", "editor_17.jpg", "editor_18.jpg", "gallery_15.jpg", "gallery_16.jpg", "gallery_17.jpg", "gallery_18.jpg", "gallery_19.jpg", "gallery_20.jpg"]
+in_stock: false
+images: ["25e3d8aeaf6b.jpg", "590692085f91.jpg", "00d3bdc8ed6d.jpg", "bf999ec6e2aa.jpg", "cad7f1271fea.jpg", "ab9c02d90c3b.jpg", "5a403798a5a3.jpg", "80c627f2dcfd.jpg", "1498f1d8b947.jpg", "764646fd8eb4.jpg", "f922d855f436.jpg"]
 is_pre_order: false
 available_date: 
 is_on_sale: false
@@ -18,9 +18,10 @@ size: 15.5*15*5
 weight: 0.2kg
 zhtw_price: 138.0
 cost: 110.0
-final_price: 800.0
-cost_tw: 470.0
+final_price: 930.0
+cost_tw: 516
 order_weight: 0
+group: 
 ---
 
 This second Shang Ji Invincible variant brings a different weapons loadout to your Yu Jing forces. The modular nature of their power armor allows for mission-specific configurations without sacrificing protection. Collect both variants to create versatile heavy infantry teams for your StateEmpire army.

@@ -2,10 +2,10 @@
 title: Adepta Sororitas Abbess Sanctorum Morvenn Vahl
 price: 99.99
 sku: 6973130378872
-in_stock: true
-images: ["editor_1.jpg", "editor_2.jpg", "editor_3.jpg", "editor_4.jpg", "editor_5.jpg", "editor_6.jpg", "editor_7.jpg", "editor_8.jpg", "editor_9.jpg", "editor_10.jpg", "editor_11.jpg", "editor_12.jpg", "gallery_1.jpg", "gallery_2.jpg", "gallery_3.jpg", "gallery_4.jpg", "gallery_5.jpg", "gallery_6.jpg", "gallery_7.jpg"]
+in_stock: false
+images: ["4e25b1c9124d.jpg", "af008bde03aa.jpg", "e8688698a6ab.jpg", "7a35adba350d.jpg", "72a020892d6f.jpg", "664fc275d5a4.jpg", "ad515ae49163.jpg", "3fa5a8aa30fd.jpg", "f7e347fe2072.jpg", "c644fea6980a.jpg", "32f68d4f50ae.jpg", "da7b6b5fed55.jpg", "1e6624b9e7aa.jpg", "bd2125dfd084.jpg", "23f252682f47.jpg", "3fb6eea40579.jpg", "62767b27f3ee.jpg", "f74d4a44100d.jpg", "b2e78e283c81.jpg"]
 is_pre_order: false
-available_date: 2025-09-01
+available_date: 
 is_on_sale: false
 sale_price: 0
 is_new_arrival: false
@@ -18,9 +18,10 @@ size: 24*17*10
 weight: 0.5kg
 zhtw_price: 399.0
 cost: 320.0
-final_price: 2120.0
-cost_tw: 1366.0
+final_price: 2350.0
+cost_tw: 1501
 order_weight: 0
+group: 
 ---
 
 Morvenn Vahl is the Abbess Sanctorum of the [[Adepta Sororitas]] and a [[High Lord of Terra]]. In her novel Spear of Faith by Jude Reid, she is portrayed as a mortal leader wrestling with doubt and faith while defending the cardinal world of Ophelia VII against the [[Night Lords]].

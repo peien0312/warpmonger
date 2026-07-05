@@ -3,9 +3,9 @@ title: APOC Series Bedrock Albus Standard Combat Type Mech
 price: 49.99
 sku: 6927054402748
 in_stock: true
-images: ["editor_001.jpg", "editor_002.jpg", "editor_003.jpg", "editor_004.jpg", "editor_005.jpg", "editor_006.jpg", "editor_007.jpg", "editor_008.jpg", "editor_009.jpg", "editor_010.jpg", "editor_011.jpg", "editor_012.jpg", "editor_013.jpg", "editor_014.jpg", "editor_015.jpg", "editor_016.jpg", "editor_017.jpg", "editor_018.jpg", "editor_019.jpg", "gallery_001.jpg", "gallery_002.jpg", "gallery_003.jpg", "gallery_004.jpg", "gallery_005.jpg", "gallery_006.jpg", "gallery_007.jpg", "gallery_008.jpg", "gallery_009.jpg", "gallery_010.jpg", "gallery_011.jpg", "gallery_012.jpg", "gallery_013.jpg", "gallery_014.jpg"]
-is_pre_order: true
-available_date: 2026-01-01
+images: ["3da39b2f39cc.jpg", "14da313a3371.jpg", "6baafda64bca.jpg", "af1e0dc397a7.jpg", "698dd91de959.jpg", "0b3ff1a0bc69.jpg", "6bc33a7869f6.jpg", "3d011197be81.jpg", "6c6e9f9130aa.jpg", "5739e836eba8.jpg", "7ca7511f7456.jpg", "4ec6f73fd095.jpg", "fc8b55c4da6b.jpg", "f96444013e87.jpg", "fd87a3389ca2.jpg", "bc418a9b8b9e.jpg", "b1d7de0616f2.jpg", "8a83f2d650da.jpg", "8ec9bff3276d.jpg"]
+is_pre_order: false
+available_date: 
 is_on_sale: false
 sale_price: 0
 is_new_arrival: false
@@ -18,9 +18,10 @@ size: 25*17*13
 weight: 1kg
 zhtw_price: 229.0
 cost: 157.0
-final_price: 1060.0
-cost_tw: 670.0
+final_price: 1450.0
+cost_tw: 736
 order_weight: 0
+group: 
 ---
 
 The Bedrock Albus is a white-armored variant of the standard combat mech, its distinctive coloring marking it for arctic or urban operations. This reliable platform balances firepower, protection, and mobility for general combat duties. The detailed model captures the robust design of workhorse military mechs.

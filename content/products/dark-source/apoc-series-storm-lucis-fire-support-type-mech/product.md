@@ -2,10 +2,10 @@
 title: APOC Series Storm Lucis Fire Support Type Mech
 price: 49.99
 sku: 6927054402731
-in_stock: true
-images: ["editor_001.jpg", "editor_002.jpg", "editor_003.jpg", "editor_004.jpg", "editor_005.jpg", "editor_006.jpg", "editor_007.jpg", "editor_008.jpg", "editor_009.jpg", "editor_010.jpg", "editor_011.jpg", "editor_012.jpg", "editor_013.jpg", "editor_014.jpg", "editor_015.jpg", "editor_016.jpg", "editor_017.jpg", "editor_018.jpg", "editor_019.jpg", "editor_020.jpg", "gallery_001.jpg", "gallery_002.jpg", "gallery_003.jpg", "gallery_004.jpg", "gallery_005.jpg", "gallery_006.jpg", "gallery_007.jpg", "gallery_008.jpg", "gallery_009.jpg", "gallery_010.jpg", "gallery_011.jpg", "gallery_012.jpg", "gallery_013.jpg", "gallery_014.jpg"]
-is_pre_order: true
-available_date: 2026-01-01
+in_stock: false
+images: ["81751568294e.jpg", "c47afb293648.jpg", "cb4363611a2f.jpg", "78e29624a8d6.jpg", "5f8f002e4731.jpg", "d4694b8be7d6.jpg", "61bf23322a3f.jpg", "6e021de2cef8.jpg", "9bf277200095.jpg", "e33b0479cc80.jpg", "2c0e017998dc.jpg", "696d913fe168.jpg", "9ca2f5e91efa.jpg", "5c6fe085b206.jpg", "8b4c85a3a3f3.jpg", "91305ee993c8.jpg", "0a5d164ee64b.jpg", "ab1c9b67937e.jpg", "53089d05a21e.jpg"]
+is_pre_order: false
+available_date: 
 is_on_sale: false
 sale_price: 0
 is_new_arrival: false
@@ -18,9 +18,10 @@ size: 25*17*13
 weight: 1kg
 zhtw_price: 229.0
 cost: 157.0
-final_price: 1060.0
-cost_tw: 670.0
+final_price: 1450.0
+cost_tw: 736
 order_weight: 0
+group: 
 ---
 
 The Storm Lucis is a fire support variant in the APOC Series, featuring enhanced energy weapons and advanced targeting arrays. Its beam weapons provide clean, precise fire support with minimal collateral damage. This detailed mech model showcases the elegant design of energy-based weapons platforms.

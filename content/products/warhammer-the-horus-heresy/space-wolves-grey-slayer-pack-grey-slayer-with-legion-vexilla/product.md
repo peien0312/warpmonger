@@ -2,8 +2,8 @@
 title: Space Wolves Grey Slayer Pack Grey Slayer With Legion Vexilla
 price: 39.99
 sku: 6973130377509
-in_stock: true
-images: ["editor_12.jpg", "editor_13.jpg", "editor_14.jpg", "editor_15.jpg", "editor_16.jpg", "editor_17.jpg", "editor_18.jpg", "gallery_9.jpg", "gallery_10.jpg", "gallery_11.jpg", "gallery_12.jpg", "gallery_13.jpg", "gallery_14.jpg"]
+in_stock: false
+images: ["93a76daaec7c.jpg", "0ae4f110603a.jpg", "df57cf406f49.jpg", "c96ed5889554.jpg", "688bd1264f2e.jpg", "62276c834378.jpg", "1ad1d7a1ea79.jpg", "9d88a24a3c9c.jpg", "75217ab9226c.jpg", "4c631299bcfd.jpg", "97bb36510358.jpg", "6580d6adc551.jpg", "cb3e22ab33dd.jpg"]
 is_pre_order: false
 available_date: 
 is_on_sale: false
@@ -17,10 +17,11 @@ scale: Scale：1/18
 size: 20*18.5*7
 weight: 0.35kg
 zhtw_price: 188.0
-cost: 145.0
-final_price: 1060.0
-cost_tw: 619.0
+cost: 100.0
+final_price: 950.0
+cost_tw: 469
 order_weight: 0
+group: 
 ---
 
 Bearing the Legion Vexilla of the [[Space Wolves]], this Grey Slayer serves as a rallying point for his pack brothers in the chaos of close combat. The wolf-head standard marks the advance of [[Leman Russ|Russ's]] savage warriors, a symbol that struck fear into the hearts of the Imperium's enemies. Standard bearers were chosen for their courage and skill, trusted to keep the Legion's colors flying.

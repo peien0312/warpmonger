@@ -2,8 +2,8 @@
 title: Astra Militarum Tempestus Scions Command Squad 55th Kappic Eagles Banner Bearer
 price: 59.99
 sku: 6973130375130
-in_stock: true
-images: ["editor_1.jpg", "editor_2.jpg", "editor_3.jpg", "editor_4.jpg", "editor_5.jpg", "editor_6.jpg", "editor_7.jpg", "editor_8.jpg", "gallery_1.jpg", "gallery_2.jpg", "gallery_3.jpg", "gallery_4.jpg", "gallery_5.jpg", "gallery_6.png"]
+in_stock: false
+images: ["0573b208e0fe.jpg", "aceb913ba02e.jpg", "44c4315334fc.jpg", "c1ba446e4697.jpg", "6bbe9eaae3c5.jpg", "21df0390bfa1.jpg", "1ae1863e4bcc.jpg", "6b3ce8a27ff3.jpg", "52ccc1d37832.jpg", "f12b3b20756f.jpg", "93643fbdf7a7.jpg", "00f84701a773.jpg", "b7a6604db252.jpg", "16df161f7664.jpg"]
 is_pre_order: false
 available_date: 
 is_on_sale: false
@@ -18,9 +18,10 @@ size: 15*11*5
 weight: 0.22kg
 zhtw_price: 259.0
 cost: 205.0
-final_price: 1380.0
-cost_tw: 875.0
+final_price: 1460.0
+cost_tw: 961
 order_weight: 0
+group: 
 ---
 
 This Banner Bearer of the 55th Kappic Eagles carries the regimental colors into battle alongside his fellow Tempestus Scions. As elite storm troopers of the [[Astra Militarum]], the Scions represent the pinnacle of human military training — and their banner embodies their regiment's honor and martial pride. The Kappic Eagles' standard flies in the most dangerous war zones across the galaxy, a symbol of Imperial authority even in the darkest hours.

@@ -2,8 +2,8 @@
 title: Imperial Fists Fafnir Rann
 price: 74.99
 sku: 6973130379145
-in_stock: true
-images: ["editor_1.jpg", "editor_2.jpg", "editor_3.jpg", "editor_4.jpg", "editor_5.jpg", "editor_6.jpg", "editor_7.jpg", "editor_8.jpg", "editor_9.jpg", "gallery_1.jpg", "gallery_2.jpg", "gallery_3.jpg", "gallery_4.jpg", "gallery_5.jpg", "gallery_6.jpg"]
+in_stock: false
+images: ["531f0e04566d.jpg", "614914c7afe9.jpg", "b3c60d775fd4.jpg", "1c500e0ece03.jpg", "350fdb4a43d9.jpg", "49e7e295fefb.jpg", "b21417a57452.jpg", "d309f55d49f3.jpg", "a266bf1ff01e.jpg", "da4743309c96.jpg", "f49fc351e36b.jpg", "f1e97c837135.jpg", "4b5e3bf803f8.jpg", "b709f0a919f8.jpg", "38e0257c0aa6.jpg"]
 is_pre_order: false
 available_date: 
 is_on_sale: false
@@ -18,9 +18,10 @@ size: 20*18*7
 weight: 0.35kg
 zhtw_price: 319.0
 cost: 250.0
-final_price: 1700.0
-cost_tw: 1068.0
+final_price: 1900.0
+cost_tw: 1172
 order_weight: 0
+group: 
 ---
 
 Fafnir Rann served as the Lord Seneschal of the [[Imperial Fists]], commanding the Legion's assault forces with brutal efficiency. Known for his savage fighting style and preference for chain weapons, Rann was the embodiment of controlled fury on the battlefield. During the [[Horus Heresy]], he led devastating counter-attacks against the Traitor forces, his ferocity inspiring his brothers to hold the walls of Terra.

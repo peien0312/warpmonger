@@ -2,8 +2,8 @@
 title: Thousand Sons Legion Librarian Consul
 price: 72.99
 sku: 6973130376083
-in_stock: true
-images: ["editor_1.jpg", "editor_2.jpg", "editor_3.jpg", "editor_4.jpg", "editor_5.jpg", "editor_6.jpg", "editor_7.jpg", "editor_8.jpg", "editor_9.jpg", "gallery_1.jpg", "gallery_2.jpg", "gallery_3.jpg", "gallery_4.jpg", "gallery_5.jpg", "gallery_6.jpg"]
+in_stock: false
+images: ["905fa020d4f8.jpg", "8802a0cfe9bb.jpg", "8b38e7b13e34.jpg", "70e140173718.jpg", "b26daabd4ff2.jpg", "20d23217b3f1.jpg", "ec3ccbad28e9.jpg", "ffbf71703c12.jpg", "e9eca6beea96.jpg", "a8dae5e64dc4.jpg", "457678ac6171.jpg", "0a973041c585.jpg", "8268208e2a0a.jpg", "c2f4ad7fb0c9.jpg", "8d1a046764ed.jpg"]
 is_pre_order: false
 available_date: 
 is_on_sale: false
@@ -18,9 +18,10 @@ size: 20*18.5*7
 weight: 0.35kg
 zhtw_price: 309.0
 cost: 245.0
-final_price: 1640.0
-cost_tw: 1046.0
+final_price: 1700.0
+cost_tw: 1149
 order_weight: 0
+group: 
 ---
 
 Among the [[Thousand Sons]], the rank of Librarian Consul carried particular weight, for every battle-brother possessed psychic ability. This officer's powers far exceeded those of his brothers, his mind honed to channel devastating warp energies against the enemies of [[Magnus the Red|Magnus]]. His force staff crackles with barely-contained psychic potential.

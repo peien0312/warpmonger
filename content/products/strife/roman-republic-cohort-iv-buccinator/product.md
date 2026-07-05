@@ -2,8 +2,8 @@
 title: Roman Republic Cohort Iv Buccinator
 price: 34.99
 sku: 6973130376182
-in_stock: true
-images: ["editor_8.jpg", "editor_9.jpg", "editor_10.jpg", "editor_11.jpg", "editor_12.jpg", "editor_13.jpg", "editor_14.jpg", "editor_29.jpg", "editor_30.jpg", "editor_31.jpg", "editor_32.jpg", "editor_33.jpg", "editor_34.jpg", "gallery_1.jpg", "gallery_2.jpg", "gallery_9.jpg", "gallery_10.jpg", "gallery_11.jpg", "gallery_12.jpg", "gallery_13.jpg", "gallery_14.jpg", "gallery_27.jpg", "gallery_28.jpg", "gallery_29.jpg", "gallery_30.jpg", "gallery_31.jpg", "gallery_32.jpg"]
+in_stock: false
+images: ["65f2722c5088.jpg", "af15403b1cf8.jpg", "eca7ac157ffa.jpg", "031b6a2219cb.jpg", "d295f0f198cc.jpg", "aa0ea2a969ae.jpg", "83b30c1a4bbd.jpg", "90c01a7d01c7.jpg", "98853fd91461.jpg", "cc26b506efe6.jpg", "08149c990b2f.jpg", "43961d90ddca.jpg"]
 is_pre_order: false
 available_date: 
 is_on_sale: false
@@ -17,10 +17,11 @@ scale: Scale：1/18
 size: 18*14*5
 weight: 0.2kg
 zhtw_price: 168.0
-cost: 135.0
-final_price: 960.0
-cost_tw: 576.0
+cost: 90.0
+final_price: 850.0
+cost_tw: 422
 order_weight: 0
+group: 
 ---
 
 The Buccinator served as the military horn player for Cohort IV, sounding commands that directed troop movements across the chaos of ancient battlefields. The deep, resonant tones of the buccina carried over the din of combat, coordinating advances, retreats, and complex tactical maneuvers. This figure includes the distinctive curved bronze horn and legionary equipment that defined these essential military musicians of the Roman Republic.

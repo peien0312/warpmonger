@@ -2,8 +2,8 @@
 title: Thousand Sons Sekhmet Terminator Cabal Sekhmet Volkite Charger And Power Fist
 price: 46.99
 sku: 6973130378612
-in_stock: true
-images: ["editor_3.jpg", "editor_4.jpg", "editor_5.jpg", "editor_6.jpg", "editor_7.jpg", "editor_8.jpg", "gallery_3.jpg", "gallery_4.jpg", "gallery_5.jpg", "gallery_6.jpg", "gallery_7.jpg", "gallery_8.jpg"]
+in_stock: false
+images: ["4642d807bea3.jpg", "710e6ca36576.jpg", "1b6bda8fd9ea.jpg", "e8ac4197f64d.jpg", "b0f219d5fa5a.jpg", "a34ac2c0387d.jpg", "b346de3e4e45.jpg", "fa942f206ff8.jpg", "d8192b7794d9.jpg", "ae054f2830ed.jpg", "175d6daab5ca.jpg", "bf3cbed92a7c.jpg"]
 is_pre_order: false
 available_date: 
 is_on_sale: false
@@ -17,10 +17,11 @@ scale: Scale：1/18
 size: 20*18.5*7
 weight: 0.35kg
 zhtw_price: 189.0
-cost: 155.0
-final_price: 1070.0
-cost_tw: 662.0
+cost: 105.0
+final_price: 1000.0
+cost_tw: 492
 order_weight: 0
+group: 
 ---
 
 A [[Sekhmet]] Terminator of the [[Thousand Sons]], armed with a volkite charger and power fist. The Sekhmet, also known as the Scarab Occult, combined devastating psychic powers with Terminator armor's protection. This warrior wields weapons that channel both advanced Imperial technology and warp-born energies, making him a terror on any battlefield.

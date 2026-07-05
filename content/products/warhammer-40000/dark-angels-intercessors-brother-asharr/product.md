@@ -2,10 +2,10 @@
 title: Dark Angels Intercessors Brother Asharr
 price: 36.99
 sku: 6973130374959
-in_stock: true
-images: ["editor_001.jpg", "editor_002.jpg", "editor_003.jpg", "editor_004.jpg", "editor_005.jpg", "editor_006.jpg", "editor_007.jpg", "editor_008.jpg", "gallery_001.jpg", "gallery_002.jpg", "gallery_003.jpg", "gallery_004.jpg", "gallery_005.jpg", "gallery_006.jpg"]
+in_stock: false
+images: ["dd015ed801a1.jpg", "4dd296e7ded6.jpg", "9e3595a47a38.jpg", "e581a44c5251.jpg", "463739bdc8c9.jpg", "332a6696368a.jpg", "c2dba540bdf0.jpg", "ac6d11d02c60.jpg", "361518b8b381.jpg", "4ff0f4fa4035.jpg", "d7b9949428be.jpg", "b41b060f2300.jpg", "1211ffe9bd27.jpg", "87a659a5e889.jpg"]
 is_pre_order: false
-available_date: 2025-10-01
+available_date: 
 is_on_sale: false
 sale_price: 0
 is_new_arrival: false
@@ -18,9 +18,10 @@ size: 19*17.5*5
 weight: 0.35kg
 zhtw_price: 158.0
 cost: 125.0
-final_price: 820.0
-cost_tw: 534.0
+final_price: 1020.0
+cost_tw: 586
 order_weight: 0
+group: 
 ---
 
 Brother Asharr serves among the [[Dark Angels]] Intercessors, Primaris Space Marines who form the backbone of the Chapter's battle companies. Clad in dark green armor marked with the Chapter's winged sword emblem, he carries the bolt rifle that has become the standard armament of the Primaris generations. Though Primaris Marines are newcomers to the Chapter, they have proven their worth in countless battles and are slowly being inducted into the Dark Angels' hidden traditions.

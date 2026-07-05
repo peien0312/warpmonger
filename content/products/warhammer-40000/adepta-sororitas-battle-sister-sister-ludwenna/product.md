@@ -2,24 +2,24 @@
 title: Adepta Sororitas Battle Sister Sister Ludwenna
 price: 47.99
 sku: 6973130373853
-in_stock: true
-images: ["editor_1.jpg", "editor_2.jpg", "editor_3.jpg", "editor_4.jpg", "gallery_1.jpg", "gallery_2.jpg", "gallery_3.jpg", "gallery_4.jpg"]
-is_pre_order: false
-available_date: 
+in_stock: false
+images: ["50a93c1c31dc.jpg", "b9cbd069b2f5.jpg", "f4654532f64d.jpg", "71fcf82d9542.jpg", "d948223e58a9.jpg", "4af1bf8f5e79.jpg", "e67a616688ae.jpg", "95ebc0df3139.jpg"]
+is_pre_order: true
+available_date: 2026-08-01
 is_on_sale: false
 sale_price: 0
 is_new_arrival: false
 id: JT3853
-cn_name: 修女会 战斗修女小队 战斗修女卢德文那
-zhtw_name: 修女會 戰鬥修女小隊 戰鬥修女盧德文那
+cn_name: 修女会 战斗修女小队战斗修女 卢德文那
+zhtw_name: 修女會 戰鬥修女小隊戰鬥修女 盧德文那
 series: Warhammer 40,000
 scale: Scale：1/18
 size: 19*14*5
 weight: 0.35kg
 zhtw_price: 199
-cost: 155
-final_price: 960
-cost_tw: 662
+cost: 155.0
+final_price: 1200.0
+cost_tw: 727
 order_weight: 0
 group: 
 ---

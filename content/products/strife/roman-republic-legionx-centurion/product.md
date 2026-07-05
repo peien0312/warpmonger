@@ -2,8 +2,8 @@
 title: Roman Republic LegionX Centurion
 price: 36.99
 sku: 6927054400003
-in_stock: true
-images: ["editor_1.jpg", "editor_2.jpg", "editor_3.jpg", "editor_4.jpg", "editor_5.jpg", "editor_6.jpg", "editor_7.jpg", "gallery_3.jpg", "gallery_4.jpg", "gallery_5.jpg", "gallery_6.jpg", "gallery_7.jpg", "gallery_8.jpg"]
+in_stock: false
+images: ["14d8007e3fa8.jpg", "61751eb4da63.jpg", "04f71a9aba26.jpg", "57635d2e8c86.jpg", "e7cf7ee0c8af.jpg", "f7648cfb5d3f.jpg", "6dfcafb37663.jpg", "fbb60ac2e28d.jpg", "f2372b4416ff.jpg", "8eb27d8b7d23.jpg", "b1a1d8f6d5b5.jpg", "1be638c15bc5.jpg", "e86d323213af.jpg"]
 is_pre_order: false
 available_date: 
 is_on_sale: false
@@ -17,10 +17,11 @@ scale: Scale：1/18
 size: 18*14*5
 weight: 0.2kg
 zhtw_price: 178.0
-cost: 140.0
-final_price: 960.0
-cost_tw: 598.0
+cost: 90.0
+final_price: 850.0
+cost_tw: 422
 order_weight: 0
+group: 
 ---
 
 The Centurion of Legion X commands his century with the authority and experience that defined Roman military excellence. Legion X was among the most famous units in Roman history, serving with distinction under Julius Caesar during the conquest of Gaul. This figure features the ornate armor, transverse crest, and commanding presence befitting an officer of this legendary legion.

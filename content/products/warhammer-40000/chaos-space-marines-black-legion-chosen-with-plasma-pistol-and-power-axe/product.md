@@ -2,8 +2,8 @@
 title: Chaos Space Marines Black Legion Chosen with Plasma Pistol and Power Axe
 price: 67.99
 sku: 6927054400959
-in_stock: true
-images: ["editor_2.jpg", "editor_3.jpg", "editor_4.jpg", "editor_5.jpg", "editor_6.jpg", "editor_7.jpg", "editor_8.jpg", "editor_9.jpg", "gallery_3.jpg", "gallery_4.jpg", "gallery_5.jpg", "gallery_6.jpg", "gallery_7.jpg", "gallery_8.jpg"]
+in_stock: false
+images: ["df4f3ecf3f52.jpg", "a926e3f18cdf.jpg", "ea92d4ad27d1.jpg", "3534388c0645.jpg", "49341a8c747c.jpg", "878b9eaead73.jpg", "50baf2e6f529.jpg", "259669c0066b.jpg", "2c29cbf6df58.jpg", "d5cd903cd56c.jpg", "a7777f4f20c1.jpg", "df1492403380.jpg", "7eddc528df3d.jpg", "aa0444adf5f0.jpg"]
 is_pre_order: false
 available_date: 
 is_on_sale: false
@@ -18,9 +18,10 @@ size: 20*18.5*7
 weight: 0.35kg
 zhtw_price: 279.0
 cost: 225.0
-final_price: 1480.0
-cost_tw: 961.0
+final_price: 1750.0
+cost_tw: 1055
 order_weight: 0
+group: 
 ---
 
 This [[Black Legion]] Chosen carries a plasma pistol and power axe, a combination that allows him to engage armored targets at range before closing for the killing blow. The volatile plasma pistol can burn through the thickest armor with superheated energy, while his power axe cleaves through shields and ceramite alike. The Chosen serve as the elite strike force of Chaos warbands, deployed where the fighting is thickest and victory most crucial to Abaddon's endless war.

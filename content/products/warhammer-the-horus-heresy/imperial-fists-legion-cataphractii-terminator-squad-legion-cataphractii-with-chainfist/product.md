@@ -3,7 +3,7 @@ title: Imperial Fists Legion Cataphractii Terminator Squad Legion Cataphractii w
 price: 57.99
 sku: 6973130379398
 in_stock: false
-images: ["editor_11.jpg", "editor_12.jpg", "editor_13.jpg", "editor_14.jpg", "editor_15.jpg"]
+images: ["a474d2cf3892.jpg", "6ca9b9658798.jpg", "7b17f74d78ee.jpg", "76ff5d3f994c.jpg", "aa2000261094.jpg", "993af3f733cb.jpg", "b41d73f1edde.jpg", "3e5187adfe0c.jpg", "5f01e11fa661.jpg", "d7aa310f3676.jpg"]
 is_pre_order: false
 available_date: 
 is_on_sale: false
@@ -19,8 +19,9 @@ weight: 0.35kg
 zhtw_price: 249.0
 cost: 195.0
 final_price: 1320.0
-cost_tw: 833.0
+cost_tw: 915
 order_weight: 0
+group: 
 ---
 
 [[Imperial Fists]] Cataphractii Terminators formed the armored fist of the VII Legion's elite forces, their heavy armor perfect for breaching enemy fortifications. This warrior's chainfist can tear through bulkheads and armor alike, making him invaluable in the siege warfare the [[Imperial Fists]] mastered. The golden yellow of [[Rogal Dorn|Dorn's]] Legion marks this veteran as a defender of Terra.

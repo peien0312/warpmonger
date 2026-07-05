@@ -2,8 +2,8 @@
 title: Blood Angels Angel's Tears Squad Arch-Erelim with Angel's Tears Grenade Launcher
 price: 44.99
 sku: 6927054400379
-in_stock: true
-images: ["editor_1.jpg", "editor_2.jpg", "editor_24.jpg", "editor_25.jpg", "editor_26.jpg", "editor_27.jpg", "editor_28.jpg", "editor_29.jpg", "editor_30.jpg", "gallery_1.jpg", "gallery_2.jpg", "gallery_21.jpg", "gallery_22.jpg", "gallery_23.jpg", "gallery_24.jpg", "gallery_25.jpg", "gallery_26.jpg"]
+in_stock: false
+images: ["359ae5d4c397.jpg", "6a985839a079.jpg", "80259cebdb44.jpg", "99cec4d407cf.jpg", "eac7a06d1bb1.jpg", "203f0b7481f8.jpg", "d5cea4449db4.jpg", "9698ffa624a1.jpg", "87613b1c754c.jpg", "652564b19698.jpg", "39b62a30c16a.jpg", "080eacaf4a81.jpg", "80e2eb83f86d.jpg"]
 is_pre_order: false
 available_date: 
 is_on_sale: false
@@ -18,9 +18,10 @@ size: 20*18.5*6.5
 weight: 0.35kg
 zhtw_price: 188.0
 cost: 145.0
-final_price: 1060.0
-cost_tw: 619.0
+final_price: 1340.0
+cost_tw: 680
 order_weight: 0
+group: 
 ---
 
 The Angel's Tears were the [[Blood Angels|Blood Angels']] most terrifying destroyers, jump pack-equipped specialists who deployed weapons too horrific for normal warfare. This Arch-Erelim carries the signature Angel's Tears grenade launcher, a weapon that fires rad and phosphex munitions to annihilate enemy positions. Senior members of the formation, Arch-Erelim led their brothers in devastating assault operations.
