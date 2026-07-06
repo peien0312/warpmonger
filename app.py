@@ -326,6 +326,25 @@ def detect_locale():
     from flask import g
     g.locale = 'zhtw'
 
+_pos_db_stamp = [None]
+
+@app.before_request
+def invalidate_on_pos_change():
+    """Any POS write bumps the DB file mtime -> drop all caches so the
+    site reflects it immediately (realtime)."""
+    import posdb as _posdb
+    stamp = _posdb.db_mtime()
+    if _pos_db_stamp[0] != stamp:
+        _pos_db_stamp[0] = stamp
+        cache.invalidate()
+        html_cache.invalidate()
+
+@app.before_request
+def admin_moved_to_pos():
+    """Content management now lives in the POS (網站商店 section)."""
+    if request.path.startswith('/admin'):
+        return redirect('https://warpmonger.johnactionfigure.com/storefront/', code=302)
+
 @app.route('/en', defaults={'rest': ''}, strict_slashes=False)
 @app.route('/en/<path:rest>')
 def legacy_en_redirect(rest):
@@ -2716,7 +2735,21 @@ def api_scan_images():
 
 @app.route('/static/images/products/<category>/<slug>/<filename>')
 def serve_product_image(category, slug, filename):
-    """Serve product images"""
+    """Serve product images from the POS media dir (media/<SKU>/), with
+    on-demand thumbnail generation for thumb_* names. Falls back to the
+    legacy content/ dir for anything not in the POS."""
+    import posdb as _posdb
+    media_dir = _posdb.media_dir_for(category, slug)
+    if media_dir and os.path.isdir(media_dir):
+        path = os.path.join(media_dir, filename)
+        if not os.path.exists(path) and filename.startswith('thumb_'):
+            stem = filename[len('thumb_'):].rsplit('.', 1)[0]
+            for f in os.listdir(media_dir):
+                if f.rsplit('.', 1)[0] == stem and not f.startswith('thumb_'):
+                    create_thumbnail(os.path.join(media_dir, f), path)
+                    break
+        if os.path.exists(path):
+            return send_from_directory(media_dir, filename)
     images_dir = os.path.join(PRODUCTS_DIR, category, slug, 'images')
     return send_from_directory(images_dir, filename)
 
@@ -2882,6 +2915,28 @@ def api_update_featured_products():
     return jsonify({'success': True})
 
 # ===== Main =====
+
+# ===== POS-DB data layer (realtime) =====
+# The POS SQLite DB is now the source of truth; posdb.py mirrors the dict
+# shapes of the flat-file loaders above, so we simply rebind the names.
+# The flat-file implementations remain above for reference/rollback.
+import posdb as _posdb
+
+get_products = _posdb.get_products
+get_product = _posdb.get_product
+get_categories = _posdb.get_categories
+get_category = _posdb.get_category
+get_featured_products_refs = _posdb.get_featured_products_refs
+get_featured_tags = _posdb.get_featured_tags
+get_blog_posts = _posdb.get_blog_posts
+get_blog_post = _posdb.get_blog_post
+get_codex_entries = _posdb.get_codex_entries
+get_codex_entry = _posdb.get_codex_entry
+get_promotions = _posdb.get_promotions
+get_promotion = _posdb.get_promotion
+get_active_promotion = _posdb.get_active_promotion
+get_page = _posdb.get_page
+
 
 if __name__ == '__main__':
     app.run(debug=True, host='127.0.0.1', port=5006)
