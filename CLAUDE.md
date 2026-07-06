@@ -29,9 +29,10 @@ reads). It depends on this POS schema:
 - `products` storefront columns: `slug`, `category_slug`, `tags` (JSON),
   `order_weight`, `is_on_sale`, `sale_price_twd`, `is_new_arrival`,
   `storefront_group`, `is_published` — plus the base columns
-  (names/prices/preorder). `description_zhtw` (zh-TW) is the default site
-  description and `description_enus` is the English one shown on `/en`; the
-  product route picks by locale (see `product_detail`).
+  (names/prices/preorder). `description_zhtw` (zh-TW) is the displayed site
+  description; `description_enus` preserves the audited English source (not
+  shown — `/en` 301-redirects to zh-TW; kept as an archive). `product_detail`
+  picks by locale and falls back to zh-TW.
 - `product_images` (kind cover|gallery|detail, sort_order, filename
   `media/<SKU>/<file>`) — images live on disk in the POS repo's `media/` dir,
   served by this app at `/static/images/products/<cat>/<slug>/<file>` with
@@ -47,8 +48,9 @@ reads). It depends on this POS schema:
   Stale preorders (date passed) fall through to 4/5. Badges/notes live in
   `templates/public/_availability.html`. Show/hide on site = `is_published`.
 - `storefront_categories`, `storefront_posts` (type blog|codex|promotion|page,
-  extra JSON). Codex `body` is zh-TW, `body_enus` is English (shown on `/en`);
-  `title` is kept English as it's the `[[crosslink]]` anchor.
+  extra JSON). Codex `body` is the displayed zh-TW; `body_enus` preserves the
+  English source (archive, not shown). `title` is kept English as it's the
+  `[[crosslink]]` anchor.
 - `settings` keys `featured_products` (["category/slug", ...]), `featured_tags`,
   and `tag_glossary` (`{english_tag: zhtw_label}` — tags stay English keys for
   filtering; the `tag_label` Jinja filter shows the zh-TW label).
