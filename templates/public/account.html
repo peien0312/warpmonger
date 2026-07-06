@@ -101,6 +101,20 @@
     </div>
     {% endif %}
 
+    <h2 class="section-title">帳號連結</h2>
+    <div class="profile-form">
+        {% set link_result = request.args.get('link') %}
+        {% if link_result == 'merged' %}<p class="profile-msg">✅ 帳號已合併 — 兩邊的收藏與通知都在這裡了。</p>
+        {% elif link_result == 'linked' %}<p class="profile-msg">✅ 已連結登入方式。</p>{% endif %}
+        <p>
+            Google：{% if identities.google %}✅ 已連結{% if member.email %}（{{ member.email }}）{% endif %}{% else %}<a href="/auth/google?link=1&next=/account" class="btn btn-sm btn-secondary">連結 Google</a>{% endif %}
+        </p>
+        <p>
+            LINE：{% if identities.line %}✅ 已連結{% else %}<a href="/auth/line?link=1&next=/account" class="btn btn-sm btn-secondary">連結 LINE</a>{% endif %}
+        </p>
+        <small class="text-muted">連結後，用任一方式登入都是同一個帳號；若另一邊已有帳號會自動合併（收藏、通知、訂單記錄都會保留）。</small>
+    </div>
+
     <h2 class="section-title">LINE 通知</h2>
     <div class="profile-form">
         {% if member.line_user_id %}

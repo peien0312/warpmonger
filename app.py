@@ -3193,6 +3193,7 @@ def auth_google():
         return "Google 登入尚未設定", 503
     state = secrets.token_urlsafe(24)
     session['oauth_state'] = state
+    session['link_mode'] = bool(request.args.get('link')) and bool(current_member())
     session['login_next'] = request.args.get('next') or request.referrer or '/'
     params = urlencode({
         'client_id': GOOGLE_CLIENT_ID,
@@ -3233,8 +3234,14 @@ def auth_google_callback():
     except Exception as e:
         print(f"google oauth failed: {e}")
         return "Google 登入失敗，請重試", 502
-    member = memberdb.upsert_member(
-        info['sub'], info.get('email'), info.get('name'), info.get('picture'))
+    current = current_member()
+    if session.pop('link_mode', False) and current:
+        result = memberdb.link_identity(
+            current['id'], 'google', info['sub'],
+            info.get('email'), info.get('name'), info.get('picture'))
+        return redirect(f'/account?link={result}')
+    member = memberdb.find_or_create_by_identity(
+        'google', info['sub'], info.get('email'), info.get('name'), info.get('picture'))
     session.permanent = True
     session['member_id'] = member['id']
     return redirect(session.pop('login_next', '/') or '/')
@@ -3261,6 +3268,7 @@ def auth_line():
         return "LINE 登入尚未設定", 503
     state = secrets.token_urlsafe(24)
     session['oauth_state'] = state
+    session['link_mode'] = bool(request.args.get('link')) and bool(current_member())
     session['login_next'] = request.args.get('next') or request.referrer or '/'
     params = urlencode({
         'response_type': 'code',
@@ -3301,8 +3309,15 @@ def auth_line_callback():
     except Exception as e:
         print(f"line login failed: {e}")
         return "LINE 登入失敗，請重試", 502
-    member = memberdb.upsert_member(
-        'line:' + prof['userId'], None, prof.get('displayName'), prof.get('pictureUrl'))
+    current = current_member()
+    if session.pop('link_mode', False) and current:
+        result = memberdb.link_identity(
+            current['id'], 'line', prof['userId'],
+            None, prof.get('displayName'), prof.get('pictureUrl'))
+        memberdb.set_line_user(current['id'], prof['userId'])
+        return redirect(f'/account?link={result}')
+    member = memberdb.find_or_create_by_identity(
+        'line', prof['userId'], None, prof.get('displayName'), prof.get('pictureUrl'))
     # LINE login binds notifications automatically
     memberdb.set_line_user(member['id'], prof['userId'])
     session.permanent = True
@@ -3332,6 +3347,7 @@ def account_page():
     return render_template('public/account.html', member=member,
                            orders=orders, wish_products=wish_products,
                            notify_skus=notify,
+                           identities=memberdb.identities_for(member['id']),
                            line_bind_code=memberdb.get_bind_code(member['id']))
 
 

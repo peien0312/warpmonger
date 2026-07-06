@@ -50,6 +50,25 @@ def init():
             UNIQUE(member_id, sku)
         );
     """)
+    conn.executescript("""
+        CREATE TABLE IF NOT EXISTS member_identities (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            member_id INTEGER NOT NULL REFERENCES members(id),
+            provider TEXT NOT NULL,
+            subject TEXT NOT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            UNIQUE(provider, subject)
+        );
+    """)
+    # backfill identities from the legacy google_sub column
+    # ("line:<uid>" rows were LINE logins, everything else Google)
+    for mid, sub in conn.execute("SELECT id, google_sub FROM members").fetchall():
+        if not sub:
+            continue
+        provider, subject = ("line", sub[5:]) if sub.startswith("line:") else ("google", sub)
+        conn.execute(
+            "INSERT OR IGNORE INTO member_identities (member_id, provider, subject) VALUES (?, ?, ?)",
+            (mid, provider, subject))
     for stmt in (
         "ALTER TABLE members ADD COLUMN line_id TEXT",
         "ALTER TABLE members ADD COLUMN default_delivery TEXT",
@@ -233,3 +252,111 @@ def set_line_user(member_id, line_user_id):
                  (line_user_id, member_id))
     conn.commit()
     conn.close()
+
+
+# ----- multi-provider identities + account merge -----
+
+def _apply_profile(conn, member_id, email, name, picture):
+    conn.execute("""
+        UPDATE members SET
+            email = COALESCE(email, ?),
+            name = COALESCE(name, ?),
+            picture = COALESCE(picture, ?)
+        WHERE id = ?
+    """, (email, name, picture, member_id))
+
+
+def find_or_create_by_identity(provider, subject, email, name, picture):
+    """Login path: return the member owning this identity, creating one if new."""
+    conn = _conn()
+    row = conn.execute("""
+        SELECT member_id FROM member_identities WHERE provider = ? AND subject = ?
+    """, (provider, subject)).fetchone()
+    if row:
+        member_id = row["member_id"]
+        _apply_profile(conn, member_id, email, name, picture)
+    else:
+        legacy_key = ("line:" + subject) if provider == "line" else subject
+        cur = conn.execute("""
+            INSERT INTO members (google_sub, email, name, picture)
+            VALUES (?, ?, ?, ?)
+            ON CONFLICT(google_sub) DO UPDATE SET
+                email = COALESCE(members.email, excluded.email),
+                name = COALESCE(members.name, excluded.name),
+                picture = COALESCE(members.picture, excluded.picture)
+        """, (legacy_key, email, name, picture))
+        member_id = conn.execute(
+            "SELECT id FROM members WHERE google_sub = ?", (legacy_key,)).fetchone()["id"]
+        conn.execute(
+            "INSERT OR IGNORE INTO member_identities (member_id, provider, subject) VALUES (?, ?, ?)",
+            (member_id, provider, subject))
+    conn.commit()
+    member = conn.execute("SELECT * FROM members WHERE id = ?", (member_id,)).fetchone()
+    conn.close()
+    return dict(member)
+
+
+def identities_for(member_id):
+    conn = _conn()
+    rows = conn.execute(
+        "SELECT provider, subject FROM member_identities WHERE member_id = ?",
+        (member_id,)).fetchall()
+    conn.close()
+    return {r["provider"]: r["subject"] for r in rows}
+
+
+def merge_members(keep_id, drop_id):
+    """Fold drop_id's data into keep_id and delete the duplicate."""
+    if keep_id == drop_id:
+        return
+    conn = _conn()
+    conn.execute("UPDATE member_identities SET member_id = ? WHERE member_id = ?",
+                 (keep_id, drop_id))
+    # move wishlist / notify subscriptions, ignoring duplicates
+    for table in ("wishlist", "notify_requests"):
+        conn.execute(f"""
+            UPDATE OR IGNORE {table} SET member_id = ? WHERE member_id = ?
+        """, (keep_id, drop_id))
+        conn.execute(f"DELETE FROM {table} WHERE member_id = ?", (drop_id,))
+    # coalesce profile fields (keep's values win)
+    drop = conn.execute("SELECT * FROM members WHERE id = ?", (drop_id,)).fetchone()
+    if drop:
+        conn.execute("""
+            UPDATE members SET
+                email = COALESCE(email, ?), phone = COALESCE(phone, ?),
+                name = COALESCE(name, ?), picture = COALESCE(picture, ?),
+                line_id = COALESCE(line_id, ?), line_user_id = COALESCE(line_user_id, ?),
+                default_delivery = COALESCE(default_delivery, ?),
+                default_store_code = COALESCE(default_store_code, ?),
+                default_store_name = COALESCE(default_store_name, ?),
+                default_address = COALESCE(default_address, ?)
+            WHERE id = ?
+        """, (drop["email"], drop["phone"], drop["name"], drop["picture"],
+              drop["line_id"], drop["line_user_id"], drop["default_delivery"],
+              drop["default_store_code"], drop["default_store_name"],
+              drop["default_address"], keep_id))
+    conn.execute("DELETE FROM members WHERE id = ?", (drop_id,))
+    conn.commit()
+    conn.close()
+
+
+def link_identity(member_id, provider, subject, email, name, picture):
+    """Attach a provider identity to an existing member. If that identity
+    already belongs to another member, merge that account into this one.
+    Returns 'linked' or 'merged'."""
+    conn = _conn()
+    row = conn.execute(
+        "SELECT member_id FROM member_identities WHERE provider = ? AND subject = ?",
+        (provider, subject)).fetchone()
+    conn.close()
+    if row and row["member_id"] != member_id:
+        merge_members(member_id, row["member_id"])
+        return "merged"
+    conn = _conn()
+    conn.execute(
+        "INSERT OR IGNORE INTO member_identities (member_id, provider, subject) VALUES (?, ?, ?)",
+        (member_id, provider, subject))
+    _apply_profile(conn, member_id, email, name, picture)
+    conn.commit()
+    conn.close()
+    return "linked"
