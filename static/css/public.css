@@ -3552,3 +3552,13 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
     border-radius: 3px;
 }
 .lang-switcher a:hover { color: #E6DAC4; border-color: #D9A441; }
+
+/* Hero eyebrow: the 40K epigraph, set like an inscription */
+.hero-grimdark {
+    font-family: 'Cinzel', serif;
+    font-size: 0.78rem;
+    letter-spacing: 0.14em;
+    color: #948669;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+}

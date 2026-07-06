@@ -18,10 +18,10 @@
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}{% if is_zhtw %}阿北的店 Abbey's Toys - JoyToy 戰鎚公仔 & 模型收藏{% else %}Abbey's Toys 阿北的店 - JoyToy Warhammer & Collectible Figures{% endif %}{% endblock %}</title>
+    <title>{% block title %}{% if is_zhtw %}ABBEY'S TOYS 阿北玩具堂｜JOYTOY 戰鎚40K 專賣{% else %}Abbey's Toys 阿北的店 - JoyToy Warhammer & Collectible Figures{% endif %}{% endblock %}</title>
 
     <!-- Meta Description -->
-    <meta name="description" content="{% block meta_description %}{% if is_zhtw %}阿北的店 Abbey's Toys - 台灣戰鎚公仔專門店。JoyToy 戰鎚40K、荷魯斯之亂、暗源等精品可動公仔，現貨與預購。{% else %}Abbey's Toys - Taiwan's Warhammer figure shop. Curated JoyToy Warhammer 40K, Horus Heresy, Dark Source and more, in stock and pre-order.{% endif %}{% endblock %}">
+    <meta name="description" content="{% block meta_description %}{% if is_zhtw %}ABBEY'S TOYS 阿北玩具堂 - 專賣 JOYTOY、戰鎚40K、歐美系可動玩具。雙倉庫現貨齊全，出貨快速。{% else %}Abbey's Toys - Taiwan's Warhammer figure shop. Curated JoyToy Warhammer 40K, Horus Heresy, Dark Source and more, in stock and pre-order.{% endif %}{% endblock %}">
 
     <!-- Canonical URL -->
     <link rel="canonical" href="{{ request.url }}">
@@ -77,8 +77,8 @@
                     <a href="{{ url_prefix }}/">
                         <img src="/static/images/abbeys_logo_round.png" alt="Abbey's Toys 阿北的店" class="logo-img">
                         <span class="logo-text-stack">
-                            <span class="logo-wordmark">{% if is_zhtw %}阿北的店{% else %}ABBEY'S TOYS{% endif %}</span>
-                            <span class="logo-tagline">{% if is_zhtw %}ABBEY'S TOYS{% else %}阿北的店{% endif %}</span>
+                            <span class="logo-wordmark">阿北玩具堂</span>
+                            <span class="logo-tagline">ABBEY'S TOYS</span>
                         </span>
                     </a>
                 </div>
@@ -130,13 +130,7 @@
                         <a href="{{ url_prefix }}/codex">{{ t.codex }}</a>
                         <a href="{{ url_prefix }}/blog">{{ t.blog }}</a>
                     </nav>
-                    <div class="lang-switcher">
-                        {% if is_zhtw %}
-                        <a href="/en{{ request.path if request.path != '/' else '' }}">EN</a>
-                        {% else %}
-                        <a href="{{ request.path|replace('/en', '', 1) or '/' }}">繁中</a>
-                        {% endif %}
-                    </div>
+                    
                 </div>
 
                 <!-- Cart Icon (visible on both desktop and mobile) -->
@@ -222,7 +216,7 @@
                 <a href="{{ url_prefix }}/page/terms">{{ t.terms_of_service }}</a>
                 <a href="{{ url_prefix }}/page/shopping-guide">{{ t.shopping_guide }}</a>
             </div>
-            <p>&copy; 2026 Abbey's Toys 阿北的店. All rights reserved.</p>
+            <p>&copy; 2026 ABBEY'S TOYS 阿北玩具堂｜營業人名稱：阿北的店｜統一編號：60079547</p>
         </div>
     </footer>
 

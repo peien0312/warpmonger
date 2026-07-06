@@ -1,15 +1,15 @@
 {% extends "public/base.html" %}
 
-{% block title %}{% if is_zhtw %}阿北的店 Abbey's Toys - JoyToy 戰鎚公仔 & 模型收藏{% else %}Abbey's Toys 阿北的店 - JoyToy Warhammer & Collectible Figures{% endif %}{% endblock %}
+{% block title %}{% if is_zhtw %}ABBEY'S TOYS 阿北玩具堂｜JOYTOY 戰鎚40K 專賣{% else %}Abbey's Toys 阿北的店 - JoyToy Warhammer & Collectible Figures{% endif %}{% endblock %}
 
-{% block meta_description %}{% if is_zhtw %}阿北的店 Abbey's Toys - 台灣戰鎚公仔專門店。JoyToy 戰鎚40K、荷魯斯之亂、暗源、TMNT 等精品可動公仔，現貨與預購。{% else %}Abbey's Toys - Taiwan's Warhammer figure shop. Curated JoyToy Warhammer 40K, Horus Heresy, Dark Source, TMNT and more, in stock and pre-order.{% endif %}{% endblock %}
+{% block meta_description %}{% if is_zhtw %}ABBEY'S TOYS 阿北玩具堂 - 專賣 JOYTOY、戰鎚40K、歐美系可動玩具。雙倉庫現貨齊全，出貨快速。{% else %}Abbey's Toys - Taiwan's Warhammer figure shop. Curated JoyToy Warhammer 40K, Horus Heresy, Dark Source, TMNT and more, in stock and pre-order.{% endif %}{% endblock %}
 
 {% block structured_data %}
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
   "@type": "Organization",
-  "name": "Abbey's Toys 阿北的店",
+  "name": "ABBEY'S TOYS 阿北玩具堂",
   "url": "{{ request.url_root }}",
   "logo": "{{ request.url_root }}static/images/abbeys_logo_round.png",
   "description": "Premium action figures and collectibles from Warhammer, Infinity, Dark Source, TMNT, and more.",
@@ -28,7 +28,7 @@
 {
   "@context": "https://schema.org",
   "@type": "WebSite",
-  "name": "Abbey's Toys 阿北的店",
+  "name": "ABBEY'S TOYS 阿北玩具堂",
   "url": "{{ request.url_root }}",
   "potentialAction": {
     "@type": "SearchAction",
@@ -43,6 +43,7 @@
 <section class="hero">
     <div class="container hero-split">
         <div class="hero-copy">
+            <p class="hero-grimdark">In the grim darkness of the far future, there is only war.</p>
             <h2>{{ t.welcome }}</h2>
             <p>{{ t.hero_subtitle }}</p>
             <a href="{{ url_prefix }}/products" class="btn btn-primary btn-lg">{{ t.shop_now }}</a>

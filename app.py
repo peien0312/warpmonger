@@ -243,9 +243,9 @@ TRANSLATIONS = {
         'send_for_quote': '傳送詢價清單',
         'clear_list': '清空清單',
         'added_to_list': '已加入清單！',
-        'welcome': '歡迎來到阿北的店',
+        'welcome': '歡迎來到阿北玩具堂',
         'tagline': '精品模型公仔',
-        'hero_subtitle': '精品模型公仔與收藏品',
+        'hero_subtitle': '專賣 JOYTOY、戰鎚40K、歐美系可動玩具｜雙倉庫現貨齊全，出貨快速',
         'browse_products': '瀏覽商品',
         'related_products': '相關商品',
         'search_results': '搜尋結果',
@@ -315,21 +315,27 @@ TRANSLATIONS = {
 }
 
 def public_route(rule, **options):
-    """Register a route for both locales. zh-TW is the default at the root;
-    English lives under /en (Taiwan-localized site, abbeystoys.com)."""
+    """Register a public route. The site is zh-TW only (abbeystoys.com)."""
     def decorator(f):
         app.add_url_rule(rule, view_func=f, **options)
-        en_endpoint = options.get('endpoint', f.__name__) + '_en'
-        app.add_url_rule('/en' + rule, view_func=f, endpoint=en_endpoint, **options)
         return f
     return decorator
 
 @app.before_request
 def detect_locale():
     from flask import g
-    g.locale = 'en' if (request.path == '/en' or request.path.startswith('/en/')) else 'zhtw'
+    g.locale = 'zhtw'
 
-@app.route('/zhtw', defaults={'rest': ''})
+@app.route('/en', defaults={'rest': ''}, strict_slashes=False)
+@app.route('/en/<path:rest>')
+def legacy_en_redirect(rest):
+    """The English locale was dropped — everything is zh-TW at the root."""
+    target = '/' + rest
+    if request.query_string:
+        target += '?' + request.query_string.decode()
+    return redirect(target, code=301)
+
+@app.route('/zhtw', defaults={'rest': ''}, strict_slashes=False)
 @app.route('/zhtw/<path:rest>')
 def legacy_zhtw_redirect(rest):
     """Old /zhtw/... URLs — zh-TW is the root now."""
