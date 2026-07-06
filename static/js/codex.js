@@ -261,13 +261,13 @@
     function init() {
         // Event delegation for codex terms
         document.addEventListener('mouseenter', (e) => {
-            if (e.target.classList.contains('codex-term')) {
+            if (e.target.classList && e.target.classList.contains('codex-term')) {
                 handleMouseEnter(e);
             }
         }, true);
 
         document.addEventListener('mouseleave', (e) => {
-            if (e.target.classList.contains('codex-term')) {
+            if (e.target.classList && e.target.classList.contains('codex-term')) {
                 handleMouseLeave(e);
             }
         }, true);
@@ -281,10 +281,10 @@
 
         // Handle leaving the tooltip itself
         document.addEventListener('mouseleave', (e) => {
-            if (e.target.classList.contains('codex-tooltip')) {
+            if (e.target.classList && e.target.classList.contains('codex-tooltip')) {
                 const relatedTarget = e.relatedTarget;
                 // If moving back to a codex term, don't hide
-                if (relatedTarget && relatedTarget.classList.contains('codex-term')) {
+                if (relatedTarget && relatedTarget.classList && relatedTarget.classList.contains('codex-term')) {
                     return;
                 }
                 // Use delayed hide to allow moving back to tooltip
@@ -293,7 +293,7 @@
         }, true);
 
         document.addEventListener('click', (e) => {
-            if (e.target.classList.contains('codex-term')) {
+            if (e.target.classList && e.target.classList.contains('codex-term')) {
                 handleClick(e);
             } else if (activeTooltip && !activeTooltip.contains(e.target)) {
                 // Click outside tooltip closes it
