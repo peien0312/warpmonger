@@ -3601,3 +3601,43 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
     letter-spacing: 0.03em;
     margin: 2px 0 10px;
 }
+
+/* Checkout */
+.checkout-page { max-width: 1100px; margin: 30px auto; }
+.checkout-grid { display: grid; grid-template-columns: 1.2fr 1fr; gap: 40px; }
+@media (max-width: 820px) { .checkout-grid { grid-template-columns: 1fr; } }
+.checkout-group { margin-bottom: 22px; }
+.checkout-group h3 { font-size: 1.05rem; margin-bottom: 8px; }
+.checkout-group h3 small { color: #948669; font-weight: 400; font-size: 0.8rem; margin-left: 8px; }
+.checkout-line {
+    display: flex; align-items: center; gap: 12px;
+    padding: 8px 10px; border: 1px solid #3B2F24; border-radius: 4px;
+    background: #292019; margin-bottom: 6px;
+}
+.checkout-line img { width: 46px; height: 46px; object-fit: cover; border-radius: 3px; border: 1px solid #17100B; }
+.checkout-line .line-title { flex: 1; font-size: 0.92rem; }
+.checkout-line .line-title small { display: block; color: #D9A441; font-size: 0.75rem; }
+.checkout-line .line-price { color: #D9A441; }
+.checkout-total { text-align: right; font-size: 1.1rem; margin: 12px 0; }
+.batch-choice { border: 1px solid #6E4B2A; border-radius: 4px; padding: 12px; }
+.batch-choice label { display: block; margin: 4px 0; cursor: pointer; }
+.checkout-form h3 { font-size: 1.05rem; margin: 18px 0 8px; }
+.checkout-form label { display: block; margin-bottom: 10px; font-size: 0.9rem; }
+.checkout-form input[type=text], .checkout-form input[type=tel], .checkout-form input[type=email],
+.checkout-form textarea, #store-q {
+    width: 100%; padding: 8px 10px; margin-top: 4px;
+    background: #241C15; border: 1px solid #3B2F24; border-radius: 4px; color: #E6DAC4;
+}
+.option-row { display: flex; gap: 18px; flex-wrap: wrap; margin-bottom: 10px; }
+.option-row.option-col { flex-direction: column; gap: 6px; }
+.option-row label { cursor: pointer; margin-bottom: 0; }
+#store-results { max-height: 220px; overflow-y: auto; }
+.store-hit { padding: 8px 10px; border: 1px solid #3B2F24; border-top: none; cursor: pointer; font-size: 0.88rem; }
+.store-hit:hover { background: #342A21; }
+.store-hit small { color: #948669; display: block; }
+.store-picked { color: #D9A441; font-size: 0.88rem; margin-top: 6px; }
+.submit-error { color: #C24C33; margin-top: 10px; }
+.checkout-success { max-width: 640px; margin: 40px auto; }
+.checkout-success .order-no { font-size: 1.2rem; }
+.pay-instructions { border: 1px solid #6E4B2A; border-radius: 4px; padding: 14px 16px; margin: 14px 0; background: #292019; }
+.pay-instructions h3 { color: #D9A441; font-size: 1rem; margin-bottom: 6px; }

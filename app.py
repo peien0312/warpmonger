@@ -2916,6 +2916,171 @@ def api_update_featured_products():
 
 # ===== Main =====
 
+# ===== Web checkout (orders staged into the POS via its storefront API) =====
+
+POS_API_URL = os.environ.get('POS_API_URL', 'http://127.0.0.1:8000')
+STOREFRONT_API_KEY = os.environ.get('STOREFRONT_API_KEY', '')
+BANK_TRANSFER_INFO = os.environ.get('BANK_TRANSFER_INFO', '銀行帳戶資訊請洽 LINE 客服')
+
+_store_cache = {}
+
+def _load_stores(carrier):
+    """7-11 / 全家 store directories live in the POS repo's data dir."""
+    if carrier not in _store_cache:
+        import posdb as _posdb
+        fname = 'seven_eleven_stores.json' if carrier == '711' else 'fami_stores.json'
+        path = os.path.join(os.path.dirname(_posdb.POS_DB), fname)
+        try:
+            with open(path, 'r', encoding='utf-8') as f:
+                _store_cache[carrier] = json.load(f)
+        except Exception:
+            _store_cache[carrier] = []
+    return _store_cache[carrier]
+
+
+@app.route('/api/stores')
+def api_stores():
+    carrier = request.args.get('carrier', '711')
+    q = (request.args.get('q') or '').strip()
+    if carrier not in ('711', 'fami') or len(q) < 2:
+        return jsonify({'stores': []})
+    hits = []
+    for s in _load_stores(carrier):
+        if q in s.get('name', '') or q in s.get('address', '') \
+           or q in s.get('town', '') or q in s.get('city', ''):
+            hits.append({'code': s['code'], 'name': s['name'], 'address': s['address']})
+            if len(hits) >= 20:
+                break
+    return jsonify({'stores': hits})
+
+
+def _resolve_cart_items(raw_items):
+    """Resolve client cart lines against live POS data. Returns (lines, errors)."""
+    import posdb as _posdb
+    lines, errors = [], []
+    for raw in raw_items[:50]:
+        product = _posdb.get_product(str(raw.get('category') or ''), str(raw.get('slug') or ''))
+        if not product:
+            errors.append(f"{raw.get('title') or raw.get('slug')} 已下架")
+            continue
+        qty = max(1, min(99, int(raw.get('quantity') or 1)))
+        price = 0 if product['availability'] == 'inquiry' else (
+            product['sale_price'] if product['is_on_sale'] and product['sale_price'] else product['final_price'])
+        lines.append({
+            'sku': product['id'],
+            'category': product['category'], 'slug': product['slug'],
+            'title': product['zhtw_name'] or product['title'],
+            'image': product['images'][0] if product['images'] else '',
+            'qty': qty,
+            'price': price,
+            'availability': product['availability'],
+            'available_date': product['available_date'],
+        })
+    return lines, errors
+
+
+@app.route('/api/checkout/resolve', methods=['POST'])
+def checkout_resolve():
+    data = request.get_json(silent=True) or {}
+    lines, errors = _resolve_cart_items(data.get('items') or [])
+    return jsonify({'items': lines, 'errors': errors})
+
+
+@app.route('/api/checkout/submit', methods=['POST'])
+def checkout_submit():
+    import urllib.request
+    import urllib.error
+    data = request.get_json(silent=True) or {}
+    lines, errors = _resolve_cart_items(data.get('items') or [])
+    if errors:
+        return jsonify({'success': False, 'error': '、'.join(errors)}), 400
+    if not lines:
+        return jsonify({'success': False, 'error': '清單是空的'}), 400
+
+    payload = json.dumps({
+        'name': data.get('name'), 'phone': data.get('phone'),
+        'email': data.get('email'), 'line_id': data.get('line_id'),
+        'delivery_method': data.get('delivery_method'),
+        'store_code': data.get('store_code'), 'store_name': data.get('store_name'),
+        'address': data.get('address'),
+        'payment_method': data.get('payment_method'),
+        'ship_together': bool(data.get('ship_together', True)),
+        'note': data.get('note'),
+        'items': [{'sku': l['sku'], 'qty': l['qty']} for l in lines],
+    }).encode()
+
+    req = urllib.request.Request(
+        POS_API_URL + '/api/storefront/orders', data=payload,
+        headers={'Content-Type': 'application/json',
+                 'X-Storefront-Key': STOREFRONT_API_KEY},
+        method='POST')
+    try:
+        with urllib.request.urlopen(req, timeout=15) as resp:
+            result = json.loads(resp.read())
+    except urllib.error.HTTPError as e:
+        try:
+            detail = json.loads(e.read()).get('detail', '訂單送出失敗')
+        except Exception:
+            detail = '訂單送出失敗'
+        return jsonify({'success': False, 'error': detail}), 400
+    except Exception:
+        return jsonify({'success': False, 'error': '系統忙碌中，請稍後再試或改用 LINE 聯絡'}), 502
+
+    try:
+        _send_order_emails(result['order_no'], data, lines, result.get('total_twd', 0))
+    except Exception as e:
+        print(f"order email failed: {e}")
+
+    return jsonify(result)
+
+
+def _send_order_emails(order_no, data, lines, total):
+    from email.mime.text import MIMEText
+    smtp_server = os.environ.get('SMTP_SERVER')
+    smtp_user = os.environ.get('SMTP_USERNAME')
+    smtp_pass = os.environ.get('SMTP_PASSWORD')
+    shop_email = os.environ.get('SHOP_EMAIL', smtp_user)
+    if not all([smtp_server, smtp_user, smtp_pass]):
+        return
+
+    pm = {'cod': '取貨付款', 'transfer': '銀行轉帳', 'linepay': 'LINE Pay'}.get(data.get('payment_method'), '')
+    dm = {'711': '7-11', 'fami': '全家', 'post': '郵局'}.get(data.get('delivery_method'), '')
+    body = [f"訂單編號: {order_no}", f"姓名: {data.get('name')}  電話: {data.get('phone')}",
+            f"取貨: {dm} {data.get('store_name') or data.get('address') or ''}",
+            f"付款: {pm}", f"出貨: {'合併出貨' if data.get('ship_together', True) else '現貨先出'}", ""]
+    for l in lines:
+        price = f"NT${l['price']:,.0f}" if l['price'] else '詢價'
+        body.append(f"・{l['title']} x{l['qty']} {price}（{l['availability']}）")
+    body.append(f"\n合計: NT${total:,.0f}")
+    if data.get('note'):
+        body.append(f"備註: {data['note']}")
+    text = "\n".join(body)
+
+    with smtplib.SMTP(smtp_server, int(os.environ.get('SMTP_PORT', 587))) as server:
+        server.starttls()
+        server.login(smtp_user, smtp_pass)
+        targets = [shop_email]
+        if data.get('email'):
+            targets.append(data['email'])
+        for to in targets:
+            msg = MIMEText(text, 'plain', 'utf-8')
+            msg['Subject'] = f"[阿北玩具堂] 訂單確認 {order_no}"
+            msg['From'] = smtp_user
+            msg['To'] = to
+            server.sendmail(smtp_user, to, msg.as_string())
+
+
+@public_route('/checkout')
+def checkout_page():
+    return render_template('public/checkout.html')
+
+
+@public_route('/checkout/success')
+def checkout_success():
+    return render_template('public/checkout-success.html',
+                           bank_info=BANK_TRANSFER_INFO)
+
+
 # ===== POS-DB data layer (realtime) =====
 # The POS SQLite DB is now the source of truth; posdb.py mirrors the dict
 # shapes of the flat-file loaders above, so we simply rebind the names.

@@ -1,0 +1,224 @@
+{% extends "public/base.html" %}
+
+{% block title %}結帳 | ABBEY'S TOYS 阿北玩具堂{% endblock %}
+
+{% block content %}
+<div class="container checkout-page">
+    <h1 class="page-title">結帳</h1>
+
+    <div id="checkout-empty" style="display:none">
+        <p>清單是空的。<a href="/products">去逛逛 →</a></p>
+    </div>
+
+    <div id="checkout-body" style="display:none">
+        <div class="checkout-grid">
+            <div class="checkout-items">
+                <div id="group-now" class="checkout-group" style="display:none">
+                    <h3>一般訂單 <small>現貨／調貨，確認付款後出貨</small></h3>
+                    <div class="group-items"></div>
+                </div>
+                <div id="group-preorder" class="checkout-group" style="display:none">
+                    <h3>預購 <small>不需預付，到貨通知後付款出貨</small></h3>
+                    <div class="group-items"></div>
+                </div>
+                <div id="group-inquiry" class="checkout-group" style="display:none">
+                    <h3>詢價 <small>絕版品，阿北會以 email／LINE 回覆報價</small></h3>
+                    <div class="group-items"></div>
+                </div>
+                <p class="checkout-total">商品合計：<strong id="checkout-total">NT$0</strong>
+                    <span id="inquiry-hint" style="display:none"><br><small>（詢價商品另計）</small></span>
+                </p>
+                <div id="batch-choice" style="display:none" class="batch-choice">
+                    <label><input type="radio" name="ship_together" value="1" checked>
+                        合併出貨（等全部到齊一次寄，單筆運費）</label>
+                    <label><input type="radio" name="ship_together" value="0">
+                        現貨先出（現貨先寄，其餘到貨後再寄，運費分計）</label>
+                </div>
+            </div>
+
+            <form class="checkout-form" id="checkout-form" onsubmit="return submitOrder(event)">
+                <h3>聯絡資料</h3>
+                <label>姓名 *<input type="text" name="name" required maxlength="50"></label>
+                <label>電話 *<input type="tel" name="phone" required maxlength="20" pattern="[0-9+\-() ]{8,}"></label>
+                <label>Email<input type="email" name="email" maxlength="100"></label>
+                <label>LINE ID<input type="text" name="line_id" maxlength="50"></label>
+
+                <h3>取貨方式</h3>
+                <div class="option-row">
+                    <label><input type="radio" name="delivery_method" value="711" checked> 7-11</label>
+                    <label><input type="radio" name="delivery_method" value="fami"> 全家</label>
+                    <label><input type="radio" name="delivery_method" value="post"> 郵局寄送</label>
+                </div>
+                <div id="store-picker">
+                    <input type="text" id="store-q" placeholder="輸入門市名／路名／地區搜尋門市"
+                           autocomplete="off" oninput="searchStores()">
+                    <div id="store-results"></div>
+                    <p id="store-picked" class="store-picked"></p>
+                </div>
+                <div id="address-field" style="display:none">
+                    <label>寄送地址 *<input type="text" name="address" maxlength="200"></label>
+                </div>
+
+                <h3>付款方式</h3>
+                <div class="option-row option-col">
+                    <label><input type="radio" name="payment_method" value="cod" checked>
+                        取貨付款</label>
+                    <label><input type="radio" name="payment_method" value="linepay">
+                        LINE Pay（確認訂單後傳送付款連結）</label>
+                    <label><input type="radio" name="payment_method" value="transfer">
+                        銀行轉帳（送出後顯示帳戶資訊）</label>
+                </div>
+
+                <label>備註<textarea name="note" rows="2" maxlength="500"></textarea></label>
+
+                <button type="submit" class="btn btn-primary btn-lg" id="submit-btn">送出訂單</button>
+                <p id="submit-error" class="submit-error"></p>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="/static/js/cart.js"></script>
+<script>
+let resolved = [];
+let pickedStore = null;
+
+const GROUPS = {
+    now: ['in_stock', 'incoming', 'orderable'],
+    preorder: ['preorder'],
+    inquiry: ['inquiry'],
+};
+const AVAIL_LABEL = {in_stock: '現貨', incoming: '約2週到貨', preorder: '預購',
+                     orderable: '可訂購 約2-3週', inquiry: '詢價'};
+
+async function loadCheckout() {
+    const items = Cart.getItems();
+    if (!items.length) {
+        document.getElementById('checkout-empty').style.display = '';
+        return;
+    }
+    const res = await fetch('/api/checkout/resolve', {
+        method: 'POST', headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({items: items}),
+    });
+    const data = await res.json();
+    resolved = data.items;
+    if (data.errors && data.errors.length) {
+        alert('部分商品已變動：' + data.errors.join('、'));
+    }
+    if (!resolved.length) {
+        document.getElementById('checkout-empty').style.display = '';
+        return;
+    }
+    let total = 0, hasPre = false, hasNow = false, hasInq = false;
+    for (const [key, states] of Object.entries(GROUPS)) {
+        const lines = resolved.filter(l => states.includes(l.availability));
+        const box = document.getElementById('group-' + key);
+        if (!lines.length) { box.style.display = 'none'; continue; }
+        box.style.display = '';
+        box.querySelector('.group-items').innerHTML = lines.map(l => {
+            const price = l.price > 0 ? 'NT$' + Math.round(l.price).toLocaleString() : '詢價';
+            const img = l.image ? `/static/images/products/${l.category}/${l.slug}/thumb_${l.image.split('.')[0]}.jpg` : '';
+            return `<div class="checkout-line">
+                ${img ? `<img src="${img}" alt="">` : ''}
+                <span class="line-title">${l.title}
+                    <small>${AVAIL_LABEL[l.availability]}${l.availability === 'preorder' && l.available_date ? ' ' + l.available_date.slice(0, 7).replace('-', '/') : ''}</small></span>
+                <span class="line-qty">x${l.qty}</span>
+                <span class="line-price">${price}</span>
+            </div>`;
+        }).join('');
+        for (const l of lines) total += l.price * l.qty;
+        if (key === 'preorder') hasPre = true;
+        if (key === 'now') hasNow = true;
+        if (key === 'inquiry') hasInq = true;
+    }
+    document.getElementById('checkout-total').textContent = 'NT$' + Math.round(total).toLocaleString();
+    document.getElementById('inquiry-hint').style.display = hasInq ? '' : 'none';
+    document.getElementById('batch-choice').style.display = (hasPre && hasNow) ? '' : 'none';
+    document.getElementById('checkout-body').style.display = '';
+}
+
+document.querySelectorAll('input[name=delivery_method]').forEach(el =>
+    el.addEventListener('change', () => {
+        const isStore = el.value !== 'post';
+        document.getElementById('store-picker').style.display = isStore ? '' : 'none';
+        document.getElementById('address-field').style.display = isStore ? 'none' : '';
+        pickedStore = null;
+        document.getElementById('store-picked').textContent = '';
+        document.getElementById('store-results').innerHTML = '';
+    }));
+
+let storeTimer = null;
+function searchStores() {
+    clearTimeout(storeTimer);
+    storeTimer = setTimeout(async () => {
+        const q = document.getElementById('store-q').value.trim();
+        if (q.length < 2) return;
+        const carrier = document.querySelector('input[name=delivery_method]:checked').value;
+        const res = await fetch(`/api/stores?carrier=${carrier}&q=${encodeURIComponent(q)}`);
+        const data = await res.json();
+        document.getElementById('store-results').innerHTML = data.stores.map(s =>
+            `<div class="store-hit" onclick='pickStore(${JSON.stringify(s)})'>
+                <strong>${s.name}</strong> <small>${s.address}</small></div>`).join('')
+            || '<div class="store-hit">找不到門市，換個關鍵字試試</div>';
+    }, 300);
+}
+
+function pickStore(s) {
+    pickedStore = s;
+    document.getElementById('store-picked').textContent = `已選：${s.name}（${s.code}）${s.address}`;
+    document.getElementById('store-results').innerHTML = '';
+    document.getElementById('store-q').value = '';
+}
+
+async function submitOrder(ev) {
+    ev.preventDefault();
+    const f = document.getElementById('checkout-form');
+    const err = document.getElementById('submit-error');
+    err.textContent = '';
+    const delivery = f.delivery_method.value;
+    if (delivery !== 'post' && !pickedStore) {
+        err.textContent = '請先搜尋並選擇取貨門市';
+        return false;
+    }
+    const btn = document.getElementById('submit-btn');
+    btn.disabled = true;
+    btn.textContent = '送出中…';
+    const shipEl = document.querySelector('input[name=ship_together]:checked');
+    const payload = {
+        items: Cart.getItems(),
+        name: f.name.value.trim(), phone: f.phone.value.trim(),
+        email: f.email.value.trim(), line_id: f.line_id.value.trim(),
+        delivery_method: delivery,
+        store_code: pickedStore ? pickedStore.code : null,
+        store_name: pickedStore ? pickedStore.name : null,
+        address: f.address ? f.address.value.trim() : '',
+        payment_method: f.payment_method.value,
+        ship_together: shipEl ? shipEl.value === '1' : true,
+        note: f.note.value.trim(),
+    };
+    const res = await fetch('/api/checkout/submit', {
+        method: 'POST', headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(payload),
+    });
+    const data = await res.json();
+    if (!data.success) {
+        err.textContent = data.error || '送出失敗，請稍後再試';
+        btn.disabled = false;
+        btn.textContent = '送出訂單';
+        return false;
+    }
+    Cart.clear();
+    const params = new URLSearchParams({
+        no: data.order_no, pm: payload.payment_method,
+        total: Math.round(data.total_twd), inq: data.has_inquiry ? '1' : '0',
+    });
+    window.location.href = '/checkout/success?' + params.toString();
+    return false;
+}
+
+loadCheckout();
+</script>
+{% endblock %}
