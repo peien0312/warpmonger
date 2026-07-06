@@ -3689,3 +3689,13 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
 .login-google { background: #E6DAC4; color: #241C15; }
 .login-btn:hover { filter: brightness(1.08); }
 .login-note { color: #948669; }
+
+/* Saved addresses at checkout + account address book */
+.saved-addresses { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
+.saved-addr { display: flex; gap: 10px; align-items: flex-start; border: 1px solid #3B2F24;
+    border-radius: 4px; padding: 8px 10px; cursor: pointer; font-size: 0.9rem; }
+.saved-addr:has(input:checked) { border-color: #D9A441; background: #292019; }
+.addr-card { display: flex; justify-content: space-between; align-items: center; gap: 10px;
+    border: 1px solid #3B2F24; border-radius: 4px; padding: 10px 12px; margin-bottom: 8px; }
+.addr-actions { display: flex; gap: 6px; flex-shrink: 0; }
+.addr-new summary { cursor: pointer; color: #D9A441; margin: 8px 0; }

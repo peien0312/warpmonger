@@ -43,10 +43,34 @@
                 <h3>聯絡資料</h3>
                 <label>姓名 *<input type="text" name="name" required maxlength="50" value="{{ member.name if member else '' }}"></label>
                 <label>電話 *<input type="tel" name="phone" required maxlength="20" pattern="[0-9+\-() ]{8,}" value="{{ member.phone if member and member.phone else '' }}"></label>
-                <label>Email<input type="email" name="email" maxlength="100" value="{{ member.email if member else '' }}"></label>
+                <label>Email{% if not member %} *{% endif %}<input type="email" name="email" maxlength="100" value="{{ member.email if member else '' }}" {% if not member %}required{% endif %}></label>
+                {% if not member %}<small class="text-muted">未登入時請留 email 以接收訂單通知；<a href="/login?next=/checkout">登入會員</a>可查詢訂單並儲存收件資料。</small>{% endif %}
                 <label>LINE ID<input type="text" name="line_id" maxlength="50"></label>
 
-                <h3>取貨方式</h3>
+                <h3>收件資料</h3>
+                {% if addresses %}
+                <div class="saved-addresses">
+                    {% for a in addresses %}
+                    <label class="saved-addr">
+                        <input type="radio" name="saved_address" value="{{ a.id }}"
+                               data-addr='{{ {"recipient_name": a.recipient_name, "recipient_phone": a.recipient_phone, "delivery": a.delivery, "store_code": a.store_code, "store_name": a.store_name, "address": a.address}|tojson }}'
+                               {{ 'checked' if a.is_default else '' }} onchange="useSavedAddress(this)">
+                        <span><strong>{{ a.label or (a.store_name or '宅配') }}</strong>
+                            {{ a.recipient_name or '' }}｜{{ {'711': '7-11', 'fami': '全家', 'post': '郵局'}[a.delivery] }}
+                            {% if a.store_name %} {{ a.store_name }}{% endif %}{% if a.address %} {{ a.address }}{% endif %}</span>
+                    </label>
+                    {% endfor %}
+                    <label class="saved-addr">
+                        <input type="radio" name="saved_address" value="" onchange="useSavedAddress(this)">
+                        <span>使用其他收件資料</span>
+                    </label>
+                </div>
+                {% endif %}
+                <div id="manual-recipient" {% if addresses %}style="display:none"{% endif %}>
+                <div class="option-row">
+                    <label>收件人姓名<input type="text" name="recipient_name" maxlength="50" style="width:130px"></label>
+                    <label>收件人電話<input type="tel" name="recipient_phone" maxlength="20" style="width:140px"></label>
+                </div>
                 <div class="option-row">
                     <label><input type="radio" name="delivery_method" value="711" checked> 7-11</label>
                     <label><input type="radio" name="delivery_method" value="fami"> 全家</label>
@@ -61,6 +85,7 @@
                 <div id="address-field" style="display:none">
                     <label>寄送地址 *<input type="text" name="address" maxlength="200"></label>
                 </div>
+                </div><!-- /manual-recipient -->
 
                 <h3>付款方式</h3>
                 <div class="option-row option-col">
@@ -180,13 +205,30 @@ function pickStore(s) {
     document.getElementById('store-q').value = '';
 }
 
+let savedAddr = null;
+function useSavedAddress(radio) {
+    const manual = document.getElementById('manual-recipient');
+    if (radio.value === '') {
+        savedAddr = null;
+        manual.style.display = '';
+    } else {
+        savedAddr = JSON.parse(radio.dataset.addr);
+        manual.style.display = 'none';
+    }
+}
+// initialize from the default-checked saved address
+(function() {
+    const checked = document.querySelector('input[name=saved_address]:checked');
+    if (checked && checked.value) savedAddr = JSON.parse(checked.dataset.addr);
+})();
+
 async function submitOrder(ev) {
     ev.preventDefault();
     const f = document.getElementById('checkout-form');
     const err = document.getElementById('submit-error');
     err.textContent = '';
-    const delivery = f.delivery_method.value;
-    if (delivery !== 'post' && !pickedStore) {
+    const delivery = savedAddr ? savedAddr.delivery : f.delivery_method.value;
+    if (!savedAddr && delivery !== 'post' && !pickedStore) {
         err.textContent = '請先搜尋並選擇取貨門市';
         return false;
     }
@@ -199,9 +241,11 @@ async function submitOrder(ev) {
         name: f.name.value.trim(), phone: f.phone.value.trim(),
         email: f.email.value.trim(), line_id: f.line_id.value.trim(),
         delivery_method: delivery,
-        store_code: pickedStore ? pickedStore.code : null,
-        store_name: pickedStore ? pickedStore.name : null,
-        address: f.address ? f.address.value.trim() : '',
+        recipient_name: savedAddr ? savedAddr.recipient_name : (f.recipient_name.value.trim() || f.name.value.trim()),
+        recipient_phone: savedAddr ? savedAddr.recipient_phone : (f.recipient_phone.value.trim() || f.phone.value.trim()),
+        store_code: savedAddr ? savedAddr.store_code : (pickedStore ? pickedStore.code : null),
+        store_name: savedAddr ? savedAddr.store_name : (pickedStore ? pickedStore.name : null),
+        address: savedAddr ? (savedAddr.address || '') : (f.address ? f.address.value.trim() : ''),
         payment_method: f.payment_method.value,
         ship_together: shipEl ? shipEl.value === '1' : true,
         note: f.note.value.trim(),
@@ -234,18 +278,5 @@ async function submitOrder(ev) {
 
 loadCheckout();
 
-// prefill member's default delivery/store
-{% if member and member.default_delivery %}
-(function() {
-    const radio = document.querySelector('input[name=delivery_method][value="{{ member.default_delivery }}"]');
-    if (radio) { radio.checked = true; radio.dispatchEvent(new Event('change')); }
-    {% if member.default_store_code %}
-    pickStore({code: {{ member.default_store_code|tojson }}, name: {{ member.default_store_name|tojson }}, address: ''});
-    {% elif member.default_address %}
-    const addr = document.querySelector('input[name=address]');
-    if (addr) addr.value = {{ member.default_address|tojson }};
-    {% endif %}
-})();
-{% endif %}
 </script>
 {% endblock %}

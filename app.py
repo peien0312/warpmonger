@@ -3009,11 +3009,17 @@ def checkout_submit():
             memberdb.set_member_phone(member['id'], data['phone'].strip())
         if not data.get('email') and member.get('email'):
             data['email'] = member['email']
+    elif not (data.get('email') or '').strip():
+        # guests must leave an email so we can reach them about the order
+        return jsonify({'success': False,
+                        'error': '未登入時請留 email，以便接收訂單通知'}), 400
 
     payload = json.dumps({
         'name': data.get('name'), 'phone': data.get('phone'),
         'email': data.get('email'), 'line_id': data.get('line_id'),
         'delivery_method': data.get('delivery_method'),
+        'recipient_name': data.get('recipient_name'),
+        'recipient_phone': data.get('recipient_phone'),
         'store_code': data.get('store_code'), 'store_name': data.get('store_name'),
         'address': data.get('address'),
         'payment_method': data.get('payment_method'),
@@ -3038,6 +3044,22 @@ def checkout_submit():
         return jsonify({'success': False, 'error': detail}), 400
     except Exception:
         return jsonify({'success': False, 'error': '系統忙碌中，請稍後再試或改用 LINE 聯絡'}), 502
+
+    if member:
+        used = {
+            'label': None,
+            'recipient_name': data.get('recipient_name') or data.get('name'),
+            'recipient_phone': data.get('recipient_phone') or data.get('phone'),
+            'delivery': data.get('delivery_method'),
+            'store_code': data.get('store_code'),
+            'store_name': data.get('store_name'),
+            'address': data.get('address'),
+        }
+        try:
+            if not memberdb.find_matching_address(member['id'], used):
+                memberdb.save_address(member['id'], used)
+        except Exception as e:
+            print(f"auto-save address failed: {e}")
 
     try:
         _send_order_emails(result['order_no'], data, lines, result.get('total_twd', 0))
@@ -3160,7 +3182,9 @@ def _send_order_emails(order_no, data, lines, total):
 
 @public_route('/checkout')
 def checkout_page():
-    return render_template('public/checkout.html')
+    member = current_member()
+    addresses = memberdb.list_addresses(member['id']) if member else []
+    return render_template('public/checkout.html', addresses=addresses)
 
 
 @public_route('/checkout/success')
@@ -3352,6 +3376,7 @@ def account_page():
     return render_template('public/account.html', member=member,
                            orders=orders, wish_products=wish_products,
                            notify_skus=notify,
+                           addresses=memberdb.list_addresses(member['id']),
                            identities=memberdb.identities_for(member['id']),
                            line_bind_code=memberdb.get_bind_code(member['id']))
 
@@ -3499,6 +3524,40 @@ def api_line_unbind():
     if not member:
         return jsonify({'error': 'login'}), 401
     memberdb.unbind_line(member['id'])
+    return jsonify({'success': True})
+
+
+@app.route('/api/account/addresses', methods=['POST'])
+def api_save_address():
+    member = current_member()
+    if not member:
+        return jsonify({'error': 'login'}), 401
+    data = request.get_json(silent=True) or {}
+    if data.get('delivery') in ('711', 'fami') and not data.get('store_code'):
+        return jsonify({'success': False, 'error': '請選擇門市'}), 400
+    if data.get('delivery') == 'post' and not (data.get('address') or '').strip():
+        return jsonify({'success': False, 'error': '請填寫地址'}), 400
+    addr_id = memberdb.save_address(member['id'], data, data.get('id'))
+    if not addr_id:
+        return jsonify({'success': False, 'error': '儲存失敗'}), 400
+    return jsonify({'success': True, 'id': addr_id})
+
+
+@app.route('/api/account/addresses/<int:addr_id>/delete', methods=['POST'])
+def api_delete_address(addr_id):
+    member = current_member()
+    if not member:
+        return jsonify({'error': 'login'}), 401
+    memberdb.delete_address(member['id'], addr_id)
+    return jsonify({'success': True})
+
+
+@app.route('/api/account/addresses/<int:addr_id>/default', methods=['POST'])
+def api_default_address(addr_id):
+    member = current_member()
+    if not member:
+        return jsonify({'error': 'login'}), 401
+    memberdb.set_default_address(member['id'], addr_id)
     return jsonify({'success': True})
 
 

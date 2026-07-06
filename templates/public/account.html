@@ -19,28 +19,60 @@
             <label>姓名<input type="text" name="name" maxlength="50" value="{{ member.name or '' }}"></label>
             <label>電話<input type="tel" name="phone" maxlength="20" value="{{ member.phone or '' }}"></label>
             <label>LINE ID<input type="text" name="line_id" maxlength="50" value="{{ member.line_id or '' }}"></label>
-            <label>預設取貨方式
-                <select name="default_delivery" onchange="profileDeliveryChanged(this)">
-                    <option value="">—</option>
-                    <option value="711" {{ 'selected' if member.default_delivery == '711' }}>7-11</option>
-                    <option value="fami" {{ 'selected' if member.default_delivery == 'fami' }}>全家</option>
-                    <option value="post" {{ 'selected' if member.default_delivery == 'post' }}>郵局寄送</option>
-                </select>
-            </label>
-        </div>
-        <div id="profile-store" style="{{ '' if member.default_delivery in ('711', 'fami') else 'display:none' }}">
-            <input type="text" id="profile-store-q" placeholder="搜尋預設門市（門市名／路名／地區）" autocomplete="off" oninput="profileSearchStores()">
-            <div id="profile-store-results"></div>
-            <p class="store-picked" id="profile-store-picked">{% if member.default_store_name %}預設門市：{{ member.default_store_name }}（{{ member.default_store_code }}）{% endif %}</p>
-            <input type="hidden" name="default_store_code" value="{{ member.default_store_code or '' }}">
-            <input type="hidden" name="default_store_name" value="{{ member.default_store_name or '' }}">
-        </div>
-        <div id="profile-address" style="{{ '' if member.default_delivery == 'post' else 'display:none' }}">
-            <label>預設寄送地址<input type="text" name="default_address" maxlength="200" value="{{ member.default_address or '' }}"></label>
         </div>
         <button type="submit" class="btn btn-primary btn-sm">儲存資料</button>
         <small class="profile-msg"></small>
     </form>
+
+    <h2 class="section-title">收件資料</h2>
+    <div class="profile-form" id="addr-book">
+        {% for a in addresses %}
+        <div class="addr-card" data-id="{{ a.id }}">
+            <div class="addr-main">
+                <strong>{{ a.label or (a.store_name or '宅配') }}</strong>
+                {% if a.is_default %}<span class="badge badge-instock">預設</span>{% endif %}<br>
+                {{ a.recipient_name or '' }} {{ a.recipient_phone or '' }}<br>
+                <small>{{ {'711': '7-11', 'fami': '全家', 'post': '郵局'}[a.delivery] }}
+                {% if a.store_name %}｜{{ a.store_name }}（{{ a.store_code }}）{% endif %}
+                {% if a.address %}｜{{ a.address }}{% endif %}</small>
+            </div>
+            <div class="addr-actions">
+                {% if not a.is_default %}
+                <button class="btn btn-sm btn-secondary" onclick="addrDefault({{ a.id }})">設為預設</button>
+                {% endif %}
+                <button class="btn btn-sm btn-outline" onclick="addrDelete({{ a.id }})">刪除</button>
+            </div>
+        </div>
+        {% else %}
+        <p class="text-muted">還沒有收件資料 — 結帳時填寫的收件方式會自動存到這裡。</p>
+        {% endfor %}
+
+        <details class="addr-new">
+            <summary>＋ 新增收件資料</summary>
+            <div class="profile-grid" style="margin-top:10px">
+                <label>名稱（例：家、公司）<input type="text" id="na-label" maxlength="20"></label>
+                <label>收件人姓名<input type="text" id="na-name" maxlength="50" value="{{ member.name or '' }}"></label>
+                <label>收件人電話<input type="tel" id="na-phone" maxlength="20" value="{{ member.phone or '' }}"></label>
+                <label>取貨方式
+                    <select id="na-delivery" onchange="naDeliveryChanged()">
+                        <option value="711">7-11</option>
+                        <option value="fami">全家</option>
+                        <option value="post">郵局寄送</option>
+                    </select>
+                </label>
+            </div>
+            <div id="na-store">
+                <input type="text" id="na-store-q" placeholder="搜尋門市（門市名／路名／地區）" autocomplete="off" oninput="naSearchStores()">
+                <div id="na-store-results"></div>
+                <p class="store-picked" id="na-store-picked"></p>
+            </div>
+            <div id="na-address" style="display:none">
+                <label>寄送地址<input type="text" id="na-addr" maxlength="200"></label>
+            </div>
+            <button class="btn btn-primary btn-sm" onclick="addrSave()">儲存收件資料</button>
+            <small id="na-msg" class="profile-msg"></small>
+        </details>
+    </div>
 
     <h2 class="section-title">我的訂單</h2>
     {% if not orders %}
@@ -153,43 +185,67 @@ async function saveProfile(ev) {
         method: 'POST', headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({
             name: f.name.value, phone: f.phone.value, line_id: f.line_id.value,
-            default_delivery: f.default_delivery.value,
-            default_store_code: f.default_store_code.value,
-            default_store_name: f.default_store_name.value,
-            default_address: f.default_address ? f.default_address.value : '',
         }),
     });
     const data = await res.json();
     msg.textContent = data.success ? '已儲存 ✓' : (data.error || '儲存失敗');
     return false;
 }
-function profileDeliveryChanged(sel) {
-    document.getElementById('profile-store').style.display =
-        (sel.value === '711' || sel.value === 'fami') ? '' : 'none';
-    document.getElementById('profile-address').style.display =
-        sel.value === 'post' ? '' : 'none';
+
+// ----- address book -----
+let naStore = null;
+function naDeliveryChanged() {
+    const v = document.getElementById('na-delivery').value;
+    document.getElementById('na-store').style.display = v === 'post' ? 'none' : '';
+    document.getElementById('na-address').style.display = v === 'post' ? '' : 'none';
 }
-let profileStoreTimer = null;
-function profileSearchStores() {
-    clearTimeout(profileStoreTimer);
-    profileStoreTimer = setTimeout(async () => {
-        const q = document.getElementById('profile-store-q').value.trim();
+let naTimer = null;
+function naSearchStores() {
+    clearTimeout(naTimer);
+    naTimer = setTimeout(async () => {
+        const q = document.getElementById('na-store-q').value.trim();
         if (q.length < 2) return;
-        const carrier = document.querySelector('select[name=default_delivery]').value;
+        const carrier = document.getElementById('na-delivery').value;
         const res = await fetch(`/api/stores?carrier=${carrier}&q=${encodeURIComponent(q)}`);
         const data = await res.json();
-        document.getElementById('profile-store-results').innerHTML = data.stores.map(s =>
-            `<div class="store-hit" onclick='profilePickStore(${JSON.stringify(s)})'>
+        document.getElementById('na-store-results').innerHTML = data.stores.map(s =>
+            `<div class="store-hit" onclick='naPickStore(${JSON.stringify(s)})'>
                 <strong>${s.name}</strong> <small>${s.address}</small></div>`).join('');
     }, 300);
 }
-function profilePickStore(s) {
-    const f = document.querySelector('.profile-form');
-    f.default_store_code.value = s.code;
-    f.default_store_name.value = s.name;
-    document.getElementById('profile-store-picked').textContent = `預設門市：${s.name}（${s.code}）`;
-    document.getElementById('profile-store-results').innerHTML = '';
-    document.getElementById('profile-store-q').value = '';
+function naPickStore(s) {
+    naStore = s;
+    document.getElementById('na-store-picked').textContent = `已選：${s.name}（${s.code}）`;
+    document.getElementById('na-store-results').innerHTML = '';
+    document.getElementById('na-store-q').value = '';
+}
+async function addrSave() {
+    const delivery = document.getElementById('na-delivery').value;
+    const msg = document.getElementById('na-msg');
+    const res = await fetch('/api/account/addresses', {
+        method: 'POST', headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+            label: document.getElementById('na-label').value,
+            recipient_name: document.getElementById('na-name').value,
+            recipient_phone: document.getElementById('na-phone').value,
+            delivery: delivery,
+            store_code: naStore ? naStore.code : null,
+            store_name: naStore ? naStore.name : null,
+            address: document.getElementById('na-addr').value,
+        }),
+    });
+    const data = await res.json();
+    if (data.success) location.reload();
+    else msg.textContent = data.error || '儲存失敗';
+}
+async function addrDelete(id) {
+    if (!confirm('刪除這筆收件資料？')) return;
+    await fetch(`/api/account/addresses/${id}/delete`, {method: 'POST'});
+    location.reload();
+}
+async function addrDefault(id) {
+    await fetch(`/api/account/addresses/${id}/default`, {method: 'POST'});
+    location.reload();
 }
 async function lineUnbind(btn) {
     const res = await fetch('/api/account/line-unbind', {method: 'POST'});

@@ -51,6 +51,19 @@ def init():
         );
     """)
     conn.executescript("""
+        CREATE TABLE IF NOT EXISTS member_addresses (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            member_id INTEGER NOT NULL REFERENCES members(id),
+            label TEXT,
+            recipient_name TEXT,
+            recipient_phone TEXT,
+            delivery TEXT,
+            store_code TEXT,
+            store_name TEXT,
+            address TEXT,
+            is_default BOOLEAN DEFAULT 0,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
         CREATE TABLE IF NOT EXISTS member_identities (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             member_id INTEGER NOT NULL REFERENCES members(id),
@@ -82,6 +95,20 @@ def init():
             conn.execute(stmt)
         except Exception:
             pass
+    # migrate legacy single default_delivery into the address book (once)
+    for m in conn.execute("""
+        SELECT id, name, phone, default_delivery, default_store_code,
+               default_store_name, default_address FROM members
+        WHERE default_delivery IS NOT NULL
+          AND id NOT IN (SELECT DISTINCT member_id FROM member_addresses)
+    """).fetchall():
+        conn.execute("""
+            INSERT INTO member_addresses
+                (member_id, label, recipient_name, recipient_phone, delivery,
+                 store_code, store_name, address, is_default)
+            VALUES (?, '預設', ?, ?, ?, ?, ?, ?, 1)
+        """, (m["id"], m["name"], m["phone"], m["default_delivery"],
+              m["default_store_code"], m["default_store_name"], m["default_address"]))
     conn.commit()
     conn.close()
 
@@ -360,3 +387,87 @@ def link_identity(member_id, provider, subject, email, name, picture):
     conn.commit()
     conn.close()
     return "linked"
+
+
+# ----- address book (收件資料) -----
+
+def list_addresses(member_id):
+    conn = _conn()
+    rows = conn.execute(
+        "SELECT * FROM member_addresses WHERE member_id = ? "
+        "ORDER BY is_default DESC, id DESC", (member_id,)).fetchall()
+    conn.close()
+    return [dict(r) for r in rows]
+
+
+def save_address(member_id, fields, addr_id=None):
+    vals = {k: (fields.get(k) or "").strip() or None for k in
+            ("label", "recipient_name", "recipient_phone", "delivery",
+             "store_code", "store_name", "address")}
+    if vals["delivery"] not in ("711", "fami", "post"):
+        return None
+    conn = _conn()
+    if addr_id:
+        owned = conn.execute(
+            "SELECT id FROM member_addresses WHERE id = ? AND member_id = ?",
+            (addr_id, member_id)).fetchone()
+        if not owned:
+            conn.close()
+            return None
+        conn.execute("""
+            UPDATE member_addresses SET label=?, recipient_name=?, recipient_phone=?,
+                delivery=?, store_code=?, store_name=?, address=?
+            WHERE id = ?
+        """, (*[vals[k] for k in ("label", "recipient_name", "recipient_phone",
+                                  "delivery", "store_code", "store_name", "address")],
+              addr_id))
+    else:
+        first = conn.execute(
+            "SELECT COUNT(*) FROM member_addresses WHERE member_id = ?",
+            (member_id,)).fetchone()[0] == 0
+        cur = conn.execute("""
+            INSERT INTO member_addresses
+                (member_id, label, recipient_name, recipient_phone, delivery,
+                 store_code, store_name, address, is_default)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """, (member_id, *[vals[k] for k in ("label", "recipient_name",
+              "recipient_phone", "delivery", "store_code", "store_name", "address")],
+              1 if first else 0))
+        addr_id = cur.lastrowid
+    conn.commit()
+    conn.close()
+    return addr_id
+
+
+def delete_address(member_id, addr_id):
+    conn = _conn()
+    conn.execute("DELETE FROM member_addresses WHERE id = ? AND member_id = ?",
+                 (addr_id, member_id))
+    conn.commit()
+    conn.close()
+
+
+def set_default_address(member_id, addr_id):
+    conn = _conn()
+    conn.execute("UPDATE member_addresses SET is_default = 0 WHERE member_id = ?",
+                 (member_id,))
+    conn.execute("UPDATE member_addresses SET is_default = 1 "
+                 "WHERE id = ? AND member_id = ?", (addr_id, member_id))
+    conn.commit()
+    conn.close()
+
+
+def find_matching_address(member_id, fields):
+    """True if an equivalent entry already exists (avoid auto-save dupes)."""
+    conn = _conn()
+    row = conn.execute("""
+        SELECT id FROM member_addresses
+        WHERE member_id = ? AND delivery = ?
+          AND COALESCE(store_code, '') = COALESCE(?, '')
+          AND COALESCE(address, '') = COALESCE(?, '')
+          AND COALESCE(recipient_name, '') = COALESCE(?, '')
+    """, (member_id, fields.get("delivery"),
+          fields.get("store_code") or "", fields.get("address") or "",
+          fields.get("recipient_name") or "")).fetchone()
+    conn.close()
+    return bool(row)
