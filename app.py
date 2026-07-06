@@ -3000,6 +3000,13 @@ def checkout_submit():
     if not lines:
         return jsonify({'success': False, 'error': '清單是空的'}), 400
 
+    member = current_member()
+    if member:
+        if data.get('phone') and not member.get('phone'):
+            memberdb.set_member_phone(member['id'], data['phone'].strip())
+        if not data.get('email') and member.get('email'):
+            data['email'] = member['email']
+
     payload = json.dumps({
         'name': data.get('name'), 'phone': data.get('phone'),
         'email': data.get('email'), 'line_id': data.get('line_id'),
@@ -3144,6 +3151,154 @@ def checkout_page():
 def checkout_success():
     return render_template('public/checkout-success.html',
                            bank_info=BANK_TRANSFER_INFO)
+
+
+# ===== Membership: Google Sign-In + member area =====
+
+import memberdb
+memberdb.init()
+
+GOOGLE_CLIENT_ID = os.environ.get('GOOGLE_CLIENT_ID', '')
+GOOGLE_CLIENT_SECRET = os.environ.get('GOOGLE_CLIENT_SECRET', '')
+
+
+def current_member():
+    mid = session.get('member_id')
+    return memberdb.get_member(mid) if mid else None
+
+
+@app.context_processor
+def inject_member():
+    if request.path.startswith('/api'):
+        return {}
+    return {'member': current_member()}
+
+
+@app.route('/auth/google')
+def auth_google():
+    import secrets
+    from urllib.parse import urlencode
+    if not GOOGLE_CLIENT_ID:
+        return "Google 登入尚未設定", 503
+    state = secrets.token_urlsafe(24)
+    session['oauth_state'] = state
+    session['login_next'] = request.args.get('next') or request.referrer or '/'
+    params = urlencode({
+        'client_id': GOOGLE_CLIENT_ID,
+        'redirect_uri': request.url_root.rstrip('/') + '/auth/google/callback',
+        'response_type': 'code',
+        'scope': 'openid email profile',
+        'state': state,
+        'prompt': 'select_account',
+    })
+    return redirect('https://accounts.google.com/o/oauth2/v2/auth?' + params)
+
+
+@app.route('/auth/google/callback')
+def auth_google_callback():
+    import urllib.request
+    from urllib.parse import urlencode
+    if request.args.get('state') != session.pop('oauth_state', None):
+        return "登入驗證失敗，請重試", 400
+    code = request.args.get('code')
+    if not code:
+        return redirect('/')
+    body = urlencode({
+        'code': code,
+        'client_id': GOOGLE_CLIENT_ID,
+        'client_secret': GOOGLE_CLIENT_SECRET,
+        'redirect_uri': request.url_root.rstrip('/') + '/auth/google/callback',
+        'grant_type': 'authorization_code',
+    }).encode()
+    try:
+        with urllib.request.urlopen(urllib.request.Request(
+                'https://oauth2.googleapis.com/token', data=body), timeout=15) as resp:
+            tokens = json.loads(resp.read())
+        req = urllib.request.Request(
+            'https://openidconnect.googleapis.com/v1/userinfo',
+            headers={'Authorization': 'Bearer ' + tokens['access_token']})
+        with urllib.request.urlopen(req, timeout=15) as resp:
+            info = json.loads(resp.read())
+    except Exception as e:
+        print(f"google oauth failed: {e}")
+        return "Google 登入失敗，請重試", 502
+    member = memberdb.upsert_member(
+        info['sub'], info.get('email'), info.get('name'), info.get('picture'))
+    session.permanent = True
+    session['member_id'] = member['id']
+    return redirect(session.pop('login_next', '/') or '/')
+
+
+@app.route('/auth/logout')
+def auth_logout():
+    session.pop('member_id', None)
+    return redirect('/')
+
+
+@public_route('/account')
+def account_page():
+    member = current_member()
+    if not member:
+        return redirect('/auth/google?next=/account')
+    import posdb as _posdb
+    orders = _posdb.get_member_orders(member.get('email'), member.get('phone'))
+    wish_skus = memberdb.wishlist_skus(member['id'])
+    wish_products = []
+    for prod in _posdb.get_products():
+        if prod['id'] in wish_skus:
+            wish_products.append(prod)
+    notify = set(memberdb.notify_skus(member['id']))
+    return render_template('public/account.html', member=member,
+                           orders=orders, wish_products=wish_products,
+                           notify_skus=notify)
+
+
+@app.route('/api/wishlist', methods=['POST'])
+def api_wishlist():
+    member = current_member()
+    if not member:
+        return jsonify({'error': 'login', 'login_url': '/auth/google'}), 401
+    sku = (request.get_json(silent=True) or {}).get('sku', '').strip()
+    if not sku:
+        return jsonify({'error': 'bad sku'}), 400
+    added = memberdb.wishlist_toggle(member['id'], sku)
+    return jsonify({'success': True, 'added': added})
+
+
+@app.route('/api/notify', methods=['POST'])
+def api_notify():
+    member = current_member()
+    if not member:
+        return jsonify({'error': 'login', 'login_url': '/auth/google'}), 401
+    sku = (request.get_json(silent=True) or {}).get('sku', '').strip()
+    if not sku:
+        return jsonify({'error': 'bad sku'}), 400
+    added = memberdb.notify_toggle(member['id'], sku)
+    return jsonify({'success': True, 'added': added})
+
+
+@app.route('/api/account/report-transfer', methods=['POST'])
+def api_report_transfer():
+    member = current_member()
+    if not member:
+        return jsonify({'error': 'login'}), 401
+    data = request.get_json(silent=True) or {}
+    order_no = (data.get('order_no') or '').strip()
+    digits = (data.get('digits') or '').strip()
+    if not order_no or not digits.isdigit() or len(digits) != 5:
+        return jsonify({'success': False, 'error': '請輸入 5 位數字'}), 400
+    import posdb as _posdb
+    owned = any(o['order_no'] == order_no for o in
+                _posdb.get_member_orders(member.get('email'), member.get('phone')))
+    if not owned:
+        return jsonify({'success': False, 'error': '找不到這筆訂單'}), 404
+    try:
+        _pos_api('POST', f'/api/storefront/orders/{order_no}/payment',
+                 {'payment_status': '待確認', 'payment_note': f'後五碼 {digits}'})
+    except Exception as e:
+        print(f"report transfer failed: {e}")
+        return jsonify({'success': False, 'error': '回報失敗，請稍後再試'}), 502
+    return jsonify({'success': True})
 
 
 # ===== POS-DB data layer (realtime) =====

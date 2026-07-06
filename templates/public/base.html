@@ -56,7 +56,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Noto+Serif+TC:wght@600;700&display=swap">
-    <link rel="stylesheet" href="/static/css/public.css?v=26">
+    <link rel="stylesheet" href="/static/css/public.css?v=27">
     {% block extra_css %}{% endblock %}
 
     <!-- Structured Data -->
@@ -131,6 +131,16 @@
                         <a href="{{ url_prefix }}/blog">{{ t.blog }}</a>
                     </nav>
                     
+                </div>
+
+                <div class="member-chip">
+                    {% if member %}
+                    <a href="/account" title="會員中心">
+                        {% if member.picture %}<img src="{{ member.picture }}" alt="member" referrerpolicy="no-referrer">{% else %}👤{% endif %}
+                    </a>
+                    {% else %}
+                    <a href="/auth/google" class="login-link" title="使用 Google 登入">登入</a>
+                    {% endif %}
                 </div>
 
                 <!-- Cart Icon (visible on both desktop and mobile) -->

@@ -41,9 +41,9 @@
 
             <form class="checkout-form" id="checkout-form" onsubmit="return submitOrder(event)">
                 <h3>聯絡資料</h3>
-                <label>姓名 *<input type="text" name="name" required maxlength="50"></label>
-                <label>電話 *<input type="tel" name="phone" required maxlength="20" pattern="[0-9+\-() ]{8,}"></label>
-                <label>Email<input type="email" name="email" maxlength="100"></label>
+                <label>姓名 *<input type="text" name="name" required maxlength="50" value="{{ member.name if member else '' }}"></label>
+                <label>電話 *<input type="tel" name="phone" required maxlength="20" pattern="[0-9+\-() ]{8,}" value="{{ member.phone if member and member.phone else '' }}"></label>
+                <label>Email<input type="email" name="email" maxlength="100" value="{{ member.email if member else '' }}"></label>
                 <label>LINE ID<input type="text" name="line_id" maxlength="50"></label>
 
                 <h3>取貨方式</h3>

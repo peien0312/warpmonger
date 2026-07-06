@@ -3641,3 +3641,25 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
 .checkout-success .order-no { font-size: 1.2rem; }
 .pay-instructions { border: 1px solid #6E4B2A; border-radius: 4px; padding: 14px 16px; margin: 14px 0; background: #292019; }
 .pay-instructions h3 { color: #D9A441; font-size: 1rem; margin-bottom: 6px; }
+
+/* Member */
+.member-chip { display: flex; align-items: center; }
+.member-chip img { width: 34px; height: 34px; border-radius: 50%; border: 2px solid #6E4B2A; }
+.member-chip .login-link { color: #D9A441; text-decoration: none; font-size: 0.85rem; border: 1px solid #6E4B2A; padding: 4px 10px; border-radius: 3px; }
+.member-chip .login-link:hover { color: #E6DAC4; border-color: #D9A441; }
+.wish-btn { font-size: 1.3rem; padding: 6px 14px; border: 1px solid #6E4B2A; background: transparent; color: #D9A441; border-radius: 4px; cursor: pointer; }
+.notify-btn { margin-top: 10px; border: 1px solid #6E4B2A; background: transparent; color: #E6DAC4; padding: 8px 14px; border-radius: 4px; cursor: pointer; }
+.notify-btn:hover, .wish-btn:hover { border-color: #D9A441; }
+.account-page { max-width: 900px; margin: 30px auto; }
+.account-head { display: flex; align-items: center; gap: 16px; margin-bottom: 26px; }
+.account-avatar { width: 56px; height: 56px; border-radius: 50%; border: 2px solid #6E4B2A; }
+.account-meta { color: #948669; }
+.account-logout { margin-left: auto; }
+.account-order { border: 1px solid #3B2F24; border-radius: 5px; background: #292019; padding: 12px 16px; margin-bottom: 12px; }
+.account-order-head { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 6px; }
+.account-date { color: #948669; margin-left: auto; }
+.account-order-items { list-style: none; padding: 0; margin: 0; font-size: 0.9rem; }
+.account-order-items li { padding: 2px 0; }
+.transfer-report { margin-top: 8px; display: flex; gap: 8px; align-items: center; }
+.digits-input { width: 110px; padding: 5px 8px; background: #241C15; border: 1px solid #3B2F24; border-radius: 4px; color: #E6DAC4; }
+.account-wishlist .product-card { padding-bottom: 8px; }

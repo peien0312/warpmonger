@@ -1,0 +1,101 @@
+{% extends "public/base.html" %}
+
+{% block title %}會員中心 | ABBEY'S TOYS 阿北玩具堂{% endblock %}
+
+{% block content %}
+<div class="container account-page">
+    <div class="account-head">
+        {% if member.picture %}<img src="{{ member.picture }}" alt="" class="account-avatar" referrerpolicy="no-referrer">{% endif %}
+        <div>
+            <h1 class="page-title">{{ member.name or '會員' }}</h1>
+            <p class="account-meta">{{ member.email }}{% if member.phone %}｜{{ member.phone }}{% endif %}</p>
+        </div>
+        <a href="/auth/logout" class="btn btn-secondary btn-sm account-logout">登出</a>
+    </div>
+
+    <h2 class="section-title">我的訂單</h2>
+    {% if not orders %}
+    <p class="text-muted">還沒有訂單。{% if not member.phone %}<small>（下單時填的電話或 email 與登入帳號相同，訂單就會出現在這裡）</small>{% endif %}</p>
+    {% endif %}
+    {% for o in orders %}
+    <div class="account-order">
+        <div class="account-order-head">
+            <strong>{{ o.order_no }}</strong>
+            <span class="badge {{ 'badge-instock' if o.status == '已轉單' else 'badge-inquiry' if o.status == '已取消' else 'badge-incoming' }}">{{ o.status }}</span>
+            <span class="badge {{ 'badge-instock' if o.payment_status == '已付款' else 'badge-orderable' }}">{{ o.payment_status }}</span>
+            {% for st in o.fulfillment %}<span class="badge badge-preorder">{{ st }}</span>{% endfor %}
+            <small class="account-date">{{ (o.created_at or '')[:16] }}</small>
+        </div>
+        <ul class="account-order-items">
+            {% for it in o["items"] %}
+            <li>
+                <a href="/products/{{ it.category_slug }}/{{ it.slug }}">{{ it.zhtw_name or it.en_name }}</a>
+                x{{ it.quantity }}
+                {% if it.unit_price_twd %}— NT${{ (it.unit_price_twd * it.quantity)|ntd }}{% else %}— 詢價{% endif %}
+            </li>
+            {% endfor %}
+            {% if o.shipping_fee_twd %}<li>運費 NT${{ o.shipping_fee_twd|ntd }}</li>{% endif %}
+        </ul>
+        {% if o.payment_method == 'transfer' and o.payment_status in ('待付款', '待確認') %}
+        <div class="transfer-report" data-order="{{ o.order_no }}">
+            {% if o.payment_status == '待確認' %}
+            <small>已回報後五碼（{{ o.payment_note }}），等待確認中。</small>
+            {% else %}
+            <input type="text" maxlength="5" inputmode="numeric" placeholder="轉帳後五碼" class="digits-input">
+            <button class="btn btn-sm btn-primary" onclick="reportTransfer(this)">回報已轉帳</button>
+            <small class="report-msg"></small>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+    {% endfor %}
+
+    <h2 class="section-title">願望清單</h2>
+    {% if not wish_products %}
+    <p class="text-muted">還沒有收藏 — 商品頁點 ♡ 加入。</p>
+    {% else %}
+    <div class="products-grid account-wishlist">
+        {% for product in wish_products %}
+        <div class="product-card">
+            <a href="/products/{{ product.category }}/{{ product.slug }}">
+                <div class="product-image-container">
+                    {% if product.images %}
+                    <img src="/static/images/products/{{ product.category }}/{{ product.slug }}/thumb_{{ product.images[0].rsplit('.', 1)[0] }}.jpg" loading="lazy" alt="{{ product.zhtw_name }}">
+                    {% endif %}
+                </div>
+                <h3>{{ product.zhtw_name or product.title }}</h3>
+                {% if product.final_price %}<p class="price">NT${{ product.final_price|ntd }}</p>{% endif %}
+            </a>
+            <button class="btn btn-sm btn-secondary" onclick="toggleWish('{{ product.id }}', this)">移除</button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if notify_skus %}
+    <h2 class="section-title">到貨通知</h2>
+    <p class="text-muted">已訂閱 {{ notify_skus|length }} 件商品，到貨時會寄信通知 {{ member.email }}。</p>
+    {% endif %}
+</div>
+<script>
+async function reportTransfer(btn) {
+    const box = btn.closest('.transfer-report');
+    const digits = box.querySelector('.digits-input').value.trim();
+    const msg = box.querySelector('.report-msg');
+    const res = await fetch('/api/account/report-transfer', {
+        method: 'POST', headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({order_no: box.dataset.order, digits: digits}),
+    });
+    const data = await res.json();
+    if (data.success) { box.innerHTML = '<small>已回報，等待確認中，謝謝！</small>'; }
+    else { msg.textContent = data.error || '回報失敗'; }
+}
+async function toggleWish(sku, btn) {
+    const res = await fetch('/api/wishlist', {
+        method: 'POST', headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({sku: sku}),
+    });
+    if (res.ok) btn.closest('.product-card').remove();
+}
+</script>
+{% endblock %}

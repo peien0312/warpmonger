@@ -235,7 +235,14 @@
                         onclick="addToCart()">
                     {% if product.availability == 'inquiry' %}加入詢價清單{% else %}{{ t.add_to_list }}{% endif %}
                 </button>
+                <button type="button" class="btn btn-outline wish-btn" title="加入願望清單"
+                        onclick="toggleWishDetail('{{ product.id }}', this)">♡</button>
             </div>
+            {% if product.availability not in ('in_stock',) %}
+            <button type="button" class="btn btn-outline notify-btn" onclick="toggleNotify('{{ product.id }}', this)">
+                🔔 到貨通知我
+            </button>
+            {% endif %}
 
             <div class="product-description">
                 {{ product.description_html|safe }}
@@ -573,6 +580,29 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 });
+
+async function _memberApi(url, sku, btn, onAdded, onRemoved) {
+    const res = await fetch(url, {
+        method: 'POST', headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({sku: sku}),
+    });
+    if (res.status === 401) {
+        window.location.href = '/auth/google?next=' + encodeURIComponent(location.pathname);
+        return;
+    }
+    const data = await res.json();
+    if (data.success) (data.added ? onAdded : onRemoved)(btn);
+}
+function toggleWishDetail(sku, btn) {
+    _memberApi('/api/wishlist', sku, btn,
+        b => { b.textContent = '♥'; b.title = '已收藏'; },
+        b => { b.textContent = '♡'; b.title = '加入願望清單'; });
+}
+function toggleNotify(sku, btn) {
+    _memberApi('/api/notify', sku, btn,
+        b => { b.textContent = '🔔 已訂閱到貨通知'; },
+        b => { b.textContent = '🔔 到貨通知我'; });
+}
 </script>
 <script src="/static/js/codex.js"></script>
 {% endblock %}

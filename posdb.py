@@ -348,3 +348,40 @@ def get_page(slug):
         if r["slug"] == slug:
             return {"title": r["title"], "content": r["body"] or ""}
     return None
+
+
+# ----- member order history (web orders live in the POS DB, read-only) -----
+
+def get_member_orders(email, phone):
+    """Web orders matching a member's email or phone, newest first, with
+    items and the fulfillment status of any converted internal orders."""
+    clauses, params = [], []
+    if email:
+        clauses.append("email = ?")
+        params.append(email)
+    if phone:
+        clauses.append("phone = ?")
+        params.append(phone)
+    if not clauses:
+        return []
+
+    conn = _conn()
+    orders = [dict(r) for r in conn.execute(
+        f"SELECT * FROM web_orders WHERE {' OR '.join(clauses)} ORDER BY id DESC LIMIT 50",
+        params)]
+    for o in orders:
+        o["items"] = [dict(r) for r in conn.execute("""
+            SELECT wi.quantity, wi.unit_price_twd, wi.availability,
+                   p.zhtw_name, p.en_name, p.sku, p.slug, p.category_slug
+            FROM web_order_items wi JOIN products p ON p.id = wi.product_id
+            WHERE wi.web_order_id = ?
+        """, (o["id"],))]
+        o["fulfillment"] = []
+        for key in ("order_id_now", "order_id_later"):
+            if o.get(key):
+                row = conn.execute(
+                    "SELECT status FROM orders WHERE id = ?", (o[key],)).fetchone()
+                if row:
+                    o["fulfillment"].append(row["status"])
+    conn.close()
+    return orders
