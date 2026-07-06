@@ -1672,6 +1672,7 @@ def send_shopping_list_email(items, user_email, user_name, user_message):
         msg_shop = MIMEMultipart('alternative')
         msg_shop['Subject'] = f'Shopping List Inquiry from {user_name}'
         msg_shop['From'] = smtp_from
+        msg_shop['Reply-To'] = os.environ.get('REPLY_TO', smtp_from)
         msg_shop['To'] = shop_email
         msg_shop['Reply-To'] = user_email
         msg_shop.attach(MIMEText(text_content, 'plain'))
@@ -1682,6 +1683,7 @@ def send_shopping_list_email(items, user_email, user_name, user_message):
         msg_user = MIMEMultipart('alternative')
         msg_user['Subject'] = 'Your Warpmonger Shopping List - We received your inquiry!'
         msg_user['From'] = smtp_from
+        msg_user['Reply-To'] = os.environ.get('REPLY_TO', smtp_from)
         msg_user['To'] = user_email
 
         user_text = f"Hi {user_name},\n\nThank you for your inquiry! We have received your shopping list and will get back to you soon.\n\n" + text_content
@@ -3152,6 +3154,7 @@ def _send_order_emails(order_no, data, lines, total):
             msg['Subject'] = f"[阿北玩具堂] 訂單確認 {order_no}"
             msg['From'] = smtp_from
             msg['To'] = to
+            msg['Reply-To'] = os.environ.get('REPLY_TO', smtp_from)
             server.sendmail(smtp_from, to, msg.as_string())
 
 
@@ -3451,6 +3454,7 @@ def api_internal_notify():
                         msg['Subject'] = '[阿北玩具堂] 訂單通知'
                         msg['From'] = sender
                         msg['To'] = target
+                        msg['Reply-To'] = os.environ.get('REPLY_TO', sender)
                         sv.sendmail(sender, target, msg.as_string())
                     sent.append('email')
             except Exception as e:

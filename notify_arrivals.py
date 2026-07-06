@@ -63,6 +63,7 @@ def main():
             msg["Subject"] = f"[阿北玩具堂] 到貨通知：{title}"
             msg["From"] = smtp_from
             msg["To"] = email
+            msg["Reply-To"] = os.environ.get("REPLY_TO", smtp_from)
             server.sendmail(smtp_from, email, msg.as_string())
             memberdb.mark_notified(req_id)
             sent += 1
