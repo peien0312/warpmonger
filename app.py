@@ -3208,35 +3208,44 @@ def _send_order_emails(order_no, data, lines, total):
             server.sendmail(smtp_from, to, msg.as_string())
 
 
-QUIZ_FACTIONS = {
-    'ultramarines': {'name': '極限戰士', 'codex': 'ultramarines'},
-    'blood-angels': {'name': '血天使', 'codex': 'blood-angels'},
-    'space-wolves': {'name': '太空野狼', 'codex': 'space-wolves'},
-    'black-legion': {'name': '黑色軍團', 'codex': 'black-legion'},
-    'death-guard': {'name': '死亡守衛', 'codex': 'death-guard'},
-    'adepta-sororitas': {'name': '修女會', 'codex': 'adepta-sororitas'},
-    'adeptus-mechanicus': {'name': '機械神教', 'codex': 'adeptus-mechanicus'},
-    'alpha-legion': {'name': '阿爾法軍團', 'codex': 'alpha-legion'},
+# 16 results: 代表人物 + 軍團, keyed by 4-axis combo
+# axes: I忠誠/X反骨 · H熱血/C沉穩 · F信念/R理性 · D直率/S深沉
+QUIZ_RESULTS = {
+    'ICRD': {'character': '羅伯特·基里曼', 'legion': '極限戰士', 'codex': 'roboute-guilliman', 'term': '極限戰士'},
+    'ICRS': {'character': '貝利薩留·考爾', 'legion': '機械神教', 'codex': 'belisarius-cawl', 'term': None},
+    'ICFD': {'character': '羅格·多恩', 'legion': '帝國之拳', 'codex': 'rogal-dorn', 'term': '帝國之拳'},
+    'ICFS': {'character': '萊恩·艾爾莊森', 'legion': '暗黑天使', 'codex': 'lion-eljonson', 'term': '暗黑天使'},
+    'IHFD': {'character': '聖吉爾斯', 'legion': '血天使', 'codex': 'sanguinius', 'term': '血天使'},
+    'IHFS': {'character': '賈曼·汗', 'legion': '白疤', 'codex': None, 'term': '白疤'},
+    'IHRD': {'character': '里曼·魯斯', 'legion': '太空野狼', 'codex': 'leman-russ', 'term': '太空野狼'},
+    'IHRS': {'character': '康斯坦丁·瓦爾多', 'legion': '帝皇禁軍', 'codex': 'constantin-valdor', 'term': '禁軍'},
+    'XCRD': {'character': '佩圖拉博', 'legion': '鋼鐵勇士', 'codex': 'perturabo', 'term': '鋼鐵勇士'},
+    'XCRS': {'character': '阿爾法留斯', 'legion': '阿爾法軍團', 'codex': 'alpharius', 'term': '阿爾法軍團'},
+    'XCFD': {'character': '莫塔里安', 'legion': '死亡守衛', 'codex': 'mortarion', 'term': '死亡守衛'},
+    'XCFS': {'character': '馬格努斯', 'legion': '千子', 'codex': 'magnus', 'term': '千子'},
+    'XHFD': {'character': '安格隆', 'legion': '吞世者', 'codex': None, 'term': '吞世者'},
+    'XHFS': {'character': '康拉德·科茲', 'legion': '午夜領主', 'codex': 'night-lords', 'term': '午夜領主'},
+    'XHRD': {'character': '歐克大老大', 'legion': '歐克', 'codex': 'orks', 'term': '歐克'},
+    'XHRS': {'character': '荷魯斯', 'legion': '荷魯斯之子', 'codex': 'horus', 'term': '荷魯斯之子'},
 }
 
 
 @public_route('/quiz')
 def quiz_page():
-    """陣營心理測驗 — links each result to codex + products.
-    Product link prefers the faction tag once products are tagged,
-    falling back to a name search until then."""
+    """陣營心理測驗 — result links to codex + that legion's products.
+    Product link prefers the legion tag once products are tagged."""
     import posdb as _posdb
     all_tags = set()
     for prod in _posdb.get_products():
         all_tags.update(prod.get('tags') or [])
-    factions = {}
-    for key, f in QUIZ_FACTIONS.items():
-        if f['name'] in all_tags:
-            link = f"/products?tag={f['name']}"
-        else:
-            link = f"/products?search={f['name']}"
-        factions[key] = {**f, 'products_url': link}
-    return render_template('public/quiz.html', factions=factions)
+    results = {}
+    for key, r in QUIZ_RESULTS.items():
+        url = None
+        if r['term']:
+            url = (f"/products?tag={r['term']}" if r['term'] in all_tags
+                   else f"/products?search={r['term']}")
+        results[key] = {**r, 'products_url': url}
+    return render_template('public/quiz.html', results=results)
 
 
 @public_route('/checkout')

@@ -1,23 +1,24 @@
 {% extends "public/base.html" %}
 
-{% block title %}戰鎚陣營測驗｜你是哪個陣營？ | ABBEY'S TOYS 阿北玩具堂{% endblock %}
+{% block title %}戰鎚陣營測驗｜你是哪位原體？ | ABBEY'S TOYS 阿北玩具堂{% endblock %}
 
-{% block meta_description %}12 題測出你屬於哪個戰鎚陣營 — 極限戰士、血天使、太空野狼、黑色軍團、死亡守衛、修女會、機械神教還是阿爾法軍團？測完直接逛該陣營的公仔。{% endblock %}
+{% block meta_description %}16 題四維度測驗，測出你最像哪位戰鎚原體 — 基里曼、聖吉爾斯、魯斯、馬格努斯、荷魯斯…共 16 種結果，測完直接逛該軍團的公仔。{% endblock %}
 
 {% block content %}
 <div class="container quiz-page">
     <!-- intro -->
     <div id="quiz-intro" class="quiz-panel">
         <p class="hero-grimdark">In the grim darkness of the far future...</p>
-        <h1 class="page-title">你是哪個戰鎚陣營？</h1>
-        <p>12 題，測出你在 41 個千年裡會為誰而戰。<br>測完可以直接逛該陣營的公仔。</p>
+        <h1 class="page-title">你是哪位原體？</h1>
+        <p>16 題、四個維度：忠誠—反骨、熱血—沉穩、信念—理性、直率—深沉。<br>
+           16 種結果，測出你在 41 個千年裡的位置——然後逛逛你的軍團。</p>
         <button class="btn btn-primary btn-lg" onclick="startQuiz()">開始測驗</button>
     </div>
 
     <!-- question -->
     <div id="quiz-question" class="quiz-panel" style="display:none">
         <div class="quiz-progress"><div id="quiz-bar"></div></div>
-        <p class="quiz-count"><span id="quiz-num">1</span> / 12</p>
+        <p class="quiz-count"><span id="quiz-num">1</span> / 16</p>
         <h2 id="quiz-q"></h2>
         <div id="quiz-options" class="quiz-options"></div>
     </div>
@@ -26,10 +27,13 @@
     <div id="quiz-result" class="quiz-panel" style="display:none">
         <p class="hero-grimdark">測驗結果</p>
         <h1 class="page-title" id="result-name"></h1>
+        <p class="quiz-legion" id="result-legion"></p>
+        <div class="quiz-chips" id="result-chips"></div>
+        <p id="result-quote" class="quiz-quote"></p>
         <p id="result-desc" class="quiz-desc"></p>
         <div class="quiz-actions">
-            <a id="result-products" class="btn btn-primary btn-lg" href="#">逛逛這個陣營的公仔</a>
-            <a id="result-codex" class="btn btn-secondary" href="#">閱讀 CODEX 背景</a>
+            <a id="result-products" class="btn btn-primary btn-lg" href="#" style="display:none"></a>
+            <a id="result-codex" class="btn btn-secondary" href="#" style="display:none">閱讀 CODEX 背景</a>
         </div>
         <div class="quiz-share">
             <button class="btn btn-secondary btn-sm" onclick="shareResult()">複製結果連結</button>
@@ -42,97 +46,152 @@
 
 {% block extra_js %}
 <script>
-const FACTIONS = {{ factions|tojson }};
+const RESULTS = {{ results|tojson }};
 
-const DESCS = {
-    'ultramarines': '你是天生的秩序核心：先讀說明書、先做計畫，然後把事情一項一項做完。朋友覺得你可靠到近乎無聊——直到出事的時候，所有人都在等你開口。你的收藏大概也排得像閱兵一樣整齊。',
-    'blood-angels': '你優雅、熱烈，做什麼都全力以赴，偶爾用力過猛。你追求把事情做得漂亮，而不只是做完；情緒來的時候像潮水，但那正是你的魅力。你的櫃子裡一定有一隻「捨不得拆但超想拆」的公仔。',
-    'space-wolves': '你重情重義、討厭拐彎抹角，朋友有難你第一個到場。規則？你有自己的一套。聚會裡最大聲的是你，扛最多的是你，開箱影片拍到一半跑去把玩的也是你。',
-    'black-legion': '你不相信現成的答案，權威講的話你都要自己再驗一次。有野心、有主見、敢打掉重練——你的改造與重塗作品大概比原廠還多。眾神低語：這樣的人才留不住。',
-    'death-guard': '你的耐受度高到嚇人：計畫延期、包裹擠壓、梅雨季受潮，你聳聳肩繼續前進。你不快，但你從不停下。桌面看起來「有生態系」，但你真的什麼都找得到。',
-    'adepta-sororitas': '你有信念，而且言行一致——答應的事燒起來也會做完。你眼裡容不下敷衍，標準高得讓人敬畏。收藏對你不只是興趣，是儀式：上架、除塵、燈光，一樣都不能少。',
-    'adeptus-mechanicus': '你相信數據、流程與備份的備份。東西壞了你不難過，你興奮——因為可以拆開看。你的收藏有編號、有清單、可能還有試算表。歐姆彌賽亞保佑你的硬碟。',
-    'alpha-legion': '沒有人真的知道你在想什麼，包括你自己（笑）。你擅長觀察、佈局、在最好的時機出手；團體裡你話不多，但事情常常照你的方向走。你買了什麼？我是阿爾法留斯。',
+const AXIS_LABEL = {I: '忠誠', X: '反骨', H: '熱血', C: '沉穩', F: '信念', R: '理性', D: '直率', S: '深沉'};
+
+// original epigraphs + descriptions (our own writing)
+const FLAVOR = {
+    'ICRD': ['「先有制度，才有勝利。」',
+        '你是天生的統籌者：讀說明書、訂計畫、寫章程，然後真的照著做。別人覺得你古板，直到專案燒起來時發現只有你的部分如期完工。你的收藏排列大概精確到公分。'],
+    'ICRS': ['「血肉苦弱，機械飛升——順帶一提，我有備份。」',
+        '你冷靜、縝密，永遠多想三步，資料夾裡是資料夾的資料夾。東西壞了你反而興奮，因為終於有藉口拆開研究。你的收藏有清單、有編號，可能還有版本控制。'],
+    'ICFD': ['「我答應的牆，一塊磚都不會少。」',
+        '你把責任當呼吸，答應了就做到，過程中還會順手把別人漏掉的補完。你不說漂亮話，所以你說的每句話都有人信。缺點？你對自己和別人一樣嚴。'],
+    'ICFS': ['「我知道的比我說的多。」',
+        '你忠誠可靠，但心裡永遠留著一層別人進不去的房間。你習慣自己消化問題、自己收拾殘局，等大家發現時事情已經處理完了。你的秘密收藏清單，大概連家人都沒看過。'],
+    'IHFD': ['「既然要做，就做到值得被記住。」',
+        '你有一種罕見的組合：熱烈而優雅。你全力以赴，也在乎姿態好不好看；朋友被你鼓舞，卻很少看見你深夜的自我懷疑。你挑公仔的眼光極高——醜的東西進不了你的櫃子。'],
+    'IHFS': ['「等你回頭，我已經在下一個地方了。」',
+        '你來去如風：說走就走、說買就買，行程永遠比朋友的想像快半拍。你不愛被綁住，也不多解釋自己，但該出現的時刻從沒缺席。你的開箱速度大概是全群組最快的。'],
+    'IHRD': ['「講什麼戰術，衝就對了——但我贏得比你想的多。」',
+        '你直來直往、嗓門最大、笑聲最響，朋友有事你第一個到。大家以為你只憑衝勁，其實你心裡精得很，只是懶得解釋。你的收藏不多講究，但每一隻都陪你「實戰」過。'],
+    'IHRS': ['「我一直都在，只是你沒看見。」',
+        '你話少、標準高、觀察力驚人，默默守著自己在乎的人事物。你不需要掌聲，但你在的地方就是不會出事。你的櫃子可能不大，但每一隻都是精挑細選的完美品相。'],
+    'XCRD': ['「我的計算沒有錯，錯的是分配。」',
+        '你能力極強、做事極穩，但你受夠了功勞被拿走。你不吵不鬧，只是默默記著帳。給你一個公平的舞台，你能蓋出誰都拆不掉的東西。你的收藏大概按結構強度排列（開玩笑的……嗎？）。'],
+    'XCRS': ['「我是阿爾法留斯。」',
+        '沒有人真的知道你在想什麼——這正是你要的效果。你擅長觀察、佈局、多線並行，事情總在不知不覺間照你的劇本走。你買了什麼、藏了什麼、值多少，永遠是謎。'],
+    'XCFD': ['「慢，不代表停。」',
+        '你的耐受度高得驚人：延期、跳票、梅雨、漲價，你聳聳肩繼續前進。你認定的事就會走到底，用你自己的步調。桌面看起來「有生態系」，但你什麼都找得到，什麼都丟不掉。'],
+    'XCFS': ['「知識沒有錯，錯的是害怕知識的人。」',
+        '你聰明、好奇、藏書量驚人，永遠在研究別人沒聽過的東西。你堅信理解就是力量，偶爾因此鑽進別人勸不出來的深坑。你的收藏附帶考據筆記，冷知識存量全群組第一。'],
+    'XHFD': ['「先動手，後悔的事交給明天。」',
+        '你的能量條永遠是滿的：想到就做、看到就買、憤怒與熱情都不打折。你討厭虛偽勝過討厭敵人，朋友又怕你又愛你。剁手速度快過大腦，但你從不後悔——大概。'],
+    'XHFS': ['「我只是讓他們看見自己的樣子。」',
+        '你看得太清楚了——人性的、體制的、藏在客套話底下的。你用黑色幽默武裝自己，嚇跑不值得的人。真正被你放進心裡的人，會得到你出乎意料的溫柔。'],
+    'XHRD': ['「WAAAGH！（翻譯：衝啊！）」',
+        '你的人生哲學簡單而強大：更大、更快、更好玩。想太多是別人的事，你負責把氣氛拉滿。神奇的是——你相信會成的事，常常真的就成了。紅色的跑比較快，你懂的。'],
+    'XHRS': ['「王座很好，但為什麼坐的人不是我？」',
+        '你有魅力、有野心、有讓人願意跟隨的本事。你聽得進所有人說話，然後做自己早就決定的事。站在光裡你是完美的領袖——只是小心深夜裡那些太好聽的耳語。'],
 };
 
-// 12 original questions; each option: [text, primary faction, secondary faction]
+// 16 original questions — 4 per axis; each option votes one pole
 const QUESTIONS = [
-    ['團體要辦活動，你通常是：', [
-        ['列清單排時程的那個', 'ultramarines', 'adeptus-mechanicus'],
-        ['炒熱氣氛衝第一的那個', 'blood-angels', 'space-wolves'],
-        ['默默把雜事都做完的那個', 'adepta-sororitas', 'death-guard'],
-        ['不知道為什麼最後照你的意思辦的那個', 'alpha-legion', 'black-legion'],
-    ]],
-    ['你的工作桌現在長怎樣？', [
-        ['分類收納，貼好標籤', 'adeptus-mechanicus', 'ultramarines'],
-        ['亂，但每樣東西我三秒找到', 'space-wolves', 'blood-angels'],
-        ['有一區已經自成生態', 'death-guard', 'black-legion'],
-        ['乾淨到你懷疑我沒在用', 'alpha-legion', 'adepta-sororitas'],
-    ]],
-    ['新公仔到貨，你的第一個動作：', [
-        ['先拍照記錄，登記進收藏清單', 'adeptus-mechanicus', 'ultramarines'],
-        ['當場開箱，立刻擺姿勢', 'blood-angels', 'space-wolves'],
-        ['端正供上櫃，膜都不撕', 'adepta-sororitas', 'alpha-legion'],
-        ['已經在想要怎麼改造重塗', 'black-legion', 'death-guard'],
-    ]],
+    // 軸一：I 忠誠 vs X 反骨
     ['對於「規則」，你的真實想法是：', [
-        ['規則存在必有它的道理', 'ultramarines', 'adepta-sororitas'],
-        ['規則是用來保護不會思考的人', 'black-legion', 'alpha-legion'],
-        ['我有我自己的規矩', 'space-wolves', 'death-guard'],
-        ['規則很好，漏洞更好', 'alpha-legion', 'adeptus-mechanicus'],
+        ['規則存在必有它的道理', 'I'],
+        ['規則是給還沒想清楚的人用的', 'X'],
+        ['尊重，但我保留解釋權', 'X'],
+        ['沒有規則我反而不安', 'I'],
     ]],
-    ['計畫在最後一刻整個翻車，你會：', [
-        ['啟動備案 B，我早就準備好了', 'ultramarines', 'alpha-legion'],
-        ['火大三分鐘，然後更用力做', 'blood-angels', 'space-wolves'],
-        ['聳肩，反正天塌下來也是慢慢塌', 'death-guard', 'black-legion'],
-        ['翻車是最好的重構機會', 'adeptus-mechanicus', 'black-legion'],
+    ['主管做了一個你不認同的決定：', [
+        ['先執行，再找機會反映', 'I'],
+        ['當場提出質疑', 'X'],
+        ['表面配合，實際照我的方式做', 'X'],
+        ['相信團隊的判斷，全力配合', 'I'],
     ]],
-    ['朋友對你的評價最可能是：', [
-        ['「問他就對了，他什麼都有 SOP」', 'ultramarines', 'adeptus-mechanicus'],
-        ['「跟他出去玩絕對不無聊」', 'space-wolves', 'blood-angels'],
-        ['「他答應的事沒有一次沒做到」', 'adepta-sororitas', 'ultramarines'],
-        ['「老實說我不太確定他的工作是什麼」', 'alpha-legion', 'black-legion'],
+    ['你理想中的組織是：', [
+        ['分工清楚、賞罰分明', 'I'],
+        ['不要管我，看結果就好', 'X'],
+        ['有共同的使命感', 'I'],
+        ['扁平、隨時可以推翻重來', 'X'],
     ]],
-    ['你最無法忍受的是：', [
-        ['混亂沒有章法', 'ultramarines', 'adeptus-mechanicus'],
-        ['冷血沒有溫度', 'blood-angels', 'adepta-sororitas'],
-        ['背叛自己人', 'space-wolves', 'adepta-sororitas'],
-        ['被別人指揮', 'black-legion', 'alpha-legion'],
+    ['「傳統」對你來說是：', [
+        ['值得守護的根基', 'I'],
+        ['值得挑戰的假設', 'X'],
+        ['參考用，不必照單全收', 'X'],
+        ['集體智慧的結晶', 'I'],
+    ]],
+    // 軸二：H 熱血 vs C 沉穩
+    ['新公仔到貨，你的第一個動作：', [
+        ['當場開箱，立刻擺姿勢', 'H'],
+        ['先拍照建檔，週末再慢慢開', 'C'],
+        ['發限動昭告天下', 'H'],
+        ['端正入櫃，擇日開箱', 'C'],
+    ]],
+    ['計畫在最後一刻整個翻車：', [
+        ['火大三分鐘，然後更用力做', 'H'],
+        ['啟動備案 B，我早就準備好了', 'C'],
+        ['當下就地重新發明一個方案', 'H'],
+        ['先睡一覺，明天再說', 'C'],
     ]],
     ['半夜十二點，你多半在：', [
-        ['明天的待辦已經列好，準時就寢', 'ultramarines', 'adepta-sororitas'],
-        ['「再看一集」看到天亮', 'blood-angels', 'space-wolves'],
-        ['研究某個非常冷門的知識', 'adeptus-mechanicus', 'alpha-legion'],
-        ['醒著，但沒人知道你在幹嘛', 'alpha-legion', 'death-guard'],
+        ['「再看一集」看到天亮', 'H'],
+        ['明天的待辦已列好，準時就寢', 'C'],
+        ['臨時起意收拾行李或購物車', 'H'],
+        ['做每天都做的那些事，像儀式', 'C'],
     ]],
-    ['要選一個超能力：', [
-        ['過目不忘的完美記憶', 'adeptus-mechanicus', 'ultramarines'],
-        ['永不熄滅的體力與熱情', 'blood-angels', 'space-wolves'],
-        ['百毒不侵，什麼都吃不壞', 'death-guard', 'space-wolves'],
-        ['讓所有人相信你說的話', 'alpha-legion', 'black-legion'],
+    ['排隊兩小時，店家說賣完了：', [
+        ['當場理論，據理力爭', 'H'],
+        ['冷靜登記下一批到貨通知', 'C'],
+        ['立刻衝下一家碰運氣', 'H'],
+        ['沒關係，該是我的跑不掉', 'C'],
     ]],
-    ['排隊排了兩小時，店家說賣完了：', [
-        ['冷靜詢問下一批到貨時間並登記', 'ultramarines', 'adeptus-mechanicus'],
-        ['當場理論，據理力爭', 'blood-angels', 'black-legion'],
-        ['早就料到，我同時排了兩個管道', 'alpha-legion', 'adeptus-mechanicus'],
-        ['沒關係，我下週再來排', 'death-guard', 'adepta-sororitas'],
+    // 軸三：F 信念 vs R 理性
+    ['做重大決定時，你最終聽誰的：', [
+        ['數據、評測、Excel', 'R'],
+        ['心裡那個聲音', 'F'],
+        ['利弊清單，權重加總', 'R'],
+        ['對的事就該做，算什麼帳', 'F'],
     ]],
     ['你買公仔最主要的理由是：', [
-        ['系列要收齊，缺一格睡不著', 'ultramarines', 'adeptus-mechanicus'],
-        ['帥。就是帥。', 'blood-angels', 'space-wolves'],
-        ['這隻的背景故事我可以講一小時', 'adepta-sororitas', 'black-legion'],
-        ['等它絕版增值（然後捨不得賣）', 'alpha-legion', 'death-guard'],
+        ['稀有度、保值性、系列完整度', 'R'],
+        ['這隻的故事我可以講一小時', 'F'],
+        ['規格、可動性、做工細節', 'R'],
+        ['看到它的瞬間就知道是它了', 'F'],
     ]],
-    ['最後：帝皇需要你，你會說——', [
-        ['「吾皇萬歲，任務是什麼？」', 'adepta-sororitas', 'ultramarines'],
-        ['「兄弟們，跟我上！」', 'space-wolves', 'blood-angels'],
-        ['「條件談一下。」', 'black-legion', 'alpha-legion'],
-        ['「我已經在裡面了。」', 'alpha-legion', 'adeptus-mechanicus'],
+    ['朋友向你傾訴煩惱，你會：', [
+        ['幫他把問題拆解成待辦清單', 'R'],
+        ['先站在他那邊，對錯以後再說', 'F'],
+        ['問清楚事實，找出癥結', 'R'],
+        ['陪著他，很多事不用馬上解決', 'F'],
+    ]],
+    ['你比較相信：', [
+        ['可以驗證的東西', 'R'],
+        ['值得相信的東西', 'F'],
+        ['一再重現的規律', 'R'],
+        ['一路走來的直覺', 'F'],
+    ]],
+    // 軸四：D 直率 vs S 深沉
+    ['團體要辦活動，你通常是：', [
+        ['意見最多、聲音最大的那個', 'D'],
+        ['不知為何最後照你意思辦的那個', 'S'],
+        ['直接認領最重的工作', 'D'],
+        ['觀察一輪之後才出手', 'S'],
+    ]],
+    ['和人起衝突時，你會：', [
+        ['當面講開，就事論事', 'D'],
+        ['先退一步，把局看清楚', 'S'],
+        ['有話直說，講完就過了', 'D'],
+        ['記下來。不急。', 'S'],
+    ]],
+    ['朋友對你的評價最可能是：', [
+        ['「他想什麼全寫在臉上」', 'D'],
+        ['「老實說我猜不透他」', 'S'],
+        ['「有他在就有話直說的空間」', 'D'],
+        ['「事後才發現都是他安排的」', 'S'],
+    ]],
+    ['你的社群帳號：', [
+        ['想到什麼發什麼', 'D'],
+        ['潛水十年，按讚都很少', 'S'],
+        ['開箱心得從不缺席', 'D'],
+        ['有帳號。可能不只一個。', 'S'],
     ]],
 ];
 
 let qi = 0;
-const scores = {};
+const votes = {I: 0, X: 0, H: 0, C: 0, F: 0, R: 0, D: 0, S: 0};
 
 function startQuiz() {
     document.getElementById('quiz-intro').style.display = 'none';
@@ -148,32 +207,48 @@ function showQuestion() {
         `<button class="quiz-option" onclick="pick(${i})">${o[0]}</button>`).join('');
 }
 function pick(i) {
-    const [, opts] = QUESTIONS[qi];
-    const [, primary, secondary] = opts[i];
-    scores[primary] = (scores[primary] || 0) + 2;
-    scores[secondary] = (scores[secondary] || 0) + 1;
+    votes[QUESTIONS[qi][1][i][1]]++;
     qi++;
     if (qi < QUESTIONS.length) showQuestion();
-    else showResult(Object.entries(scores).sort((a, b) => b[1] - a[1])[0][0]);
+    else {
+        const key = (votes.I >= votes.X ? 'I' : 'X')
+                  + (votes.H >= votes.C ? 'H' : 'C')
+                  + (votes.F >= votes.R ? 'F' : 'R')
+                  + (votes.D >= votes.S ? 'D' : 'S');
+        showResult(key);
+    }
 }
 function showResult(key) {
-    const f = FACTIONS[key];
-    if (!f) return;
+    const r = RESULTS[key];
+    if (!r) return;
     document.getElementById('quiz-intro').style.display = 'none';
     document.getElementById('quiz-question').style.display = 'none';
     document.getElementById('quiz-result').style.display = '';
-    document.getElementById('result-name').textContent = f.name;
-    document.getElementById('result-desc').textContent = DESCS[key] || '';
-    document.getElementById('result-products').href = f.products_url;
-    document.getElementById('result-codex').href = '/codex/' + f.codex;
+    document.getElementById('result-name').textContent = r.character;
+    document.getElementById('result-legion').textContent = r.legion;
+    document.getElementById('result-chips').innerHTML = key.split('')
+        .map(c => `<span class="quiz-chip">${AXIS_LABEL[c]}</span>`).join('');
+    const [quote, desc] = FLAVOR[key] || ['', ''];
+    document.getElementById('result-quote').textContent = quote;
+    document.getElementById('result-desc').textContent = desc;
+    const pBtn = document.getElementById('result-products');
+    if (r.products_url) {
+        pBtn.href = r.products_url;
+        pBtn.textContent = `逛逛${r.legion}的公仔`;
+        pBtn.style.display = '';
+    }
+    const cBtn = document.getElementById('result-codex');
+    if (r.codex) {
+        cBtn.href = '/codex/' + r.codex;
+        cBtn.style.display = '';
+    }
     history.replaceState(null, '', '/quiz?r=' + key);
 }
 function shareResult() {
     navigator.clipboard.writeText(location.href).then(() =>
         document.getElementById('share-msg').textContent = '已複製 ✓');
 }
-// direct link to a result
 const rp = new URLSearchParams(location.search).get('r');
-if (rp && FACTIONS[rp]) showResult(rp);
+if (rp && RESULTS[rp]) showResult(rp);
 </script>
 {% endblock %}
