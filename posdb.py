@@ -30,6 +30,12 @@ _cache = {"stamp": None}
 KIND_ORDER = "CASE kind WHEN 'cover' THEN 0 WHEN 'gallery' THEN 1 ELSE 2 END"
 
 
+def _norm(text):
+    """Collapse newlines/whitespace — vendor imports leave embedded newlines
+    in names/series, which break layouts and inline-JS string literals."""
+    return " ".join(str(text).split()) if text else ""
+
+
 def _conn():
     conn = sqlite3.connect(f"file:{POS_DB}?mode=ro", uri=True, timeout=5)
     conn.row_factory = sqlite3.Row
@@ -131,7 +137,7 @@ def _load_products():
         products.append({
             "slug": row["slug"],
             "category": row["category_slug"],
-            "title": row["en_name"] or row["zhtw_name"] or row["sku"] or "",
+            "title": _norm(row["en_name"] or row["zhtw_name"] or row["sku"]),
             "price": 0,
             "description": row["description_zhtw"] or row["description"] or "",
             "images": images.get(row["id"], []),
@@ -147,12 +153,12 @@ def _load_products():
             "sale_price": row["sale_price_twd"] or 0,
             "is_new_arrival": bool(row["is_new_arrival"]),
             "id": row["sku"] or "",
-            "cn_name": row["cn_name"] or "",
-            "zhtw_name": row["zhtw_name"] or "",
-            "series": row["series"] or "",
-            "scale": row["scale"] or "",
-            "size": row["size"] or "",
-            "weight": row["weight"] or "",
+            "cn_name": _norm(row["cn_name"]),
+            "zhtw_name": _norm(row["zhtw_name"]),
+            "series": _norm(row["series"]),
+            "scale": _norm(row["scale"]),
+            "size": _norm(row["size"]),
+            "weight": _norm(row["weight"]),
             "zhtw_price": 0,
             "cost": row["cost_cny"] or 0,
             # inquiry items don't show a price — the site renders 詢價 instead

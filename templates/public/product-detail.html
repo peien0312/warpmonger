@@ -325,7 +325,7 @@ function switchToMedia(index, thumbnail) {
                 if (typeof gtag === 'function' && !this.dataset.tracked) {
                     this.dataset.tracked = 'true';
                     gtag('event', 'video_start', {
-                        video_title: '{{ product.title|replace("'", "\\'") }}',
+                        video_title: {{ product.title|tojson }},
                         video_url: media.src
                     });
                 }
