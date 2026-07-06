@@ -64,7 +64,7 @@
                     <label><input type="radio" name="payment_method" value="cod" checked>
                         取貨付款</label>
                     <label><input type="radio" name="payment_method" value="linepay">
-                        LINE Pay（確認訂單後傳送付款連結）</label>
+                        LINE Pay（送出後導向 LINE Pay 付款）</label>
                     <label><input type="radio" name="payment_method" value="transfer">
                         銀行轉帳（送出後顯示帳戶資訊）</label>
                 </div>
@@ -211,6 +211,10 @@ async function submitOrder(ev) {
         return false;
     }
     Cart.clear();
+    if (data.payment_url) {
+        window.location.href = data.payment_url;  // LINE Pay
+        return false;
+    }
     const params = new URLSearchParams({
         no: data.order_no, pm: payload.payment_method,
         total: Math.round(data.total_twd), inq: data.has_inquiry ? '1' : '0',

@@ -94,6 +94,9 @@ class LoginRateLimiter:
 login_limiter = LoginRateLimiter(max_attempts=5, lockout_seconds=900)  # 5 attempts, 15 min lockout
 
 app = Flask(__name__)
+# Behind Caddy: honor X-Forwarded-Proto/Host so request.url_root is https
+from werkzeug.middleware.proxy_fix import ProxyFix
+app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
 app.secret_key = os.getenv('SECRET_KEY', 'dev-secret-key-change-in-production')
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 31536000  # 1 year cache for static files
@@ -3031,7 +3034,66 @@ def checkout_submit():
     except Exception as e:
         print(f"order email failed: {e}")
 
+    # LINE Pay: create the payment request for the chargeable part
+    # (現貨/調貨 items; preorders are pay-on-arrival, inquiry unpriced)
+    if data.get('payment_method') == 'linepay':
+        import linepay
+        charge = sum(l['price'] * l['qty'] for l in lines
+                     if l['availability'] in ('in_stock', 'incoming', 'orderable'))
+        if linepay.enabled() and charge > 0:
+            try:
+                base = request.url_root.rstrip('/')
+                pay_url, txn = linepay.request_payment(
+                    result['order_no'], charge,
+                    f"阿北玩具堂訂單 {result['order_no']}",
+                    f"{base}/linepay/confirm",
+                    f"{base}/linepay/cancel?orderId={result['order_no']}",
+                )
+                result['payment_url'] = pay_url
+                result['charge_twd'] = charge
+            except Exception as e:
+                print(f"linepay request failed: {e}")
+                # order stands; fall back to manual LINE Pay link flow
+
     return jsonify(result)
+
+
+def _pos_api(method, path, body=None):
+    import urllib.request
+    req = urllib.request.Request(
+        POS_API_URL + path,
+        data=json.dumps(body).encode() if body is not None else None,
+        headers={'Content-Type': 'application/json',
+                 'X-Storefront-Key': STOREFRONT_API_KEY},
+        method=method)
+    with urllib.request.urlopen(req, timeout=15) as resp:
+        return json.loads(resp.read())
+
+
+@app.route('/linepay/confirm')
+def linepay_confirm():
+    import linepay
+    txn = request.args.get('transactionId')
+    order_no = request.args.get('orderId')
+    if not txn or not order_no:
+        return redirect('/checkout/success?payerr=1')
+    try:
+        info = _pos_api('GET', f'/api/storefront/orders/{order_no}')
+        charge = info.get('charge_twd') or 0
+        linepay.confirm_payment(txn, charge)
+        _pos_api('POST', f'/api/storefront/orders/{order_no}/payment',
+                 {'payment_status': '已付款', 'payment_note': f'LINE Pay {txn}'})
+        params = f'no={order_no}&pm=linepay&paid=1&total={int(charge)}'
+    except Exception as e:
+        print(f"linepay confirm failed: {e}")
+        params = f'no={order_no}&pm=linepay&payerr=1'
+    return redirect('/checkout/success?' + params)
+
+
+@app.route('/linepay/cancel')
+def linepay_cancel():
+    order_no = request.args.get('orderId', '')
+    return redirect(f'/checkout/success?no={order_no}&pm=linepay&paycancel=1')
 
 
 def _send_order_emails(order_no, data, lines, total):
