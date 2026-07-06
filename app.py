@@ -3038,8 +3038,11 @@ def checkout_submit():
     # (現貨/調貨 items; preorders are pay-on-arrival, inquiry unpriced)
     if data.get('payment_method') == 'linepay':
         import linepay
-        charge = sum(l['price'] * l['qty'] for l in lines
-                     if l['availability'] in ('in_stock', 'incoming', 'orderable'))
+        now_total = sum(l['price'] * l['qty'] for l in lines
+                        if l['availability'] in ('in_stock', 'incoming', 'orderable'))
+        # shipping fee ships with the first payment — must match the POS's
+        # _charge_now_twd exactly or the confirm step rejects the amount
+        charge = now_total + (result.get('shipping_fee_twd', 0) if now_total > 0 else 0)
         if linepay.enabled() and charge > 0:
             try:
                 base = request.url_root.rstrip('/')

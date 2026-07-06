@@ -25,14 +25,17 @@
                     <h3>詢價 <small>絕版品，阿北會以 email／LINE 回覆報價</small></h3>
                     <div class="group-items"></div>
                 </div>
-                <p class="checkout-total">商品合計：<strong id="checkout-total">NT$0</strong>
+                <p class="checkout-total">商品合計：<span id="checkout-total">NT$0</span><br>
+                    運費：<span id="checkout-shipping">NT$60</span>
+                    <small id="shipping-hint">（滿 NT$1,000 免運）</small><br>
+                    應付總額：<strong id="checkout-grand">NT$0</strong>
                     <span id="inquiry-hint" style="display:none"><br><small>（詢價商品另計）</small></span>
                 </p>
                 <div id="batch-choice" style="display:none" class="batch-choice">
                     <label><input type="radio" name="ship_together" value="1" checked>
                         合併出貨（等全部到齊一次寄，單筆運費）</label>
                     <label><input type="radio" name="ship_together" value="0">
-                        現貨先出（現貨先寄，其餘到貨後再寄，運費分計）</label>
+                        現貨先出（現貨先寄，其餘到貨後再寄）</label>
                 </div>
             </div>
 
@@ -135,6 +138,10 @@ async function loadCheckout() {
         if (key === 'inquiry') hasInq = true;
     }
     document.getElementById('checkout-total').textContent = 'NT$' + Math.round(total).toLocaleString();
+    const fee = (total > 0 && total < 1000) ? 60 : 0;
+    document.getElementById('checkout-shipping').textContent = fee ? 'NT$60' : '免運';
+    document.getElementById('shipping-hint').style.display = fee ? '' : 'none';
+    document.getElementById('checkout-grand').textContent = 'NT$' + Math.round(total + fee).toLocaleString();
     document.getElementById('inquiry-hint').style.display = hasInq ? '' : 'none';
     document.getElementById('batch-choice').style.display = (hasPre && hasNow) ? '' : 'none';
     document.getElementById('checkout-body').style.display = '';
@@ -217,7 +224,9 @@ async function submitOrder(ev) {
     }
     const params = new URLSearchParams({
         no: data.order_no, pm: payload.payment_method,
-        total: Math.round(data.total_twd), inq: data.has_inquiry ? '1' : '0',
+        total: Math.round(data.grand_total_twd ?? data.total_twd),
+        fee: Math.round(data.shipping_fee_twd || 0),
+        inq: data.has_inquiry ? '1' : '0',
     });
     window.location.href = '/checkout/success?' + params.toString();
     return false;
