@@ -3757,3 +3757,5 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
 }
 .category-card-name { color: #E6DAC4; font-size: 0.85rem; text-align: center; line-height: 1.35; }
 .category-card-count { color: #948669; font-size: 0.72rem; margin-top: 2px; }
+
+.nav-contact { color: #D9A441 !important; }
