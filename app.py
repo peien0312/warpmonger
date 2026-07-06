@@ -3208,6 +3208,37 @@ def _send_order_emails(order_no, data, lines, total):
             server.sendmail(smtp_from, to, msg.as_string())
 
 
+QUIZ_FACTIONS = {
+    'ultramarines': {'name': '極限戰士', 'codex': 'ultramarines'},
+    'blood-angels': {'name': '血天使', 'codex': 'blood-angels'},
+    'space-wolves': {'name': '太空野狼', 'codex': 'space-wolves'},
+    'black-legion': {'name': '黑色軍團', 'codex': 'black-legion'},
+    'death-guard': {'name': '死亡守衛', 'codex': 'death-guard'},
+    'adepta-sororitas': {'name': '修女會', 'codex': 'adepta-sororitas'},
+    'adeptus-mechanicus': {'name': '機械神教', 'codex': 'adeptus-mechanicus'},
+    'alpha-legion': {'name': '阿爾法軍團', 'codex': 'alpha-legion'},
+}
+
+
+@public_route('/quiz')
+def quiz_page():
+    """陣營心理測驗 — links each result to codex + products.
+    Product link prefers the faction tag once products are tagged,
+    falling back to a name search until then."""
+    import posdb as _posdb
+    all_tags = set()
+    for prod in _posdb.get_products():
+        all_tags.update(prod.get('tags') or [])
+    factions = {}
+    for key, f in QUIZ_FACTIONS.items():
+        if f['name'] in all_tags:
+            link = f"/products?tag={f['name']}"
+        else:
+            link = f"/products?search={f['name']}"
+        factions[key] = {**f, 'products_url': link}
+    return render_template('public/quiz.html', factions=factions)
+
+
 @public_route('/checkout')
 def checkout_page():
     member = current_member()

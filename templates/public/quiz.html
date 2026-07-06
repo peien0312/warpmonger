@@ -1,0 +1,179 @@
+{% extends "public/base.html" %}
+
+{% block title %}戰鎚陣營測驗｜你是哪個陣營？ | ABBEY'S TOYS 阿北玩具堂{% endblock %}
+
+{% block meta_description %}12 題測出你屬於哪個戰鎚陣營 — 極限戰士、血天使、太空野狼、黑色軍團、死亡守衛、修女會、機械神教還是阿爾法軍團？測完直接逛該陣營的公仔。{% endblock %}
+
+{% block content %}
+<div class="container quiz-page">
+    <!-- intro -->
+    <div id="quiz-intro" class="quiz-panel">
+        <p class="hero-grimdark">In the grim darkness of the far future...</p>
+        <h1 class="page-title">你是哪個戰鎚陣營？</h1>
+        <p>12 題，測出你在 41 個千年裡會為誰而戰。<br>測完可以直接逛該陣營的公仔。</p>
+        <button class="btn btn-primary btn-lg" onclick="startQuiz()">開始測驗</button>
+    </div>
+
+    <!-- question -->
+    <div id="quiz-question" class="quiz-panel" style="display:none">
+        <div class="quiz-progress"><div id="quiz-bar"></div></div>
+        <p class="quiz-count"><span id="quiz-num">1</span> / 12</p>
+        <h2 id="quiz-q"></h2>
+        <div id="quiz-options" class="quiz-options"></div>
+    </div>
+
+    <!-- result -->
+    <div id="quiz-result" class="quiz-panel" style="display:none">
+        <p class="hero-grimdark">測驗結果</p>
+        <h1 class="page-title" id="result-name"></h1>
+        <p id="result-desc" class="quiz-desc"></p>
+        <div class="quiz-actions">
+            <a id="result-products" class="btn btn-primary btn-lg" href="#">逛逛這個陣營的公仔</a>
+            <a id="result-codex" class="btn btn-secondary" href="#">閱讀 CODEX 背景</a>
+        </div>
+        <div class="quiz-share">
+            <button class="btn btn-secondary btn-sm" onclick="shareResult()">複製結果連結</button>
+            <button class="btn btn-secondary btn-sm" onclick="location.href='/quiz'">重新測驗</button>
+            <span id="share-msg" class="profile-msg"></span>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const FACTIONS = {{ factions|tojson }};
+
+const DESCS = {
+    'ultramarines': '你是天生的秩序核心：先讀說明書、先做計畫，然後把事情一項一項做完。朋友覺得你可靠到近乎無聊——直到出事的時候，所有人都在等你開口。你的收藏大概也排得像閱兵一樣整齊。',
+    'blood-angels': '你優雅、熱烈，做什麼都全力以赴，偶爾用力過猛。你追求把事情做得漂亮，而不只是做完；情緒來的時候像潮水，但那正是你的魅力。你的櫃子裡一定有一隻「捨不得拆但超想拆」的公仔。',
+    'space-wolves': '你重情重義、討厭拐彎抹角，朋友有難你第一個到場。規則？你有自己的一套。聚會裡最大聲的是你，扛最多的是你，開箱影片拍到一半跑去把玩的也是你。',
+    'black-legion': '你不相信現成的答案，權威講的話你都要自己再驗一次。有野心、有主見、敢打掉重練——你的改造與重塗作品大概比原廠還多。眾神低語：這樣的人才留不住。',
+    'death-guard': '你的耐受度高到嚇人：計畫延期、包裹擠壓、梅雨季受潮，你聳聳肩繼續前進。你不快，但你從不停下。桌面看起來「有生態系」，但你真的什麼都找得到。',
+    'adepta-sororitas': '你有信念，而且言行一致——答應的事燒起來也會做完。你眼裡容不下敷衍，標準高得讓人敬畏。收藏對你不只是興趣，是儀式：上架、除塵、燈光，一樣都不能少。',
+    'adeptus-mechanicus': '你相信數據、流程與備份的備份。東西壞了你不難過，你興奮——因為可以拆開看。你的收藏有編號、有清單、可能還有試算表。歐姆彌賽亞保佑你的硬碟。',
+    'alpha-legion': '沒有人真的知道你在想什麼，包括你自己（笑）。你擅長觀察、佈局、在最好的時機出手；團體裡你話不多，但事情常常照你的方向走。你買了什麼？我是阿爾法留斯。',
+};
+
+// 12 original questions; each option: [text, primary faction, secondary faction]
+const QUESTIONS = [
+    ['團體要辦活動，你通常是：', [
+        ['列清單排時程的那個', 'ultramarines', 'adeptus-mechanicus'],
+        ['炒熱氣氛衝第一的那個', 'blood-angels', 'space-wolves'],
+        ['默默把雜事都做完的那個', 'adepta-sororitas', 'death-guard'],
+        ['不知道為什麼最後照你的意思辦的那個', 'alpha-legion', 'black-legion'],
+    ]],
+    ['你的工作桌現在長怎樣？', [
+        ['分類收納，貼好標籤', 'adeptus-mechanicus', 'ultramarines'],
+        ['亂，但每樣東西我三秒找到', 'space-wolves', 'blood-angels'],
+        ['有一區已經自成生態', 'death-guard', 'black-legion'],
+        ['乾淨到你懷疑我沒在用', 'alpha-legion', 'adepta-sororitas'],
+    ]],
+    ['新公仔到貨，你的第一個動作：', [
+        ['先拍照記錄，登記進收藏清單', 'adeptus-mechanicus', 'ultramarines'],
+        ['當場開箱，立刻擺姿勢', 'blood-angels', 'space-wolves'],
+        ['端正供上櫃，膜都不撕', 'adepta-sororitas', 'alpha-legion'],
+        ['已經在想要怎麼改造重塗', 'black-legion', 'death-guard'],
+    ]],
+    ['對於「規則」，你的真實想法是：', [
+        ['規則存在必有它的道理', 'ultramarines', 'adepta-sororitas'],
+        ['規則是用來保護不會思考的人', 'black-legion', 'alpha-legion'],
+        ['我有我自己的規矩', 'space-wolves', 'death-guard'],
+        ['規則很好，漏洞更好', 'alpha-legion', 'adeptus-mechanicus'],
+    ]],
+    ['計畫在最後一刻整個翻車，你會：', [
+        ['啟動備案 B，我早就準備好了', 'ultramarines', 'alpha-legion'],
+        ['火大三分鐘，然後更用力做', 'blood-angels', 'space-wolves'],
+        ['聳肩，反正天塌下來也是慢慢塌', 'death-guard', 'black-legion'],
+        ['翻車是最好的重構機會', 'adeptus-mechanicus', 'black-legion'],
+    ]],
+    ['朋友對你的評價最可能是：', [
+        ['「問他就對了，他什麼都有 SOP」', 'ultramarines', 'adeptus-mechanicus'],
+        ['「跟他出去玩絕對不無聊」', 'space-wolves', 'blood-angels'],
+        ['「他答應的事沒有一次沒做到」', 'adepta-sororitas', 'ultramarines'],
+        ['「老實說我不太確定他的工作是什麼」', 'alpha-legion', 'black-legion'],
+    ]],
+    ['你最無法忍受的是：', [
+        ['混亂沒有章法', 'ultramarines', 'adeptus-mechanicus'],
+        ['冷血沒有溫度', 'blood-angels', 'adepta-sororitas'],
+        ['背叛自己人', 'space-wolves', 'adepta-sororitas'],
+        ['被別人指揮', 'black-legion', 'alpha-legion'],
+    ]],
+    ['半夜十二點，你多半在：', [
+        ['明天的待辦已經列好，準時就寢', 'ultramarines', 'adepta-sororitas'],
+        ['「再看一集」看到天亮', 'blood-angels', 'space-wolves'],
+        ['研究某個非常冷門的知識', 'adeptus-mechanicus', 'alpha-legion'],
+        ['醒著，但沒人知道你在幹嘛', 'alpha-legion', 'death-guard'],
+    ]],
+    ['要選一個超能力：', [
+        ['過目不忘的完美記憶', 'adeptus-mechanicus', 'ultramarines'],
+        ['永不熄滅的體力與熱情', 'blood-angels', 'space-wolves'],
+        ['百毒不侵，什麼都吃不壞', 'death-guard', 'space-wolves'],
+        ['讓所有人相信你說的話', 'alpha-legion', 'black-legion'],
+    ]],
+    ['排隊排了兩小時，店家說賣完了：', [
+        ['冷靜詢問下一批到貨時間並登記', 'ultramarines', 'adeptus-mechanicus'],
+        ['當場理論，據理力爭', 'blood-angels', 'black-legion'],
+        ['早就料到，我同時排了兩個管道', 'alpha-legion', 'adeptus-mechanicus'],
+        ['沒關係，我下週再來排', 'death-guard', 'adepta-sororitas'],
+    ]],
+    ['你買公仔最主要的理由是：', [
+        ['系列要收齊，缺一格睡不著', 'ultramarines', 'adeptus-mechanicus'],
+        ['帥。就是帥。', 'blood-angels', 'space-wolves'],
+        ['這隻的背景故事我可以講一小時', 'adepta-sororitas', 'black-legion'],
+        ['等它絕版增值（然後捨不得賣）', 'alpha-legion', 'death-guard'],
+    ]],
+    ['最後：帝皇需要你，你會說——', [
+        ['「吾皇萬歲，任務是什麼？」', 'adepta-sororitas', 'ultramarines'],
+        ['「兄弟們，跟我上！」', 'space-wolves', 'blood-angels'],
+        ['「條件談一下。」', 'black-legion', 'alpha-legion'],
+        ['「我已經在裡面了。」', 'alpha-legion', 'adeptus-mechanicus'],
+    ]],
+];
+
+let qi = 0;
+const scores = {};
+
+function startQuiz() {
+    document.getElementById('quiz-intro').style.display = 'none';
+    document.getElementById('quiz-question').style.display = '';
+    showQuestion();
+}
+function showQuestion() {
+    const [q, opts] = QUESTIONS[qi];
+    document.getElementById('quiz-num').textContent = qi + 1;
+    document.getElementById('quiz-bar').style.width = (qi / QUESTIONS.length * 100) + '%';
+    document.getElementById('quiz-q').textContent = q;
+    document.getElementById('quiz-options').innerHTML = opts.map((o, i) =>
+        `<button class="quiz-option" onclick="pick(${i})">${o[0]}</button>`).join('');
+}
+function pick(i) {
+    const [, opts] = QUESTIONS[qi];
+    const [, primary, secondary] = opts[i];
+    scores[primary] = (scores[primary] || 0) + 2;
+    scores[secondary] = (scores[secondary] || 0) + 1;
+    qi++;
+    if (qi < QUESTIONS.length) showQuestion();
+    else showResult(Object.entries(scores).sort((a, b) => b[1] - a[1])[0][0]);
+}
+function showResult(key) {
+    const f = FACTIONS[key];
+    if (!f) return;
+    document.getElementById('quiz-intro').style.display = 'none';
+    document.getElementById('quiz-question').style.display = 'none';
+    document.getElementById('quiz-result').style.display = '';
+    document.getElementById('result-name').textContent = f.name;
+    document.getElementById('result-desc').textContent = DESCS[key] || '';
+    document.getElementById('result-products').href = f.products_url;
+    document.getElementById('result-codex').href = '/codex/' + f.codex;
+    history.replaceState(null, '', '/quiz?r=' + key);
+}
+function shareResult() {
+    navigator.clipboard.writeText(location.href).then(() =>
+        document.getElementById('share-msg').textContent = '已複製 ✓');
+}
+// direct link to a result
+const rp = new URLSearchParams(location.search).get('r');
+if (rp && FACTIONS[rp]) showResult(rp);
+</script>
+{% endblock %}

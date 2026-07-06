@@ -56,7 +56,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Noto+Serif+TC:wght@600;700&display=swap">
-    <link rel="stylesheet" href="/static/css/public.css?v=37">
+    <link rel="stylesheet" href="/static/css/public.css?v=38">
     {% block extra_css %}{% endblock %}
 
     <!-- Structured Data -->
@@ -128,6 +128,7 @@
                         </div>
                         <a href="{{ url_prefix }}/tags">{{ t.tags }}</a>
                         <a href="{{ url_prefix }}/codex">{{ t.codex }}</a>
+                        <a href="{{ url_prefix }}/quiz">陣營測驗</a>
                         <a href="{{ url_prefix }}/blog">{{ t.blog }}</a>
                         <a href="https://lin.ee/OTxThMe" target="_blank" rel="noopener" class="nav-contact">聯絡我們</a>
                     </nav>
@@ -203,6 +204,7 @@
                     <a href="{{ url_prefix }}/tags">{{ t.tags }}</a>
                     <a href="{{ url_prefix }}/codex">{{ t.codex }}</a>
                     <a href="{{ url_prefix }}/blog">{{ t.blog }}</a>
+                    <a href="{{ url_prefix }}/quiz">陣營測驗</a>
                     <a href="https://lin.ee/OTxThMe" target="_blank" rel="noopener">聯絡我們（LINE）</a>
                     {% if member %}<a href="/account">會員中心</a>{% else %}<a href="/login">會員登入</a>{% endif %}
                     <a href="{{ url_prefix }}/cart" class="mobile-menu-cart">
