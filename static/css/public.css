@@ -3783,3 +3783,25 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
 .quiz-chips { display: flex; gap: 8px; justify-content: center; margin-bottom: 14px; }
 .quiz-chip { border: 1px solid #6E4B2A; color: #B3A48D; border-radius: 3px; padding: 2px 10px; font-size: 0.75rem; letter-spacing: 0.1em; }
 .quiz-quote { font-family: 'Noto Serif TC', serif; color: #E6DAC4; font-size: 1.05rem; margin-bottom: 10px; }
+
+/* Quiz axis graph */
+.quiz-axes { max-width: 420px; margin: 0 auto 18px; display: flex; flex-direction: column; gap: 9px; }
+.axis-row { display: grid; grid-template-columns: 64px 1fr 64px; align-items: center; gap: 10px; }
+.axis-label { color: #948669; font-size: 0.8rem; text-align: right; line-height: 1.25; }
+.axis-label small { display: block; font-size: 0.68rem; opacity: 0.8; }
+.axis-right { text-align: left; }
+.axis-label.axis-win { color: #D9A441; }
+.axis-track {
+    position: relative; height: 10px; border-radius: 5px; overflow: hidden;
+    background: #17100B; box-shadow: inset 0 0 0 1px #3B2F24;
+}
+.axis-fill {
+    position: absolute; left: 0; top: 0; bottom: 0; width: 0;
+    background: linear-gradient(90deg, #6E4B2A, #D9A441);
+    transition: width 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.axis-mid {
+    position: absolute; left: 50%; top: -1px; bottom: -1px; width: 2px;
+    background: #292019;
+}
+@media (prefers-reduced-motion: reduce) { .axis-fill { transition: none; } }

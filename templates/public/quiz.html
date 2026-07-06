@@ -29,6 +29,7 @@
         <h1 class="page-title" id="result-name"></h1>
         <p class="quiz-legion" id="result-legion"></p>
         <div class="quiz-chips" id="result-chips"></div>
+        <div class="quiz-axes" id="result-axes"></div>
         <p id="result-quote" class="quiz-quote"></p>
         <p id="result-desc" class="quiz-desc"></p>
         <div class="quiz-actions">
@@ -215,10 +216,29 @@ function pick(i) {
                   + (votes.H >= votes.C ? 'H' : 'C')
                   + (votes.F >= votes.R ? 'F' : 'R')
                   + (votes.D >= votes.S ? 'D' : 'S');
-        showResult(key);
+        showResult(key, votes);
     }
 }
-function showResult(key) {
+const AXIS_PAIRS = [['I', 'X'], ['H', 'C'], ['F', 'R'], ['D', 'S']];
+
+function renderAxes(v) {
+    const box = document.getElementById('result-axes');
+    if (!v) { box.innerHTML = ''; return; }
+    box.innerHTML = AXIS_PAIRS.map(([a, b]) => {
+        const total = (v[a] || 0) + (v[b] || 0) || 1;
+        const pa = Math.round((v[a] || 0) / total * 100);
+        const win = pa >= 50;
+        return `<div class="axis-row">
+            <span class="axis-label ${win ? 'axis-win' : ''}">${AXIS_LABEL[a]}<small>${pa}%</small></span>
+            <span class="axis-track"><span class="axis-fill" data-w="${pa}"></span><span class="axis-mid"></span></span>
+            <span class="axis-label axis-right ${win ? '' : 'axis-win'}">${AXIS_LABEL[b]}<small>${100 - pa}%</small></span>
+        </div>`;
+    }).join('');
+    requestAnimationFrame(() => requestAnimationFrame(() =>
+        box.querySelectorAll('.axis-fill').forEach(el => el.style.width = el.dataset.w + '%')));
+}
+
+function showResult(key, axisVotes) {
     const r = RESULTS[key];
     if (!r) return;
     document.getElementById('quiz-intro').style.display = 'none';
@@ -228,6 +248,7 @@ function showResult(key) {
     document.getElementById('result-legion').textContent = r.legion;
     document.getElementById('result-chips').innerHTML = key.split('')
         .map(c => `<span class="quiz-chip">${AXIS_LABEL[c]}</span>`).join('');
+    renderAxes(axisVotes);
     const [quote, desc] = FLAVOR[key] || ['', ''];
     document.getElementById('result-quote').textContent = quote;
     document.getElementById('result-desc').textContent = desc;
@@ -242,13 +263,26 @@ function showResult(key) {
         cBtn.href = '/codex/' + r.codex;
         cBtn.style.display = '';
     }
-    history.replaceState(null, '', '/quiz?r=' + key);
+    let url = '/quiz?r=' + key;
+    if (axisVotes) {
+        url += '&s=' + ['I', 'H', 'F', 'D'].map(c => axisVotes[c] || 0).join('');
+    }
+    history.replaceState(null, '', url);
 }
 function shareResult() {
     navigator.clipboard.writeText(location.href).then(() =>
         document.getElementById('share-msg').textContent = '已複製 ✓');
 }
-const rp = new URLSearchParams(location.search).get('r');
-if (rp && RESULTS[rp]) showResult(rp);
+const _params = new URLSearchParams(location.search);
+const rp = _params.get('r');
+if (rp && RESULTS[rp]) {
+    let v = null;
+    const sp = _params.get('s');
+    if (sp && /^[0-4]{4}$/.test(sp)) {
+        const [i, h, f, d] = sp.split('').map(Number);
+        v = {I: i, X: 4 - i, H: h, C: 4 - h, F: f, R: 4 - f, D: d, S: 4 - d};
+    }
+    showResult(rp, v);
+}
 </script>
 {% endblock %}
