@@ -1,6 +1,6 @@
 {% extends "public/base.html" %}
 
-{% block title %}{{ t.cart }} | Abbey's Toys 阿北的店{% endblock %}
+{% block title %}{{ t.cart }} | ABBEY'S TOYS 阿北玩具堂{% endblock %}
 
 {% block meta_description %}Your shopping list - Review and send your product selections for a personalized quote.{% endblock %}
 
@@ -24,9 +24,7 @@
                 <a href="{{ url_prefix }}/checkout" class="btn btn-primary btn-lg" style="display:block; text-align:center; margin-bottom:10px;">
                     前往結帳
                 </a>
-                <button type="button" class="btn btn-secondary" style="width: 100%;" id="send-list-btn" onclick="openContactModal()">
-                    {{ t.send_for_quote }}
-                </button>
+
                 <button type="button" class="btn btn-secondary" style="width: 100%; margin-top: 10px;" onclick="clearCart()">
                     {{ t.clear_list }}
                 </button>

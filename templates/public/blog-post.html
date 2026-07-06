@@ -1,6 +1,6 @@
 {% extends "public/base.html" %}
 
-{% block title %}{{ post.title }} | Blog - Abbey's Toys 阿北的店{% endblock %}
+{% block title %}{{ post.title }} | Blog - ABBEY'S TOYS 阿北玩具堂{% endblock %}
 
 {% block meta_description %}{{ post.content[:155] }}...{% endblock %}
 
@@ -23,7 +23,7 @@
   {% endif %}
   "publisher": {
     "@type": "Organization",
-    "name": "Abbey's Toys 阿北的店",
+    "name": "ABBEY'S TOYS 阿北玩具堂",
     "logo": {
       "@type": "ImageObject",
       "url": "{{ request.url_root }}static/images/abbeys_logo_round.png"

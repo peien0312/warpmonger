@@ -1,7 +1,7 @@
 {% extends "public/base.html" %}
 {% import 'public/_availability.html' as avail %}
 
-{% block title %}{% if is_zhtw %}ABBEY'S TOYS 阿北玩具堂｜JOYTOY 戰鎚40K 專賣{% else %}Abbey's Toys 阿北的店 - JoyToy Warhammer & Collectible Figures{% endif %}{% endblock %}
+{% block title %}{% if is_zhtw %}ABBEY'S TOYS 阿北玩具堂｜JOYTOY 戰鎚40K 專賣{% else %}ABBEY'S TOYS 阿北玩具堂 - JoyToy Warhammer & Collectible Figures{% endif %}{% endblock %}
 
 {% block meta_description %}{% if is_zhtw %}ABBEY'S TOYS 阿北玩具堂 - 專賣 JOYTOY、戰鎚40K、歐美系可動玩具。雙倉庫現貨齊全，出貨快速。{% else %}Abbey's Toys - Taiwan's Warhammer figure shop. Curated JoyToy Warhammer 40K, Horus Heresy, Dark Source, TMNT and more, in stock and pre-order.{% endif %}{% endblock %}
 
@@ -102,7 +102,7 @@
                     </div>
 
                     <h3>{{ product.zhtw_name if is_zhtw and product.zhtw_name else product.title }}</h3>
-                    <p class="card-sub">{{ product.id }}{% if product.zhtw_name and product.title and product.title != product.zhtw_name %} · {{ product.title }}{% endif %}</p>
+                    <p class="card-sub">{% if product.id %}<span class="card-sku">{{ product.id }}</span>{% endif %}{% if product.zhtw_name and product.title and product.title != product.zhtw_name %}{{ product.title }}{% endif %}</p>
 
                     {% if is_zhtw %}
                         {% if product.final_price %}
@@ -152,7 +152,7 @@
                     </div>
 
                     <h3>{{ product.zhtw_name if is_zhtw and product.zhtw_name else product.title }}</h3>
-                    <p class="card-sub">{{ product.id }}{% if product.zhtw_name and product.title and product.title != product.zhtw_name %} · {{ product.title }}{% endif %}</p>
+                    <p class="card-sub">{% if product.id %}<span class="card-sku">{{ product.id }}</span>{% endif %}{% if product.zhtw_name and product.title and product.title != product.zhtw_name %}{{ product.title }}{% endif %}</p>
 
                     {% if is_zhtw %}
                         {% if product.final_price %}
@@ -208,7 +208,7 @@
                     </div>
 
                     <h3>{{ product.zhtw_name if is_zhtw and product.zhtw_name else product.title }}</h3>
-                    <p class="card-sub">{{ product.id }}{% if product.zhtw_name and product.title and product.title != product.zhtw_name %} · {{ product.title }}{% endif %}</p>
+                    <p class="card-sub">{% if product.id %}<span class="card-sku">{{ product.id }}</span>{% endif %}{% if product.zhtw_name and product.title and product.title != product.zhtw_name %}{{ product.title }}{% endif %}</p>
 
                     {% if is_zhtw %}
                         {% if product.final_price %}

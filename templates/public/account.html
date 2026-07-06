@@ -126,7 +126,7 @@
                     {% endif %}
                 </div>
                 <h3>{{ product.zhtw_name or product.title }}</h3>
-                <p class="card-sub">{{ product.id }}</p>
+                <p class="card-sub"><span class="card-sku">{{ product.id }}</span></p>
                 {% if product.final_price %}<p class="price">NT${{ product.final_price|ntd }}</p>{% endif %}
             </a>
             <button class="btn btn-sm btn-secondary" onclick="toggleWish('{{ product.id }}', this)">移除</button>

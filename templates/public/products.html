@@ -1,7 +1,7 @@
 {% extends "public/base.html" %}
 {% import 'public/_availability.html' as avail %}
 
-{% block title %}{% if current_category_name %}{{ current_category_name }}{% elif is_zhtw %}{{ t.all_products }}{% else %}All Products{% endif %} | Abbey's Toys 阿北的店{% endblock %}
+{% block title %}{% if current_category_name %}{{ current_category_name }}{% elif is_zhtw %}{{ t.all_products }}{% else %}All Products{% endif %} | ABBEY'S TOYS 阿北玩具堂{% endblock %}
 
 {% block meta_description %}Browse our selection of {% if current_category_name %}{{ current_category_name|lower }} action figures{% else %}premium action figures and collectibles{% endif %}. Find the perfect collectible figures with fast shipping and great prices.{% endblock %}
 
@@ -142,7 +142,7 @@
                         </div>
 
                         <h3>{{ product.zhtw_name if is_zhtw and product.zhtw_name else product.title }}</h3>
-                    <p class="card-sub">{{ product.id }}{% if product.zhtw_name and product.title and product.title != product.zhtw_name %} · {{ product.title }}{% endif %}</p>
+                    <p class="card-sub">{% if product.id %}<span class="card-sku">{{ product.id }}</span>{% endif %}{% if product.zhtw_name and product.title and product.title != product.zhtw_name %}{{ product.title }}{% endif %}</p>
 
                         {# Pricing #}
                         {% if is_zhtw %}
