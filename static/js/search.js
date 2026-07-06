@@ -100,15 +100,11 @@
     // Get secondary names to display
     function getSecondaryNames(product, query) {
         const names = [];
-        if (product.cn_name && product.cn_name.toLowerCase().includes(query.toLowerCase())) {
-            names.push(product.cn_name);
-        }
-        if (product.zhtw_name && product.zhtw_name.toLowerCase().includes(query.toLowerCase()) && product.zhtw_name !== product.cn_name) {
-            names.push(product.zhtw_name);
-        }
-
+        if (product.id) names.push(product.id);
+        const primary = getDisplayName(product);
+        if (product.title && product.title !== primary) names.push(product.title);
         if (names.length > 0) {
-            return `<div class="autocomplete-secondary">${names.join(' · ')}</div>`;
+            return `<div class="autocomplete-secondary">${highlightMatch(names.join(' · '), query)}</div>`;
         }
         return '';
     }

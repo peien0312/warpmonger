@@ -32,7 +32,7 @@
                 <strong>{{ a.label or (a.store_name or '宅配') }}</strong>
                 {% if a.is_default %}<span class="badge badge-instock">預設</span>{% endif %}<br>
                 {{ a.recipient_name or '' }} {{ a.recipient_phone or '' }}<br>
-                <small>{{ {'711': '7-11', 'fami': '全家', 'post': '郵局'}[a.delivery] }}
+                <small>{{ {'711': '7-11', 'fami': '全家', 'post': '郵局', 'meet': '面交'}.get(a.delivery, a.delivery) }}
                 {% if a.store_name %}｜{{ a.store_name }}（{{ a.store_code }}）{% endif %}
                 {% if a.address %}｜{{ a.address }}{% endif %}</small>
             </div>
@@ -58,6 +58,7 @@
                         <option value="711">7-11</option>
                         <option value="fami">全家</option>
                         <option value="post">郵局寄送</option>
+                        <option value="meet">面交（雙北限定）</option>
                     </select>
                 </label>
             </div>
@@ -125,6 +126,7 @@
                     {% endif %}
                 </div>
                 <h3>{{ product.zhtw_name or product.title }}</h3>
+                <p class="card-sub">{{ product.id }}</p>
                 {% if product.final_price %}<p class="price">NT${{ product.final_price|ntd }}</p>{% endif %}
             </a>
             <button class="btn btn-sm btn-secondary" onclick="toggleWish('{{ product.id }}', this)">移除</button>
@@ -196,7 +198,7 @@ async function saveProfile(ev) {
 let naStore = null;
 function naDeliveryChanged() {
     const v = document.getElementById('na-delivery').value;
-    document.getElementById('na-store').style.display = v === 'post' ? 'none' : '';
+    document.getElementById('na-store').style.display = (v === '711' || v === 'fami') ? '' : 'none';
     document.getElementById('na-address').style.display = v === 'post' ? '' : 'none';
 }
 let naTimer = null;

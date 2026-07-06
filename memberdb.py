@@ -404,7 +404,7 @@ def save_address(member_id, fields, addr_id=None):
     vals = {k: (fields.get(k) or "").strip() or None for k in
             ("label", "recipient_name", "recipient_phone", "delivery",
              "store_code", "store_name", "address")}
-    if vals["delivery"] not in ("711", "fami", "post"):
+    if vals["delivery"] not in ("711", "fami", "post", "meet"):
         return None
     conn = _conn()
     if addr_id:

@@ -55,8 +55,8 @@
                         <input type="radio" name="saved_address" value="{{ a.id }}"
                                data-addr='{{ {"recipient_name": a.recipient_name, "recipient_phone": a.recipient_phone, "delivery": a.delivery, "store_code": a.store_code, "store_name": a.store_name, "address": a.address}|tojson }}'
                                {{ 'checked' if a.is_default else '' }} onchange="useSavedAddress(this)">
-                        <span><strong>{{ a.label or (a.store_name or '宅配') }}</strong>
-                            {{ a.recipient_name or '' }}｜{{ {'711': '7-11', 'fami': '全家', 'post': '郵局'}[a.delivery] }}
+                        <span><strong>{{ a.label or (a.store_name or ('面交' if a.delivery == 'meet' else '宅配')) }}</strong>
+                            {{ a.recipient_name or '' }} {{ a.recipient_phone or '' }}｜{{ {'711': '7-11', 'fami': '全家', 'post': '郵局', 'meet': '面交'}.get(a.delivery, a.delivery) }}
                             {% if a.store_name %} {{ a.store_name }}{% endif %}{% if a.address %} {{ a.address }}{% endif %}</span>
                     </label>
                     {% endfor %}
@@ -75,7 +75,9 @@
                     <label><input type="radio" name="delivery_method" value="711" checked> 7-11</label>
                     <label><input type="radio" name="delivery_method" value="fami"> 全家</label>
                     <label><input type="radio" name="delivery_method" value="post"> 郵局寄送</label>
+                    <label><input type="radio" name="delivery_method" value="meet"> 面交</label>
                 </div>
+                <p id="meet-note" class="availability-note" style="display:none">面交雙北限定，送出訂單後請 LINE 聯絡阿北確認時間地點。</p>
                 <div id="store-picker">
                     <input type="text" id="store-q" placeholder="輸入門市名／路名／地區搜尋門市"
                            autocomplete="off" oninput="searchStores()">
@@ -163,10 +165,8 @@ async function loadCheckout() {
         if (key === 'inquiry') hasInq = true;
     }
     document.getElementById('checkout-total').textContent = 'NT$' + Math.round(total).toLocaleString();
-    const fee = (total > 0 && total < 1000) ? 60 : 0;
-    document.getElementById('checkout-shipping').textContent = fee ? 'NT$60' : '免運';
-    document.getElementById('shipping-hint').style.display = fee ? '' : 'none';
-    document.getElementById('checkout-grand').textContent = 'NT$' + Math.round(total + fee).toLocaleString();
+    checkoutTotal = total;
+    updateFee();
     document.getElementById('inquiry-hint').style.display = hasInq ? '' : 'none';
     document.getElementById('batch-choice').style.display = (hasPre && hasNow) ? '' : 'none';
     document.getElementById('checkout-body').style.display = '';
@@ -174,12 +174,14 @@ async function loadCheckout() {
 
 document.querySelectorAll('input[name=delivery_method]').forEach(el =>
     el.addEventListener('change', () => {
-        const isStore = el.value !== 'post';
+        const isStore = el.value === '711' || el.value === 'fami';
         document.getElementById('store-picker').style.display = isStore ? '' : 'none';
-        document.getElementById('address-field').style.display = isStore ? 'none' : '';
+        document.getElementById('address-field').style.display = el.value === 'post' ? '' : 'none';
+        document.getElementById('meet-note').style.display = el.value === 'meet' ? '' : 'none';
         pickedStore = null;
         document.getElementById('store-picked').textContent = '';
         document.getElementById('store-results').innerHTML = '';
+        updateFee();
     }));
 
 let storeTimer = null;
@@ -205,6 +207,21 @@ function pickStore(s) {
     document.getElementById('store-q').value = '';
 }
 
+let checkoutTotal = 0;
+function currentDelivery() {
+    if (savedAddr) return savedAddr.delivery;
+    const el = document.querySelector('input[name=delivery_method]:checked');
+    return el ? el.value : '711';
+}
+function updateFee() {
+    const total = checkoutTotal;
+    const fee = (currentDelivery() !== 'meet' && total > 0 && total < 1000) ? 60 : 0;
+    document.getElementById('checkout-shipping').textContent =
+        currentDelivery() === 'meet' ? '面交免運' : (fee ? 'NT$60' : '免運');
+    document.getElementById('shipping-hint').style.display = fee ? '' : 'none';
+    document.getElementById('checkout-grand').textContent = 'NT$' + Math.round(total + fee).toLocaleString();
+}
+
 let savedAddr = null;
 function useSavedAddress(radio) {
     const manual = document.getElementById('manual-recipient');
@@ -215,6 +232,7 @@ function useSavedAddress(radio) {
         savedAddr = JSON.parse(radio.dataset.addr);
         manual.style.display = 'none';
     }
+    updateFee();
 }
 // initialize from the default-checked saved address
 (function() {
@@ -228,7 +246,7 @@ async function submitOrder(ev) {
     const err = document.getElementById('submit-error');
     err.textContent = '';
     const delivery = savedAddr ? savedAddr.delivery : f.delivery_method.value;
-    if (!savedAddr && delivery !== 'post' && !pickedStore) {
+    if (!savedAddr && (delivery === '711' || delivery === 'fami') && !pickedStore) {
         err.textContent = '請先搜尋並選擇取貨門市';
         return false;
     }

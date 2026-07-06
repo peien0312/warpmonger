@@ -2176,6 +2176,7 @@ def api_autocomplete():
     for product in products[:10]:
         suggestions.append({
             'title': product['title'],
+            'id': product.get('id', ''),
             'cn_name': product.get('cn_name', ''),
             'zhtw_name': product.get('zhtw_name', ''),
             'category': product['category'],

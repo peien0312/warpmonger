@@ -142,6 +142,7 @@
                         </div>
 
                         <h3>{{ product.zhtw_name if is_zhtw and product.zhtw_name else product.title }}</h3>
+                    <p class="card-sub">{{ product.id }}{% if product.zhtw_name and product.title and product.title != product.zhtw_name %} · {{ product.title }}{% endif %}</p>
 
                         {# Pricing #}
                         {% if is_zhtw %}

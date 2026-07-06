@@ -3699,3 +3699,9 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
     border: 1px solid #3B2F24; border-radius: 4px; padding: 10px 12px; margin-bottom: 8px; }
 .addr-actions { display: flex; gap: 6px; flex-shrink: 0; }
 .addr-new summary { cursor: pointer; color: #D9A441; margin: 8px 0; }
+
+.card-sub {
+    color: #948669; font-size: 0.75rem; letter-spacing: 0.03em;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    margin: 2px 0 4px;
+}
