@@ -2962,8 +2962,10 @@ def api_stores():
 
 
 def _resolve_cart_items(raw_items):
-    """Resolve client cart lines against live POS data. Returns (lines, errors)."""
+    """Resolve client cart lines against live POS data. Returns (lines, errors).
+    Members get 會員價; guests pay the public price."""
     import posdb as _posdb
+    is_member = bool(current_member())
     lines, errors = [], []
     for raw in raw_items[:50]:
         product = _posdb.get_product(str(raw.get('category') or ''), str(raw.get('slug') or ''))
@@ -2971,8 +2973,12 @@ def _resolve_cart_items(raw_items):
             errors.append(f"{raw.get('title') or raw.get('slug')} 已下架")
             continue
         qty = max(1, min(99, int(raw.get('quantity') or 1)))
-        price = 0 if product['availability'] == 'inquiry' else (
-            product['sale_price'] if product['is_on_sale'] and product['sale_price'] else product['final_price'])
+        if product['availability'] == 'inquiry':
+            price = 0
+        elif is_member and product['member_price']:
+            price = product['member_price']
+        else:
+            price = product['final_price']
         lines.append({
             'sku': product['id'],
             'category': product['category'], 'slug': product['slug'],
@@ -3016,6 +3022,7 @@ def checkout_submit():
                         'error': '未登入時請留 email，以便接收訂單通知'}), 400
 
     payload = json.dumps({
+        'member': bool(member),
         'name': data.get('name'), 'phone': data.get('phone'),
         'email': data.get('email'), 'line_id': data.get('line_id'),
         'delivery_method': data.get('delivery_method'),

@@ -3716,3 +3716,14 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
     display: flex; flex-direction: column; height: 100%;
 }
 .product-card > a .price { margin-top: auto; padding-top: 4px; }
+
+/* Member pricing */
+.list-price {
+    color: #948669; text-decoration: line-through;
+    font-size: 0.82em; font-weight: 400; margin-right: 6px;
+}
+.member-tag {
+    color: #E6DAC4; background: #4A5638; border-radius: 3px;
+    font-size: 0.62em; padding: 1px 6px; vertical-align: middle;
+    letter-spacing: 0.08em; font-weight: 400;
+}

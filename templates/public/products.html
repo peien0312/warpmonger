@@ -147,7 +147,12 @@
                         {# Pricing #}
                         {% if is_zhtw %}
                             {% if product.final_price %}
-                            <p class="price">NT${{ product.final_price|ntd }}</p>
+                            <p class="price">
+                            {% if product.member_price and product.member_price < product.final_price %}
+                            <span class="list-price">NT${{ product.final_price|ntd }}</span>
+                            NT${{ product.member_price|ntd }} <span class="member-tag">會員價</span>
+                            {% else %}NT${{ product.final_price|ntd }}{% endif %}
+                            </p>
                             {% endif %}
                         {% else %}
                             {% if product.is_on_sale and product.sale_price > 0 %}
@@ -158,7 +163,12 @@
                             {% elif product.price %}
                             <p class="price">${{ "%.2f"|format(product.price) }}</p>
                             {% elif product.final_price %}
-                            <p class="price">NT${{ product.final_price|ntd }}</p>
+                            <p class="price">
+                            {% if product.member_price and product.member_price < product.final_price %}
+                            <span class="list-price">NT${{ product.final_price|ntd }}</span>
+                            NT${{ product.member_price|ntd }} <span class="member-tag">會員價</span>
+                            {% else %}NT${{ product.final_price|ntd }}{% endif %}
+                            </p>
                             {% endif %}
                         {% endif %}
                     </a>

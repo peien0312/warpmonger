@@ -153,7 +153,15 @@
                 {# Pricing #}
                 {% if is_zhtw %}
                     {% if product.final_price %}
-                    <p class="price">NT${{ product.final_price|ntd }}</p>
+                    <p class="price">
+                        {% if product.member_price and product.member_price < product.final_price %}
+                        <span class="list-price">NT${{ product.final_price|ntd }}</span>
+                        NT${{ product.member_price|ntd }} <span class="member-tag">會員價</span>
+                        {% else %}NT${{ product.final_price|ntd }}{% endif %}
+                    </p>
+                    {% if product.member_price and product.member_price < product.final_price and not member %}
+                    <p class="availability-note"><a href="/login?next={{ request.path }}">登入</a>即享會員價，未登入以定價結帳。</p>
+                    {% endif %}
                     {% elif product.availability == 'inquiry' %}
                     <p class="price contact-price">價格詢問</p>
                     {% else %}
@@ -227,7 +235,7 @@
                         data-category="{{ product.category }}"
                         data-slug="{{ product.slug }}"
                         data-title="{{ product.zhtw_name if is_zhtw and product.zhtw_name else product.title }}"
-                        data-price="{% if is_zhtw %}{{ product.final_price or 0 }}{% else %}{{ product.sale_price if product.is_on_sale and product.sale_price else product.price }}{% endif %}"
+                        data-price="{% if member and product.member_price %}{{ product.member_price }}{% else %}{{ product.final_price or 0 }}{% endif %}"
                         data-image="{{ product.images[0] if product.images else '' }}"
                         data-in-stock="{{ 'true' if product.in_stock else 'false' }}"
                         data-pre-order="{{ 'true' if product.is_pre_order else 'false' }}"
@@ -295,7 +303,12 @@
                         <h3>{{ prod.zhtw_name if is_zhtw and prod.zhtw_name else prod.title }}</h3>
                         <p class="card-sub">{% if prod.id %}<span class="card-sku">{{ prod.id }}</span>{% endif %}{% if prod.zhtw_name and prod.title and prod.title != prod.zhtw_name %}<span class="card-sub-text">{{ prod.title }}</span>{% endif %}</p>
                         {% if is_zhtw %}
-                            {% if prod.final_price %}<p class="price">NT${{ prod.final_price|ntd }}</p>{% endif %}
+                            {% if prod.final_price %}<p class="price">
+                            {% if prod.member_price and prod.member_price < prod.final_price %}
+                            <span class="list-price">NT${{ prod.final_price|ntd }}</span>
+                            NT${{ prod.member_price|ntd }}
+                            {% else %}NT${{ prod.final_price|ntd }}{% endif %}
+                            </p>{% endif %}
                         {% else %}
                             <p class="price">${{ "%.2f"|format(prod.price) }}</p>
                         {% endif %}

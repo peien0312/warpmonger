@@ -63,6 +63,19 @@ def _fresh():
         return _cache
 
 
+def member_price_of(row):
+    """會員價: regular_price_twd when set (>0), else 90% of 售價 rounded.
+    Sale price caps it — members never pay more than the public price."""
+    selling = row["selling_price_twd"] or 0
+    if not selling:
+        return 0
+    member = row["regular_price_twd"] if (row["regular_price_twd"] or 0) > 0 \
+        else round(selling * 0.9)
+    guest = row["sale_price_twd"] if (row["is_on_sale"] and (row["sale_price_twd"] or 0) > 0) \
+        else selling
+    return min(member, guest)
+
+
 def _availability(row, inv, waiting, today):
     """Availability state per the shop's fulfillment rules (priority order):
       in_stock  現貨            tw - waiting > 0 (preorder flag ignored)
@@ -169,6 +182,7 @@ def _load_products():
             "cost": row["cost_cny"] or 0,
             # inquiry items don't show a price — the site renders 詢價 instead
             "final_price": 0 if avail == "inquiry" else (row["selling_price_twd"] or 0),
+            "member_price": 0 if avail == "inquiry" else member_price_of(row),
             "cost_tw": 0,
             "order_weight": row["order_weight"] or 0,
             "group": row["storefront_group"] or "",
