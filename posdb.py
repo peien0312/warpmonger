@@ -251,7 +251,8 @@ def get_categories():
         cats = [{
             "slug": r["slug"], "name": r["name"], "description": "",
             "order_weight": r["order_weight"] or 0, "icon": r["icon"] or "",
-        } for r in conn.execute("SELECT * FROM storefront_categories")]
+        } for r in conn.execute(
+            "SELECT * FROM storefront_categories WHERE COALESCE(is_visible, 1) = 1")]
         conn.close()
         cats.sort(key=lambda c: (-c["order_weight"], c["name"].lower()))
         cache["categories"] = cats
