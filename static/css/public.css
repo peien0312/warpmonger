@@ -3727,3 +3727,8 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
     font-size: 0.62em; padding: 1px 6px; vertical-align: middle;
     letter-spacing: 0.08em; font-weight: 400;
 }
+
+.member-tag { white-space: nowrap; }
+.price { line-height: 1.35; }
+.availability-note a { color: #D9A441; text-decoration: underline; }
+.availability-note a:hover { color: #E6DAC4; }

@@ -213,8 +213,8 @@
                 {% elif product.availability == 'preorder' %}
                 <p class="pre-order-status">
                     {{ t.pre_order }}
-                    {% if product.available_date %}
-                    - {{ t.expected }}: {{ product.available_date|format_month }}
+                    {% if product.available_display %}
+                    ｜預計 {{ product.available_display }}到貨
                     {% endif %}
                 </p>
                 {% elif product.availability == 'orderable' %}

@@ -63,6 +63,20 @@ def _fresh():
         return _cache
 
 
+def _arrival_display(preorder_date):
+    """Customer-facing arrival: vendor release month + 1 (China->Taiwan
+    shipping), rendered as e.g. 2026年9月."""
+    raw = str(preorder_date or "")[:7]
+    try:
+        y, m = int(raw[:4]), int(raw[5:7])
+    except ValueError:
+        return ""
+    m += 1
+    if m > 12:
+        y, m = y + 1, 1
+    return f"{y}年{m}月"
+
+
 def member_price_of(row):
     """會員價: regular_price_twd when set (>0), else 90% of 售價 rounded.
     Sale price caps it — members never pay more than the public price."""
@@ -168,6 +182,7 @@ def _load_products():
             # (rule: in-stock overrides the preorder flag)
             "is_pre_order": avail == "preorder",
             "available_date": str(row["preorder_date"] or "")[:10],
+            "available_display": _arrival_display(row["preorder_date"]) if avail == "preorder" else "",
             "is_on_sale": bool(row["is_on_sale"]),
             "sale_price": row["sale_price_twd"] or 0,
             "is_new_arrival": bool(row["is_new_arrival"]),

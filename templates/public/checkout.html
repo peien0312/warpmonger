@@ -154,7 +154,7 @@ async function loadCheckout() {
             return `<div class="checkout-line">
                 ${img ? `<img src="${img}" alt="">` : ''}
                 <span class="line-title">${l.title}
-                    <small>${AVAIL_LABEL[l.availability]}${l.availability === 'preorder' && l.available_date ? ' ' + l.available_date.slice(0, 7).replace('-', '/') : ''}</small></span>
+                    <small>${AVAIL_LABEL[l.availability]}${l.availability === 'preorder' && l.available_display ? ' ' + l.available_display : ''}</small></span>
                 <span class="line-qty">x${l.qty}</span>
                 <span class="line-price">${price}</span>
             </div>`;

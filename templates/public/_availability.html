@@ -7,7 +7,7 @@
     {% elif product.availability == 'incoming' %}
     <span class="badge badge-incoming">約2週到貨</span>
     {% elif product.availability == 'preorder' %}
-    <span class="badge badge-preorder">預購{% if product.available_date %}｜{{ product.available_date[:7]|replace('-', '/') }}{% endif %}</span>
+    <span class="badge badge-preorder">預購{% if product.available_display %}｜{{ product.available_display }}{% endif %}</span>
     {% elif product.availability == 'orderable' %}
     <span class="badge badge-orderable">可訂購｜約2-3週</span>
     {% elif product.availability == 'inquiry' %}
@@ -22,7 +22,7 @@
     {% elif product.availability == 'incoming' %}
     <p class="availability-note">已調貨中，約 2 週內到貨後出貨。</p>
     {% elif product.availability == 'preorder' %}
-    <p class="availability-note">預購商品{% if product.available_date %}，預計 {{ product.available_date[:7]|replace('-', '/') }} 到貨{% endif %}。</p>
+    <p class="availability-note">預購商品{% if product.available_display %}，預計 {{ product.available_display }}到貨{% endif %}。</p>
     {% elif product.availability == 'orderable' %}
     <p class="availability-note">可訂購，下單後約 2-3 週到貨。</p>
     {% elif product.availability == 'inquiry' %}

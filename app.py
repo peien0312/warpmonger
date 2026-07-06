@@ -2988,6 +2988,7 @@ def _resolve_cart_items(raw_items):
             'price': price,
             'availability': product['availability'],
             'available_date': product['available_date'],
+            'available_display': product.get('available_display', ''),
         })
     return lines, errors
 
