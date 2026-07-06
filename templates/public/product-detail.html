@@ -1,4 +1,5 @@
 {% extends "public/base.html" %}
+{% import 'public/_availability.html' as avail %}
 
 {% block title %}{{ product.zhtw_name if is_zhtw and product.zhtw_name else product.title }} - {{ category_name }} | Abbey's Toys 阿北的店{% endblock %}
 
@@ -37,7 +38,7 @@
     "url": "{{ request.url }}",
     "priceCurrency": "{% if is_zhtw %}TWD{% else %}USD{% endif %}",
     "price": "{% if is_zhtw %}{{ product.final_price or 0 }}{% elif product.is_on_sale and product.sale_price > 0 %}{{ product.sale_price }}{% else %}{{ product.price }}{% endif %}",
-    "availability": "https://schema.org/{% if product.is_pre_order %}PreOrder{% elif product.in_stock %}InStock{% else %}OutOfStock{% endif %}"
+    "availability": "https://schema.org/{% if product.availability == 'preorder' %}PreOrder{% elif product.availability in ('in_stock', 'incoming') %}InStock{% elif product.availability == 'orderable' %}BackOrder{% else %}LimitedAvailability{% endif %}"
   }
 }
 </script>
@@ -134,12 +135,7 @@
 
             {# Product badges #}
             <div class="product-badges-detail">
-                {% if not product.in_stock %}
-                <span class="badge badge-soldout">{{ t.sold_out }}</span>
-                {% endif %}
-                {% if product.is_pre_order %}
-                <span class="badge badge-preorder">{{ t.pre_order }}</span>
-                {% endif %}
+                {{ avail.badge(product) }}
                 {% if product.is_on_sale %}
                 <span class="badge badge-sale">{{ t.sale }}</span>
                 {% endif %}
@@ -153,9 +149,12 @@
                 {% if is_zhtw %}
                     {% if product.final_price %}
                     <p class="price">NT${{ product.final_price|ntd }}</p>
+                    {% elif product.availability == 'inquiry' %}
+                    <p class="price contact-price">價格詢問</p>
                     {% else %}
                     <p class="price contact-price">{{ t.contact_price }}</p>
                     {% endif %}
+                    {{ avail.note(product) }}
                 {% else %}
                     {% if product.is_on_sale and product.sale_price > 0 %}
                     <p class="price">
@@ -190,18 +189,22 @@
                 <p class="product-spec"><strong>{{ t.weight }}:</strong> {{ product.weight }}</p>
                 {% endif %}
 
-                {# Stock and Pre-order status #}
-                {% if product.is_pre_order %}
+                {# Fulfillment status #}
+                {% if product.availability == 'in_stock' %}
+                <p class="stock in-stock">{{ t.in_stock }}</p>
+                {% elif product.availability == 'incoming' %}
+                <p class="stock in-stock">調貨中｜約2週到貨</p>
+                {% elif product.availability == 'preorder' %}
                 <p class="pre-order-status">
                     {{ t.pre_order }}
                     {% if product.available_date %}
                     - {{ t.expected }}: {{ product.available_date|format_month }}
                     {% endif %}
                 </p>
+                {% elif product.availability == 'orderable' %}
+                <p class="stock in-stock">可訂購｜下單後向原廠調貨，約2-3週</p>
                 {% else %}
-                <p class="stock {% if product.in_stock %}in-stock{% else %}out-of-stock{% endif %}">
-                    {% if product.in_stock %}{{ t.in_stock }}{% else %}{{ t.out_of_stock }}{% endif %}
-                </p>
+                <p class="stock out-of-stock">絕版品｜請詢價</p>
                 {% endif %}
             </div>
 
@@ -220,8 +223,9 @@
                         data-image="{{ product.images[0] if product.images else '' }}"
                         data-in-stock="{{ 'true' if product.in_stock else 'false' }}"
                         data-pre-order="{{ 'true' if product.is_pre_order else 'false' }}"
+                        data-availability="{{ product.availability }}"
                         onclick="addToCart()">
-                    {{ t.add_to_list }}
+                    {% if product.availability == 'inquiry' %}加入詢價清單{% else %}{{ t.add_to_list }}{% endif %}
                 </button>
             </div>
 

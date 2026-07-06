@@ -138,7 +138,7 @@ function renderCart() {
         }
         html += '<div class="cart-item-info">';
         html += '<a href="' + urlPrefix + '/products/' + item.category + '/' + item.slug + '" class="cart-item-title">' + item.title + '</a>';
-        html += '<p class="cart-item-price">' + (isZhtw ? 'NT$' + Math.round(item.price).toLocaleString() : '$' + item.price.toFixed(2)) + '</p>';
+        html += '<p class="cart-item-price">' + (item.price > 0 ? (isZhtw ? 'NT$' + Math.round(item.price).toLocaleString() : '$' + item.price.toFixed(2)) : '詢價') + '</p>';
         html += '</div>';
         html += '<div class="cart-item-quantity">';
         html += '<div class="quantity-selector">';

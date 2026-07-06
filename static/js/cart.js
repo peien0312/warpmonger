@@ -167,7 +167,11 @@ const Cart = {
             }
             text += (index + 1) + '. ' + statusPrefix + item.title + '\n';
             if (isZhtw) {
-                text += '   ' + item.quantity + ' x NT$' + Math.round(item.price).toLocaleString() + ' = NT$' + Math.round(item.quantity * item.price).toLocaleString() + '\n';
+                if (item.price > 0) {
+                    text += '   ' + item.quantity + ' x NT$' + Math.round(item.price).toLocaleString() + ' = NT$' + Math.round(item.quantity * item.price).toLocaleString() + '\n';
+                } else {
+                    text += '   ' + item.quantity + ' x 詢價\n';
+                }
             } else {
                 text += '   Qty: ' + item.quantity + ' x $' + item.price.toFixed(2) + ' = $' + (item.quantity * item.price).toFixed(2) + '\n';
             }

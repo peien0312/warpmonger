@@ -3562,3 +3562,15 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
     text-transform: uppercase;
     margin-bottom: 14px;
 }
+
+/* Availability badges — one per product, glass-tone coded */
+.badge-instock   { background: #4A5638; color: #E6DAC4; }          /* moss: here now */
+.badge-incoming  { background: #6E4B2A; color: #E6DAC4; }          /* oak: on the way */
+.badge-orderable { background: #3E4A5C; color: #E6DAC4; }          /* slate glass: can order */
+.badge-inquiry   { background: #241A12; color: #D9A441; border: 1px solid #6E4B2A; }  /* lead + amber: ask 阿北 */
+
+.availability-note {
+    color: #B3A48D;
+    font-size: 0.85rem;
+    margin: 4px 0 10px;
+}

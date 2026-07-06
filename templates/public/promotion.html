@@ -1,4 +1,5 @@
 {% extends "public/base.html" %}
+{% import 'public/_availability.html' as avail %}
 
 {% block title %}{{ promotion.title }} | Promotions - Abbey's Toys 阿北的店{% endblock %}
 
@@ -52,12 +53,7 @@
                             {% endif %}
 
                             <div class="product-badges">
-                                {% if not product.in_stock %}
-                                <span class="badge badge-soldout">{{ t.sold_out }}</span>
-                                {% endif %}
-                                {% if product.is_pre_order %}
-                                <span class="badge badge-preorder">{{ t.pre_order }}</span>
-                                {% endif %}
+                                {{ avail.badge(product) }}
                                 {% if product.is_on_sale %}
                                 <span class="badge badge-sale">{{ t.sale }}</span>
                                 {% endif %}

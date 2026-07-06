@@ -57,6 +57,29 @@ def _fresh():
         return _cache
 
 
+def _availability(row, inv, waiting, today):
+    """Availability state per the shop's fulfillment rules (priority order):
+      in_stock  現貨            tw - waiting > 0 (preorder flag ignored)
+      incoming  約2週內到貨      tw + in_transit + china - waiting > 0
+      preorder  預購            is_preorder with a future date, no stock
+      orderable 可訂購 約2-3週   not deprecated -> can order from JoyToy
+      inquiry   絕版詢價         deprecated, not preorder -> price on inquiry
+    A preorder whose date has passed is treated as released (falls through
+    to orderable/inquiry)."""
+    tw = inv.get("taiwan", 0)
+    total = tw + inv.get("in_transit", 0) + inv.get("china", 0)
+    if tw - waiting > 0:
+        return "in_stock"
+    if total - waiting > 0:
+        return "incoming"
+    preorder_date = str(row["preorder_date"] or "")[:10]
+    if row["is_preorder"] and preorder_date > today:
+        return "preorder"
+    if not row["is_deprecated"]:
+        return "orderable"
+    return "inquiry"
+
+
 def _load_products():
     cache = _fresh()
     if "products" in cache:
@@ -74,12 +97,24 @@ def _load_products():
         if name:
             images.setdefault(r["product_id"], []).append(name)
 
-    stock = {}
+    inv = {}  # product_id -> {location: qty}
     for r in cur.execute("""
-        SELECT product_id, SUM(quantity - reserved) AS qty
-        FROM inventory WHERE location = 'taiwan' GROUP BY product_id
+        SELECT product_id, location, SUM(quantity) AS qty
+        FROM inventory GROUP BY product_id, location
     """):
-        stock[r["product_id"]] = r["qty"] or 0
+        inv.setdefault(r["product_id"], {})[r["location"]] = r["qty"] or 0
+
+    waiting = {}  # product_id -> qty in 待配貨 on live orders
+    for r in cur.execute("""
+        SELECT oi.product_id, SUM(oi.quantity) AS qty
+        FROM order_items oi JOIN orders o ON o.id = oi.order_id
+        WHERE oi.status = '待配貨' AND (o.is_deleted = 0 OR o.is_deleted IS NULL)
+        GROUP BY oi.product_id
+    """):
+        waiting[r["product_id"]] = r["qty"] or 0
+
+    from datetime import date
+    today = date.today().isoformat()
 
     products = []
     for row in cur.execute("""
@@ -91,6 +126,8 @@ def _load_products():
             tags = json.loads(row["tags"] or "[]")
         except Exception:
             tags = []
+        avail = _availability(row, inv.get(row["id"], {}),
+                              waiting.get(row["id"], 0), today)
         products.append({
             "slug": row["slug"],
             "category": row["category_slug"],
@@ -98,10 +135,13 @@ def _load_products():
             "price": 0,
             "description": row["description_zhtw"] or row["description"] or "",
             "images": images.get(row["id"], []),
-            "in_stock": stock.get(row["id"], 0) > 0,
+            "availability": avail,
+            "in_stock": avail == "in_stock",
             "sku": row["barcode"] or "",
             "tags": tags,
-            "is_pre_order": bool(row["is_preorder"]),
+            # 預購 badge/filter only when preorder is the *effective* state
+            # (rule: in-stock overrides the preorder flag)
+            "is_pre_order": avail == "preorder",
             "available_date": str(row["preorder_date"] or "")[:10],
             "is_on_sale": bool(row["is_on_sale"]),
             "sale_price": row["sale_price_twd"] or 0,
@@ -115,7 +155,8 @@ def _load_products():
             "weight": row["weight"] or "",
             "zhtw_price": 0,
             "cost": row["cost_cny"] or 0,
-            "final_price": row["selling_price_twd"] or 0,
+            # inquiry items don't show a price — the site renders 詢價 instead
+            "final_price": 0 if avail == "inquiry" else (row["selling_price_twd"] or 0),
             "cost_tw": 0,
             "order_weight": row["order_weight"] or 0,
             "group": row["storefront_group"] or "",
