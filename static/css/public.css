@@ -3701,7 +3701,18 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
 .addr-new summary { cursor: pointer; color: #D9A441; margin: 8px 0; }
 
 .card-sub {
-    color: #948669; font-size: 0.75rem; letter-spacing: 0.03em;
-    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-    margin: 2px 0 4px;
+    color: #948669; font-size: 0.72rem; letter-spacing: 0.02em;
+    line-height: 1.5; margin: 4px 0 8px;
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+    overflow: hidden;
 }
+.card-sub .card-sku {
+    color: #D9A441; border: 1px solid #6E4B2A; border-radius: 3px;
+    padding: 0 5px; margin-right: 6px; font-size: 0.66rem;
+    letter-spacing: 0.06em; display: inline-block; line-height: 1.5;
+}
+/* equal-height cards: price sits at the bottom regardless of text length */
+.product-card > a {
+    display: flex; flex-direction: column; height: 100%;
+}
+.product-card > a .price { margin-top: auto; padding-top: 4px; }
