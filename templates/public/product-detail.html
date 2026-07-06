@@ -293,7 +293,7 @@
                         <div class="product-placeholder">{{ t.no_image }}</div>
                         {% endif %}
                         <h3>{{ prod.zhtw_name if is_zhtw and prod.zhtw_name else prod.title }}</h3>
-                        <p class="card-sub">{% if prod.id %}<span class="card-sku">{{ prod.id }}</span>{% endif %}{% if prod.zhtw_name and prod.title and prod.title != prod.zhtw_name %}{{ prod.title }}{% endif %}</p>
+                        <p class="card-sub">{% if prod.id %}<span class="card-sku">{{ prod.id }}</span>{% endif %}{% if prod.zhtw_name and prod.title and prod.title != prod.zhtw_name %}<span class="card-sub-text">{{ prod.title }}</span>{% endif %}</p>
                         {% if is_zhtw %}
                             {% if prod.final_price %}<p class="price">NT${{ prod.final_price|ntd }}</p>{% endif %}
                         {% else %}
