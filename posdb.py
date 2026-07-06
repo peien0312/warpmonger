@@ -168,7 +168,11 @@ def _load_products():
             "category": row["category_slug"],
             "title": _norm(row["en_name"] or row["zhtw_name"] or row["sku"]),
             "price": 0,
+            # `description` keeps the old zh-TW-first fallback for list views /
+            # meta tags; the route picks _zhtw vs _enus by locale for the body.
             "description": row["description_zhtw"] or row["description"] or "",
+            "description_zhtw": row["description_zhtw"] or "",
+            "description_enus": row["description_enus"] or "",
             # gallery (cover first) drives cards + the thumbnail strip;
             # detail/editor images render as a long section below the fold.
             # Products with no gallery fall back to their detail images.
@@ -279,6 +283,13 @@ def get_featured_products_refs():
     return _setting_json("featured_products", [])
 
 
+def get_tag_glossary():
+    """EN tag -> zh-TW display label. Tags are stored/filtered in English
+    (stable keys); this maps them to Chinese labels for display only."""
+    g = _setting_json("tag_glossary", {})
+    return g if isinstance(g, dict) else {}
+
+
 def get_featured_tags():
     tags = _setting_json("featured_tags", [])
     tags.sort(key=lambda t: -t.get("order_weight", 0) if isinstance(t, dict) else 0)
@@ -333,10 +344,12 @@ def get_codex_entries():
     for item in _posts("codex"):
         r, extra = item["row"], item["extra"]
         body = r["body"] or ""
+        body_enus = (r["body_enus"] if "body_enus" in r.keys() else "") or ""
         entries.append({
             "slug": r["slug"], "title": r["title"],
             "aliases": extra.get("aliases") or [],
-            "content": body,
+            "content": body,               # zh-TW body (displayed by default)
+            "content_enus": body_enus,     # English body (shown on /en)
             "excerpt": body[:200] + "..." if len(body) > 200 else body,
         })
     entries.sort(key=lambda e: e["title"].lower())

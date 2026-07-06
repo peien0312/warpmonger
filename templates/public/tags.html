@@ -15,7 +15,7 @@
         <div class="tag-cloud">
             {% for tag in tags %}
             <a href="{{ url_prefix }}/products?tag={{ tag.name|urlencode }}" class="tag-cloud-item" data-count="{{ tag.count }}">
-                {{ tag.name }}
+                {{ tag.name|tag_label }}
                 <span class="tag-count">({{ tag.count }})</span>
             </a>
             {% endfor %}

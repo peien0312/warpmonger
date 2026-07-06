@@ -1418,8 +1418,17 @@ def product_detail(category, slug):
     if not product:
         return "Product not found", 404
 
-    # Process codex links first, then convert markdown to HTML
-    description_with_codex = process_codex_links(product['description'])
+    # Pick the description body by locale: zh-TW on the default site, English
+    # on /en (each falls back to the other so a missing translation still shows
+    # something). Process codex links first, then convert markdown to HTML.
+    from flask import g
+    _zh = product.get('description_zhtw') or ''
+    _en = product.get('description_enus') or ''
+    if getattr(g, 'locale', 'zhtw') == 'zhtw':
+        _desc = _zh or _en or product.get('description') or ''
+    else:
+        _desc = _en or _zh or product.get('description') or ''
+    description_with_codex = process_codex_links(_desc)
     product['description_html'] = markdown.markdown(description_with_codex)
 
     # Get category name for display
@@ -1518,8 +1527,16 @@ def codex_entry_page(slug):
     if not entry:
         return "Codex entry not found", 404
 
+    # zh-TW body by default, English on /en (fall back to whichever exists).
+    from flask import g
+    _zh = entry.get('content') or ''
+    _en = entry.get('content_enus') or ''
+    if getattr(g, 'locale', 'zhtw') == 'zhtw':
+        _body = _zh or _en
+    else:
+        _body = _en or _zh
     # Convert markdown to HTML
-    entry['content_html'] = markdown.markdown(entry['content'])
+    entry['content_html'] = markdown.markdown(_body)
 
     # Get all entries for navigation
     all_entries = get_codex_entries()
@@ -3695,6 +3712,18 @@ get_promotions = _posdb.get_promotions
 get_promotion = _posdb.get_promotion
 get_active_promotion = _posdb.get_active_promotion
 get_page = _posdb.get_page
+get_tag_glossary = _posdb.get_tag_glossary
+
+
+@app.template_filter('tag_label')
+def tag_label_filter(tag):
+    """Display a tag in zh-TW (via the tag_glossary) on the default site,
+    keep the English key everywhere else (filter links, /en). Falls back to
+    the raw tag when there's no mapping."""
+    from flask import g
+    if not tag or getattr(g, 'locale', 'zhtw') != 'zhtw':
+        return tag
+    return _posdb.get_tag_glossary().get(tag, tag)
 
 
 if __name__ == '__main__':

@@ -73,7 +73,7 @@
     <div class="container">
         <div class="faction-tags">
             {% for tag in featured_tags %}
-            <a href="{{ url_prefix }}/products?tag={{ tag.name|urlencode }}" class="faction-tag">{{ tag.name }}</a>
+            <a href="{{ url_prefix }}/products?tag={{ tag.name|urlencode }}" class="faction-tag">{{ tag.name|tag_label }}</a>
             {% endfor %}
         </div>
     </div>

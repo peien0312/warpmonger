@@ -25,7 +25,9 @@ reads). It depends on this POS schema:
 - `products` storefront columns: `slug`, `category_slug`, `tags` (JSON),
   `order_weight`, `is_on_sale`, `sale_price_twd`, `is_new_arrival`,
   `storefront_group`, `is_published` — plus the base columns
-  (names/prices/preorder) and `description_zhtw` as the site description.
+  (names/prices/preorder). `description_zhtw` (zh-TW) is the default site
+  description and `description_enus` is the English one shown on `/en`; the
+  product route picks by locale (see `product_detail`).
 - `product_images` (kind cover|gallery|detail, sort_order, filename
   `media/<SKU>/<file>`) — images live on disk in the POS repo's `media/` dir,
   served by this app at `/static/images/products/<cat>/<slug>/<file>` with
@@ -41,8 +43,11 @@ reads). It depends on this POS schema:
   Stale preorders (date passed) fall through to 4/5. Badges/notes live in
   `templates/public/_availability.html`. Show/hide on site = `is_published`.
 - `storefront_categories`, `storefront_posts` (type blog|codex|promotion|page,
-  extra JSON), `settings` keys `featured_products` (["category/slug", ...])
-  and `featured_tags`.
+  extra JSON). Codex `body` is zh-TW, `body_enus` is English (shown on `/en`);
+  `title` is kept English as it's the `[[crosslink]]` anchor.
+- `settings` keys `featured_products` (["category/slug", ...]), `featured_tags`,
+  and `tag_glossary` (`{english_tag: zhtw_label}` — tags stay English keys for
+  filtering; the `tag_label` Jinja filter shows the zh-TW label).
 
 If a POS migration touches any of these, update `posdb.py` in the same
 change and deploy both.
