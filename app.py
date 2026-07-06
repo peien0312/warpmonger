@@ -1281,6 +1281,24 @@ def home():
     """Homepage"""
     all_products = get_products()
 
+    # category showcase: each category with product count + a cover image
+    category_cards = []
+    for cat in get_categories():
+        cat_products = [p for p in all_products if p['category'] == cat['slug']]
+        if not cat_products:
+            continue
+        with_img = next((p for p in cat_products if p['images']), None)
+        cover = None
+        if with_img:
+            stem = with_img['images'][0].rsplit('.', 1)[0]
+            cover = f"/static/images/products/{with_img['category']}/{with_img['slug']}/thumb_{stem}.jpg"
+        category_cards.append({
+            'slug': cat['slug'], 'name': cat['name'],
+            'count': len(cat_products), 'cover': cover,
+            'weight': cat.get('order_weight', 0),
+        })
+    category_cards.sort(key=lambda c: (-c['weight'], -c['count']))
+
     # Get featured products (manually selected) or fallback to first 8
     featured = get_featured_products_for_homepage()
     if not featured:
@@ -1295,6 +1313,7 @@ def home():
     active_promo = get_active_promotion()
     return render_template('public/home.html',
                          products=featured,
+                         category_cards=category_cards,
                          new_arrivals=new_arrivals,
                          on_sale=on_sale,
                          posts=posts,

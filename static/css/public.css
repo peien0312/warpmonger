@@ -3732,3 +3732,28 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
 .price { line-height: 1.35; }
 .availability-note a { color: #D9A441; text-decoration: underline; }
 .availability-note a:hover { color: #E6DAC4; }
+
+/* Footer contact */
+.footer-contact { display: flex; align-items: center; justify-content: center; gap: 16px; margin-bottom: 1rem; }
+.footer-email { color: #D9A441; text-decoration: none; }
+.footer-email:hover { text-decoration: underline; }
+
+/* Category showcase */
+.category-showcase { padding: 30px 0 10px; }
+.category-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 14px; margin-top: 18px;
+}
+.category-card {
+    display: flex; flex-direction: column; align-items: center; text-decoration: none;
+    border: 2px solid #17100B; box-shadow: 0 0 0 1px #6E4B2A;
+    border-radius: 6px; background: #292019; padding: 12px 8px 10px;
+    transition: transform 0.15s;
+}
+.category-card:hover { transform: translateY(-3px); box-shadow: 0 0 0 1px #D9A441; }
+.category-card img {
+    width: 96px; height: 96px; object-fit: cover; border-radius: 4px;
+    border: 1px solid #17100B; margin-bottom: 8px;
+}
+.category-card-name { color: #E6DAC4; font-size: 0.85rem; text-align: center; line-height: 1.35; }
+.category-card-count { color: #948669; font-size: 0.72rem; margin-top: 2px; }
