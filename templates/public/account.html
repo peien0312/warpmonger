@@ -101,6 +101,18 @@
     </div>
     {% endif %}
 
+    <h2 class="section-title">LINE 通知</h2>
+    <div class="profile-form">
+        {% if member.line_user_id %}
+        <p>✅ 已綁定 LINE — 到貨與訂單通知會透過官方帳號傳送。
+            <button class="btn btn-sm btn-secondary" onclick="lineUnbind(this)">解除綁定</button></p>
+        {% else %}
+        <p>加入 <strong>阿北玩具堂官方帳號</strong> 好友後，傳送您的綁定碼：</p>
+        <p class="bind-code">{{ line_bind_code }}</p>
+        <p><small>綁定後，到貨通知與訂單通知會直接傳 LINE 給您（否則寄 email）。</small></p>
+        {% endif %}
+    </div>
+
     {% if notify_skus %}
     <h2 class="section-title">到貨通知</h2>
     <p class="text-muted">已訂閱 {{ notify_skus|length }} 件商品，到貨時會寄信通知 {{ member.email }}。</p>
@@ -164,6 +176,10 @@ function profilePickStore(s) {
     document.getElementById('profile-store-picked').textContent = `預設門市：${s.name}（${s.code}）`;
     document.getElementById('profile-store-results').innerHTML = '';
     document.getElementById('profile-store-q').value = '';
+}
+async function lineUnbind(btn) {
+    const res = await fetch('/api/account/line-unbind', {method: 'POST'});
+    if (res.ok) location.reload();
 }
 async function toggleWish(sku, btn) {
     const res = await fetch('/api/wishlist', {

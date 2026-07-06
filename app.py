@@ -3041,6 +3041,17 @@ def checkout_submit():
     except Exception as e:
         print(f"order email failed: {e}")
 
+    if member and member.get('line_user_id'):
+        try:
+            import linepush
+            if linepush.enabled():
+                grand = result.get('grand_total_twd', result.get('total_twd', 0))
+                linepush.push_text(member['line_user_id'],
+                    f"感謝訂購！訂單 {result['order_no']} 已收到，"
+                    f"合計 NT${int(grand):,}。確認後會再通知您。")
+        except Exception as e:
+            print(f"line order push failed: {e}")
+
     # LINE Pay: create the payment request for the chargeable part
     # (現貨/調貨 items; preorders are pay-on-arrival, inquiry unpriced)
     if data.get('payment_method') == 'linepay':
@@ -3250,7 +3261,8 @@ def account_page():
     notify = set(memberdb.notify_skus(member['id']))
     return render_template('public/account.html', member=member,
                            orders=orders, wish_products=wish_products,
-                           notify_skus=notify)
+                           notify_skus=notify,
+                           line_bind_code=memberdb.get_bind_code(member['id']))
 
 
 @app.route('/api/wishlist', methods=['POST'])
@@ -3275,6 +3287,45 @@ def api_notify():
         return jsonify({'error': 'bad sku'}), 400
     added = memberdb.notify_toggle(member['id'], sku)
     return jsonify({'success': True, 'added': added})
+
+
+@app.route('/line/webhook', methods=['POST'])
+def line_webhook():
+    """LINE 官方帳號 webhook: binds members via their binding code."""
+    import linepush
+    body = request.get_data()
+    if not linepush.valid_signature(body, request.headers.get('X-Line-Signature', '')):
+        return 'bad signature', 403
+    events = (request.get_json(silent=True) or {}).get('events', [])
+    for ev in events:
+        try:
+            if ev.get('type') == 'follow':
+                linepush.reply_text(ev['replyToken'],
+                    '歡迎加入阿北玩具堂！\n\n如果您是網站會員，到會員中心取得「綁定碼」並傳給我，'
+                    '之後到貨通知、訂單通知都會從這裡傳給您。\n\nhttps://abbeystoys.com/account')
+            elif ev.get('type') == 'message' and ev.get('message', {}).get('type') == 'text':
+                text = ev['message']['text'].strip().upper()
+                if text.startswith('AB') and len(text) == 8:
+                    member = memberdb.bind_line_user(text, ev['source']['userId'])
+                    if member:
+                        linepush.reply_text(ev['replyToken'],
+                            f"綁定成功！{member.get('name') or ''} 您好，"
+                            '之後到貨與訂單通知都會傳到這裡。')
+                    else:
+                        linepush.reply_text(ev['replyToken'],
+                            '找不到這個綁定碼，請到會員中心確認：https://abbeystoys.com/account')
+        except Exception as e:
+            print(f'line webhook event failed: {e}')
+    return 'OK'
+
+
+@app.route('/api/account/line-unbind', methods=['POST'])
+def api_line_unbind():
+    member = current_member()
+    if not member:
+        return jsonify({'error': 'login'}), 401
+    memberdb.unbind_line(member['id'])
+    return jsonify({'success': True})
 
 
 @app.route('/api/account/profile', methods=['POST'])

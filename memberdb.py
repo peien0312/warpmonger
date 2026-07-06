@@ -56,6 +56,8 @@ def init():
         "ALTER TABLE members ADD COLUMN default_store_code TEXT",
         "ALTER TABLE members ADD COLUMN default_store_name TEXT",
         "ALTER TABLE members ADD COLUMN default_address TEXT",
+        "ALTER TABLE members ADD COLUMN line_user_id TEXT",
+        "ALTER TABLE members ADD COLUMN bind_code TEXT",
     ):
         try:
             conn.execute(stmt)
@@ -150,9 +152,10 @@ def pending_notifications():
     """[(request_id, member_email, member_name, sku)] awaiting arrival."""
     conn = _conn()
     rows = conn.execute("""
-        SELECT n.id, m.email, m.name, n.sku
+        SELECT n.id, m.email, m.name, n.sku, m.line_user_id
         FROM notify_requests n JOIN members m ON m.id = n.member_id
-        WHERE n.notified_at IS NULL AND m.email IS NOT NULL
+        WHERE n.notified_at IS NULL
+          AND (m.email IS NOT NULL OR m.line_user_id IS NOT NULL)
     """).fetchall()
     conn.close()
     return [tuple(r) for r in rows]
@@ -181,5 +184,44 @@ def update_profile(member_id, fields):
     params.append(member_id)
     conn = _conn()
     conn.execute(f"UPDATE members SET {', '.join(sets)} WHERE id = ?", params)
+    conn.commit()
+    conn.close()
+
+
+# ----- LINE binding (via 官方帳號 webhook + binding code) -----
+
+def get_bind_code(member_id):
+    """Return (or mint) the member's LINE binding code."""
+    import secrets
+    conn = _conn()
+    row = conn.execute("SELECT bind_code FROM members WHERE id = ?", (member_id,)).fetchone()
+    code = row["bind_code"] if row else None
+    if not code:
+        code = "AB" + secrets.token_hex(3).upper()
+        conn.execute("UPDATE members SET bind_code = ? WHERE id = ?", (code, member_id))
+        conn.commit()
+    conn.close()
+    return code
+
+
+def bind_line_user(code, line_user_id):
+    """Link a LINE user to the member holding this code. Returns member or None."""
+    conn = _conn()
+    row = conn.execute(
+        "SELECT id FROM members WHERE bind_code = ?", (code.strip().upper(),)).fetchone()
+    if not row:
+        conn.close()
+        return None
+    conn.execute("UPDATE members SET line_user_id = ? WHERE id = ?",
+                 (line_user_id, row["id"]))
+    conn.commit()
+    member = conn.execute("SELECT * FROM members WHERE id = ?", (row["id"],)).fetchone()
+    conn.close()
+    return dict(member)
+
+
+def unbind_line(member_id):
+    conn = _conn()
+    conn.execute("UPDATE members SET line_user_id = NULL WHERE id = ?", (member_id,))
     conn.commit()
     conn.close()

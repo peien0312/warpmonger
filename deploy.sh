@@ -13,7 +13,7 @@ tar czf "$TARBALL" \
     --exclude=venv --exclude=.git --exclude=__pycache__ \
     --exclude=content --exclude=all --exclude=line_shopping_output \
     --exclude=nohup.out --exclude='*.tar.gz' \
-    app.py posdb.py linepay.py memberdb.py notify_arrivals.py templates static requirements.txt
+    app.py posdb.py linepay.py linepush.py memberdb.py notify_arrivals.py templates static requirements.txt
 
 echo "==> uploading"
 gcloud compute scp "$TARBALL" "$VM:/tmp/abbeys_deploy.tar.gz" \
