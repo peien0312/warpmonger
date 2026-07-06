@@ -3375,6 +3375,87 @@ def api_notify():
     return jsonify({'success': True, 'added': added})
 
 
+@app.route('/api/internal/notify', methods=['POST'])
+def api_internal_notify():
+    """POS -> customer notification. Resolves the best channel:
+    member LINE binding (matched by phone/email) first, email fallback.
+    Auth: same shared secret as the storefront API."""
+    if request.headers.get('X-Storefront-Key') != STOREFRONT_API_KEY or not STOREFRONT_API_KEY:
+        return jsonify({'error': 'bad key'}), 401
+    data = request.get_json(silent=True) or {}
+    phone = (data.get('phone') or '').strip()
+    email = (data.get('email') or '').strip()
+    message = (data.get('message') or '').strip()
+
+    # optional server-side template (site owns e.g. bank info)
+    if data.get('template') == 'order_confirmed':
+        d = data.get('data') or {}
+        lines = [f"您的訂單 {d.get('order_no', '')} 已確認！",
+                 f"總額 NT${int(d.get('grand_total', 0)):,}（含運費）。"]
+        pm = d.get('payment_method')
+        if pm == 'transfer':
+            lines.append(f"請轉帳至：{BANK_TRANSFER_INFO}")
+            lines.append("轉帳後請回覆帳號後五碼（或在網站會員中心回報），確認後出貨。")
+        elif pm == 'cod':
+            lines.append("將盡快為您安排出貨，取貨時付款即可。")
+        elif pm == 'linepay':
+            lines.append("感謝您的付款，將盡快為您安排出貨。")
+        lines.append("— ABBEY'S TOYS 阿北玩具堂")
+        message = "\n".join(lines)
+
+    if not message or not (phone or email):
+        return jsonify({'success': False, 'error': 'need message and phone/email'}), 400
+
+    # find a bound member by phone or email
+    line_user_id = None
+    member_email = None
+    import sqlite3 as _sq
+    conn = _sq.connect(memberdb.DB_PATH)
+    conn.row_factory = _sq.Row
+    row = None
+    if phone:
+        row = conn.execute("SELECT * FROM members WHERE phone = ?", (phone,)).fetchone()
+    if not row and email:
+        row = conn.execute("SELECT * FROM members WHERE email = ?", (email,)).fetchone()
+    conn.close()
+    if row:
+        line_user_id = row['line_user_id']
+        member_email = row['email']
+
+    sent = []
+    if line_user_id:
+        try:
+            import linepush
+            if linepush.enabled():
+                linepush.push_text(line_user_id, message)
+                sent.append('line')
+        except Exception as e:
+            print(f"notify line push failed: {e}")
+    if not sent:
+        target = email or member_email
+        if target:
+            try:
+                import smtplib as _smtp
+                from email.mime.text import MIMEText
+                server_host = os.environ.get('SMTP_SERVER')
+                user = os.environ.get('SMTP_USERNAME')
+                pw = os.environ.get('SMTP_PASSWORD')
+                if all([server_host, user, pw]):
+                    with _smtp.SMTP(server_host, int(os.environ.get('SMTP_PORT', 587))) as sv:
+                        sv.starttls()
+                        sv.login(user, pw)
+                        msg = MIMEText(message, 'plain', 'utf-8')
+                        msg['Subject'] = '[阿北玩具堂] 訂單通知'
+                        msg['From'] = user
+                        msg['To'] = target
+                        sv.sendmail(user, target, msg.as_string())
+                    sent.append('email')
+            except Exception as e:
+                print(f"notify email failed: {e}")
+    return jsonify({'success': bool(sent), 'channels': sent,
+                    'error': None if sent else '客戶未綁定 LINE 且無法寄送 email'})
+
+
 @app.route('/line/webhook', methods=['POST'])
 def line_webhook():
     """LINE 官方帳號 webhook: binds members via their binding code."""
