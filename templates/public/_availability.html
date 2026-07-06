@@ -24,7 +24,7 @@
     {% elif product.availability == 'preorder' %}
     <p class="availability-note">預購商品{% if product.available_date %}，預計 {{ product.available_date[:7]|replace('-', '/') }} 到貨{% endif %}。</p>
     {% elif product.availability == 'orderable' %}
-    <p class="availability-note">可向原廠調貨，約 2-3 週到貨後出貨。</p>
+    <p class="availability-note">可訂購，下單後約 2-3 週到貨。</p>
     {% elif product.availability == 'inquiry' %}
     <p class="availability-note">絕版品，價格與貨況請送出詢價清單，阿北會儘快回覆。</p>
     {% endif %}

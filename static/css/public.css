@@ -3574,3 +3574,30 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
     font-size: 0.85rem;
     margin: 4px 0 10px;
 }
+
+/* Editor/detail images — long-scroll section like the vendor page */
+.product-editor-images {
+    max-width: 900px;
+    margin: 40px auto 20px;
+    padding: 0 16px;
+}
+.product-editor-images h2 {
+    text-align: center;
+    margin-bottom: 24px;
+}
+.product-editor-images img {
+    display: block;
+    width: 100%;
+    margin: 0 auto;
+    border: 2px solid #17100B;
+    box-shadow: 0 0 0 1px #6E4B2A;
+    border-radius: 4px;
+}
+.product-editor-images img + img { margin-top: 10px; }
+
+.product-en-name {
+    color: #948669;
+    font-size: 0.9rem;
+    letter-spacing: 0.03em;
+    margin: 2px 0 10px;
+}

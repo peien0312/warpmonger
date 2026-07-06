@@ -94,14 +94,16 @@ def _load_products():
     conn = _conn()
     cur = conn.cursor()
 
-    images = {}
+    gallery, detail = {}, {}
     for r in cur.execute(f"""
-        SELECT product_id, filename FROM product_images
+        SELECT product_id, kind, filename FROM product_images
         ORDER BY product_id, {KIND_ORDER}, sort_order
     """):
         name = os.path.basename(r["filename"] or "")
-        if name:
-            images.setdefault(r["product_id"], []).append(name)
+        if not name:
+            continue
+        bucket = detail if r["kind"] == "detail" else gallery
+        bucket.setdefault(r["product_id"], []).append(name)
 
     inv = {}  # product_id -> {location: qty}
     for r in cur.execute("""
@@ -140,7 +142,11 @@ def _load_products():
             "title": _norm(row["en_name"] or row["zhtw_name"] or row["sku"]),
             "price": 0,
             "description": row["description_zhtw"] or row["description"] or "",
-            "images": images.get(row["id"], []),
+            # gallery (cover first) drives cards + the thumbnail strip;
+            # detail/editor images render as a long section below the fold.
+            # Products with no gallery fall back to their detail images.
+            "images": gallery.get(row["id"]) or detail.get(row["id"], []),
+            "detail_images": detail.get(row["id"], []) if gallery.get(row["id"]) else [],
             "availability": avail,
             "in_stock": avail == "in_stock",
             "sku": row["barcode"] or "",

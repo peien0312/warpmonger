@@ -1,7 +1,7 @@
 {% extends "public/base.html" %}
 {% import 'public/_availability.html' as avail %}
 
-{% block title %}{{ product.zhtw_name if is_zhtw and product.zhtw_name else product.title }} - {{ category_name }} | Abbey's Toys 阿北的店{% endblock %}
+{% block title %}{{ product.zhtw_name or product.title }}{% if product.zhtw_name and product.title and product.title != product.zhtw_name %} {{ product.title }}{% endif %}{% if product.id %} {{ product.id }}{% endif %} | ABBEY'S TOYS 阿北玩具堂{% endblock %}
 
 {% block meta_description %}{% if is_zhtw %}{{ product.zhtw_name or product.title }}{% if product.final_price %} - NT${{ product.final_price|ntd }}{% endif %}{% else %}Buy {{ product.title }} for ${{ "%.2f"|format(product.price) }}. {{ product.description[:150] }}...{% endif %}{% endblock %}
 
@@ -132,6 +132,11 @@
             </nav>
 
             <h1>{{ product.zhtw_name if is_zhtw and product.zhtw_name else product.title }}</h1>
+            {% if product.zhtw_name and product.title and product.title != product.zhtw_name %}
+            <p class="product-en-name">{{ product.title }}{% if product.id %} · {{ product.id }}{% endif %}</p>
+            {% elif product.id %}
+            <p class="product-en-name">{{ product.id }}</p>
+            {% endif %}
 
             {# Product badges #}
             <div class="product-badges-detail">
@@ -171,6 +176,9 @@
                     {% endif %}
                 {% endif %}
 
+                {% if product.id %}
+                <p class="sku">型號: {{ product.id }}</p>
+                {% endif %}
                 {% if product.sku %}
                 <p class="sku">{{ t.sku }}: {{ product.sku }}</p>
                 {% endif %}
@@ -202,7 +210,7 @@
                     {% endif %}
                 </p>
                 {% elif product.availability == 'orderable' %}
-                <p class="stock in-stock">可訂購｜下單後向原廠調貨，約2-3週</p>
+                <p class="stock in-stock">可訂購｜下單後約2-3週到貨</p>
                 {% else %}
                 <p class="stock out-of-stock">絕版品｜請詢價</p>
                 {% endif %}
@@ -244,6 +252,16 @@
 
         </div>
     </div>
+
+    {% if product.detail_images %}
+    <section class="product-editor-images">
+        <h2 class="section-title">商品詳情</h2>
+        {% for image in product.detail_images %}
+        <img src="/static/images/products/{{ product.category }}/{{ product.slug }}/{{ image }}"
+             alt="{{ product.zhtw_name or product.title }} - 商品詳情 {{ loop.index }}" loading="lazy">
+        {% endfor %}
+    </section>
+    {% endif %}
 
     {# Related Products Carousel - 4 items per row, max 4 rows, arrows navigate 4 at a time #}
     {% if related %}
