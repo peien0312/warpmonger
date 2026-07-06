@@ -225,3 +225,11 @@ def unbind_line(member_id):
     conn.execute("UPDATE members SET line_user_id = NULL WHERE id = ?", (member_id,))
     conn.commit()
     conn.close()
+
+
+def set_line_user(member_id, line_user_id):
+    conn = _conn()
+    conn.execute("UPDATE members SET line_user_id = ? WHERE id = ?",
+                 (line_user_id, member_id))
+    conn.commit()
+    conn.close()

@@ -56,7 +56,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Noto+Serif+TC:wght@600;700&display=swap">
-    <link rel="stylesheet" href="/static/css/public.css?v=28">
+    <link rel="stylesheet" href="/static/css/public.css?v=29">
     {% block extra_css %}{% endblock %}
 
     <!-- Structured Data -->
@@ -139,7 +139,7 @@
                         {% if member.picture %}<img src="{{ member.picture }}" alt="member" referrerpolicy="no-referrer">{% else %}👤{% endif %}
                     </a>
                     {% else %}
-                    <a href="/auth/google" class="login-link" title="使用 Google 登入">登入</a>
+                    <a href="/login" class="login-link" title="會員登入">登入</a>
                     {% endif %}
                 </div>
 

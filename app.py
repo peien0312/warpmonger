@@ -3240,6 +3240,76 @@ def auth_google_callback():
     return redirect(session.pop('login_next', '/') or '/')
 
 
+LINE_LOGIN_CHANNEL_ID = os.environ.get('LINE_LOGIN_CHANNEL_ID', '')
+LINE_LOGIN_CHANNEL_SECRET = os.environ.get('LINE_LOGIN_CHANNEL_SECRET', '')
+
+
+@public_route('/login')
+def login_page():
+    if current_member():
+        return redirect('/account')
+    return render_template('public/login.html',
+                           has_google=bool(GOOGLE_CLIENT_ID),
+                           has_line=bool(LINE_LOGIN_CHANNEL_ID))
+
+
+@app.route('/auth/line')
+def auth_line():
+    import secrets
+    from urllib.parse import urlencode
+    if not LINE_LOGIN_CHANNEL_ID:
+        return "LINE 登入尚未設定", 503
+    state = secrets.token_urlsafe(24)
+    session['oauth_state'] = state
+    session['login_next'] = request.args.get('next') or request.referrer or '/'
+    params = urlencode({
+        'response_type': 'code',
+        'client_id': LINE_LOGIN_CHANNEL_ID,
+        'redirect_uri': request.url_root.rstrip('/') + '/auth/line/callback',
+        'state': state,
+        'scope': 'profile openid',
+        'bot_prompt': 'aggressive',   # prompt adding the 官方帳號 as friend
+    })
+    return redirect('https://access.line.me/oauth2/v2.1/authorize?' + params)
+
+
+@app.route('/auth/line/callback')
+def auth_line_callback():
+    import urllib.request
+    from urllib.parse import urlencode
+    if request.args.get('state') != session.pop('oauth_state', None):
+        return "登入驗證失敗，請重試", 400
+    code = request.args.get('code')
+    if not code:
+        return redirect('/')
+    body = urlencode({
+        'grant_type': 'authorization_code',
+        'code': code,
+        'redirect_uri': request.url_root.rstrip('/') + '/auth/line/callback',
+        'client_id': LINE_LOGIN_CHANNEL_ID,
+        'client_secret': LINE_LOGIN_CHANNEL_SECRET,
+    }).encode()
+    try:
+        with urllib.request.urlopen(urllib.request.Request(
+                'https://api.line.me/oauth2/v2.1/token', data=body), timeout=15) as resp:
+            tokens = json.loads(resp.read())
+        req = urllib.request.Request(
+            'https://api.line.me/v2/profile',
+            headers={'Authorization': 'Bearer ' + tokens['access_token']})
+        with urllib.request.urlopen(req, timeout=15) as resp:
+            prof = json.loads(resp.read())
+    except Exception as e:
+        print(f"line login failed: {e}")
+        return "LINE 登入失敗，請重試", 502
+    member = memberdb.upsert_member(
+        'line:' + prof['userId'], None, prof.get('displayName'), prof.get('pictureUrl'))
+    # LINE login binds notifications automatically
+    memberdb.set_line_user(member['id'], prof['userId'])
+    session.permanent = True
+    session['member_id'] = member['id']
+    return redirect(session.pop('login_next', '/') or '/')
+
+
 @app.route('/auth/logout')
 def auth_logout():
     session.pop('member_id', None)
@@ -3250,7 +3320,7 @@ def auth_logout():
 def account_page():
     member = current_member()
     if not member:
-        return redirect('/auth/google?next=/account')
+        return redirect('/login?next=/account')
     import posdb as _posdb
     orders = _posdb.get_member_orders(member.get('email'), member.get('phone'))
     wish_skus = memberdb.wishlist_skus(member['id'])
@@ -3269,7 +3339,7 @@ def account_page():
 def api_wishlist():
     member = current_member()
     if not member:
-        return jsonify({'error': 'login', 'login_url': '/auth/google'}), 401
+        return jsonify({'error': 'login', 'login_url': '/login'}), 401
     sku = (request.get_json(silent=True) or {}).get('sku', '').strip()
     if not sku:
         return jsonify({'error': 'bad sku'}), 400
@@ -3281,7 +3351,7 @@ def api_wishlist():
 def api_notify():
     member = current_member()
     if not member:
-        return jsonify({'error': 'login', 'login_url': '/auth/google'}), 401
+        return jsonify({'error': 'login', 'login_url': '/login'}), 401
     sku = (request.get_json(silent=True) or {}).get('sku', '').strip()
     if not sku:
         return jsonify({'error': 'bad sku'}), 400

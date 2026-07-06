@@ -587,7 +587,7 @@ async function _memberApi(url, sku, btn, onAdded, onRemoved) {
         body: JSON.stringify({sku: sku}),
     });
     if (res.status === 401) {
-        window.location.href = '/auth/google?next=' + encodeURIComponent(location.pathname);
+        window.location.href = '/login?next=' + encodeURIComponent(location.pathname);
         return;
     }
     const data = await res.json();

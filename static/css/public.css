@@ -3680,3 +3680,12 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
     color: #D9A441; background: #241C15; border: 1px dashed #6E4B2A;
     display: inline-block; padding: 8px 18px; border-radius: 4px;
 }
+
+.login-page { max-width: 480px; margin: 60px auto; text-align: center; }
+.login-buttons { display: flex; flex-direction: column; gap: 12px; margin: 26px 0 14px; }
+.login-btn { display: block; padding: 14px; border-radius: 6px; text-decoration: none; font-size: 1.05rem; border: 1px solid #17100B; }
+.login-line { background: #06C755; color: #fff; }
+.login-line small { display: block; font-size: 0.75rem; opacity: 0.9; }
+.login-google { background: #E6DAC4; color: #241C15; }
+.login-btn:hover { filter: brightness(1.08); }
+.login-note { color: #948669; }

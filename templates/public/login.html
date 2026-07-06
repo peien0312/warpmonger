@@ -1,0 +1,23 @@
+{% extends "public/base.html" %}
+
+{% block title %}會員登入 | ABBEY'S TOYS 阿北玩具堂{% endblock %}
+
+{% block content %}
+<div class="container login-page">
+    <h1 class="page-title">會員登入</h1>
+    <p>登入後可查詢訂單、收藏商品、訂閱到貨通知。</p>
+    <div class="login-buttons">
+        {% if has_line %}
+        <a href="/auth/line{% if request.args.get('next') %}?next={{ request.args.get('next')|urlencode }}{% endif %}" class="btn login-btn login-line">
+            用 LINE 登入 <small>（推薦：通知直接傳 LINE）</small>
+        </a>
+        {% endif %}
+        {% if has_google %}
+        <a href="/auth/google{% if request.args.get('next') %}?next={{ request.args.get('next')|urlencode }}{% endif %}" class="btn login-btn login-google">
+            用 Google 登入
+        </a>
+        {% endif %}
+    </div>
+    <p class="login-note"><small>我們只取得您的名稱與頭像（Google 另含 email），不會取得其他資料。</small></p>
+</div>
+{% endblock %}
