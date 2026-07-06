@@ -1,6 +1,6 @@
 {% extends "public/base.html" %}
 
-{% block title %}{{ post.title }} | Blog - Warpmonger{% endblock %}
+{% block title %}{{ post.title }} | Blog - Abbey's Toys 阿北的店{% endblock %}
 
 {% block meta_description %}{{ post.content[:155] }}...{% endblock %}
 
@@ -23,10 +23,10 @@
   {% endif %}
   "publisher": {
     "@type": "Organization",
-    "name": "Warpmonger",
+    "name": "Abbey's Toys 阿北的店",
     "logo": {
       "@type": "ImageObject",
-      "url": "{{ request.url_root }}static/images/warpmonger_logo_black.png"
+      "url": "{{ request.url_root }}static/images/abbeys_logo_round.png"
     }
   },
   "mainEntityOfPage": {

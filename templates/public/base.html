@@ -18,21 +18,21 @@
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Warpmonger - JoyToy Warhammer & More by JohnActionFigure{% endblock %}</title>
+    <title>{% block title %}{% if is_zhtw %}阿北的店 Abbey's Toys - JoyToy 戰鎚公仔 & 模型收藏{% else %}Abbey's Toys 阿北的店 - JoyToy Warhammer & Collectible Figures{% endif %}{% endblock %}</title>
 
     <!-- Meta Description -->
-    <meta name="description" content="{% block meta_description %}Warpmonger - By John Action Figure. Premium action figures and collectibles. Shop our curated selection of high-quality figures from Warhammer, Infinity, Dark Source, and more.{% endblock %}">
+    <meta name="description" content="{% block meta_description %}{% if is_zhtw %}阿北的店 Abbey's Toys - 台灣戰鎚公仔專門店。JoyToy 戰鎚40K、荷魯斯之亂、暗源等精品可動公仔，現貨與預購。{% else %}Abbey's Toys - Taiwan's Warhammer figure shop. Curated JoyToy Warhammer 40K, Horus Heresy, Dark Source and more, in stock and pre-order.{% endif %}{% endblock %}">
 
     <!-- Canonical URL -->
     <link rel="canonical" href="{{ request.url }}">
 
     <!-- Hreflang Alternate Links -->
     {% if is_zhtw %}
-    <link rel="alternate" hreflang="en" href="{{ request.url|replace('/zhtw/', '/') }}">
     <link rel="alternate" hreflang="zh-TW" href="{{ request.url }}">
+    <link rel="alternate" hreflang="en" href="{{ request.url|replace(request.url_root, request.url_root + 'en/') }}">
     {% else %}
     <link rel="alternate" hreflang="en" href="{{ request.url }}">
-    <link rel="alternate" hreflang="zh-TW" href="{{ request.url|replace(request.url_root, request.url_root + 'zhtw/') }}">
+    <link rel="alternate" hreflang="zh-TW" href="{{ request.url|replace('/en/', '/') }}">
     {% endif %}
 
     <!-- Open Graph / Facebook -->
@@ -40,7 +40,7 @@
     <meta property="og:url" content="{{ request.url }}">
     <meta property="og:title" content="{% block og_title %}{{ self.title() }}{% endblock %}">
     <meta property="og:description" content="{% block og_description %}{{ self.meta_description() }}{% endblock %}">
-    <meta property="og:image" content="{% block og_image %}{{ request.url_root }}static/images/warpmonger_logo_black.png{% endblock %}">
+    <meta property="og:image" content="{% block og_image %}{{ request.url_root }}static/images/abbeys_logo_round.png{% endblock %}">
 
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image">
@@ -52,8 +52,11 @@
     <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
     <link rel="icon" type="image/png" sizes="192x192" href="/static/favicon-192.png">
     <link rel="apple-touch-icon" href="/static/favicon-192.png">
-    <link rel="alternate" type="application/rss+xml" title="Warpmonger Blog RSS Feed" href="/feed.xml">
-    <link rel="stylesheet" href="/static/css/public.css?v=22">
+    <link rel="alternate" type="application/rss+xml" title="Abbey's Toys Blog RSS Feed" href="/feed.xml">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Noto+Serif+TC:wght@600;700&display=swap">
+    <link rel="stylesheet" href="/static/css/public.css?v=23">
     {% block extra_css %}{% endblock %}
 
     <!-- Structured Data -->
@@ -72,8 +75,11 @@
 
                 <div class="site-logo">
                     <a href="{{ url_prefix }}/">
-                        <img src="/static/images/warpmonger_logo_black.png" alt="Warpmonger - By John Action Figure" class="logo-img">
-                        <span class="logo-tagline">{{ t.tagline }}</span>
+                        <img src="/static/images/abbeys_logo_round.png" alt="Abbey's Toys 阿北的店" class="logo-img">
+                        <span class="logo-text-stack">
+                            <span class="logo-wordmark">{% if is_zhtw %}阿北的店{% else %}ABBEY'S TOYS{% endif %}</span>
+                            <span class="logo-tagline">{% if is_zhtw %}ABBEY'S TOYS{% else %}阿北的店{% endif %}</span>
+                        </span>
                     </a>
                 </div>
 
@@ -126,9 +132,9 @@
                     </nav>
                     <div class="lang-switcher">
                         {% if is_zhtw %}
-                        <a href="{{ request.path|replace('/zhtw', '', 1) or '/' }}">EN</a>
+                        <a href="/en{{ request.path if request.path != '/' else '' }}">EN</a>
                         {% else %}
-                        <a href="/zhtw{{ request.path }}">繁中</a>
+                        <a href="{{ request.path|replace('/en', '', 1) or '/' }}">繁中</a>
                         {% endif %}
                     </div>
                 </div>
@@ -216,7 +222,7 @@
                 <a href="{{ url_prefix }}/page/terms">{{ t.terms_of_service }}</a>
                 <a href="{{ url_prefix }}/page/shopping-guide">{{ t.shopping_guide }}</a>
             </div>
-            <p>&copy; 2025 Warpmonger - By John Action Figure. All rights reserved.</p>
+            <p>&copy; 2026 Abbey's Toys 阿北的店. All rights reserved.</p>
         </div>
     </footer>
 

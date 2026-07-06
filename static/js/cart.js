@@ -7,7 +7,7 @@ const Cart = {
         return (document.body && document.body.getAttribute('data-locale')) || 'en';
     },
     _getKey: function() {
-        return this._getLocale() === 'zhtw' ? 'warpmonger_cart_zhtw' : 'warpmonger_cart';
+        return this._getLocale() === 'zhtw' ? 'abbeys_cart_zhtw' : 'abbeys_cart';
     },
 
     // Get all items from cart

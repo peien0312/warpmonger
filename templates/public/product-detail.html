@@ -1,6 +1,6 @@
 {% extends "public/base.html" %}
 
-{% block title %}{{ product.zhtw_name if is_zhtw and product.zhtw_name else product.title }} - {{ category_name }} | Warpmonger{% endblock %}
+{% block title %}{{ product.zhtw_name if is_zhtw and product.zhtw_name else product.title }} - {{ category_name }} | Abbey's Toys 阿北的店{% endblock %}
 
 {% block meta_description %}{% if is_zhtw %}{{ product.zhtw_name or product.title }}{% if product.final_price %} - NT${{ product.final_price|ntd }}{% endif %}{% else %}Buy {{ product.title }} for ${{ "%.2f"|format(product.price) }}. {{ product.description[:150] }}...{% endif %}{% endblock %}
 

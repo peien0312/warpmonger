@@ -143,7 +143,7 @@ TRANSLATIONS = {
         'send_for_quote': 'Send List for Quote',
         'clear_list': 'Clear List',
         'added_to_list': 'Added to list!',
-        'welcome': 'Welcome to Warpmonger',
+        'welcome': "Welcome to Abbey's Toys",
         'tagline': 'PREMIUM ACTION FIGURES',
         'hero_subtitle': 'Premium Action Figures & Collectibles',
         'browse_products': 'Browse Products',
@@ -243,7 +243,7 @@ TRANSLATIONS = {
         'send_for_quote': '傳送詢價清單',
         'clear_list': '清空清單',
         'added_to_list': '已加入清單！',
-        'welcome': '歡迎來到 Warpmonger',
+        'welcome': '歡迎來到阿北的店',
         'tagline': '精品模型公仔',
         'hero_subtitle': '精品模型公仔與收藏品',
         'browse_products': '瀏覽商品',
@@ -315,18 +315,28 @@ TRANSLATIONS = {
 }
 
 def public_route(rule, **options):
-    """Register a route for both EN and ZH-TW locales."""
+    """Register a route for both locales. zh-TW is the default at the root;
+    English lives under /en (Taiwan-localized site, abbeystoys.com)."""
     def decorator(f):
         app.add_url_rule(rule, view_func=f, **options)
-        zhtw_endpoint = options.get('endpoint', f.__name__) + '_zhtw'
-        app.add_url_rule('/zhtw' + rule, view_func=f, endpoint=zhtw_endpoint, **options)
+        en_endpoint = options.get('endpoint', f.__name__) + '_en'
+        app.add_url_rule('/en' + rule, view_func=f, endpoint=en_endpoint, **options)
         return f
     return decorator
 
 @app.before_request
 def detect_locale():
     from flask import g
-    g.locale = 'zhtw' if request.path.startswith('/zhtw') else 'en'
+    g.locale = 'en' if (request.path == '/en' or request.path.startswith('/en/')) else 'zhtw'
+
+@app.route('/zhtw', defaults={'rest': ''})
+@app.route('/zhtw/<path:rest>')
+def legacy_zhtw_redirect(rest):
+    """Old /zhtw/... URLs — zh-TW is the root now."""
+    target = '/' + rest
+    if request.query_string:
+        target += '?' + request.query_string.decode()
+    return redirect(target, code=301)
 
 @app.context_processor
 def inject_locale():
@@ -339,8 +349,8 @@ def inject_locale():
     return {
         'locale': locale,
         'is_zhtw': is_zhtw,
-        't': TRANSLATIONS.get(locale, TRANSLATIONS['en']),
-        'url_prefix': '/zhtw' if is_zhtw else '',
+        't': TRANSLATIONS.get(locale, TRANSLATIONS['zhtw']),
+        'url_prefix': '' if is_zhtw else '/en',
     }
 
 @app.context_processor
@@ -1217,8 +1227,8 @@ def build_codex_lookup():
 def process_codex_links(text):
     """Convert [[term]] syntax to codex links"""
     from flask import g
-    locale = getattr(g, 'locale', 'en')
-    prefix = '/zhtw' if locale == 'zhtw' else ''
+    locale = getattr(g, 'locale', 'zhtw')
+    prefix = '' if locale == 'zhtw' else '/en'
     codex_lookup = build_codex_lookup()
 
     def replace_codex_link(match):
@@ -1776,22 +1786,21 @@ def sitemap():
     xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">\n'
 
     for page in pages:
-        # EN version
+        # zh-TW is the canonical root locale; EN lives under /en
+        zhtw_loc = page["loc"]
+        en_loc = zhtw_loc.replace(request.url_root, request.url_root + 'en/', 1)
         xml += '  <url>\n'
-        xml += f'    <loc>{page["loc"]}</loc>\n'
+        xml += f'    <loc>{zhtw_loc}</loc>\n'
         xml += f'    <lastmod>{page["lastmod"]}</lastmod>\n'
         xml += f'    <changefreq>{page["changefreq"]}</changefreq>\n'
         xml += f'    <priority>{page["priority"]}</priority>\n'
-        # Build the zhtw loc by inserting /zhtw after the root
-        en_loc = page["loc"]
-        zhtw_loc = en_loc.replace(request.url_root, request.url_root + 'zhtw/', 1)
-        xml += f'    <xhtml:link rel="alternate" hreflang="en" href="{en_loc}"/>\n'
         xml += f'    <xhtml:link rel="alternate" hreflang="zh-TW" href="{zhtw_loc}"/>\n'
+        xml += f'    <xhtml:link rel="alternate" hreflang="en" href="{en_loc}"/>\n'
         xml += '  </url>\n'
 
-        # ZH-TW version
+        # EN version
         xml += '  <url>\n'
-        xml += f'    <loc>{zhtw_loc}</loc>\n'
+        xml += f'    <loc>{en_loc}</loc>\n'
         xml += f'    <lastmod>{page["lastmod"]}</lastmod>\n'
         xml += f'    <changefreq>{page["changefreq"]}</changefreq>\n'
         xml += f'    <priority>{page["priority"]}</priority>\n'
