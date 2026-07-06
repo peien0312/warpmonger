@@ -1654,7 +1654,8 @@ def send_shopping_list_email(items, user_email, user_name, user_message):
     smtp_port = int(os.environ.get('SMTP_PORT', 587))
     smtp_user = os.environ.get('SMTP_USERNAME')
     smtp_pass = os.environ.get('SMTP_PASSWORD')
-    shop_email = os.environ.get('SHOP_EMAIL', smtp_user)
+    smtp_from = os.environ.get('SMTP_FROM', smtp_user)
+    shop_email = os.environ.get('SHOP_EMAIL', smtp_from)
 
     if not all([smtp_server, smtp_user, smtp_pass]):
         raise ValueError("SMTP configuration is incomplete")
@@ -1670,7 +1671,7 @@ def send_shopping_list_email(items, user_email, user_name, user_message):
         # Email 1: Send to shop owner
         msg_shop = MIMEMultipart('alternative')
         msg_shop['Subject'] = f'Shopping List Inquiry from {user_name}'
-        msg_shop['From'] = smtp_user
+        msg_shop['From'] = smtp_from
         msg_shop['To'] = shop_email
         msg_shop['Reply-To'] = user_email
         msg_shop.attach(MIMEText(text_content, 'plain'))
@@ -1680,7 +1681,7 @@ def send_shopping_list_email(items, user_email, user_name, user_message):
         # Email 2: Send confirmation to user
         msg_user = MIMEMultipart('alternative')
         msg_user['Subject'] = 'Your Warpmonger Shopping List - We received your inquiry!'
-        msg_user['From'] = smtp_user
+        msg_user['From'] = smtp_from
         msg_user['To'] = user_email
 
         user_text = f"Hi {user_name},\n\nThank you for your inquiry! We have received your shopping list and will get back to you soon.\n\n" + text_content
@@ -3122,7 +3123,8 @@ def _send_order_emails(order_no, data, lines, total):
     smtp_server = os.environ.get('SMTP_SERVER')
     smtp_user = os.environ.get('SMTP_USERNAME')
     smtp_pass = os.environ.get('SMTP_PASSWORD')
-    shop_email = os.environ.get('SHOP_EMAIL', smtp_user)
+    smtp_from = os.environ.get('SMTP_FROM', smtp_user)
+    shop_email = os.environ.get('SHOP_EMAIL', smtp_from)
     if not all([smtp_server, smtp_user, smtp_pass]):
         return
 
@@ -3148,9 +3150,9 @@ def _send_order_emails(order_no, data, lines, total):
         for to in targets:
             msg = MIMEText(text, 'plain', 'utf-8')
             msg['Subject'] = f"[阿北玩具堂] 訂單確認 {order_no}"
-            msg['From'] = smtp_user
+            msg['From'] = smtp_from
             msg['To'] = to
-            server.sendmail(smtp_user, to, msg.as_string())
+            server.sendmail(smtp_from, to, msg.as_string())
 
 
 @public_route('/checkout')
@@ -3440,15 +3442,16 @@ def api_internal_notify():
                 server_host = os.environ.get('SMTP_SERVER')
                 user = os.environ.get('SMTP_USERNAME')
                 pw = os.environ.get('SMTP_PASSWORD')
+                sender = os.environ.get('SMTP_FROM', user)
                 if all([server_host, user, pw]):
                     with _smtp.SMTP(server_host, int(os.environ.get('SMTP_PORT', 587))) as sv:
                         sv.starttls()
                         sv.login(user, pw)
                         msg = MIMEText(message, 'plain', 'utf-8')
                         msg['Subject'] = '[阿北玩具堂] 訂單通知'
-                        msg['From'] = user
+                        msg['From'] = sender
                         msg['To'] = target
-                        sv.sendmail(user, target, msg.as_string())
+                        sv.sendmail(sender, target, msg.as_string())
                     sent.append('email')
             except Exception as e:
                 print(f"notify email failed: {e}")

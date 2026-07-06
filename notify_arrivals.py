@@ -29,6 +29,7 @@ def main():
     smtp_server = os.environ.get("SMTP_SERVER")
     smtp_user = os.environ.get("SMTP_USERNAME")
     smtp_pass = os.environ.get("SMTP_PASSWORD")
+    smtp_from = os.environ.get("SMTP_FROM", smtp_user)
     smtp_ok = all([smtp_server, smtp_user, smtp_pass])
 
     sent = 0
@@ -60,9 +61,9 @@ def main():
                 server.login(smtp_user, smtp_pass)
             msg = MIMEText(body, "plain", "utf-8")
             msg["Subject"] = f"[阿北玩具堂] 到貨通知：{title}"
-            msg["From"] = smtp_user
+            msg["From"] = smtp_from
             msg["To"] = email
-            server.sendmail(smtp_user, email, msg.as_string())
+            server.sendmail(smtp_from, email, msg.as_string())
             memberdb.mark_notified(req_id)
             sent += 1
         except Exception as e:
