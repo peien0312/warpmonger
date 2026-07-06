@@ -233,5 +233,19 @@ async function submitOrder(ev) {
 }
 
 loadCheckout();
+
+// prefill member's default delivery/store
+{% if member and member.default_delivery %}
+(function() {
+    const radio = document.querySelector('input[name=delivery_method][value="{{ member.default_delivery }}"]');
+    if (radio) { radio.checked = true; radio.dispatchEvent(new Event('change')); }
+    {% if member.default_store_code %}
+    pickStore({code: {{ member.default_store_code|tojson }}, name: {{ member.default_store_name|tojson }}, address: ''});
+    {% elif member.default_address %}
+    const addr = document.querySelector('input[name=address]');
+    if (addr) addr.value = {{ member.default_address|tojson }};
+    {% endif %}
+})();
+{% endif %}
 </script>
 {% endblock %}

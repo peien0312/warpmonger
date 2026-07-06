@@ -50,6 +50,17 @@ def init():
             UNIQUE(member_id, sku)
         );
     """)
+    for stmt in (
+        "ALTER TABLE members ADD COLUMN line_id TEXT",
+        "ALTER TABLE members ADD COLUMN default_delivery TEXT",
+        "ALTER TABLE members ADD COLUMN default_store_code TEXT",
+        "ALTER TABLE members ADD COLUMN default_store_name TEXT",
+        "ALTER TABLE members ADD COLUMN default_address TEXT",
+    ):
+        try:
+            conn.execute(stmt)
+        except Exception:
+            pass
     conn.commit()
     conn.close()
 
@@ -60,7 +71,8 @@ def upsert_member(google_sub, email, name, picture):
         INSERT INTO members (google_sub, email, name, picture)
         VALUES (?, ?, ?, ?)
         ON CONFLICT(google_sub) DO UPDATE SET
-            email=excluded.email, name=excluded.name, picture=excluded.picture
+            email=excluded.email, picture=excluded.picture,
+            name=COALESCE(members.name, excluded.name)
     """, (google_sub, email, name, picture))
     conn.commit()
     row = conn.execute(
@@ -151,5 +163,23 @@ def mark_notified(request_id):
     conn.execute(
         "UPDATE notify_requests SET notified_at = CURRENT_TIMESTAMP WHERE id = ?",
         (request_id,))
+    conn.commit()
+    conn.close()
+
+
+def update_profile(member_id, fields):
+    """Update editable profile fields (whitelisted)."""
+    allowed = ("name", "phone", "line_id", "default_delivery",
+               "default_store_code", "default_store_name", "default_address")
+    sets, params = [], []
+    for key in allowed:
+        if key in fields:
+            sets.append(f"{key} = ?")
+            params.append((fields[key] or "").strip() or None)
+    if not sets:
+        return
+    params.append(member_id)
+    conn = _conn()
+    conn.execute(f"UPDATE members SET {', '.join(sets)} WHERE id = ?", params)
     conn.commit()
     conn.close()

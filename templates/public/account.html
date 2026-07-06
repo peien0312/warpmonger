@@ -13,6 +13,35 @@
         <a href="/auth/logout" class="btn btn-secondary btn-sm account-logout">登出</a>
     </div>
 
+    <h2 class="section-title">個人資料</h2>
+    <form class="profile-form" onsubmit="return saveProfile(event)">
+        <div class="profile-grid">
+            <label>姓名<input type="text" name="name" maxlength="50" value="{{ member.name or '' }}"></label>
+            <label>電話<input type="tel" name="phone" maxlength="20" value="{{ member.phone or '' }}"></label>
+            <label>LINE ID<input type="text" name="line_id" maxlength="50" value="{{ member.line_id or '' }}"></label>
+            <label>預設取貨方式
+                <select name="default_delivery" onchange="profileDeliveryChanged(this)">
+                    <option value="">—</option>
+                    <option value="711" {{ 'selected' if member.default_delivery == '711' }}>7-11</option>
+                    <option value="fami" {{ 'selected' if member.default_delivery == 'fami' }}>全家</option>
+                    <option value="post" {{ 'selected' if member.default_delivery == 'post' }}>郵局寄送</option>
+                </select>
+            </label>
+        </div>
+        <div id="profile-store" style="{{ '' if member.default_delivery in ('711', 'fami') else 'display:none' }}">
+            <input type="text" id="profile-store-q" placeholder="搜尋預設門市（門市名／路名／地區）" autocomplete="off" oninput="profileSearchStores()">
+            <div id="profile-store-results"></div>
+            <p class="store-picked" id="profile-store-picked">{% if member.default_store_name %}預設門市：{{ member.default_store_name }}（{{ member.default_store_code }}）{% endif %}</p>
+            <input type="hidden" name="default_store_code" value="{{ member.default_store_code or '' }}">
+            <input type="hidden" name="default_store_name" value="{{ member.default_store_name or '' }}">
+        </div>
+        <div id="profile-address" style="{{ '' if member.default_delivery == 'post' else 'display:none' }}">
+            <label>預設寄送地址<input type="text" name="default_address" maxlength="200" value="{{ member.default_address or '' }}"></label>
+        </div>
+        <button type="submit" class="btn btn-primary btn-sm">儲存資料</button>
+        <small class="profile-msg"></small>
+    </form>
+
     <h2 class="section-title">我的訂單</h2>
     {% if not orders %}
     <p class="text-muted">還沒有訂單。{% if not member.phone %}<small>（下單時填的電話或 email 與登入帳號相同，訂單就會出現在這裡）</small>{% endif %}</p>
@@ -89,6 +118,52 @@ async function reportTransfer(btn) {
     const data = await res.json();
     if (data.success) { box.innerHTML = '<small>已回報，等待確認中，謝謝！</small>'; }
     else { msg.textContent = data.error || '回報失敗'; }
+}
+async function saveProfile(ev) {
+    ev.preventDefault();
+    const f = ev.target;
+    const msg = f.querySelector('.profile-msg');
+    const res = await fetch('/api/account/profile', {
+        method: 'POST', headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+            name: f.name.value, phone: f.phone.value, line_id: f.line_id.value,
+            default_delivery: f.default_delivery.value,
+            default_store_code: f.default_store_code.value,
+            default_store_name: f.default_store_name.value,
+            default_address: f.default_address ? f.default_address.value : '',
+        }),
+    });
+    const data = await res.json();
+    msg.textContent = data.success ? '已儲存 ✓' : (data.error || '儲存失敗');
+    return false;
+}
+function profileDeliveryChanged(sel) {
+    document.getElementById('profile-store').style.display =
+        (sel.value === '711' || sel.value === 'fami') ? '' : 'none';
+    document.getElementById('profile-address').style.display =
+        sel.value === 'post' ? '' : 'none';
+}
+let profileStoreTimer = null;
+function profileSearchStores() {
+    clearTimeout(profileStoreTimer);
+    profileStoreTimer = setTimeout(async () => {
+        const q = document.getElementById('profile-store-q').value.trim();
+        if (q.length < 2) return;
+        const carrier = document.querySelector('select[name=default_delivery]').value;
+        const res = await fetch(`/api/stores?carrier=${carrier}&q=${encodeURIComponent(q)}`);
+        const data = await res.json();
+        document.getElementById('profile-store-results').innerHTML = data.stores.map(s =>
+            `<div class="store-hit" onclick='profilePickStore(${JSON.stringify(s)})'>
+                <strong>${s.name}</strong> <small>${s.address}</small></div>`).join('');
+    }, 300);
+}
+function profilePickStore(s) {
+    const f = document.querySelector('.profile-form');
+    f.default_store_code.value = s.code;
+    f.default_store_name.value = s.name;
+    document.getElementById('profile-store-picked').textContent = `預設門市：${s.name}（${s.code}）`;
+    document.getElementById('profile-store-results').innerHTML = '';
+    document.getElementById('profile-store-q').value = '';
 }
 async function toggleWish(sku, btn) {
     const res = await fetch('/api/wishlist', {

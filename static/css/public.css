@@ -3663,3 +3663,14 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
 .transfer-report { margin-top: 8px; display: flex; gap: 8px; align-items: center; }
 .digits-input { width: 110px; padding: 5px 8px; background: #241C15; border: 1px solid #3B2F24; border-radius: 4px; color: #E6DAC4; }
 .account-wishlist .product-card { padding-bottom: 8px; }
+
+/* Profile form */
+.profile-form { border: 1px solid #3B2F24; border-radius: 5px; background: #292019; padding: 14px 16px; margin-bottom: 26px; }
+.profile-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px 16px; margin-bottom: 10px; }
+.profile-form label { display: block; font-size: 0.85rem; color: #B3A48D; }
+.profile-form input, .profile-form select {
+    width: 100%; padding: 7px 9px; margin-top: 3px;
+    background: #241C15; border: 1px solid #3B2F24; border-radius: 4px; color: #E6DAC4;
+}
+.profile-form #profile-store-q { margin-bottom: 4px; }
+.profile-msg { color: #D9A441; margin-left: 10px; }

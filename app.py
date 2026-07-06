@@ -3277,6 +3277,28 @@ def api_notify():
     return jsonify({'success': True, 'added': added})
 
 
+@app.route('/api/account/profile', methods=['POST'])
+def api_account_profile():
+    member = current_member()
+    if not member:
+        return jsonify({'error': 'login'}), 401
+    data = request.get_json(silent=True) or {}
+    phone = (data.get('phone') or '').strip()
+    if phone and not phone.replace('+', '').replace('-', '').replace(' ', '').isdigit():
+        return jsonify({'success': False, 'error': '電話格式不正確'}), 400
+    memberdb.update_profile(member['id'], {
+        'name': data.get('name'),
+        'phone': phone,
+        'line_id': data.get('line_id'),
+        'default_delivery': data.get('default_delivery')
+            if data.get('default_delivery') in ('711', 'fami', 'post', '') else None,
+        'default_store_code': data.get('default_store_code'),
+        'default_store_name': data.get('default_store_name'),
+        'default_address': data.get('default_address'),
+    })
+    return jsonify({'success': True})
+
+
 @app.route('/api/account/report-transfer', methods=['POST'])
 def api_report_transfer():
     member = current_member()
