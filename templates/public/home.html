@@ -127,7 +127,7 @@
                             {% if product.member_price and product.member_price < product.final_price %}
                             <span class="list-price">NT${{ product.final_price|ntd }}</span>
                             NT${{ product.member_price|ntd }} <span class="member-tag">會員價</span>
-                            {% else %}NT${{ product.final_price|ntd }}{% endif %}
+                            {% else %}NT${{ product.final_price|ntd }}{% endif %}{% if product.is_pre_order %} <span class="preorder-tag">預購價</span>{% endif %}
                         </p>
                         {% endif %}
                     {% else %}
@@ -182,7 +182,7 @@
                             {% if product.member_price and product.member_price < product.final_price %}
                             <span class="list-price">NT${{ product.final_price|ntd }}</span>
                             NT${{ product.member_price|ntd }} <span class="member-tag">會員價</span>
-                            {% else %}NT${{ product.final_price|ntd }}{% endif %}
+                            {% else %}NT${{ product.final_price|ntd }}{% endif %}{% if product.is_pre_order %} <span class="preorder-tag">預購價</span>{% endif %}
                         </p>
                         {% endif %}
                     {% else %}
@@ -243,7 +243,7 @@
                             {% if product.member_price and product.member_price < product.final_price %}
                             <span class="list-price">NT${{ product.final_price|ntd }}</span>
                             NT${{ product.member_price|ntd }} <span class="member-tag">會員價</span>
-                            {% else %}NT${{ product.final_price|ntd }}{% endif %}
+                            {% else %}NT${{ product.final_price|ntd }}{% endif %}{% if product.is_pre_order %} <span class="preorder-tag">預購價</span>{% endif %}
                         </p>
                         {% endif %}
                     {% else %}

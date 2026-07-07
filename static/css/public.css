@@ -3745,6 +3745,11 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
 }
 
 .member-tag { white-space: nowrap; }
+.preorder-tag {
+    color: #2A2A2A; background: #D9A441; border-radius: 3px;
+    font-size: 0.62em; padding: 1px 6px; vertical-align: middle;
+    letter-spacing: 0.08em; font-weight: 400; white-space: nowrap; margin-left: 4px;
+}
 .price { line-height: 1.35; }
 .availability-note a { color: #D9A441; text-decoration: underline; }
 .availability-note a:hover { color: #E6DAC4; }
