@@ -1,0 +1,56 @@
+{% extends "public/base.html" %}
+
+{% block title %}常見問題 FAQ｜運費・付款・預購・會員 - 阿北玩具堂{% endblock %}
+
+{% block meta_description %}阿北玩具堂常見問題：運費怎麼算、現貨與預購到貨時間、付款方式、7-11／全家／面交取貨、會員價與絕版詢價。JOYTOY 戰鎚40K 可動模型購買說明。{% endblock %}
+
+{% block structured_data %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {% for q, a in faq_items %}
+    {
+      "@type": "Question",
+      "name": {{ q|tojson }},
+      "acceptedAnswer": { "@type": "Answer", "text": {{ a|tojson }} }
+    }{% if not loop.last %},{% endif %}
+    {% endfor %}
+  ]
+}
+</script>
+{% endblock %}
+
+{% block content %}
+<style>
+    .faq-page { max-width: 820px; margin: 0 auto; padding: 1rem 0 3rem; }
+    .faq-list { margin-top: 1.5rem; }
+    .faq-item { border: 1px solid rgba(200,170,110,0.25); border-radius: 10px;
+                margin-bottom: 0.75rem; overflow: hidden; }
+    .faq-item summary { cursor: pointer; padding: 1rem 1.25rem; font-weight: 700;
+                        font-size: 1.05rem; list-style: none; position: relative; }
+    .faq-item summary::-webkit-details-marker { display: none; }
+    .faq-item summary::after { content: "＋"; position: absolute; right: 1.25rem;
+                               color: #c8aa6e; font-weight: 400; }
+    .faq-item[open] summary::after { content: "－"; }
+    .faq-answer { padding: 0 1.25rem 1.25rem; line-height: 1.9; opacity: 0.92; }
+</style>
+<div class="container">
+    <div class="faq-page">
+        <header class="codex-header">
+            <h1>常見問題 FAQ</h1>
+            <p class="codex-intro">關於運費、付款、取貨、現貨／預購與會員的常見問答。</p>
+        </header>
+
+        <div class="faq-list">
+            {% for q, a in faq_items %}
+            <details class="faq-item"{% if loop.first %} open{% endif %}>
+                <summary>{{ q }}</summary>
+                <div class="faq-answer">{{ a }}</div>
+            </details>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

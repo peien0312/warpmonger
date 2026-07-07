@@ -1575,10 +1575,22 @@ def codex_entry_page(slug):
     # Convert markdown to HTML
     entry['content_html'] = markdown.markdown(_body)
 
+    # Related products: anything tagged with this codex term (title or alias),
+    # so lore pages funnel visitors to buyable products. In-stock first.
+    terms = {entry['title'].strip().lower()}
+    terms |= {str(a).strip().lower() for a in entry.get('aliases', []) if a}
+    related_products = [
+        p for p in get_products()
+        if terms & {str(t).strip().lower() for t in (p.get('tags') or [])}
+    ]
+    related_products.sort(key=lambda p: (not p.get('in_stock'), -(p.get('order_weight') or 0)))
+    related_products = related_products[:12]
+
     # Get all entries for navigation
     all_entries = get_codex_entries()
 
-    return render_template('public/codex-entry.html', entry=entry, all_entries=all_entries)
+    return render_template('public/codex-entry.html', entry=entry,
+                           all_entries=all_entries, related_products=related_products)
 
 @public_route('/cart')
 def cart_page():
@@ -1828,6 +1840,7 @@ def sitemap():
         {'loc': root + 'codex', 'lastmod': db_lastmod, 'changefreq': 'weekly', 'priority': '0.6'},
         {'loc': root + 'tags', 'lastmod': db_lastmod, 'changefreq': 'weekly', 'priority': '0.4'},
         {'loc': root + 'blog', 'lastmod': db_lastmod, 'changefreq': 'weekly', 'priority': '0.5'},
+        {'loc': root + 'faq', 'lastmod': today, 'changefreq': 'monthly', 'priority': '0.5'},
     ]
 
     # Category listing pages (browsed as /products?category=<slug>)
@@ -1975,6 +1988,33 @@ def merchant_feed():
            + '\n'.join(items) +
            '\n  </channel>\n</rss>')
     return Response(xml, mimetype='application/xml')
+
+FAQ_ITEMS = [
+    ("運費怎麼計算？",
+     "單筆消費滿 NT$1,000 免運費；未滿 NT$1,000 酌收 NT$60；雙北面交一律免運。"),
+    ("「現貨」和「預購」差在哪？大概多久到貨？",
+     "現貨商品下單後盡快出貨；標示「約2週到貨」為台灣／集運調貨，約 2 週內；"
+     "缺貨可訂購商品由原廠調貨約 2-3 週；預購商品依商品頁標示的到貨日，到貨後通知並出貨。"),
+    ("有哪些付款方式？",
+     "提供銀行轉帳（先審後付，確認訂單後再提供匯款資訊）、貨到付款，以及 LINE Pay 線上付款。"),
+    ("可以怎麼取貨／寄送？",
+     "支援 7-11、全家 店到店取貨，郵局宅配，以及雙北面交。結帳時可選擇門市或填寫地址。"),
+    ("會員價是什麼？怎麼取得？",
+     "註冊成為會員即享會員價（一般為定價 9 折，若商品有特價則以較低者為準）。"
+     "登入後商品頁與購物車會直接顯示您的會員價。"),
+    ("標示「絕版詢價」的商品還買得到嗎？",
+     "部分停產／絕版商品不顯示價格，可透過 LINE 與我們詢價，我們會協助尋貨與報價。"),
+    ("JOYTOY 是什麼品牌？",
+     "JOYTOY（暗源）是知名可動兵人模型品牌，擁有 Warhammer 40,000、The Horus Heresy 等官方授權，"
+     "推出 1/18 等比例的可動模型，做工細緻、關節可動，適合收藏與展示。"),
+    ("如何收到到貨或補貨通知？",
+     "加入會員並綁定 LINE 後，將商品加入「到貨通知」，當該商品到貨或現貨補貨時，我們會主動以 LINE／Email 通知您。"),
+]
+
+@public_route('/faq')
+def faq_page():
+    """FAQ page with FAQPage structured data (rich result eligible)."""
+    return render_template('public/faq.html', faq_items=FAQ_ITEMS)
 
 @app.route('/robots.txt')
 def robots():

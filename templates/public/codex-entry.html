@@ -58,6 +58,30 @@
                     {{ entry.content_html|safe }}
                 </div>
 
+                {% if related_products %}
+                <section class="codex-related">
+                    <h2 class="section-title">相關商品</h2>
+                    <div class="products-grid">
+                        {% for p in related_products %}
+                        <div class="product-card">
+                            <a href="{{ url_prefix }}/products/{{ p.category }}/{{ p.slug }}">
+                                <div class="product-image-container">
+                                    {% if p.images %}
+                                    <img src="/static/images/products/{{ p.category }}/{{ p.slug }}/thumb_{{ p.images[0].rsplit('.', 1)[0] }}.jpg"
+                                         alt="{{ p.zhtw_name or p.title }}" loading="lazy">
+                                    {% else %}
+                                    <div class="product-placeholder">{{ t.no_image }}</div>
+                                    {% endif %}
+                                </div>
+                                <h3>{{ p.zhtw_name or p.title }}</h3>
+                                {% if p.final_price %}<p class="price">NT${{ p.final_price|ntd }}</p>{% endif %}
+                            </a>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </section>
+                {% endif %}
+
                 <footer class="entry-footer">
                     <a href="{{ url_prefix }}/codex" class="btn btn-secondary">{{ t.back_to_codex }}</a>
                 </footer>
