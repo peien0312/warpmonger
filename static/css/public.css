@@ -3545,6 +3545,7 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
 .hero-copy { max-width: 460px; }
 .hero-glass img {
     width: 300px;
+    height: auto;
     max-width: 38vw;
     display: block;
     border: 3px solid #17100B;
