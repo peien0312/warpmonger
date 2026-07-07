@@ -1991,7 +1991,7 @@ def merchant_feed():
               *( [f'      <g:availability_date>{avail_date}</g:availability_date>'] if avail_date else [] ),
               f'      <g:price>{int(round(price))} TWD</g:price>',
               '      <g:brand>JOYTOY</g:brand>',
-              f'      <g:google_product_category>Toys &amp; Games &gt; Toys &gt; Action &amp; Toy Figures</g:google_product_category>',
+              '      <g:google_product_category>6058</g:google_product_category>',
               '      <g:identifier_exists>' + ('true' if gtin else 'false') + '</g:identifier_exists>']
         if gtin:
             it.append(f'      <g:gtin>{gtin}</g:gtin>')
