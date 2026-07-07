@@ -6,6 +6,7 @@ where this Flask app is the only writer. Linking to POS customers happens
 by phone at checkout time.
 """
 import os
+import json
 import sqlite3
 
 DB_PATH = os.environ.get(
@@ -71,6 +72,15 @@ def init():
             subject TEXT NOT NULL,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             UNIQUE(provider, subject)
+        );
+        CREATE TABLE IF NOT EXISTS quiz_results (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            result_key TEXT,
+            character TEXT,
+            legion TEXT,
+            scores TEXT,
+            member_id INTEGER,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         );
     """)
     # backfill identities from the legacy google_sub column
@@ -291,6 +301,19 @@ def _apply_profile(conn, member_id, email, name, picture):
             picture = COALESCE(picture, ?)
         WHERE id = ?
     """, (email, name, picture, member_id))
+
+
+def record_quiz_result(result_key, character, legion, scores, member_id=None):
+    """Persist a completed 原體 quiz result for later analysis (site-owned DB)."""
+    conn = _conn()
+    conn.execute(
+        "INSERT INTO quiz_results(result_key, character, legion, scores, member_id) "
+        "VALUES (?, ?, ?, ?, ?)",
+        (result_key, character, legion,
+         json.dumps(scores, ensure_ascii=False) if scores is not None else None,
+         member_id))
+    conn.commit()
+    conn.close()
 
 
 def find_or_create_by_identity(provider, subject, email, name, picture):

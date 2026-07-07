@@ -2045,6 +2045,22 @@ def faq_page():
     """FAQ page with FAQPage structured data (rich result eligible)."""
     return render_template('public/faq.html', faq_items=FAQ_ITEMS)
 
+@app.route('/api/quiz-result', methods=['POST'])
+def api_quiz_result():
+    """Persist a completed 原體 quiz result for analysis (fire-and-forget)."""
+    data = request.get_json(silent=True) or {}
+    rk = (data.get('result_key') or '').strip()[:16]
+    if not rk:
+        return jsonify({'success': False}), 400
+    try:
+        memberdb.record_quiz_result(
+            rk, (data.get('character') or '')[:100], (data.get('legion') or '')[:100],
+            data.get('scores'), session.get('member_id'))
+    except Exception as e:
+        print(f"quiz result save failed: {e}")
+        return jsonify({'success': False}), 500
+    return jsonify({'success': True})
+
 @app.route('/robots.txt')
 def robots():
     """Generate robots.txt"""

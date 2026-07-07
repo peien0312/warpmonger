@@ -216,7 +216,7 @@ function pick(i) {
                   + (votes.H >= votes.C ? 'H' : 'C')
                   + (votes.F >= votes.R ? 'F' : 'R')
                   + (votes.D >= votes.S ? 'D' : 'S');
-        showResult(key, votes);
+        showResult(key, votes, true);
     }
 }
 const AXIS_PAIRS = [['I', 'X'], ['H', 'C'], ['F', 'R'], ['D', 'S']];
@@ -238,7 +238,7 @@ function renderAxes(v) {
         box.querySelectorAll('.axis-fill').forEach(el => el.style.width = el.dataset.w + '%')));
 }
 
-function showResult(key, axisVotes) {
+function showResult(key, axisVotes, isNew) {
     const r = RESULTS[key];
     if (!r) return;
     document.getElementById('quiz-intro').style.display = 'none';
@@ -257,6 +257,12 @@ function showResult(key, axisVotes) {
         pBtn.href = r.products_url;
         pBtn.textContent = `逛逛${r.legion}的公仔`;
         pBtn.style.display = '';
+        pBtn.onclick = function() {
+            if (typeof gtag === 'function') gtag('event', 'select_promotion', {
+                promotion_id: 'quiz_' + key, promotion_name: '測驗結果：' + r.legion,
+                creative_slot: 'quiz_result'
+            });
+        };
     }
     const cBtn = document.getElementById('result-codex');
     if (r.codex) {
@@ -268,6 +274,21 @@ function showResult(key, axisVotes) {
         url += '&s=' + ['I', 'H', 'F', 'D'].map(c => axisVotes[c] || 0).join('');
     }
     history.replaceState(null, '', url);
+
+    // Only on a real completion (not when viewing a shared ?r= link)
+    if (isNew) {
+        if (typeof gtag === 'function') {
+            gtag('event', 'quiz_complete',
+                 {quiz_result: key, character: r.character, legion: r.legion});
+        }
+        try {
+            fetch('/api/quiz-result', {
+                method: 'POST', headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({result_key: key, character: r.character,
+                    legion: r.legion, scores: axisVotes || null})
+            });
+        } catch (e) {}
+    }
 }
 function shareResult() {
     navigator.clipboard.writeText(location.href).then(() =>

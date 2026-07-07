@@ -1147,6 +1147,21 @@ section h2::after {
     color: #B3A48D;
 }
 
+/* Links inside rendered markdown bodies (blog + codex) — match .codex-term */
+.post-content a,
+.entry-body a {
+    color: #D9A441;
+    text-decoration: none;
+    border-bottom: 1px dotted #D9A441;
+    transition: all 0.3s;
+}
+.post-content a:hover,
+.entry-body a:hover {
+    color: #fff;
+    border-bottom-color: #fff;
+    text-shadow: 0 0 8px rgba(217, 164, 65, 0.6);
+}
+
 .post-content img {
     max-width: 100%;
     height: auto;
