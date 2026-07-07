@@ -394,6 +394,9 @@ def inject_seo_config():
     return {
         'google_site_verification': os.environ.get('GOOGLE_SITE_VERIFICATION', ''),
         'social_links': social,
+        # GA4 measurement ID — env-overridable so switching properties needs no
+        # code change. Default keeps the current property. Set '' to disable.
+        'ga4_id': os.environ.get('GA4_MEASUREMENT_ID', 'G-HYSSEZVZNK'),
     }
 
 @app.context_processor
