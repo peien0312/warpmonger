@@ -1,9 +1,9 @@
 {% extends "public/base.html" %}
 {% import 'public/_availability.html' as avail %}
 
-{% block title %}{{ product.zhtw_name or product.title }}{% if product.zhtw_name and product.title and product.title != product.zhtw_name %} {{ product.title }}{% endif %}{% if product.id %} {{ product.id }}{% endif %} | ABBEY'S TOYS 阿北玩具堂{% endblock %}
+{% block title %}{{ product.zhtw_name or product.title }}{% if product.zhtw_name and product.title and product.title != product.zhtw_name %}（{{ product.title }}）{% endif %}{% if product.scale %} {{ product.scale }}{% endif %}｜JOYTOY 可動模型 阿北玩具堂{% endblock %}
 
-{% block meta_description %}{% if is_zhtw %}{{ product.zhtw_name or product.title }}{% if product.final_price %} - NT${{ product.final_price|ntd }}{% endif %}{% else %}Buy {{ product.title }} for ${{ "%.2f"|format(product.price) }}. {{ product.description[:150] }}...{% endif %}{% endblock %}
+{% block meta_description %}{{ product.zhtw_name or product.title }}{% if product.series %}｜{{ product.series }}{% endif %}{% if product.scale %}｜{{ product.scale }}{% endif %} JOYTOY 可動模型。{% if product.final_price %}NT${{ product.final_price|ntd }}，{% endif %}{% if product.in_stock %}現貨供應、快速出貨{% elif product.is_pre_order %}預購中{% else %}可訂購{% endif %}。阿北玩具堂 台灣 JOYTOY／戰鎚40K 專賣。{% endblock %}
 
 {% block og_type %}product{% endblock %}
 {% block og_title %}{{ product.zhtw_name if is_zhtw and product.zhtw_name else product.title }} - {% if is_zhtw and product.final_price %}NT${{ product.final_price|ntd }}{% else %}${{ "%.2f"|format(product.price) }}{% endif %}{% endblock %}

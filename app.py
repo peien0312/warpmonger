@@ -99,6 +99,9 @@ from werkzeug.middleware.proxy_fix import ProxyFix
 app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
 app.secret_key = os.getenv('SECRET_KEY', 'dev-secret-key-change-in-production')
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
+# Public web base URL (for links sent outside a request, e.g. LINE messages).
+# Env-driven so a domain change never needs a code edit.
+SITE_URL = os.environ.get('SITE_URL', 'https://abbeystoys.com').rstrip('/')
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 31536000  # 1 year cache for static files
 
 @app.after_request
@@ -379,6 +382,18 @@ def inject_locale():
         'is_zhtw': is_zhtw,
         't': TRANSLATIONS.get(locale, TRANSLATIONS['zhtw']),
         'url_prefix': '' if is_zhtw else '/en',
+    }
+
+@app.context_processor
+def inject_seo_config():
+    """Site-level SEO config from env: GSC verification token + social URLs
+    (used in Organization schema sameAs). Both optional."""
+    if request.path.startswith('/admin') or request.path.startswith('/api'):
+        return {}
+    social = [s.strip() for s in os.environ.get('SITE_SOCIAL_LINKS', '').split(',') if s.strip()]
+    return {
+        'google_site_verification': os.environ.get('GOOGLE_SITE_VERIFICATION', ''),
+        'social_links': social,
     }
 
 @app.context_processor
@@ -1792,114 +1807,74 @@ def send_list():
 
 @app.route('/sitemap.xml')
 def sitemap():
-    """Generate dynamic sitemap"""
+    """Dynamic sitemap. Single zh-TW locale (no /en — it 301s to root).
+    Includes products, categories, tags, codex, blog and static pages."""
     from flask import Response
+    import posdb as _posdb
 
-    pages = []
+    root = request.url_root
+    # DB-file mtime is an honest lastmod for all DB-driven content (any POS
+    # edit bumps it). Fall back to today if unavailable.
+    try:
+        db_lastmod = datetime.fromtimestamp(_posdb.db_mtime()).strftime('%Y-%m-%d')
+    except Exception:
+        db_lastmod = datetime.now().strftime('%Y-%m-%d')
+    today = datetime.now().strftime('%Y-%m-%d')
+    from urllib.parse import quote
 
-    # Homepage
-    pages.append({
-        'loc': request.url_root,
-        'lastmod': datetime.now().strftime('%Y-%m-%d'),
-        'changefreq': 'daily',
-        'priority': '1.0'
-    })
+    pages = [
+        {'loc': root, 'lastmod': db_lastmod, 'changefreq': 'daily', 'priority': '1.0'},
+        {'loc': root + 'products', 'lastmod': db_lastmod, 'changefreq': 'daily', 'priority': '0.9'},
+        {'loc': root + 'codex', 'lastmod': db_lastmod, 'changefreq': 'weekly', 'priority': '0.6'},
+        {'loc': root + 'tags', 'lastmod': db_lastmod, 'changefreq': 'weekly', 'priority': '0.4'},
+        {'loc': root + 'blog', 'lastmod': db_lastmod, 'changefreq': 'weekly', 'priority': '0.5'},
+    ]
 
-    # Products page
-    pages.append({
-        'loc': request.url_root + 'products',
-        'lastmod': datetime.now().strftime('%Y-%m-%d'),
-        'changefreq': 'daily',
-        'priority': '0.9'
-    })
+    # Category listing pages (browsed as /products?category=<slug>)
+    for cat in get_categories():
+        pages.append({'loc': f"{root}products?category={quote(cat['slug'])}",
+                      'lastmod': db_lastmod, 'changefreq': 'weekly', 'priority': '0.7'})
 
     # All products
-    products = get_products()
-    for product in products:
-        product_path = os.path.join(PRODUCTS_DIR, product['category'], product['slug'], 'product.md')
-        if os.path.exists(product_path):
-            mtime = os.path.getmtime(product_path)
-            lastmod = datetime.fromtimestamp(mtime).strftime('%Y-%m-%d')
-        else:
-            lastmod = datetime.now().strftime('%Y-%m-%d')
+    for product in get_products():
+        pages.append({'loc': f"{root}products/{product['category']}/{product['slug']}",
+                      'lastmod': db_lastmod, 'changefreq': 'weekly', 'priority': '0.8'})
 
-        pages.append({
-            'loc': f"{request.url_root}products/{product['category']}/{product['slug']}",
-            'lastmod': lastmod,
-            'changefreq': 'weekly',
-            'priority': '0.8'
-        })
+    # Tag listing pages — skip very thin tags (<3 products) to avoid low-value URLs
+    for tag in get_all_tags():
+        if tag.get('count', 0) >= 3:
+            pages.append({'loc': f"{root}products?tag={quote(tag['name'])}",
+                          'lastmod': db_lastmod, 'changefreq': 'weekly', 'priority': '0.5'})
 
-    # Blog page
-    pages.append({
-        'loc': request.url_root + 'blog',
-        'lastmod': datetime.now().strftime('%Y-%m-%d'),
-        'changefreq': 'weekly',
-        'priority': '0.7'
-    })
+    # Codex entries (lore pages — strong long-tail)
+    for entry in get_codex_entries():
+        pages.append({'loc': f"{root}codex/{entry['slug']}",
+                      'lastmod': db_lastmod, 'changefreq': 'monthly', 'priority': '0.5'})
 
-    # All blog posts
-    posts = get_blog_posts()
-    for post in posts:
-        post_path = os.path.join(BLOG_DIR, f"{post['slug']}.md")
-        if os.path.exists(post_path):
-            mtime = os.path.getmtime(post_path)
-            lastmod = datetime.fromtimestamp(mtime).strftime('%Y-%m-%d')
-        else:
-            lastmod = post.get('date', datetime.now().strftime('%Y-%m-%d'))
-
-        pages.append({
-            'loc': f"{request.url_root}blog/{post['slug']}",
-            'lastmod': lastmod,
-            'changefreq': 'monthly',
-            'priority': '0.6'
-        })
+    # Blog posts
+    for post in get_blog_posts():
+        pages.append({'loc': f"{root}blog/{post['slug']}",
+                      'lastmod': post.get('date') or db_lastmod,
+                      'changefreq': 'monthly', 'priority': '0.5'})
 
     # Static pages (policy / info)
     for page_slug in ALLOWED_PAGES:
-        page_path = os.path.join(PAGES_DIR, f'{page_slug}.md')
-        if os.path.exists(page_path):
-            mtime = os.path.getmtime(page_path)
-            lastmod = datetime.fromtimestamp(mtime).strftime('%Y-%m-%d')
-        else:
-            lastmod = datetime.now().strftime('%Y-%m-%d')
-        pages.append({
-            'loc': f"{request.url_root}page/{page_slug}",
-            'lastmod': lastmod,
-            'changefreq': 'monthly',
-            'priority': '0.4'
-        })
+        pages.append({'loc': f"{root}page/{page_slug}",
+                      'lastmod': today, 'changefreq': 'monthly', 'priority': '0.3'})
 
-    # Generate XML with hreflang alternates
-    xml = '<?xml version="1.0" encoding="UTF-8"?>\n'
-    xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">\n'
+    xml = ['<?xml version="1.0" encoding="UTF-8"?>',
+           '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">']
+    for p in pages:
+        loc = p['loc'].replace('&', '&amp;')
+        xml.append('  <url>')
+        xml.append(f'    <loc>{loc}</loc>')
+        xml.append(f'    <lastmod>{p["lastmod"]}</lastmod>')
+        xml.append(f'    <changefreq>{p["changefreq"]}</changefreq>')
+        xml.append(f'    <priority>{p["priority"]}</priority>')
+        xml.append('  </url>')
+    xml.append('</urlset>')
 
-    for page in pages:
-        # zh-TW is the canonical root locale; EN lives under /en
-        zhtw_loc = page["loc"]
-        en_loc = zhtw_loc.replace(request.url_root, request.url_root + 'en/', 1)
-        xml += '  <url>\n'
-        xml += f'    <loc>{zhtw_loc}</loc>\n'
-        xml += f'    <lastmod>{page["lastmod"]}</lastmod>\n'
-        xml += f'    <changefreq>{page["changefreq"]}</changefreq>\n'
-        xml += f'    <priority>{page["priority"]}</priority>\n'
-        xml += f'    <xhtml:link rel="alternate" hreflang="zh-TW" href="{zhtw_loc}"/>\n'
-        xml += f'    <xhtml:link rel="alternate" hreflang="en" href="{en_loc}"/>\n'
-        xml += '  </url>\n'
-
-        # EN version
-        xml += '  <url>\n'
-        xml += f'    <loc>{en_loc}</loc>\n'
-        xml += f'    <lastmod>{page["lastmod"]}</lastmod>\n'
-        xml += f'    <changefreq>{page["changefreq"]}</changefreq>\n'
-        xml += f'    <priority>{page["priority"]}</priority>\n'
-        xml += f'    <xhtml:link rel="alternate" hreflang="en" href="{en_loc}"/>\n'
-        xml += f'    <xhtml:link rel="alternate" hreflang="zh-TW" href="{zhtw_loc}"/>\n'
-        xml += '  </url>\n'
-
-    xml += '</urlset>'
-
-    return Response(xml, mimetype='application/xml')
+    return Response('\n'.join(xml), mimetype='application/xml')
 
 @app.route('/sitemap-images.xml')
 def sitemap_images():
@@ -1911,24 +1886,94 @@ def sitemap_images():
     xml = '<?xml version="1.0" encoding="UTF-8"?>\n'
     xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">\n'
 
+    from xml.sax.saxutils import escape
     for product in products:
         if product.get('images'):
+            # zh-TW name for image search; fall back to English title
+            name = escape(product.get('zhtw_name') or product.get('title') or '')
             xml += '  <url>\n'
             xml += f'    <loc>{request.url_root}products/{product["category"]}/{product["slug"]}</loc>\n'
 
             for image in product['images'][:10]:  # Max 10 images per product
                 if not image.lower().endswith(('.mp4', '.mov', '.avi', '.webm')):  # Skip videos
-                    image_url = f'{request.url_root}static/images/products/{product["category"]}/{product["slug"]}/{image}'
+                    image_url = escape(f'{request.url_root}static/images/products/{product["category"]}/{product["slug"]}/{image}')
                     xml += '    <image:image>\n'
                     xml += f'      <image:loc>{image_url}</image:loc>\n'
-                    xml += f'      <image:title>{product["title"]}</image:title>\n'
-                    xml += f'      <image:caption>{product["title"]} - Premium action figure</image:caption>\n'
+                    xml += f'      <image:title>{name}</image:title>\n'
+                    xml += f'      <image:caption>{name}｜JOYTOY 可動模型 - 阿北玩具堂</image:caption>\n'
                     xml += '    </image:image>\n'
 
             xml += '  </url>\n'
 
     xml += '</urlset>'
 
+    return Response(xml, mimetype='application/xml')
+
+@app.route('/merchant-feed.xml')
+def merchant_feed():
+    """Google Merchant Center / free Shopping listings product feed (RSS 2.0).
+    Submit this URL in Merchant Center. Only sellable, priced, published
+    products with an image are included."""
+    from flask import Response
+    from xml.sax.saxutils import escape
+
+    root = request.url_root
+    # availability mapping from our internal availability engine
+    AVAIL = {'in_stock': 'in_stock', 'preorder': 'preorder',
+             'incoming': 'backorder', 'orderable': 'backorder'}
+
+    items = []
+    for p in get_products():
+        price = p.get('final_price') or 0
+        avail = AVAIL.get(p.get('availability'))
+        imgs = p.get('images') or []
+        # need a real price, a sellable availability, and at least one image
+        if not price or not avail or not imgs:
+            continue
+        img = next((i for i in imgs
+                    if not i.lower().endswith(('.mp4', '.mov', '.avi', '.webm'))), None)
+        if not img:
+            continue
+        name = p.get('zhtw_name') or p.get('title') or ''
+        en = p.get('title') or ''
+        title = name + (f'（{en}）' if en and en != name else '')
+        desc_bits = [name] + [b for b in (p.get('series'), p.get('scale')) if b]
+        desc = '｜'.join(desc_bits) + ' JOYTOY 可動模型。台灣現貨／預購，阿北玩具堂。'
+        link = f"{root}products/{p['category']}/{p['slug']}"
+        img_link = f"{root}static/images/products/{p['category']}/{p['slug']}/{img}"
+        barcode = (p.get('sku') or '').strip()   # posdb 'sku' = barcode number
+        gtin = barcode if barcode.isdigit() and len(barcode) in (8, 12, 13, 14) else ''
+        mpn = (p.get('id') or '').strip()        # JT SKU
+
+        it = ['    <item>',
+              f'      <g:id>{escape(mpn or barcode or p["slug"])}</g:id>',
+              f'      <g:title>{escape(title[:150])}</g:title>',
+              f'      <g:description>{escape(desc[:5000])}</g:description>',
+              f'      <g:link>{escape(link)}</g:link>',
+              f'      <g:image_link>{escape(img_link)}</g:image_link>',
+              '      <g:condition>new</g:condition>',
+              f'      <g:availability>{avail}</g:availability>',
+              f'      <g:price>{int(round(price))} TWD</g:price>',
+              '      <g:brand>JOYTOY</g:brand>',
+              f'      <g:google_product_category>Toys &amp; Games &gt; Toys &gt; Action &amp; Toy Figures</g:google_product_category>',
+              '      <g:identifier_exists>' + ('true' if gtin else 'false') + '</g:identifier_exists>']
+        if gtin:
+            it.append(f'      <g:gtin>{gtin}</g:gtin>')
+        if mpn:
+            it.append(f'      <g:mpn>{escape(mpn)}</g:mpn>')
+        if p.get('is_on_sale') and (p.get('sale_price') or 0) > 0 and p['sale_price'] < price:
+            it.append(f'      <g:sale_price>{int(round(p["sale_price"]))} TWD</g:sale_price>')
+        it.append('    </item>')
+        items.append('\n'.join(it))
+
+    xml = ('<?xml version="1.0" encoding="UTF-8"?>\n'
+           '<rss version="2.0" xmlns:g="http://base.google.com/ns/1.0">\n'
+           '  <channel>\n'
+           "    <title>ABBEY'S TOYS 阿北玩具堂</title>\n"
+           f'    <link>{root}</link>\n'
+           '    <description>JOYTOY／戰鎚40K 可動模型商品資料</description>\n'
+           + '\n'.join(items) +
+           '\n  </channel>\n</rss>')
     return Response(xml, mimetype='application/xml')
 
 @app.route('/robots.txt')
@@ -3608,7 +3653,7 @@ def line_webhook():
             if ev.get('type') == 'follow':
                 linepush.reply_text(ev['replyToken'],
                     '歡迎加入阿北玩具堂！\n\n如果您是網站會員，到會員中心取得「綁定碼」並傳給我，'
-                    '之後到貨通知、訂單通知都會從這裡傳給您。\n\nhttps://abbeystoys.com/account')
+                    f'之後到貨通知、訂單通知都會從這裡傳給您。\n\n{SITE_URL}/account')
             elif ev.get('type') == 'message' and ev.get('message', {}).get('type') == 'text':
                 text = ev['message']['text'].strip().upper()
                 if text.startswith('AB') and len(text) == 8:
@@ -3619,7 +3664,7 @@ def line_webhook():
                             '之後到貨與訂單通知都會傳到這裡。')
                     else:
                         linepush.reply_text(ev['replyToken'],
-                            '找不到這個綁定碼，請到會員中心確認：https://abbeystoys.com/account')
+                            f'找不到這個綁定碼，請到會員中心確認：{SITE_URL}/account')
         except Exception as e:
             print(f'line webhook event failed: {e}')
     return 'OK'

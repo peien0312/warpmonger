@@ -1,9 +1,9 @@
 {% extends "public/base.html" %}
 {% import 'public/_availability.html' as avail %}
 
-{% block title %}{% if current_category_name %}{{ current_category_name }}{% elif is_zhtw %}{{ t.all_products }}{% else %}All Products{% endif %} | ABBEY'S TOYS 阿北玩具堂{% endblock %}
+{% block title %}{% if current_tag %}{{ current_tag|tag_label }}{% elif current_category_name %}{{ current_category_name }}{% else %}全部商品{% endif %}｜JOYTOY 戰鎚40K 可動模型 阿北玩具堂{% endblock %}
 
-{% block meta_description %}Browse our selection of {% if current_category_name %}{{ current_category_name|lower }} action figures{% else %}premium action figures and collectibles{% endif %}. Find the perfect collectible figures with fast shipping and great prices.{% endblock %}
+{% block meta_description %}{% if current_tag %}{{ current_tag|tag_label }}{% elif current_category_name %}{{ current_category_name }}{% else %}JOYTOY、戰鎚40K、荷魯斯之亂{% endif %} 系列可動模型與周邊。台灣雙倉庫現貨、預購，阿北玩具堂快速出貨。{% endblock %}
 
 {% block content %}
 <div class="container">

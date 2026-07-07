@@ -18,6 +18,7 @@
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% if google_site_verification %}<meta name="google-site-verification" content="{{ google_site_verification }}">{% endif %}
     <title>{% block title %}{% if is_zhtw %}ABBEY'S TOYS 阿北玩具堂｜JOYTOY 戰鎚40K 專賣{% else %}ABBEY'S TOYS 阿北玩具堂 - JoyToy Warhammer & Collectible Figures{% endif %}{% endblock %}</title>
 
     <!-- Meta Description -->
@@ -26,14 +27,9 @@
     <!-- Canonical URL -->
     <link rel="canonical" href="{{ request.url }}">
 
-    <!-- Hreflang Alternate Links -->
-    {% if is_zhtw %}
-    <link rel="alternate" hreflang="zh-TW" href="{{ request.url }}">
-    <link rel="alternate" hreflang="en" href="{{ request.url|replace(request.url_root, request.url_root + 'en/') }}">
-    {% else %}
-    <link rel="alternate" hreflang="en" href="{{ request.url }}">
-    <link rel="alternate" hreflang="zh-TW" href="{{ request.url|replace('/en/', '/') }}">
-    {% endif %}
+    <!-- Single-locale site (zh-TW). Self-referencing hreflang only. -->
+    <link rel="alternate" hreflang="zh-Hant-TW" href="{{ request.url }}">
+    <link rel="alternate" hreflang="x-default" href="{{ request.url }}">
 
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="{% block og_type %}website{% endblock %}">
@@ -58,6 +54,43 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Noto+Serif+TC:wght@600;700&display=swap">
     <link rel="stylesheet" href="/static/css/public.css?v=40">
     {% block extra_css %}{% endblock %}
+
+    <!-- Site-wide Organization + WebSite structured data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "Organization",
+          "@id": "{{ request.url_root }}#organization",
+          "name": "ABBEY'S TOYS 阿北玩具堂",
+          "alternateName": "阿北玩具堂",
+          "url": "{{ request.url_root }}",
+          "logo": "{{ request.url_root }}static/images/abbeys_logo_round.png",
+          "email": "sales@abbeystoys.com",
+          "description": "台灣 JOYTOY、戰鎚40K、荷魯斯之亂與歐美系可動模型專賣店。",
+          "areaServed": "TW"{% if social_links %},
+          "sameAs": {{ social_links|tojson }}{% endif %}
+        },
+        {
+          "@type": "WebSite",
+          "@id": "{{ request.url_root }}#website",
+          "url": "{{ request.url_root }}",
+          "name": "ABBEY'S TOYS 阿北玩具堂",
+          "inLanguage": "zh-Hant-TW",
+          "publisher": { "@id": "{{ request.url_root }}#organization" },
+          "potentialAction": {
+            "@type": "SearchAction",
+            "target": {
+              "@type": "EntryPoint",
+              "urlTemplate": "{{ request.url_root }}products?search={search_term_string}"
+            },
+            "query-input": "required name=search_term_string"
+          }
+        }
+      ]
+    }
+    </script>
 
     <!-- Structured Data -->
     {% block structured_data %}{% endblock %}
