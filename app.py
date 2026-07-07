@@ -1252,23 +1252,45 @@ def build_codex_lookup():
     cache.set('codex_lookup', lookup)
     return lookup
 
+def build_codex_zhtw():
+    """slug -> zh-TW display name, for bilingual 中文（English）crosslinks."""
+    cached = cache.get('codex_zhtw')
+    if cached is not None:
+        return cached
+    zhtw = {e['slug']: (e.get('title_zhtw') or '').strip()
+            for e in get_codex_entries()}
+    cache.set('codex_zhtw', zhtw)
+    return zhtw
+
 def process_codex_links(text):
     """Convert [[term]] syntax to codex links"""
     from flask import g
     locale = getattr(g, 'locale', 'zhtw')
     prefix = '' if locale == 'zhtw' else '/en'
     codex_lookup = build_codex_lookup()
+    codex_zhtw = build_codex_zhtw()
 
     def replace_codex_link(match):
         term = match.group(1)
-        term_lower = term.lower()
+        # support [[target|display]] — link on target, show display text
+        target, sep, display = term.partition('|')
+        display = (display or target).strip()
+        target = target.strip()
 
-        if term_lower in codex_lookup:
-            slug = codex_lookup[term_lower]
-            return f'<a href="{prefix}/codex/{slug}" class="codex-term" data-codex="{slug}">{term}</a>'
-        else:
-            # Term not found in codex, just return the text without brackets
-            return term
+        slug = codex_lookup.get(target.lower())
+        if slug:
+            # Bilingual label 中文（English）on the default (zh-TW) site, when we
+            # have a Chinese name and the display text is still English. Keep the
+            # href/slug identical so existing links (and the quiz) never break.
+            zh = codex_zhtw.get(slug, '')
+            label = display
+            if (locale == 'zhtw' and zh and zh != display
+                    and not re.search(r'[一-鿿]', display)):
+                label = f'{zh}（{display}）'
+            return (f'<a href="{prefix}/codex/{slug}" class="codex-term" '
+                    f'data-codex="{slug}">{label}</a>')
+        # Term not found in codex, just return the text without brackets
+        return display
 
     # Match [[anything]]
     pattern = r'\[\[([^\]]+)\]\]'

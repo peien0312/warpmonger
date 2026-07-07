@@ -345,8 +345,10 @@ def get_codex_entries():
         r, extra = item["row"], item["extra"]
         body = r["body"] or ""
         body_enus = (r["body_enus"] if "body_enus" in r.keys() else "") or ""
+        title_zhtw = (r["title_zhtw"] if "title_zhtw" in r.keys() else "") or ""
         entries.append({
             "slug": r["slug"], "title": r["title"],
+            "title_zhtw": title_zhtw,      # zh-TW display name (crosslinks: 中文（English）)
             "aliases": extra.get("aliases") or [],
             "content": body,               # zh-TW body (displayed by default)
             "content_enus": body_enus,     # English body (shown on /en)

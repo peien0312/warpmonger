@@ -10,7 +10,7 @@
         <nav class="breadcrumb">
             <a href="{{ url_prefix }}/">{{ t.home }}</a> /
             <a href="{{ url_prefix }}/codex">{{ t.codex }}</a> /
-            <span>{{ entry.title }}</span>
+            <span>{% if entry.title_zhtw %}{{ entry.title_zhtw }}（{{ entry.title }}）{% else %}{{ entry.title }}{% endif %}</span>
         </nav>
 
         <div class="codex-entry-layout">
@@ -20,7 +20,7 @@
                     {% for e in all_entries %}
                     <li>
                         <a href="{{ url_prefix }}/codex/{{ e.slug }}" class="{% if e.slug == entry.slug %}active{% endif %}">
-                            {{ e.title }}
+                            {% if e.title_zhtw %}{{ e.title_zhtw }}（{{ e.title }}）{% else %}{{ e.title }}{% endif %}
                         </a>
                     </li>
                     {% endfor %}
@@ -29,10 +29,10 @@
 
             <article class="codex-entry-content">
                 <header class="entry-header">
-                    <h1>{{ entry.title }}</h1>
+                    <h1>{% if entry.title_zhtw %}{{ entry.title_zhtw }}<span class="entry-title-en">（{{ entry.title }}）</span>{% else %}{{ entry.title }}{% endif %}</h1>
                     {% if entry.aliases %}
                     <div class="entry-aliases">
-                        <span class="alias-label">Also known as:</span>
+                        <span class="alias-label">又稱：</span>
                         {% for alias in entry.aliases %}
                         <span class="alias">{{ alias }}</span>
                         {% endfor %}

@@ -1,26 +1,26 @@
 {% extends "public/base.html" %}
 
-{% block title %}Codex - Lore & Background | ABBEY'S TOYS 阿北玩具堂{% endblock %}
+{% block title %}背景圖鑑 Codex — 傳說與設定 | ABBEY'S TOYS 阿北玩具堂{% endblock %}
 
-{% block meta_description %}Explore the rich lore and background of Warhammer 40,000, Horus Heresy, and other universes. Learn about Primarchs, Space Marine Chapters, and more.{% endblock %}
+{% block meta_description %}探索 Warhammer 40,000、荷魯斯之亂與其他宇宙的豐富傳說與背景故事，認識原體、星際戰士軍團等經典設定。{% endblock %}
 
 {% block content %}
 <div class="container">
     <div class="codex-page">
         <header class="codex-header">
-            <h1>Codex</h1>
-            <p class="codex-intro">Explore the rich lore and background of the universes behind our figures.</p>
+            <h1>背景圖鑑 Codex</h1>
+            <p class="codex-intro">探索我們模型背後各個宇宙的豐富傳說與背景故事。</p>
         </header>
 
         {% if entries %}
         <div class="codex-grid">
             {% for entry in entries %}
             <a href="{{ url_prefix }}/codex/{{ entry.slug }}" class="codex-card">
-                <h3>{{ entry.title }}</h3>
+                <h3>{% if entry.title_zhtw %}{{ entry.title_zhtw }}（{{ entry.title }}）{% else %}{{ entry.title }}{% endif %}</h3>
                 <p class="codex-excerpt">{{ entry.excerpt }}</p>
                 {% if entry.aliases %}
                 <div class="codex-aliases">
-                    <span class="alias-label">Also known as:</span>
+                    <span class="alias-label">又稱：</span>
                     {% for alias in entry.aliases[:3] %}
                     <span class="alias">{{ alias }}</span>
                     {% endfor %}
@@ -31,7 +31,7 @@
         </div>
         {% else %}
         <div class="no-entries">
-            <p>No codex entries yet. Check back soon!</p>
+            <p>目前尚無圖鑑條目，敬請期待！</p>
         </div>
         {% endif %}
     </div>
