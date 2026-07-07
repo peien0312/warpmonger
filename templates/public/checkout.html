@@ -123,6 +123,14 @@ const GROUPS = {
 const AVAIL_LABEL = {in_stock: '現貨', incoming: '約2週到貨', preorder: '預購',
                      orderable: '可訂購 約2-3週', inquiry: '詢價'};
 
+// GA4 ecommerce item list (priced items only)
+function gaItems() {
+    return resolved.filter(l => l.price > 0).map(l => ({
+        item_id: l.category + '/' + l.slug, item_name: l.title,
+        item_category: l.category, price: Math.round(l.price), quantity: l.qty,
+    }));
+}
+
 async function loadCheckout() {
     const items = Cart.getItems();
     if (!items.length) {
@@ -170,6 +178,11 @@ async function loadCheckout() {
     document.getElementById('inquiry-hint').style.display = hasInq ? '' : 'none';
     document.getElementById('batch-choice').style.display = (hasPre && hasNow) ? '' : 'none';
     document.getElementById('checkout-body').style.display = '';
+
+    // GA4: begin_checkout (reached the checkout form with items)
+    if (typeof gtag === 'function' && total > 0) {
+        gtag('event', 'begin_checkout', {currency: 'TWD', value: Math.round(total), items: gaItems()});
+    }
 }
 
 document.querySelectorAll('input[name=delivery_method]').forEach(el =>
@@ -268,6 +281,12 @@ async function submitOrder(ev) {
         ship_together: shipEl ? shipEl.value === '1' : true,
         note: f.note.value.trim(),
     };
+    // GA4: shipping + payment info added (both chosen by submit time)
+    if (typeof gtag === 'function' && checkoutTotal > 0) {
+        const gi = gaItems();
+        gtag('event', 'add_shipping_info', {currency: 'TWD', value: Math.round(checkoutTotal), shipping_tier: delivery, items: gi});
+        gtag('event', 'add_payment_info', {currency: 'TWD', value: Math.round(checkoutTotal), payment_type: payload.payment_method, items: gi});
+    }
     const res = await fetch('/api/checkout/submit', {
         method: 'POST', headers: {'Content-Type': 'application/json'},
         body: JSON.stringify(payload),
@@ -279,6 +298,15 @@ async function submitOrder(ev) {
         btn.textContent = '送出訂單';
         return false;
     }
+    // GA4: stash the purchase so the success page fires it (survives LINE Pay redirect)
+    try {
+        sessionStorage.setItem('ga_purchase', JSON.stringify({
+            transaction_id: data.order_no, currency: 'TWD',
+            value: Math.round(data.grand_total_twd ?? data.total_twd),
+            shipping: Math.round(data.shipping_fee_twd || 0),
+            items: gaItems(),
+        }));
+    } catch (e) {}
     Cart.clear();
     if (data.payment_url) {
         window.location.href = data.payment_url;  // LINE Pay

@@ -48,5 +48,20 @@ if (pm === 'linepay') {
     document.getElementById(state).style.display = '';
 }
 if (p.get('inq') === '1') document.getElementById('inquiry-note').style.display = '';
+
+// GA4: purchase (the real conversion). Skip cancelled/failed LINE Pay.
+// transaction_id dedupes if the page is reloaded.
+try {
+    const failed = p.get('paycancel') === '1' || p.get('payerr') === '1';
+    let gp = JSON.parse(sessionStorage.getItem('ga_purchase') || 'null');
+    if (!gp && p.get('no') && Number(p.get('total')) > 0) {
+        gp = {transaction_id: p.get('no'), currency: 'TWD',
+              value: Number(p.get('total')), shipping: Number(p.get('fee') || 0)};
+    }
+    if (gp && gp.value > 0 && !failed && typeof gtag === 'function') {
+        gtag('event', 'purchase', gp);
+    }
+    sessionStorage.removeItem('ga_purchase');
+} catch (e) {}
 </script>
 {% endblock %}

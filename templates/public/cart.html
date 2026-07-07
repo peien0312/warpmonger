@@ -102,6 +102,18 @@ var clearConfirmText = {{ t.clear_confirm|tojson }};
 // Render cart items on page load
 document.addEventListener('DOMContentLoaded', function() {
     renderCart();
+    // GA4: view_cart
+    if (typeof gtag === 'function') {
+        var vcItems = Cart.getItems();
+        if (vcItems.length) {
+            gtag('event', 'view_cart', {
+                currency: 'TWD', value: Cart.getTotal(),
+                items: vcItems.map(function(i) { return {
+                    item_id: i.category + '/' + i.slug, item_name: i.title,
+                    item_category: i.category, price: i.price, quantity: i.quantity }; })
+            });
+        }
+    }
 });
 
 function renderCart() {
@@ -353,7 +365,8 @@ function submitEmail() {
     .then(function(response) { return response.json(); })
     .then(function(data) {
         if (data.success) {
-            // GA4: Track purchase (conversion)
+            // GA4: this "email your list" flow is an inquiry/lead, NOT a sale —
+            // track as generate_lead so it doesn't pollute purchase revenue.
             if (typeof gtag === 'function') {
                 var gaItems = items.map(function(item) {
                     return {
@@ -364,11 +377,9 @@ function submitEmail() {
                         quantity: item.quantity
                     };
                 });
-                gtag('event', 'purchase', {
-                    transaction_id: 'EMAIL_' + Date.now(),
-                    currency: 'USD',
+                gtag('event', 'generate_lead', {
+                    currency: 'TWD',
                     value: Cart.getTotal(),
-                    affiliation: 'email',
                     items: gaItems
                 });
             }
