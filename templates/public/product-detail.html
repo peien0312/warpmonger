@@ -609,7 +609,17 @@ async function _memberApi(url, sku, btn, onAdded, onRemoved) {
 }
 function toggleWishDetail(sku, btn) {
     _memberApi('/api/wishlist', sku, btn,
-        b => { b.textContent = '♥'; b.title = '已收藏'; },
+        b => { b.textContent = '♥'; b.title = '已收藏';
+            if (typeof gtag === 'function') gtag('event', 'add_to_wishlist', {
+                currency: 'TWD', value: {{ product.final_price or 0 }},
+                items: [{
+                    item_id: {{ (product.category ~ '/' ~ product.slug)|tojson }},
+                    item_name: {{ (product.zhtw_name or product.title)|tojson }},
+                    item_category: {{ product.category|tojson }},
+                    price: {{ product.final_price or 0 }}, quantity: 1
+                }]
+            });
+        },
         b => { b.textContent = '♡'; b.title = '加入願望清單'; });
 }
 function toggleNotify(sku, btn) {

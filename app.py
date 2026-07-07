@@ -102,6 +102,12 @@ app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
 # Public web base URL (for links sent outside a request, e.g. LINE messages).
 # Env-driven so a domain change never needs a code edit.
 SITE_URL = os.environ.get('SITE_URL', 'https://abbeystoys.com').rstrip('/')
+
+def _auth_next(dest, is_new, method):
+    """Append GA4 signal params so base.html fires login / sign_up client-side."""
+    ev = 'signup' if is_new else 'login'
+    sep = '&' if '?' in dest else '?'
+    return f"{dest}{sep}_auth={ev}&_m={method}"
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 31536000  # 1 year cache for static files
 
 @app.after_request
@@ -3488,7 +3494,7 @@ def auth_google_callback():
         'google', info['sub'], info.get('email'), info.get('name'), info.get('picture'))
     session.permanent = True
     session['member_id'] = member['id']
-    return redirect(session.pop('login_next', '/') or '/')
+    return redirect(_auth_next(session.pop('login_next', '/') or '/', member.get('_is_new'), 'google'))
 
 
 LINE_LOGIN_CHANNEL_ID = os.environ.get('LINE_LOGIN_CHANNEL_ID', '')
@@ -3566,7 +3572,7 @@ def auth_line_callback():
     memberdb.set_line_user(member['id'], prof['userId'])
     session.permanent = True
     session['member_id'] = member['id']
-    return redirect(session.pop('login_next', '/') or '/')
+    return redirect(_auth_next(session.pop('login_next', '/') or '/', member.get('_is_new'), 'line'))
 
 
 @app.route('/auth/logout')

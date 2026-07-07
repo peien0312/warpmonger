@@ -320,7 +320,9 @@ def find_or_create_by_identity(provider, subject, email, name, picture):
     conn.commit()
     member = conn.execute("SELECT * FROM members WHERE id = ?", (member_id,)).fetchone()
     conn.close()
-    return dict(member)
+    m = dict(member)
+    m["_is_new"] = row is None   # first time this identity is seen -> sign_up
+    return m
 
 
 def identities_for(member_id):

@@ -16,6 +16,21 @@
         gtag('js', new Date());
         gtag('config', {{ ga4_id|tojson }});
     </script>
+    <script>
+    // GA4: fire login / sign_up after an auth redirect, then clean the URL
+    (function(){
+        try {
+            var u = new URL(location.href);
+            var ev = u.searchParams.get('_auth');
+            if (ev && typeof gtag === 'function') {
+                gtag('event', ev === 'signup' ? 'sign_up' : 'login',
+                     {method: u.searchParams.get('_m') || ''});
+                u.searchParams.delete('_auth'); u.searchParams.delete('_m');
+                history.replaceState(null, '', u.pathname + u.search + u.hash);
+            }
+        } catch (e) {}
+    })();
+    </script>
     {% endif %}
 
     <meta charset="UTF-8">
