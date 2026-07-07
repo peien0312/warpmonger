@@ -1967,6 +1967,16 @@ def merchant_feed():
         gtin = barcode if barcode.isdigit() and len(barcode) in (8, 12, 13, 14) else ''
         mpn = (p.get('id') or '').strip()        # JT SKU
 
+        # material — category/name aware (figures PVC/ABS, cases acrylic, tools metal)
+        _tl = [str(t).lower() for t in (p.get('tags') or [])]
+        _nm = (name + ' ' + en).lower()
+        if any('display case' in t for t in _tl) or 'display case' in _nm or '展示盒' in name:
+            material = 'Acrylic'
+        elif p.get('category') == 'tools':
+            material = 'Metal'
+        else:
+            material = 'PVC, ABS'
+
         # Google requires availability_date for preorder/backorder. Use the real
         # (future) preorder date when we have one, else an honest estimate:
         # ~2 wk for 集運/在途, ~3 wk for 調貨 (matches the site's arrival copy).
@@ -1997,6 +2007,7 @@ def merchant_feed():
               *( [f'      <g:availability_date>{avail_date}</g:availability_date>'] if avail_date else [] ),
               f'      <g:price>{int(round(price))} TWD</g:price>',
               '      <g:brand>JOYTOY</g:brand>',
+              f'      <g:material>{material}</g:material>',
               '      <g:google_product_category>6058</g:google_product_category>',
               '      <g:identifier_exists>' + ('true' if gtin else 'false') + '</g:identifier_exists>']
         if gtin:
