@@ -1958,6 +1958,25 @@ def merchant_feed():
         gtin = barcode if barcode.isdigit() and len(barcode) in (8, 12, 13, 14) else ''
         mpn = (p.get('id') or '').strip()        # JT SKU
 
+        # Google requires availability_date for preorder/backorder. Use the real
+        # (future) preorder date when we have one, else an honest estimate:
+        # ~2 wk for 集運/在途, ~3 wk for 調貨 (matches the site's arrival copy).
+        avail_date = ''
+        if avail in ('preorder', 'backorder'):
+            from datetime import timedelta
+            raw = (p.get('available_date') or '').strip()  # 'YYYY-MM-DD' or ''
+            use = ''
+            if raw:
+                try:
+                    if datetime.strptime(raw, '%Y-%m-%d').date() > datetime.now().date():
+                        use = raw
+                except ValueError:
+                    pass
+            if not use:
+                days = 14 if p.get('availability') == 'incoming' else 21
+                use = (datetime.now() + timedelta(days=days)).strftime('%Y-%m-%d')
+            avail_date = f'{use}T09:00+0800'
+
         it = ['    <item>',
               f'      <g:id>{escape(mpn or barcode or p["slug"])}</g:id>',
               f'      <g:title>{escape(title[:150])}</g:title>',
@@ -1966,6 +1985,7 @@ def merchant_feed():
               f'      <g:image_link>{escape(img_link)}</g:image_link>',
               '      <g:condition>new</g:condition>',
               f'      <g:availability>{avail}</g:availability>',
+              *( [f'      <g:availability_date>{avail_date}</g:availability_date>'] if avail_date else [] ),
               f'      <g:price>{int(round(price))} TWD</g:price>',
               '      <g:brand>JOYTOY</g:brand>',
               f'      <g:google_product_category>Toys &amp; Games &gt; Toys &gt; Action &amp; Toy Figures</g:google_product_category>',
