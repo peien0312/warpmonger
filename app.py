@@ -3432,7 +3432,7 @@ def payuni_pay(order_no):
         'NotifyURL': f'{base}/payuni/notify',
         'ExpireDate': (datetime.now() + timedelta(days=3)).strftime('%Y-%m-%d'),
         # enable methods (LINE Pay stays on the direct integration)
-        'Credit': 1, 'CreditInst': 1, 'CreditUnionPay': 1,
+        'Credit': 1, 'CreditInst': '3,6,12', 'CreditUnionPay': 1,
         'ApplePay': 1, 'GooglePay': 1, 'SamsungPay': 1,
         'ATM': 1, 'CVS': 1, 'ICash': 1, 'JKoPay': 1, 'Aftee': 1,
     }
@@ -3457,7 +3457,7 @@ def _payuni_apply(info, source):
         if ts == '1':          # paid
             _pos_api('POST', f'/api/storefront/orders/{order_no}/payment',
                      {'payment_status': '已付款',
-                      'payment_note': f"PayUni {info.get('TradeNo', '')}"})
+                      'payment_note': f"PayUni {info.get('TradeNo', '')} PT{info.get('PaymentType', '')}"})
             print(f"[payuni {source}] {order_no} -> 已付款")
         elif ts == '0':        # ATM/CVS code issued, awaiting payment
             _pos_api('POST', f'/api/storefront/orders/{order_no}/payment',

@@ -96,7 +96,8 @@ def refund(trade_no, amount, close_type=2):
     data = urllib.parse.urlencode(req).encode()
     r = urllib.request.Request(
         api_url("trade/close"), data=data, method="POST",
-        headers={"Content-Type": "application/x-www-form-urlencoded"})
+        headers={"Content-Type": "application/x-www-form-urlencoded",
+                 "User-Agent": "payuni"})
     raw = ""
     try:
         with urllib.request.urlopen(r, timeout=25) as resp:
