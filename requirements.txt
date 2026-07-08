@@ -3,3 +3,4 @@ Pillow
 Markdown
 python-dotenv
 gunicorn
+cryptography>=42.0

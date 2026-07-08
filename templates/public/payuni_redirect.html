@@ -1,0 +1,12 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head><meta charset="utf-8"><title>前往付款…</title><meta name="viewport" content="width=device-width, initial-scale=1"></head>
+<body style="font-family:-apple-system,'Noto Sans TC',sans-serif;background:#1E1712;color:#E6DAC4;text-align:center;padding-top:60px;"
+      onload="document.forms[0].submit()">
+    <p>正在前往 PayUni 安全付款頁面，請稍候…</p>
+    <form method="post" action="{{ action }}">
+        {% for k, v in fields.items() %}<input type="hidden" name="{{ k }}" value="{{ v }}">{% endfor %}
+        <noscript><button type="submit" style="padding:10px 20px;">前往付款</button></noscript>
+    </form>
+</body>
+</html>

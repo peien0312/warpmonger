@@ -89,12 +89,12 @@
 
                 <h3>付款方式 <small style="font-weight:400"><a href="/guide#pay" target="_blank">付款/運送說明</a></small></h3>
                 <div class="option-row option-col">
-                    <label><input type="radio" name="payment_method" value="cod" checked>
-                        取貨付款</label>
+                    <label><input type="radio" name="payment_method" value="payuni" checked>
+                        線上付款（信用卡／Apple・Google Pay／ATM／超商代碼）</label>
                     <label><input type="radio" name="payment_method" value="linepay">
-                        LINE Pay（送出後導向 LINE Pay 付款）</label>
-                    <label><input type="radio" name="payment_method" value="transfer">
-                        銀行轉帳（送出後顯示轉帳帳戶）</label>
+                        LINE Pay</label>
+                    <label><input type="radio" name="payment_method" value="cod">
+                        取貨付款（超商取貨時付款）</label>
                 </div>
 
                 <label>備註<textarea name="note" rows="2" maxlength="500"></textarea></label>
@@ -308,6 +308,10 @@ async function submitOrder(ev) {
     if (data.payment_url) {
         window.location.href = data.payment_url;  // LINE Pay
         return false;
+    }
+    if (payload.payment_method === 'payuni' && Math.round(data.charge_now_twd ?? 0) > 0) {
+        window.location.href = '/payuni/pay/' + data.order_no + '?t=' + (data.order_token || '');
+        return false;  // PayUni hosted page
     }
     const params = new URLSearchParams({
         no: data.order_no, pm: payload.payment_method,

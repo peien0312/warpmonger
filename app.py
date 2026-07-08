@@ -3378,6 +3378,107 @@ def linepay_cancel():
     return redirect(f'/checkout/success?no={order_no}&pm=linepay&paycancel=1')
 
 
+# ===== PayUni (統一金流) integrated payment =====
+import payuni
+
+
+def _payuni_mer_trade_no(order_no):
+    """PayUni MerTradeNo: alphanumeric + unique per attempt. AB260708-001 ->
+    AB260708001 + 5-digit time suffix. Recover order_no from the first 11 chars."""
+    import time
+    return f"{order_no.replace('-', '')}{int(time.time()) % 100000:05d}"
+
+
+def _order_no_from_mtn(mtn):
+    base = (mtn or "")[:11]            # AB + yymmdd(6) + NNN(3)
+    return base[:8] + '-' + base[8:11] if len(base) >= 11 else None
+
+
+def _payuni_pending_note(info):
+    pt = str(info.get('PaymentType', ''))
+    payno = info.get('PayNo') or info.get('CodeNo') or ''
+    if pt == '2':
+        return f"ATM 待轉帳 帳號 {payno}"[:100]
+    if pt == '3':
+        return f"超商代碼 {payno}"[:100]
+    return f"付款處理中 {payno}"[:100]
+
+
+@app.route('/payuni/pay/<order_no>')
+def payuni_pay(order_no):
+    """Build the PayUni UPP request and auto-submit the browser to their page."""
+    import time
+    from datetime import datetime, timedelta
+    token = request.args.get('t', '')
+    if not _authorized_for_order(order_no, token):
+        return redirect('/order-lookup?no=' + (order_no or ''))
+    if not payuni.enabled():
+        return "PayUni 尚未設定，請改用其他付款方式或聯絡阿北。", 503
+    import posdb as _posdb
+    order = _posdb.get_web_order(order_no)
+    if not order or order.get('payment_status') != '待付款' or int(order.get('amount_due') or 0) <= 0:
+        return redirect(f'/order/{order_no}?t={_order_token(order_no)}')
+    base = request.url_root.rstrip('/')
+    prod = ';'.join(f"{it.get('zhtw_name') or it.get('en_name')}x{it['quantity']}"
+                    for it in order['items'][:5]) or '阿北玩具堂訂單'
+    info = {
+        'MerID': payuni.mer_id(),
+        'MerTradeNo': _payuni_mer_trade_no(order_no),
+        'TradeAmt': int(order['amount_due']),
+        'Timestamp': int(time.time()),
+        'ProdDesc': prod[:150],
+        'UsrMail': order.get('email') or '',
+        'ReturnURL': f'{base}/payuni/return',
+        'NotifyURL': f'{base}/payuni/notify',
+        'ExpireDate': (datetime.now() + timedelta(days=3)).strftime('%Y-%m-%d'),
+        # enable methods (LINE Pay stays on the direct integration)
+        'Credit': 1, 'CreditInst': 1, 'CreditUnionPay': 1,
+        'ApplePay': 1, 'GooglePay': 1, 'SamsungPay': 1,
+        'ATM': 1, 'CVS': 1, 'ICash': 1, 'JKoPay': 1, 'Aftee': 1,
+    }
+    return render_template('public/payuni_redirect.html',
+                           action=payuni.api_url('upp'),
+                           fields=payuni.build_request(info))
+
+
+@app.route('/payuni/notify', methods=['POST'])
+def payuni_notify():
+    """Server-to-server payment result from PayUni (source of truth)."""
+    if not payuni.enabled():
+        return 'disabled', 503
+    info = payuni.verify_callback(request.form)
+    if not info:
+        return 'bad hash', 400
+    if info.get('Status') != 'SUCCESS':
+        return 'OK'
+    order_no = _order_no_from_mtn(info.get('MerTradeNo', ''))
+    if not order_no:
+        return 'OK'
+    trade_status = str(info.get('TradeStatus', ''))
+    try:
+        if trade_status == '1':          # paid
+            _pos_api('POST', f'/api/storefront/orders/{order_no}/payment',
+                     {'payment_status': '已付款',
+                      'payment_note': f"PayUni {info.get('TradeNo', '')}"})
+        elif trade_status == '0':        # ATM/CVS code issued, awaiting payment
+            _pos_api('POST', f'/api/storefront/orders/{order_no}/payment',
+                     {'payment_status': '待付款',
+                      'payment_note': _payuni_pending_note(info)})
+    except Exception as e:
+        print(f"payuni notify update failed: {e}")
+    return 'OK'
+
+
+@app.route('/payuni/return', methods=['POST', 'GET'])
+def payuni_return():
+    """Customer's browser lands here after PayUni; send them to the order page."""
+    info = payuni.verify_callback(request.form) if request.method == 'POST' else None
+    order_no = _order_no_from_mtn((info or {}).get('MerTradeNo', '')) or request.args.get('no', '')
+    if order_no:
+        return redirect(f'/order/{order_no}?t={_order_token(order_no)}')
+    return redirect('/order-lookup')
+
+
 def _send_order_emails(order_no, data, lines, totals):
     """Branded HTML order-confirmation to the customer + a copy to the shop.
     `totals` is the POS create-order response (total/shipping/grand/charge_now)."""
