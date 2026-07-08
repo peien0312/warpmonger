@@ -421,16 +421,16 @@ def _enrich_orders(conn, orders):
         o["returns"] = []
         for key in ("order_id_now", "order_id_later"):
             if o.get(key):
-                row = conn.execute(
-                    "SELECT status, shipping_code, shipping_type FROM orders WHERE id = ?",
-                    (o[key],)).fetchone()
-                if row:
-                    label = _FRIENDLY_STATUS.get(row["status"])
+                r = conn.execute("SELECT * FROM orders WHERE id = ?", (o[key],)).fetchone()
+                if r:
+                    row = dict(r)   # robust to schema differences (shipping_carrier vs _type)
+                    label = _FRIENDLY_STATUS.get(row.get("status"))
                     if label and label not in o["fulfillment"]:
                         o["fulfillment"].append(label)
-                    if row["shipping_code"]:
+                    if row.get("shipping_code"):
                         o["shipping_codes"].append(
-                            {"code": row["shipping_code"], "type": row["shipping_type"] or ""})
+                            {"code": row["shipping_code"],
+                             "type": row.get("shipping_carrier") or row.get("shipping_type") or ""})
         # amount due now — mirrors the POS _charge_now_twd: 現貨/調貨 portion,
         # but the whole priced order once a preorder is actively 待付款
         _now = ("in_stock", "incoming", "orderable")
