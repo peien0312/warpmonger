@@ -431,9 +431,16 @@ def _enrich_orders(conn, orders):
                     if row["shipping_code"]:
                         o["shipping_codes"].append(
                             {"code": row["shipping_code"], "type": row["shipping_type"] or ""})
-        priced = sum((it["unit_price_twd"] or 0) * it["quantity"] for it in o["items"])
-        o["amount_due"] = max(0, priced + (o.get("shipping_fee_twd") or 0)
-                              - (o.get("discount_twd") or 0))
+        # amount due now — mirrors the POS _charge_now_twd: 現貨/調貨 portion,
+        # but the whole priced order once a preorder is actively 待付款
+        _now = ("in_stock", "incoming", "orderable")
+        now_total = sum((it["unit_price_twd"] or 0) * it["quantity"]
+                        for it in o["items"] if it["availability"] in _now)
+        if now_total <= 0 and o.get("payment_status") == "待付款":
+            now_total = sum((it["unit_price_twd"] or 0) * it["quantity"]
+                            for it in o["items"] if it["availability"] != "inquiry")
+        o["amount_due"] = (max(0, now_total + (o.get("shipping_fee_twd") or 0)
+                               - (o.get("discount_twd") or 0)) if now_total > 0 else 0)
 
     order_nos = [o["order_no"] for o in orders]
     if order_nos:
