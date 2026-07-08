@@ -423,6 +423,18 @@ def format_ntd(value):
     except (ValueError, TypeError):
         return "0"
 
+@app.template_filter('twtime')
+def format_twtime(value, fmt='%Y-%m-%d %H:%M'):
+    """DB timestamp (UTC) -> Taiwan time (UTC+8) for display."""
+    if not value:
+        return ''
+    from datetime import datetime, timedelta
+    try:
+        dt = datetime.strptime(str(value)[:19], '%Y-%m-%d %H:%M:%S')
+        return (dt + timedelta(hours=8)).strftime(fmt)
+    except Exception:
+        return str(value)[:16]
+
 # Custom Jinja2 filter for formatting month
 @app.template_filter('format_month')
 def format_month(date_str):

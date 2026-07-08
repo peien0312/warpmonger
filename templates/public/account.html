@@ -85,7 +85,7 @@
             <span class="badge {{ 'badge-instock' if o.status == '已轉單' else 'badge-inquiry' if o.status == '已取消' else 'badge-incoming' }}">{{ o.status }}</span>
             <span class="badge {{ 'badge-instock' if o.payment_status == '已付款' else 'badge-orderable' }}">{{ o.payment_status }}</span>
             {% for st in o.fulfillment %}<span class="badge badge-preorder">{{ st }}</span>{% endfor %}
-            <small class="account-date">{{ (o.created_at or '')[:16] }}</small>
+            <small class="account-date">{{ o.created_at|twtime }}</small>
         </div>
         <ul class="account-order-items">
             {% for it in o["items"] %}
