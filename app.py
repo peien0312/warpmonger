@@ -3924,6 +3924,35 @@ def api_return_request():
     return jsonify(resp)
 
 
+@app.route('/api/account/cancel-order', methods=['POST'])
+def api_cancel_order():
+    member = current_member()
+    if not member:
+        return jsonify({'error': 'login'}), 401
+    import urllib.error
+    data = request.get_json(silent=True) or {}
+    order_no = (data.get('order_no') or '').strip()
+    if not order_no:
+        return jsonify({'success': False, 'error': '缺少訂單編號'}), 400
+    import posdb as _posdb
+    owned = any(o['order_no'] == order_no for o in
+                _posdb.get_member_orders(member.get('email'), member.get('phone')))
+    if not owned:
+        return jsonify({'success': False, 'error': '找不到這筆訂單'}), 404
+    try:
+        resp = _pos_api('POST', f'/api/storefront/orders/{order_no}/cancel')
+    except urllib.error.HTTPError as e:
+        try:
+            detail = json.loads(e.read()).get('detail', '取消失敗')
+        except Exception:
+            detail = '取消失敗'
+        return jsonify({'success': False, 'error': detail}), 400
+    except Exception as e:
+        print(f"cancel order failed: {e}")
+        return jsonify({'success': False, 'error': '系統忙碌中，請稍後再試'}), 502
+    return jsonify(resp)
+
+
 # ===== POS-DB data layer (realtime) =====
 # The POS SQLite DB is now the source of truth; posdb.py mirrors the dict
 # shapes of the flat-file loaders above, so we simply rebind the names.

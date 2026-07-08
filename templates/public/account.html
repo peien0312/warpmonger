@@ -108,6 +108,9 @@
             {% endif %}
         </div>
         {% endif %}
+        {% if o.status == '新單' and o.payment_status in ('待付款', '貨到付款', '到貨後付款') %}
+        <button class="btn btn-sm btn-outline" onclick="cancelOrder('{{ o.order_no }}')">取消訂單</button>
+        {% endif %}
         {# 退貨/退款 status + request #}
         {% set ns = namespace(active=false) %}
         {% for r in o.returns %}
@@ -218,6 +221,18 @@ async function reportTransfer(btn) {
     const data = await res.json();
     if (data.success) { box.innerHTML = '<small>已回報，等待確認中，謝謝！</small>'; }
     else { msg.textContent = data.error || '回報失敗'; }
+}
+
+// ----- 取消訂單（未轉單、未付款）-----
+async function cancelOrder(orderNo) {
+    if (!confirm(`確定要取消訂單 ${orderNo}？`)) return;
+    const res = await fetch('/api/account/cancel-order', {
+        method: 'POST', headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({order_no: orderNo}),
+    });
+    const data = await res.json();
+    if (data.success) { location.reload(); }
+    else { alert(data.error || '取消失敗，請稍後再試'); }
 }
 
 // ----- 退貨/退款 申請 -----
