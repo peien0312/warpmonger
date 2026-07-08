@@ -3446,15 +3446,22 @@ def payuni_notify():
     """Server-to-server payment result from PayUni (source of truth)."""
     if not payuni.enabled():
         return 'disabled', 503
+    print(f"[payuni notify] form keys={list(request.form.keys())}")
     info = payuni.verify_callback(request.form)
     if not info:
+        print("[payuni notify] HASH VERIFY FAILED (or missing EncryptInfo)")
         return 'bad hash', 400
+    print(f"[payuni notify] Status={info.get('Status')} TradeStatus={info.get('TradeStatus')} "
+          f"MerTradeNo={info.get('MerTradeNo')} PaymentType={info.get('PaymentType')} "
+          f"Msg={info.get('Message')}")
     if info.get('Status') != 'SUCCESS':
         return 'OK'
     order_no = _order_no_from_mtn(info.get('MerTradeNo', ''))
     if not order_no:
+        print(f"[payuni notify] could not recover order_no from {info.get('MerTradeNo')}")
         return 'OK'
     trade_status = str(info.get('TradeStatus', ''))
+    print(f"[payuni notify] -> order {order_no} trade_status={trade_status}")
     try:
         if trade_status == '1':          # paid
             _pos_api('POST', f'/api/storefront/orders/{order_no}/payment',
