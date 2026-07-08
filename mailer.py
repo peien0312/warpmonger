@@ -126,11 +126,13 @@ def send_order_confirmation(order_no, data, lines, totals, bank_info,
     return send_email(targets, subject, html, text)
 
 
-def render_status_html(headline, paragraphs, bank_info=None, order_no=None):
+def render_status_html(headline, paragraphs, bank_info=None, order_no=None,
+                       action_url=None, action_label=None):
     """Branded HTML for a status-update / notification email."""
     return render_template(
         "emails/order_status.html", headline=headline, paragraphs=paragraphs,
-        bank_info=bank_info, order_no=order_no, site_url=_site_url())
+        bank_info=bank_info, order_no=order_no, action_url=action_url,
+        action_label=action_label, site_url=_site_url())
 
 
 def render_status_text(headline, paragraphs, bank_info=None):

@@ -97,15 +97,25 @@
             {% endfor %}
             {% if o.shipping_fee_twd %}<li>運費 NT${{ o.shipping_fee_twd|ntd }}</li>{% endif %}
         </ul>
+        {% for sc in o.shipping_codes %}
+        <div class="return-status"><small>取貨代碼{% if sc.type %}（{{ sc.type }}）{% endif %}：<strong>{{ sc.code }}</strong></small></div>
+        {% endfor %}
         {% if o.payment_method == 'transfer' and o.payment_status in ('待付款', '待確認') %}
         <div class="transfer-report" data-order="{{ o.order_no }}">
             {% if o.payment_status == '待確認' %}
             <small>已回報後五碼（{{ o.payment_note }}），等待確認中。</small>
             {% else %}
+            <p style="margin:6px 0">請轉帳 <strong>NT${{ o.amount_due|ntd }}</strong> 至：</p>
+            <div style="white-space:pre-line; background:#F5EFE2; border:1px solid #D9A441; border-radius:8px; padding:10px 12px; margin:6px 0; color:#292019;">{{ bank_info }}</div>
             <input type="text" maxlength="5" inputmode="numeric" placeholder="轉帳後五碼" class="digits-input">
             <button class="btn btn-sm btn-primary" onclick="reportTransfer(this)">回報已轉帳</button>
             <small class="report-msg"></small>
             {% endif %}
+        </div>
+        {% elif o.payment_method == 'linepay' and o.payment_status == '待付款' %}
+        <div style="margin:6px 0">
+            <button class="btn btn-sm btn-primary" onclick="payLinePay('{{ o.order_no }}')">用 LINE Pay 付款</button>
+            <small class="linepay-msg"></small>
         </div>
         {% endif %}
         {% if o.status == '新單' and o.payment_status in ('待付款', '貨到付款', '到貨後付款') %}
@@ -210,6 +220,17 @@
     {% endif %}
 </div>
 <script>
+async function payLinePay(orderNo) {
+    const msg = document.querySelector('.linepay-msg');
+    const res = await fetch('/api/order/linepay-init', {
+        method: 'POST', headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({order_no: orderNo}),
+    });
+    const data = await res.json();
+    if (data.success && data.payment_url) location.href = data.payment_url;
+    else if (msg) msg.textContent = data.error || 'LINE Pay 啟動失敗';
+}
+
 async function reportTransfer(btn) {
     const box = btn.closest('.transfer-report');
     const digits = box.querySelector('.digits-input').value.trim();

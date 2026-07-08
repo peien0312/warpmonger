@@ -6,5 +6,8 @@
 {% if bank_info %}
 <div style="white-space:pre-line; background:#F5EFE2; border:1px solid #D9A441; border-radius:8px; padding:14px 16px; margin:12px 0; line-height:1.8; color:#292019;">{{ bank_info }}</div>
 {% endif %}
+{% if action_url %}
+<p style="margin:14px 0;"><a href="{{ action_url }}" style="display:inline-block; background:#D9A441; color:#292019; text-decoration:none; padding:10px 18px; border-radius:6px; font-weight:700;">{{ action_label or '前往' }}</a></p>
+{% endif %}
 {% if order_no %}<p style="margin-top:18px; font-size:13px;"><a href="{{ site_url }}/account" style="color:#6E4B2A; text-decoration:underline;">查看訂單狀態 →</a></p>{% endif %}
 {% endblock %}

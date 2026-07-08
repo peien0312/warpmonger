@@ -3625,7 +3625,7 @@ def account_page():
     notify = set(memberdb.notify_skus(member['id']))
     return render_template('public/account.html', member=member,
                            orders=orders, wish_products=wish_products,
-                           notify_skus=notify,
+                           notify_skus=notify, bank_info=BANK_TRANSFER_INFO,
                            addresses=memberdb.list_addresses(member['id']),
                            identities=memberdb.identities_for(member['id']),
                            line_bind_code=memberdb.get_bind_code(member['id']))
@@ -3733,7 +3733,10 @@ def api_internal_notify():
         ono = d.get('order_no', '')
         status = d.get('status', '')
         headline = f"退貨申請更新 — {rno}"
-        if status == '處理中':
+        if status == '申請中':
+            headline = f"退貨申請已收到 — {rno}"
+            paras = ["我們已收到您的退貨申請，會盡快為您處理，並在有進度時通知您。"]
+        elif status == '處理中':
             paras = [f"您的退貨申請（訂單 {ono}）已受理，我們會盡快為您處理退款，完成後再通知您。"]
         elif status == '已退款':
             headline = f"退款完成 — {rno}"
@@ -3752,6 +3755,41 @@ def api_internal_notify():
         message = "\n".join([headline] + paras + ["— ABBEY'S TOYS 阿北玩具堂"])
         email_subject = f"[阿北玩具堂] {headline}"
         email_html = mailer.render_status_html(headline, paras, order_no=ono)
+        email_text = mailer.render_status_text(headline, paras)
+    elif tmpl == 'payment_due':
+        import mailer
+        d = data.get('data') or {}
+        ono = d.get('order_no', '')
+        pm = d.get('payment_method')
+        amount = d.get('amount')
+        headline = f"預購商品已到貨，請付款 — {ono}"
+        order_link = f"{SITE_URL}/order/{ono}?t={_order_token(ono)}"
+        amt_str = f" NT${int(amount):,}" if amount else ""
+        paras = [f"您的預購商品已到貨！請完成付款{amt_str}，我們就會安排出貨。"]
+        bank = None
+        if pm == 'transfer':
+            bank = BANK_TRANSFER_INFO
+            paras.append("請轉帳至下方帳戶，並到訂單頁回報帳號後五碼。")
+        elif pm == 'linepay':
+            paras.append("請到訂單頁使用 LINE Pay 完成付款。")
+        line_lines = [headline] + paras
+        if bank:
+            line_lines.append(f"轉帳帳戶：{bank}")
+        line_lines.append(f"訂單頁：{order_link}")
+        message = "\n".join(line_lines + ["— ABBEY'S TOYS 阿北玩具堂"])
+        email_subject = f"[阿北玩具堂] 預購到貨請付款 {ono}"
+        email_html = mailer.render_status_html(headline, paras, bank_info=bank,
+                                               action_url=order_link, action_label='前往付款')
+        email_text = mailer.render_status_text(headline, paras, bank_info=bank)
+    elif tmpl == 'order_cancelled':
+        import mailer
+        d = data.get('data') or {}
+        ono = d.get('order_no', '')
+        headline = f"訂單已取消 — {ono}"
+        paras = ["您的訂單已取消。如果這不是您本人操作或有疑問，歡迎直接回覆或用 LINE 聯絡阿北。"]
+        message = "\n".join([headline] + paras + ["— ABBEY'S TOYS 阿北玩具堂"])
+        email_subject = f"[阿北玩具堂] 訂單已取消 {ono}"
+        email_html = mailer.render_status_html(headline, paras)
         email_text = mailer.render_status_text(headline, paras)
 
     if not message or not (phone or email):
@@ -3962,6 +4000,20 @@ def api_return_request():
     except Exception as e:
         print(f"return request failed: {e}")
         return jsonify({'success': False, 'error': '系統忙碌中，請稍後再試'}), 502
+    # alert the shop of a new return request (best-effort)
+    try:
+        import mailer
+        shop = os.environ.get('SHOP_EMAIL',
+                              os.environ.get('SMTP_FROM') or os.environ.get('SMTP_USERNAME'))
+        rno = resp.get('request_no')
+        if shop and rno:
+            paras = [f"訂單 {order_no} 有新的退貨申請（{rno}）。",
+                     "請到 網站退貨 頁面受理／退款。"]
+            mailer.send_email(shop, f"[阿北玩具堂] 新退貨申請 {rno}",
+                              mailer.render_status_html(f"新退貨申請 {rno}", paras),
+                              mailer.render_status_text(f"新退貨申請 {rno}", paras))
+    except Exception as e:
+        print(f"return shop alert failed: {e}")
     return jsonify(resp)
 
 
@@ -3988,6 +4040,37 @@ def api_cancel_order():
     return jsonify(resp)
 
 
+@app.route('/api/order/linepay-init', methods=['POST'])
+def api_order_linepay_init():
+    """(Re)start LINE Pay for a 待付款 order from the order page — used after a
+    failed LINE Pay, or a LINE Pay preorder once payment is due. Uses the POS's
+    charge amount so the confirm step matches."""
+    import linepay
+    data = request.get_json(silent=True) or {}
+    order_no = (data.get('order_no') or '').strip()
+    if not _authorized_for_order(order_no, data.get('token')):
+        return jsonify({'success': False, 'error': '找不到這筆訂單'}), 403
+    try:
+        info = _pos_api('GET', f'/api/storefront/orders/{order_no}')
+    except Exception:
+        return jsonify({'success': False, 'error': '系統忙碌中，請稍後再試'}), 502
+    if info.get('payment_status') != '待付款':
+        return jsonify({'success': False, 'error': '此訂單目前無法以 LINE Pay 付款'}), 400
+    charge = int(info.get('charge_twd') or 0)
+    if not linepay.enabled() or charge <= 0:
+        return jsonify({'success': False, 'error': 'LINE Pay 暫時無法使用，請改用轉帳或聯絡阿北'}), 400
+    try:
+        base = request.url_root.rstrip('/')
+        pay_url, txn = linepay.request_payment(
+            order_no, charge, f"阿北玩具堂訂單 {order_no}",
+            f"{base}/linepay/confirm",
+            f"{base}/linepay/cancel?orderId={order_no}")
+        return jsonify({'success': True, 'payment_url': pay_url})
+    except Exception as e:
+        print(f"order linepay init failed: {e}")
+        return jsonify({'success': False, 'error': 'LINE Pay 啟動失敗'}), 502
+
+
 @app.route('/order/<order_no>')
 def guest_order_page(order_no):
     """View/manage a single order without login (magic-link token or member)."""
@@ -3999,7 +4082,7 @@ def guest_order_page(order_no):
     if not order:
         return redirect('/order-lookup')
     return render_template('public/order.html', order=order,
-                           token=_order_token(order_no))
+                           token=_order_token(order_no), bank_info=BANK_TRANSFER_INFO)
 
 
 @app.route('/order-lookup', methods=['GET', 'POST'])

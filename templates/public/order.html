@@ -27,15 +27,25 @@
             {% endfor %}
             {% if order.shipping_fee_twd %}<li>運費 NT${{ order.shipping_fee_twd|ntd }}</li>{% endif %}
         </ul>
+        {% for sc in order.shipping_codes %}
+        <div class="return-status"><small>取貨代碼{% if sc.type %}（{{ sc.type }}）{% endif %}：<strong>{{ sc.code }}</strong></small></div>
+        {% endfor %}
         {% if order.payment_method == 'transfer' and order.payment_status in ('待付款', '待確認') %}
         <div class="transfer-report" data-order="{{ order.order_no }}">
             {% if order.payment_status == '待確認' %}
             <small>已回報後五碼（{{ order.payment_note }}），等待確認中。</small>
             {% else %}
+            <p style="margin:6px 0">請轉帳 <strong>NT${{ order.amount_due|ntd }}</strong> 至：</p>
+            <div style="white-space:pre-line; background:#F5EFE2; border:1px solid #D9A441; border-radius:8px; padding:10px 12px; margin:6px 0; color:#292019;">{{ bank_info }}</div>
             <input type="text" maxlength="5" inputmode="numeric" placeholder="轉帳後五碼" class="digits-input">
             <button class="btn btn-sm btn-primary" onclick="reportTransfer(this)">回報已轉帳</button>
             <small class="report-msg"></small>
             {% endif %}
+        </div>
+        {% elif order.payment_method == 'linepay' and order.payment_status == '待付款' %}
+        <div style="margin-top:8px">
+            <button class="btn btn-sm btn-primary" onclick="payLinePay('{{ order.order_no }}')">用 LINE Pay 付款</button>
+            <small class="linepay-msg"></small>
         </div>
         {% endif %}
         {% if order.status == '新單' and order.payment_status in ('待付款', '貨到付款', '到貨後付款') %}
@@ -99,6 +109,17 @@ async function cancelOrder(orderNo) {
     const data = await res.json();
     if (data.success) location.reload();
     else alert(data.error || '取消失敗，請稍後再試');
+}
+
+async function payLinePay(orderNo) {
+    const msg = document.querySelector('.linepay-msg');
+    const res = await fetch('/api/order/linepay-init', {
+        method: 'POST', headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({order_no: orderNo, token: ORDER_TOKEN}),
+    });
+    const data = await res.json();
+    if (data.success && data.payment_url) location.href = data.payment_url;
+    else if (msg) msg.textContent = data.error || 'LINE Pay 啟動失敗';
 }
 
 async function reportTransfer(btn) {

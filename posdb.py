@@ -397,8 +397,18 @@ def get_page(slug):
 
 # ----- member order history (web orders live in the POS DB, read-only) -----
 
+# raw internal Order.status -> customer-friendly label; missing keys
+# (棄單/呆帳/待補件) are hidden from customers entirely.
+_FRIENDLY_STATUS = {
+    "待配貨": "備貨中", "中國待發": "備貨中", "集運中": "運送中",
+    "台灣庫存": "備貨完成，待出貨", "已出貨": "已出貨",
+    "已結帳": "已完成", "已退貨": "已退貨",
+}
+
+
 def _enrich_orders(conn, orders):
-    """Attach items, internal-order fulfillment status, and return requests."""
+    """Attach items, customer-friendly fulfillment status, pickup codes,
+    amount due, and return requests."""
     for o in orders:
         o["items"] = [dict(r) for r in conn.execute("""
             SELECT wi.quantity, wi.unit_price_twd, wi.availability,
@@ -407,13 +417,23 @@ def _enrich_orders(conn, orders):
             WHERE wi.web_order_id = ?
         """, (o["id"],))]
         o["fulfillment"] = []
+        o["shipping_codes"] = []
         o["returns"] = []
         for key in ("order_id_now", "order_id_later"):
             if o.get(key):
                 row = conn.execute(
-                    "SELECT status FROM orders WHERE id = ?", (o[key],)).fetchone()
+                    "SELECT status, shipping_code, shipping_type FROM orders WHERE id = ?",
+                    (o[key],)).fetchone()
                 if row:
-                    o["fulfillment"].append(row["status"])
+                    label = _FRIENDLY_STATUS.get(row["status"])
+                    if label and label not in o["fulfillment"]:
+                        o["fulfillment"].append(label)
+                    if row["shipping_code"]:
+                        o["shipping_codes"].append(
+                            {"code": row["shipping_code"], "type": row["shipping_type"] or ""})
+        priced = sum((it["unit_price_twd"] or 0) * it["quantity"] for it in o["items"])
+        o["amount_due"] = max(0, priced + (o.get("shipping_fee_twd") or 0)
+                              - (o.get("discount_twd") or 0))
 
     order_nos = [o["order_no"] for o in orders]
     if order_nos:
