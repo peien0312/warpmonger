@@ -1,5 +1,8 @@
 訂單已成立 — {{ order_no }}
 感謝訂購！
+{% if order_url %}
+查看／管理訂單（免登入）：{{ order_url }}
+{% endif %}
 
 【訂購商品】
 {% for it in items %}・{{ it.title }} x{{ it.qty }} {% if it.price %}NT${{ it.line_total|ntd }}{% else %}詢價{% endif %}（{{ it.avail_label }}）

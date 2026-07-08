@@ -7,6 +7,7 @@
     <h1 class="page-title">感謝訂購！</h1>
     <p class="order-no">訂單編號：<strong id="order-no"></strong></p>
     <p>合計：<strong id="order-total"></strong><span id="fee-note"></span></p>
+    <p id="manage-order" style="display:none"><a class="btn btn-primary" id="manage-link" href="#">查看 / 管理訂單</a></p>
 
     <div id="pay-cod" class="pay-instructions" style="display:none">
         <h3>取貨付款</h3>
@@ -39,6 +40,11 @@
 <script>
 const p = new URLSearchParams(location.search);
 document.getElementById('order-no').textContent = p.get('no') || '';
+if (p.get('t') && p.get('no')) {
+    const ml = document.getElementById('manage-link');
+    ml.href = '/order/' + encodeURIComponent(p.get('no')) + '?t=' + encodeURIComponent(p.get('t'));
+    document.getElementById('manage-order').style.display = '';
+}
 document.getElementById('order-total').textContent = 'NT$' + Number(p.get('total') || 0).toLocaleString();
 const fee = Number(p.get('fee') || 0);
 document.getElementById('fee-note').textContent = fee ? `（含運費 NT$${fee}）` : '（免運）';

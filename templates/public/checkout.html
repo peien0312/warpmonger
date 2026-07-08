@@ -315,6 +315,7 @@ async function submitOrder(ev) {
         charge: Math.round(data.charge_now_twd ?? data.grand_total_twd ?? data.total_twd),
         fee: Math.round(data.shipping_fee_twd || 0),
         inq: data.has_inquiry ? '1' : '0',
+        t: data.order_token || '',
     });
     window.location.href = '/checkout/success?' + params.toString();
     return false;

@@ -71,7 +71,7 @@ def send_email(to, subject, html, text):
     return sent
 
 
-def _order_ctx(order_no, data, lines, totals, bank_info):
+def _order_ctx(order_no, data, lines, totals, bank_info, order_url=None):
     items, has_pre, has_now, has_inq = [], False, False, False
     for l in lines:
         av = l.get("availability")
@@ -106,13 +106,15 @@ def _order_ctx(order_no, data, lines, totals, bank_info):
         "has_preorder": has_pre, "has_now": has_now, "has_inquiry": has_inq,
         "note": data.get("note"),
         "bank_info": bank_info,
+        "order_url": order_url,
         "site_url": _site_url(),
     }
 
 
-def send_order_confirmation(order_no, data, lines, totals, bank_info, shop_email=None):
+def send_order_confirmation(order_no, data, lines, totals, bank_info,
+                            shop_email=None, order_url=None):
     """Order-received email to the customer (and a copy to the shop)."""
-    ctx = _order_ctx(order_no, data, lines, totals, bank_info)
+    ctx = _order_ctx(order_no, data, lines, totals, bank_info, order_url=order_url)
     html = render_template("emails/order_confirmation.html", **ctx)
     text = render_template("emails/order_confirmation.txt", **ctx)
     subject = f"[阿北玩具堂] 訂單確認 {order_no}"

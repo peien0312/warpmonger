@@ -3335,6 +3335,8 @@ def checkout_submit():
                 print(f"linepay request failed: {e}")
                 # order stands; fall back to manual LINE Pay link flow
 
+    # magic-link token so the success page can offer order management to guests
+    result['order_token'] = _order_token(result['order_no'])
     return jsonify(result)
 
 
@@ -3363,10 +3365,10 @@ def linepay_confirm():
         linepay.confirm_payment(txn, charge)
         _pos_api('POST', f'/api/storefront/orders/{order_no}/payment',
                  {'payment_status': '已付款', 'payment_note': f'LINE Pay {txn}'})
-        params = f'no={order_no}&pm=linepay&paid=1&total={int(charge)}'
+        params = f'no={order_no}&pm=linepay&paid=1&total={int(charge)}&t={_order_token(order_no)}'
     except Exception as e:
         print(f"linepay confirm failed: {e}")
-        params = f'no={order_no}&pm=linepay&payerr=1'
+        params = f'no={order_no}&pm=linepay&payerr=1&t={_order_token(order_no)}'
     return redirect('/checkout/success?' + params)
 
 
@@ -3382,8 +3384,10 @@ def _send_order_emails(order_no, data, lines, totals):
     import mailer
     shop_email = os.environ.get('SHOP_EMAIL',
                                 os.environ.get('SMTP_FROM') or os.environ.get('SMTP_USERNAME'))
+    order_url = f"{SITE_URL}/order/{order_no}?t={_order_token(order_no)}"
     mailer.send_order_confirmation(order_no, data, lines, totals,
-                                   BANK_TRANSFER_INFO, shop_email=shop_email)
+                                   BANK_TRANSFER_INFO, shop_email=shop_email,
+                                   order_url=order_url)
 
 
 # 16 results: 代表人物 + 軍團, keyed by 4-axis combo
@@ -3891,21 +3895,38 @@ def api_account_profile():
     return jsonify({'success': True})
 
 
+def _order_token(order_no):
+    """Stateless magic-link token for an order (guest self-service)."""
+    import hmac, hashlib
+    return hmac.new(app.secret_key.encode(),
+                    (order_no or '').encode(), hashlib.sha256).hexdigest()[:20]
+
+
+def _authorized_for_order(order_no, token=None):
+    """Access to an order: a valid magic-link token, OR a logged-in member
+    whose email/phone matches the order."""
+    if not order_no:
+        return False
+    import hmac
+    if token and hmac.compare_digest(token, _order_token(order_no)):
+        return True
+    member = current_member()
+    if member:
+        import posdb as _posdb
+        return any(o['order_no'] == order_no for o in
+                   _posdb.get_member_orders(member.get('email'), member.get('phone')))
+    return False
+
+
 @app.route('/api/account/report-transfer', methods=['POST'])
 def api_report_transfer():
-    member = current_member()
-    if not member:
-        return jsonify({'error': 'login'}), 401
     data = request.get_json(silent=True) or {}
     order_no = (data.get('order_no') or '').strip()
     digits = (data.get('digits') or '').strip()
     if not order_no or not digits.isdigit() or len(digits) != 5:
         return jsonify({'success': False, 'error': '請輸入 5 位數字'}), 400
-    import posdb as _posdb
-    owned = any(o['order_no'] == order_no for o in
-                _posdb.get_member_orders(member.get('email'), member.get('phone')))
-    if not owned:
-        return jsonify({'success': False, 'error': '找不到這筆訂單'}), 404
+    if not _authorized_for_order(order_no, data.get('token')):
+        return jsonify({'success': False, 'error': '找不到這筆訂單'}), 403
     try:
         _pos_api('POST', f'/api/storefront/orders/{order_no}/payment',
                  {'payment_status': '待確認', 'payment_note': f'後五碼 {digits}'})
@@ -3917,20 +3938,14 @@ def api_report_transfer():
 
 @app.route('/api/account/return-request', methods=['POST'])
 def api_return_request():
-    member = current_member()
-    if not member:
-        return jsonify({'error': 'login'}), 401
     import urllib.error
     data = request.get_json(silent=True) or {}
     order_no = (data.get('order_no') or '').strip()
     items = data.get('items') or []
     if not order_no or not items:
         return jsonify({'success': False, 'error': '請選擇訂單與商品'}), 400
-    import posdb as _posdb
-    owned = any(o['order_no'] == order_no for o in
-                _posdb.get_member_orders(member.get('email'), member.get('phone')))
-    if not owned:
-        return jsonify({'success': False, 'error': '找不到這筆訂單'}), 404
+    if not _authorized_for_order(order_no, data.get('token')):
+        return jsonify({'success': False, 'error': '找不到這筆訂單'}), 403
     try:
         resp = _pos_api('POST', '/api/storefront/returns', {
             'order_no': order_no,
@@ -3952,19 +3967,13 @@ def api_return_request():
 
 @app.route('/api/account/cancel-order', methods=['POST'])
 def api_cancel_order():
-    member = current_member()
-    if not member:
-        return jsonify({'error': 'login'}), 401
     import urllib.error
     data = request.get_json(silent=True) or {}
     order_no = (data.get('order_no') or '').strip()
     if not order_no:
         return jsonify({'success': False, 'error': '缺少訂單編號'}), 400
-    import posdb as _posdb
-    owned = any(o['order_no'] == order_no for o in
-                _posdb.get_member_orders(member.get('email'), member.get('phone')))
-    if not owned:
-        return jsonify({'success': False, 'error': '找不到這筆訂單'}), 404
+    if not _authorized_for_order(order_no, data.get('token')):
+        return jsonify({'success': False, 'error': '找不到這筆訂單'}), 403
     try:
         resp = _pos_api('POST', f'/api/storefront/orders/{order_no}/cancel')
     except urllib.error.HTTPError as e:
@@ -3977,6 +3986,38 @@ def api_cancel_order():
         print(f"cancel order failed: {e}")
         return jsonify({'success': False, 'error': '系統忙碌中，請稍後再試'}), 502
     return jsonify(resp)
+
+
+@app.route('/order/<order_no>')
+def guest_order_page(order_no):
+    """View/manage a single order without login (magic-link token or member)."""
+    token = request.args.get('t', '')
+    if not _authorized_for_order(order_no, token):
+        return redirect('/order-lookup?no=' + (order_no or ''))
+    import posdb as _posdb
+    order = _posdb.get_web_order(order_no)
+    if not order:
+        return redirect('/order-lookup')
+    return render_template('public/order.html', order=order,
+                           token=_order_token(order_no))
+
+
+@app.route('/order-lookup', methods=['GET', 'POST'])
+def order_lookup():
+    """Guest order lookup: order number + the email/phone used at checkout."""
+    error = None
+    prefill = (request.args.get('no') or '').strip()
+    if request.method == 'POST':
+        order_no = (request.form.get('order_no') or '').strip()
+        contact = (request.form.get('contact') or '').strip()
+        import posdb as _posdb
+        order = _posdb.get_web_order(order_no) if order_no else None
+        if order and contact and contact in (
+                (order.get('email') or ''), (order.get('phone') or '')):
+            return redirect('/order/' + order_no + '?t=' + _order_token(order_no))
+        error = '找不到符合的訂單，請確認訂單編號與 email／電話。'
+        prefill = order_no
+    return render_template('public/order-lookup.html', error=error, prefill=prefill)
 
 
 # ===== POS-DB data layer (realtime) =====

@@ -397,23 +397,8 @@ def get_page(slug):
 
 # ----- member order history (web orders live in the POS DB, read-only) -----
 
-def get_member_orders(email, phone):
-    """Web orders matching a member's email or phone, newest first, with
-    items and the fulfillment status of any converted internal orders."""
-    clauses, params = [], []
-    if email:
-        clauses.append("email = ?")
-        params.append(email)
-    if phone:
-        clauses.append("phone = ?")
-        params.append(phone)
-    if not clauses:
-        return []
-
-    conn = _conn()
-    orders = [dict(r) for r in conn.execute(
-        f"SELECT * FROM web_orders WHERE {' OR '.join(clauses)} ORDER BY id DESC LIMIT 50",
-        params)]
+def _enrich_orders(conn, orders):
+    """Attach items, internal-order fulfillment status, and return requests."""
     for o in orders:
         o["items"] = [dict(r) for r in conn.execute("""
             SELECT wi.quantity, wi.unit_price_twd, wi.availability,
@@ -430,8 +415,6 @@ def get_member_orders(email, phone):
                 if row:
                     o["fulfillment"].append(row["status"])
 
-    # attach return/refund requests (web_returns is in the same POS DB;
-    # guarded in case the table predates this feature)
     order_nos = [o["order_no"] for o in orders]
     if order_nos:
         try:
@@ -453,6 +436,40 @@ def get_member_orders(email, phone):
                 o["returns"] = by_order.get(o["order_no"], [])
         except Exception as e:
             print(f"load returns failed: {e}")
+    return orders
 
+
+def get_member_orders(email, phone):
+    """Web orders matching a member's email or phone, newest first, with
+    items and the fulfillment status of any converted internal orders."""
+    clauses, params = [], []
+    if email:
+        clauses.append("email = ?")
+        params.append(email)
+    if phone:
+        clauses.append("phone = ?")
+        params.append(phone)
+    if not clauses:
+        return []
+
+    conn = _conn()
+    orders = [dict(r) for r in conn.execute(
+        f"SELECT * FROM web_orders WHERE {' OR '.join(clauses)} ORDER BY id DESC LIMIT 50",
+        params)]
+    _enrich_orders(conn, orders)
     conn.close()
     return orders
+
+
+def get_web_order(order_no):
+    """A single web order by its order_no — for guest access via magic link
+    or the 訂單查詢 lookup. Returns a dict (same shape as get_member_orders
+    entries) or None."""
+    if not order_no:
+        return None
+    conn = _conn()
+    rows = [dict(r) for r in conn.execute(
+        "SELECT * FROM web_orders WHERE order_no = ? LIMIT 1", (order_no,))]
+    _enrich_orders(conn, rows)
+    conn.close()
+    return rows[0] if rows else None
