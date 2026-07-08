@@ -1642,6 +1642,8 @@ ALLOWED_PAGES = ['return-policy', 'terms', 'shopping-guide']
 @public_route('/page/<slug>')
 def static_page(slug):
     """Render a static info/policy page"""
+    if slug == 'shopping-guide':
+        return redirect('/guide', code=301)  # superseded by the richer /guide page
     if slug not in ALLOWED_PAGES:
         return "Page not found", 404
     page = get_page(slug)
@@ -2034,9 +2036,15 @@ FAQ_ITEMS = [
      "單筆消費滿 NT$1,000 免運費；未滿 NT$1,000 酌收 NT$60。"),
     ("「現貨」和「預購」差在哪？大概多久到貨？",
      "現貨商品下單後盡快出貨；標示「約2週到貨」為台灣／集運調貨，約 2 週內；"
-     "缺貨可訂購商品由原廠調貨約 2-3 週；預購商品依商品頁標示的到貨日，到貨後通知並出貨。"),
+     "缺貨可訂購商品由原廠調貨約 2-3 週。預購商品依商品頁標示的到貨日，"
+     "「不需預付」，到貨後我們會通知您付款再出貨。"),
     ("有哪些付款方式？",
-     "提供銀行轉帳（先審後付，確認訂單後再提供匯款資訊）、貨到付款，以及 LINE Pay 線上付款。"),
+     "提供銀行轉帳（先審後付：送出訂單後顯示轉帳帳戶，轉帳完成回報帳號後五碼，確認入帳後出貨）、"
+     "貨到付款（超商取貨付款），以及 LINE Pay 線上付款。"),
+    ("下單後可以取消或退貨嗎？",
+     "訂單成立、尚未付款前，可到「會員中心 → 我的訂單」直接按「取消訂單」。"
+     "已付款或已出貨的訂單，可在同一頁按「申請退貨／退款」，選擇要退的商品與原因，"
+     "阿北確認後為您退款，狀態與進度都會顯示在訂單上並以 LINE／Email 通知。"),
     ("可以怎麼取貨／寄送？",
      "支援 7-11、全家 店到店取貨，以及郵局宅配。結帳時可選擇門市或填寫地址。"),
     ("會員價是什麼？怎麼取得？",
@@ -2055,6 +2063,12 @@ FAQ_ITEMS = [
 def faq_page():
     """FAQ page with FAQPage structured data (rich result eligible)."""
     return render_template('public/faq.html', faq_items=FAQ_ITEMS)
+
+@public_route('/guide')
+def shopping_guide_page():
+    """購物說明 — the canonical how-to-buy page (availability, payment,
+    shipping, preorder, inquiry, cancel/return)."""
+    return render_template('public/guide.html')
 
 @app.route('/api/quiz-result', methods=['POST'])
 def api_quiz_result():

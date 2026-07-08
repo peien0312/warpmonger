@@ -150,7 +150,7 @@
                             <p class="price">
                             {% if product.member_price and product.member_price < product.final_price %}
                             <span class="list-price">NT${{ product.final_price|ntd }}</span>
-                            NT${{ product.member_price|ntd }} <span class="member-tag">會員價</span>
+                            NT${{ product.member_price|ntd }} <span class="member-tag" title="{% if not member %}登入會員即享此價（定價 9 折）{% else %}您的會員價{% endif %}">會員價{% if not member %}<a href="/login" style="color:inherit;text-decoration:none"> ⓘ</a>{% endif %}</span>
                             {% else %}NT${{ product.final_price|ntd }}{% endif %}{% if product.is_pre_order %} <span class="preorder-tag">預購價</span>{% endif %}
                             </p>
                             {% endif %}
@@ -166,7 +166,7 @@
                             <p class="price">
                             {% if product.member_price and product.member_price < product.final_price %}
                             <span class="list-price">NT${{ product.final_price|ntd }}</span>
-                            NT${{ product.member_price|ntd }} <span class="member-tag">會員價</span>
+                            NT${{ product.member_price|ntd }} <span class="member-tag" title="{% if not member %}登入會員即享此價（定價 9 折）{% else %}您的會員價{% endif %}">會員價{% if not member %}<a href="/login" style="color:inherit;text-decoration:none"> ⓘ</a>{% endif %}</span>
                             {% else %}NT${{ product.final_price|ntd }}{% endif %}{% if product.is_pre_order %} <span class="preorder-tag">預購價</span>{% endif %}
                             </p>
                             {% endif %}

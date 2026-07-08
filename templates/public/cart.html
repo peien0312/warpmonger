@@ -20,6 +20,8 @@
             </div>
 
             <div class="cart-summary">
+                <p id="cart-note" style="display:none; background:#F5EFE2; border:1px solid #D9A441; border-radius:8px; padding:10px 12px; font-size:0.9rem; color:#292019;"></p>
+                <p id="cart-ship-nudge" style="display:none; font-size:0.9rem; color:#6E4B2A;"></p>
                 <p class="cart-total">{{ t.total }}: {{ t.currency_symbol }}<span id="cart-total">0.00</span></p>
                 <a href="{{ url_prefix }}/checkout" class="btn btn-primary btn-lg" style="display:block; text-align:center; margin-bottom:10px;">
                     前往結帳
@@ -166,6 +168,58 @@ function renderCart() {
 
     cartItemsContainer.innerHTML = html;
     cartTotal.textContent = isZhtw ? Math.round(Cart.getTotal()).toLocaleString() : Cart.getTotal().toFixed(2);
+    enrichCart();
+}
+
+// Enrich the (offline) cart with live availability so the shopper learns how
+// a mixed 現貨/預購/詢價 order behaves before reaching checkout. Progressive:
+// if the fetch fails, the cart still works, just without badges/notes.
+var AV_LABEL = {in_stock:['現貨','badge-instock'], incoming:['約2週到貨','badge-incoming'],
+                orderable:['可訂購｜約2-3週','badge-orderable'], preorder:['預購','badge-preorder'],
+                inquiry:['絕版詢價','badge-inquiry']};
+async function enrichCart() {
+    var items = Cart.getItems();
+    var noteEl = document.getElementById('cart-note');
+    var nudgeEl = document.getElementById('cart-ship-nudge');
+    if (noteEl) noteEl.style.display = 'none';
+    if (nudgeEl) nudgeEl.style.display = 'none';
+    if (!items.length) return;
+    try {
+        var res = await fetch('/api/checkout/resolve', {
+            method: 'POST', headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({items: items})
+        });
+        var data = await res.json();
+        var lines = data.items || [];
+        var hasPre = false, hasInq = false, nowTotal = 0;
+        lines.forEach(function(l) {
+            var info = document.querySelector('.cart-item[data-category="' + l.category + '"][data-slug="' + l.slug + '"] .cart-item-info');
+            var meta = AV_LABEL[l.availability];
+            if (info && meta && !info.querySelector('.cart-avail')) {
+                var b = document.createElement('span');
+                b.className = 'badge cart-avail ' + meta[1];
+                b.style.cssText = 'display:inline-block;margin-top:4px;';
+                b.textContent = meta[0] + (l.availability === 'preorder' && l.available_display ? '｜' + l.available_display : '');
+                info.appendChild(b);
+            }
+            if (l.availability === 'preorder') hasPre = true;
+            else if (l.availability === 'inquiry') hasInq = true;
+            else nowTotal += (l.price || 0) * l.qty;
+        });
+        var notes = [];
+        if (hasPre) notes.push('預購商品不需預付，到貨後通知付款');
+        if (hasInq) notes.push('詢價商品由阿北報價後再安排');
+        if (noteEl && notes.length) {
+            noteEl.innerHTML = '📌 ' + notes.join('；') + '。<a href="/guide" target="_blank">看說明</a>';
+            noteEl.style.display = '';
+        }
+        if (nudgeEl && nowTotal > 0) {
+            nudgeEl.textContent = nowTotal >= 1000
+                ? '✓ 已達免運'
+                : '再買 NT$' + (1000 - Math.round(nowTotal)).toLocaleString() + ' 即免運';
+            nudgeEl.style.display = '';
+        }
+    } catch (e) { /* offline / resolve failed — cart still works */ }
 }
 
 function updateItemQty(category, slug, delta) {

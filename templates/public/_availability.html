@@ -3,15 +3,15 @@
            orderable 可訂購約2-3週 / inquiry 絕版詢價 #}
 {% macro badge(product) -%}
     {% if product.availability == 'in_stock' %}
-    <span class="badge badge-instock">現貨</span>
+    <span class="badge badge-instock" title="台灣倉現貨，下單付款後盡快出貨">現貨</span>
     {% elif product.availability == 'incoming' %}
-    <span class="badge badge-incoming">約2週到貨</span>
+    <span class="badge badge-incoming" title="調貨／集運中，約 2 週內到貨後出貨">約2週到貨</span>
     {% elif product.availability == 'preorder' %}
-    <span class="badge badge-preorder">預購{% if product.available_display %}｜{{ product.available_display }}{% endif %}</span>
+    <span class="badge badge-preorder" title="預購商品，不需預付，到貨後通知付款再出貨">預購{% if product.available_display %}｜{{ product.available_display }}{% endif %}</span>
     {% elif product.availability == 'orderable' %}
-    <span class="badge badge-orderable">可訂購｜約2-3週</span>
+    <span class="badge badge-orderable" title="可向原廠訂購，下單後約 2-3 週到貨">可訂購｜約2-3週</span>
     {% elif product.availability == 'inquiry' %}
-    <span class="badge badge-inquiry">絕版詢價</span>
+    <span class="badge badge-inquiry" title="停產／絕版品，送出後由阿北報價，結帳時不需先付款">絕版詢價</span>
     {% endif %}
 {%- endmacro %}
 
