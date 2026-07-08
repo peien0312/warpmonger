@@ -422,11 +422,37 @@ def get_member_orders(email, phone):
             WHERE wi.web_order_id = ?
         """, (o["id"],))]
         o["fulfillment"] = []
+        o["returns"] = []
         for key in ("order_id_now", "order_id_later"):
             if o.get(key):
                 row = conn.execute(
                     "SELECT status FROM orders WHERE id = ?", (o[key],)).fetchone()
                 if row:
                     o["fulfillment"].append(row["status"])
+
+    # attach return/refund requests (web_returns is in the same POS DB;
+    # guarded in case the table predates this feature)
+    order_nos = [o["order_no"] for o in orders]
+    if order_nos:
+        try:
+            ph = ",".join("?" * len(order_nos))
+            rets = [dict(r) for r in conn.execute(
+                f"SELECT * FROM web_returns WHERE order_no IN ({ph}) ORDER BY id DESC",
+                order_nos)]
+            for rr in rets:
+                rr["items"] = [dict(r) for r in conn.execute("""
+                    SELECT wri.quantity, wri.unit_price_twd,
+                           p.zhtw_name, p.en_name, p.slug, p.category_slug
+                    FROM web_return_items wri JOIN products p ON p.id = wri.product_id
+                    WHERE wri.web_return_id = ?
+                """, (rr["id"],))]
+            by_order = {}
+            for rr in rets:
+                by_order.setdefault(rr["order_no"], []).append(rr)
+            for o in orders:
+                o["returns"] = by_order.get(o["order_no"], [])
+        except Exception as e:
+            print(f"load returns failed: {e}")
+
     conn.close()
     return orders

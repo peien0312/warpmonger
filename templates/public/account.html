@@ -108,8 +108,49 @@
             {% endif %}
         </div>
         {% endif %}
+        {# 退貨/退款 status + request #}
+        {% set ns = namespace(active=false) %}
+        {% for r in o.returns %}
+        {% if r.status in ('申請中', '處理中') %}{% set ns.active = true %}{% endif %}
+        <div class="return-status">
+            <small>退貨 {{ r.request_no }}
+                <span class="badge {{ 'badge-instock' if r.status == '已退款' else 'badge-inquiry' if r.status == '已拒絕' else 'badge-orderable' }}">{{ r.status }}</span>
+                {% if r.status == '已退款' and r.refund_amount_twd %}退款 NT${{ r.refund_amount_twd|ntd }}{% endif %}
+                {% if r.status == '已拒絕' and r.refund_note %}（{{ r.refund_note }}）{% endif %}
+            </small>
+        </div>
+        {% endfor %}
+        {% if o.status == '已轉單' and o.payment_status in ('已付款', '貨到付款') and not ns.active %}
+        <button class="btn btn-sm btn-outline" onclick="openReturn('{{ o.order_no }}')">申請退貨／退款</button>
+        {% endif %}
     </div>
     {% endfor %}
+
+    <!-- 退貨/退款 申請 modal -->
+    <div id="return-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:1000; align-items:center; justify-content:center; padding:16px;">
+        <div style="background:#fff; color:#292019; max-width:460px; width:100%; border-radius:12px; padding:20px 22px; max-height:85vh; overflow:auto;">
+            <h3 style="margin:0 0 10px">申請退貨／退款</h3>
+            <p style="margin:0 0 10px; color:#6E4B2A;">訂單 <strong id="return-order-no"></strong> — 勾選要退的商品：</p>
+            <div id="return-items" style="margin-bottom:12px;"></div>
+            <label style="display:block; margin-bottom:8px;">原因
+                <select id="return-reason" style="display:block; width:100%; margin-top:4px;">
+                    <option value="商品瑕疵/損壞">商品瑕疵／損壞</option>
+                    <option value="與描述不符">與描述不符</option>
+                    <option value="寄錯商品">寄錯商品</option>
+                    <option value="不想要了">不想要了</option>
+                    <option value="其他">其他</option>
+                </select>
+            </label>
+            <label style="display:block; margin-bottom:12px;">備註（選填）
+                <textarea id="return-note" rows="2" maxlength="300" style="display:block; width:100%; margin-top:4px;"></textarea>
+            </label>
+            <div style="display:flex; gap:8px; justify-content:flex-end;">
+                <button type="button" class="btn btn-secondary btn-sm" onclick="closeReturn()">取消</button>
+                <button type="button" class="btn btn-primary btn-sm" onclick="submitReturn(event)">送出申請</button>
+            </div>
+            <small id="return-msg" style="color:#b23b3b; display:block; margin-top:8px;"></small>
+        </div>
+    </div>
 
     <h2 class="section-title">願望清單</h2>
     {% if not wish_products %}
@@ -178,6 +219,47 @@ async function reportTransfer(btn) {
     if (data.success) { box.innerHTML = '<small>已回報，等待確認中，謝謝！</small>'; }
     else { msg.textContent = data.error || '回報失敗'; }
 }
+
+// ----- 退貨/退款 申請 -----
+const RETURN_ORDERS = {
+{% for o in orders %}{% if o.status == '已轉單' %}    "{{ o.order_no }}": [{% for it in o['items'] %}{% if it.unit_price_twd %}{sku: {{ (it.sku or '')|tojson }}, name: {{ (it.zhtw_name or it.en_name or '')|tojson }}, qty: {{ it.quantity }}}, {% endif %}{% endfor %}],
+{% endif %}{% endfor %}};
+let returnOrderNo = null;
+function openReturn(orderNo) {
+    returnOrderNo = orderNo;
+    document.getElementById('return-order-no').textContent = orderNo;
+    document.getElementById('return-msg').textContent = '';
+    document.getElementById('return-note').value = '';
+    const its = RETURN_ORDERS[orderNo] || [];
+    document.getElementById('return-items').innerHTML = its.map(it => `
+        <label style="display:block; margin:4px 0;">
+            <input type="checkbox" data-sku="${it.sku}" data-qty="${it.qty}" checked>
+            ${it.name} <small style="color:#948669;">x${it.qty}</small>
+        </label>`).join('') || '<small>此訂單沒有可退貨的商品</small>';
+    document.getElementById('return-modal').style.display = 'flex';
+}
+function closeReturn() { document.getElementById('return-modal').style.display = 'none'; }
+async function submitReturn(ev) {
+    const checks = [...document.querySelectorAll('#return-items input:checked')];
+    const msg = document.getElementById('return-msg');
+    if (!checks.length) { msg.textContent = '請至少選一項商品'; return; }
+    const items = checks.map(c => ({sku: c.dataset.sku, qty: parseInt(c.dataset.qty) || 1}));
+    const btn = ev.target; btn.disabled = true;
+    const res = await fetch('/api/account/return-request', {
+        method: 'POST', headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+            order_no: returnOrderNo,
+            reason: document.getElementById('return-reason').value,
+            note: document.getElementById('return-note').value.trim(),
+            items: items,
+        }),
+    });
+    const data = await res.json();
+    btn.disabled = false;
+    if (data.success) { location.reload(); }
+    else { msg.textContent = data.error || '送出失敗，請稍後再試'; }
+}
+
 async function saveProfile(ev) {
     ev.preventDefault();
     const f = ev.target;

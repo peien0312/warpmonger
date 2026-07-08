@@ -3696,6 +3696,33 @@ def api_internal_notify():
         email_subject = f"[阿北玩具堂] 報價回覆 {inquiry_no}"
         email_html = mailer.render_quote_html(inquiry_no, q_items, expires)
         email_text = mailer.render_quote_text(inquiry_no, q_items, expires)
+    elif tmpl == 'return_update':
+        import mailer
+        d = data.get('data') or {}
+        rno = d.get('request_no', '')
+        ono = d.get('order_no', '')
+        status = d.get('status', '')
+        headline = f"退貨申請更新 — {rno}"
+        if status == '處理中':
+            paras = [f"您的退貨申請（訂單 {ono}）已受理，我們會盡快為您處理退款，完成後再通知您。"]
+        elif status == '已退款':
+            headline = f"退款完成 — {rno}"
+            amt = d.get('refund_amount')
+            line = "您的退款已完成" + (f"，退款金額 NT${int(amt):,}" if amt else "") + "。"
+            paras = [line]
+            if d.get('refund_note'):
+                paras.append(d['refund_note'])
+        elif status == '已拒絕':
+            paras = ["很抱歉，您的退貨申請經確認後未能受理。"]
+            if d.get('refund_note'):
+                paras.append(f"原因：{d['refund_note']}")
+            paras.append("如有疑問，歡迎直接回覆或用 LINE 聯絡阿北。")
+        else:
+            paras = [f"您的退貨申請 {rno} 狀態更新為 {status}。"]
+        message = "\n".join([headline] + paras + ["— ABBEY'S TOYS 阿北玩具堂"])
+        email_subject = f"[阿北玩具堂] {headline}"
+        email_html = mailer.render_status_html(headline, paras, order_no=ono)
+        email_text = mailer.render_status_text(headline, paras)
 
     if not message or not (phone or email):
         return jsonify({'success': False, 'error': 'need message and phone/email'}), 400
@@ -3860,6 +3887,41 @@ def api_report_transfer():
         print(f"report transfer failed: {e}")
         return jsonify({'success': False, 'error': '回報失敗，請稍後再試'}), 502
     return jsonify({'success': True})
+
+
+@app.route('/api/account/return-request', methods=['POST'])
+def api_return_request():
+    member = current_member()
+    if not member:
+        return jsonify({'error': 'login'}), 401
+    import urllib.error
+    data = request.get_json(silent=True) or {}
+    order_no = (data.get('order_no') or '').strip()
+    items = data.get('items') or []
+    if not order_no or not items:
+        return jsonify({'success': False, 'error': '請選擇訂單與商品'}), 400
+    import posdb as _posdb
+    owned = any(o['order_no'] == order_no for o in
+                _posdb.get_member_orders(member.get('email'), member.get('phone')))
+    if not owned:
+        return jsonify({'success': False, 'error': '找不到這筆訂單'}), 404
+    try:
+        resp = _pos_api('POST', '/api/storefront/returns', {
+            'order_no': order_no,
+            'reason': (data.get('reason') or '').strip(),
+            'note': (data.get('note') or '').strip(),
+            'items': [{'sku': i.get('sku'), 'qty': int(i.get('qty') or 1)} for i in items],
+        })
+    except urllib.error.HTTPError as e:
+        try:
+            detail = json.loads(e.read()).get('detail', '申請失敗')
+        except Exception:
+            detail = '申請失敗'
+        return jsonify({'success': False, 'error': detail}), 400
+    except Exception as e:
+        print(f"return request failed: {e}")
+        return jsonify({'success': False, 'error': '系統忙碌中，請稍後再試'}), 502
+    return jsonify(resp)
 
 
 # ===== POS-DB data layer (realtime) =====
