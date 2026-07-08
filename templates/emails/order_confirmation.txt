@@ -1,0 +1,25 @@
+訂單已成立 — {{ order_no }}
+感謝訂購！
+
+【訂購商品】
+{% for it in items %}・{{ it.title }} x{{ it.qty }} {% if it.price %}NT${{ it.line_total|ntd }}{% else %}詢價{% endif %}（{{ it.avail_label }}）
+{% endfor %}
+商品合計 NT${{ subtotal|ntd }}／運費 {% if shipping_fee %}NT${{ shipping_fee|ntd }}{% else %}免運{% endif %}／應付總額 NT${{ grand_total|ntd }}
+
+收件：{{ recipient_name }} {{ recipient_phone }}
+取貨：{{ delivery_label }}{% if dest %}｜{{ dest }}{% endif %}
+{% if has_preorder and has_now %}出貨：{% if ship_together %}合併出貨{% else %}現貨先出{% endif %}
+{% endif %}{% if note %}備註：{{ note }}
+{% endif %}
+{% if payment_method == 'transfer' %}【銀行轉帳】請於 3 日內轉帳 NT${{ charge_now|ntd }} 至：
+{{ bank_info }}
+轉帳後請回報帳號後五碼（會員中心／回覆此信／LINE），確認入帳後出貨。{% if charge_now < grand_total %}
+（此金額為現貨部分；預購商品到貨後另行通知付款。）{% endif %}
+{% elif payment_method == 'cod' %}【取貨付款】將盡快為您安排出貨，到店取貨時付款即可。
+{% elif payment_method == 'linepay' %}【LINE Pay】請於 LINE Pay 頁面完成付款 NT${{ charge_now|ntd }}；若中途離開，我們會補寄付款連結。
+{% endif %}{% if has_inquiry %}
+詢價（絕版）商品由阿北另行報價後安排。{% endif %}{% if has_preorder %}
+預購商品到貨時另行通知付款出貨。{% endif %}
+
+— ABBEY'S TOYS 阿北玩具堂
+{{ site_url }}

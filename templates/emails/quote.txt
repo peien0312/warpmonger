@@ -1,0 +1,9 @@
+報價回覆（{{ inquiry_no }}）
+
+{% for it in items %}・{{ it.name }} x{{ it.qty }}：{% if it.status == '無法供貨' %}無法供貨{% elif it.price %}NT${{ it.price|ntd }}{% else %}—{% endif %}
+{% endfor %}
+{% if expires_at %}報價有效至 {{ expires_at }}。
+{% endif %}請回覆這封 email 或用 LINE 告訴阿北您想要的商品，阿北再幫您安排下單與付款。
+
+— ABBEY'S TOYS 阿北玩具堂
+{{ site_url }}

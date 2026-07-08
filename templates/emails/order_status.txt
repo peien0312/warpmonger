@@ -1,0 +1,7 @@
+{{ headline }}
+
+{% for p in paragraphs %}{{ p }}
+{% endfor %}{% if bank_info %}
+{{ bank_info }}
+{% endif %}
+— ABBEY'S TOYS 阿北玩具堂

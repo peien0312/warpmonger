@@ -75,9 +75,7 @@
                     <label><input type="radio" name="delivery_method" value="711" checked> 7-11</label>
                     <label><input type="radio" name="delivery_method" value="fami"> 全家</label>
                     <label><input type="radio" name="delivery_method" value="post"> 郵局寄送</label>
-                    <label><input type="radio" name="delivery_method" value="meet"> 面交</label>
                 </div>
-                <p id="meet-note" class="availability-note" style="display:none">面交雙北限定，送出訂單後請 LINE 聯絡阿北確認時間地點。</p>
                 <div id="store-picker">
                     <input type="text" id="store-q" placeholder="輸入門市名／路名／地區搜尋門市"
                            autocomplete="off" oninput="searchStores()">
@@ -96,7 +94,7 @@
                     <label><input type="radio" name="payment_method" value="linepay">
                         LINE Pay（送出後導向 LINE Pay 付款）</label>
                     <label><input type="radio" name="payment_method" value="transfer">
-                        銀行轉帳（訂單確認後通知轉帳資訊）</label>
+                        銀行轉帳（送出後顯示轉帳帳戶）</label>
                 </div>
 
                 <label>備註<textarea name="note" rows="2" maxlength="500"></textarea></label>
@@ -190,7 +188,6 @@ document.querySelectorAll('input[name=delivery_method]').forEach(el =>
         const isStore = el.value === '711' || el.value === 'fami';
         document.getElementById('store-picker').style.display = isStore ? '' : 'none';
         document.getElementById('address-field').style.display = el.value === 'post' ? '' : 'none';
-        document.getElementById('meet-note').style.display = el.value === 'meet' ? '' : 'none';
         pickedStore = null;
         document.getElementById('store-picked').textContent = '';
         document.getElementById('store-results').innerHTML = '';
@@ -315,6 +312,7 @@ async function submitOrder(ev) {
     const params = new URLSearchParams({
         no: data.order_no, pm: payload.payment_method,
         total: Math.round(data.grand_total_twd ?? data.total_twd),
+        charge: Math.round(data.charge_now_twd ?? data.grand_total_twd ?? data.total_twd),
         fee: Math.round(data.shipping_fee_twd || 0),
         inq: data.has_inquiry ? '1' : '0',
     });

@@ -1,0 +1,10 @@
+{% extends "emails/base.html" %}
+{% block preheader %}{{ headline }}{% endblock %}
+{% block content %}
+<h1 style="margin:0 0 16px; font-size:20px; color:#292019;">{{ headline }}</h1>
+{% for p in paragraphs %}<p style="margin:0 0 10px; color:#6E4B2A; line-height:1.8;">{{ p }}</p>{% endfor %}
+{% if bank_info %}
+<div style="white-space:pre-line; background:#F5EFE2; border:1px solid #D9A441; border-radius:8px; padding:14px 16px; margin:12px 0; line-height:1.8; color:#292019;">{{ bank_info }}</div>
+{% endif %}
+{% if order_no %}<p style="margin-top:18px; font-size:13px;"><a href="{{ site_url }}/account" style="color:#6E4B2A; text-decoration:underline;">查看訂單狀態 →</a></p>{% endif %}
+{% endblock %}

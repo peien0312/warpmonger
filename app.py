@@ -2031,14 +2031,14 @@ def merchant_feed():
 
 FAQ_ITEMS = [
     ("運費怎麼計算？",
-     "單筆消費滿 NT$1,000 免運費；未滿 NT$1,000 酌收 NT$60；雙北面交一律免運。"),
+     "單筆消費滿 NT$1,000 免運費；未滿 NT$1,000 酌收 NT$60。"),
     ("「現貨」和「預購」差在哪？大概多久到貨？",
      "現貨商品下單後盡快出貨；標示「約2週到貨」為台灣／集運調貨，約 2 週內；"
      "缺貨可訂購商品由原廠調貨約 2-3 週；預購商品依商品頁標示的到貨日，到貨後通知並出貨。"),
     ("有哪些付款方式？",
      "提供銀行轉帳（先審後付，確認訂單後再提供匯款資訊）、貨到付款，以及 LINE Pay 線上付款。"),
     ("可以怎麼取貨／寄送？",
-     "支援 7-11、全家 店到店取貨，郵局宅配，以及雙北面交。結帳時可選擇門市或填寫地址。"),
+     "支援 7-11、全家 店到店取貨，以及郵局宅配。結帳時可選擇門市或填寫地址。"),
     ("會員價是什麼？怎麼取得？",
      "註冊成為會員即享會員價（一般為定價 9 折，若商品有特價則以較低者為準）。"
      "登入後商品頁與購物車會直接顯示您的會員價。"),
@@ -3126,7 +3126,9 @@ def api_update_featured_products():
 
 POS_API_URL = os.environ.get('POS_API_URL', 'http://127.0.0.1:8000')
 STOREFRONT_API_KEY = os.environ.get('STOREFRONT_API_KEY', '')
-BANK_TRANSFER_INFO = os.environ.get('BANK_TRANSFER_INFO', '銀行帳戶資訊請洽 LINE 客服')
+BANK_TRANSFER_INFO = os.environ.get(
+    'BANK_TRANSFER_INFO',
+    '兆豐國際商業銀行 民生分行（銀行代碼 017）\n帳號：03609026033\n戶名：阿北的店')
 
 _store_cache = {}
 
@@ -3270,7 +3272,7 @@ def checkout_submit():
             print(f"auto-save address failed: {e}")
 
     try:
-        _send_order_emails(result['order_no'], data, lines, result.get('total_twd', 0))
+        _send_order_emails(result['order_no'], data, lines, result)
     except Exception as e:
         print(f"order email failed: {e}")
 
@@ -3286,14 +3288,12 @@ def checkout_submit():
             print(f"line order push failed: {e}")
 
     # LINE Pay: create the payment request for the chargeable part
-    # (現貨/調貨 items; preorders are pay-on-arrival, inquiry unpriced)
+    # (現貨/調貨 items + shipping; preorders are pay-on-arrival, inquiry
+    # unpriced). Use the POS's own charge_now_twd so the amount matches
+    # its _charge_now_twd exactly — the confirm step rejects a mismatch.
     if data.get('payment_method') == 'linepay':
         import linepay
-        now_total = sum(l['price'] * l['qty'] for l in lines
-                        if l['availability'] in ('in_stock', 'incoming', 'orderable'))
-        # shipping fee ships with the first payment — must match the POS's
-        # _charge_now_twd exactly or the confirm step rejects the amount
-        charge = now_total + (result.get('shipping_fee_twd', 0) if now_total > 0 else 0)
+        charge = result.get('charge_now_twd', 0)
         if linepay.enabled() and charge > 0:
             try:
                 base = request.url_root.rstrip('/')
@@ -3350,42 +3350,14 @@ def linepay_cancel():
     return redirect(f'/checkout/success?no={order_no}&pm=linepay&paycancel=1')
 
 
-def _send_order_emails(order_no, data, lines, total):
-    from email.mime.text import MIMEText
-    smtp_server = os.environ.get('SMTP_SERVER')
-    smtp_user = os.environ.get('SMTP_USERNAME')
-    smtp_pass = os.environ.get('SMTP_PASSWORD')
-    smtp_from = os.environ.get('SMTP_FROM', smtp_user)
-    shop_email = os.environ.get('SHOP_EMAIL', smtp_from)
-    if not all([smtp_server, smtp_user, smtp_pass]):
-        return
-
-    pm = {'cod': '取貨付款', 'transfer': '銀行轉帳', 'linepay': 'LINE Pay'}.get(data.get('payment_method'), '')
-    dm = {'711': '7-11', 'fami': '全家', 'post': '郵局'}.get(data.get('delivery_method'), '')
-    body = [f"訂單編號: {order_no}", f"姓名: {data.get('name')}  電話: {data.get('phone')}",
-            f"取貨: {dm} {data.get('store_name') or data.get('address') or ''}",
-            f"付款: {pm}", f"出貨: {'合併出貨' if data.get('ship_together', True) else '現貨先出'}", ""]
-    for l in lines:
-        price = f"NT${l['price']:,.0f}" if l['price'] else '詢價'
-        body.append(f"・{l['title']} x{l['qty']} {price}（{l['availability']}）")
-    body.append(f"\n合計: NT${total:,.0f}")
-    if data.get('note'):
-        body.append(f"備註: {data['note']}")
-    text = "\n".join(body)
-
-    with smtplib.SMTP(smtp_server, int(os.environ.get('SMTP_PORT', 587))) as server:
-        server.starttls()
-        server.login(smtp_user, smtp_pass)
-        targets = [shop_email]
-        if data.get('email'):
-            targets.append(data['email'])
-        for to in targets:
-            msg = MIMEText(text, 'plain', 'utf-8')
-            msg['Subject'] = f"[阿北玩具堂] 訂單確認 {order_no}"
-            msg['From'] = smtp_from
-            msg['To'] = to
-            msg['Reply-To'] = os.environ.get('REPLY_TO', smtp_from)
-            server.sendmail(smtp_from, to, msg.as_string())
+def _send_order_emails(order_no, data, lines, totals):
+    """Branded HTML order-confirmation to the customer + a copy to the shop.
+    `totals` is the POS create-order response (total/shipping/grand/charge_now)."""
+    import mailer
+    shop_email = os.environ.get('SHOP_EMAIL',
+                                os.environ.get('SMTP_FROM') or os.environ.get('SMTP_USERNAME'))
+    mailer.send_order_confirmation(order_no, data, lines, totals,
+                                   BANK_TRANSFER_INFO, shop_email=shop_email)
 
 
 # 16 results: 代表人物 + 軍團, keyed by 4-axis combo
@@ -3665,21 +3637,65 @@ def api_internal_notify():
     email = (data.get('email') or '').strip()
     message = (data.get('message') or '').strip()
 
-    # optional server-side template (site owns e.g. bank info)
-    if data.get('template') == 'order_confirmed':
+    # email variants (LINE stays plain text; email gets branded HTML)
+    email_subject = '[阿北玩具堂] 訂單通知'
+    email_html = None
+    email_text = None
+
+    # optional server-side templates (site owns e.g. bank info)
+    tmpl = data.get('template')
+    if tmpl in ('order_confirmed', 'payment_received'):
+        import mailer
         d = data.get('data') or {}
-        lines = [f"您的訂單 {d.get('order_no', '')} 已確認！",
-                 f"總額 NT${int(d.get('grand_total', 0)):,}（含運費）。"]
+        order_no = d.get('order_no', '')
         pm = d.get('payment_method')
-        if pm == 'transfer':
-            lines.append(f"請轉帳至：{BANK_TRANSFER_INFO}")
-            lines.append("轉帳後請回覆帳號後五碼（或在網站會員中心回報），確認後出貨。")
-        elif pm == 'cod':
-            lines.append("將盡快為您安排出貨，取貨時付款即可。")
-        elif pm == 'linepay':
-            lines.append("感謝您的付款，將盡快為您安排出貨。")
-        lines.append("— ABBEY'S TOYS 阿北玩具堂")
-        message = "\n".join(lines)
+        pstatus = d.get('payment_status')
+        bank = None
+        if tmpl == 'order_confirmed':
+            headline = f"訂單 {order_no} 已確認"
+            paras = [f"總額 NT${int(d.get('grand_total', 0)):,}（含運費），已開始為您處理。"]
+            if pm == 'transfer' and pstatus != '已付款':
+                bank = BANK_TRANSFER_INFO
+                paras.append("若尚未轉帳，請轉帳至下方帳戶，並回覆帳號後五碼（或到會員中心回報），確認入帳後出貨。")
+            elif pm == 'cod':
+                paras.append("將盡快為您安排出貨，到店取貨時付款即可。")
+            elif pm == 'linepay':
+                paras.append("感謝您的付款，將盡快為您安排出貨。")
+            email_subject = f"[阿北玩具堂] 訂單確認 {order_no}"
+        else:  # payment_received
+            headline = f"已收到款項 — 訂單 {order_no}"
+            paras = ["我們已確認收到您的款項，將盡快為您安排出貨，出貨後會再通知您。"]
+            email_subject = f"[阿北玩具堂] 收到款項 {order_no}"
+        line_lines = [headline] + paras
+        if bank:
+            line_lines.append(f"轉帳帳戶：{bank}")
+        line_lines.append("— ABBEY'S TOYS 阿北玩具堂")
+        message = "\n".join(line_lines)
+        email_html = mailer.render_status_html(headline, paras, bank_info=bank, order_no=order_no)
+        email_text = mailer.render_status_text(headline, paras, bank_info=bank)
+    elif tmpl == 'quote_sent':
+        import mailer
+        d = data.get('data') or {}
+        inquiry_no = d.get('inquiry_no', '')
+        q_items = d.get('items') or []
+        expires = d.get('expires_at', '')
+        line_lines = [f"阿北玩具堂 報價回覆（{inquiry_no}）", ""]
+        for it in q_items:
+            qty = it.get('qty', 1)
+            if it.get('status') == '無法供貨':
+                line_lines.append(f"・{it.get('name', '商品')} x{qty}：無法供貨")
+            elif it.get('price'):
+                line_lines.append(f"・{it.get('name', '商品')} x{qty}：NT${int(it['price']):,}")
+            else:
+                line_lines.append(f"・{it.get('name', '商品')} x{qty}：—")
+        if expires:
+            line_lines += ["", f"報價有效至 {expires}。"]
+        line_lines.append("請回覆想要的商品，阿北再幫您安排下單與付款。")
+        line_lines.append("— ABBEY'S TOYS 阿北玩具堂")
+        message = "\n".join(line_lines)
+        email_subject = f"[阿北玩具堂] 報價回覆 {inquiry_no}"
+        email_html = mailer.render_quote_html(inquiry_no, q_items, expires)
+        email_text = mailer.render_quote_text(inquiry_no, q_items, expires)
 
     if not message or not (phone or email):
         return jsonify({'success': False, 'error': 'need message and phone/email'}), 400
@@ -3713,22 +3729,13 @@ def api_internal_notify():
         target = email or member_email
         if target:
             try:
-                import smtplib as _smtp
-                from email.mime.text import MIMEText
-                server_host = os.environ.get('SMTP_SERVER')
-                user = os.environ.get('SMTP_USERNAME')
-                pw = os.environ.get('SMTP_PASSWORD')
-                sender = os.environ.get('SMTP_FROM', user)
-                if all([server_host, user, pw]):
-                    with _smtp.SMTP(server_host, int(os.environ.get('SMTP_PORT', 587))) as sv:
-                        sv.starttls()
-                        sv.login(user, pw)
-                        msg = MIMEText(message, 'plain', 'utf-8')
-                        msg['Subject'] = '[阿北玩具堂] 訂單通知'
-                        msg['From'] = sender
-                        msg['To'] = target
-                        msg['Reply-To'] = os.environ.get('REPLY_TO', sender)
-                        sv.sendmail(sender, target, msg.as_string())
+                import mailer
+                if email_html is None:
+                    # raw message (no template) -> wrap in the branded shell
+                    paras = [p for p in message.split('\n') if p.strip()]
+                    email_html = mailer.render_status_html('訂單通知', paras)
+                    email_text = mailer.render_status_text('訂單通知', paras)
+                if mailer.send_email(target, email_subject, email_html, email_text or message):
                     sent.append('email')
             except Exception as e:
                 print(f"notify email failed: {e}")

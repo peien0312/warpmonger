@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light only">
+<title>{% block preheader %}阿北玩具堂 訂單通知{% endblock %}</title>
+</head>
+<body style="margin:0; padding:0; background:#E6DAC4; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Noto Sans TC',Roboto,Helvetica,Arial,sans-serif; color:#292019; -webkit-text-size-adjust:100%;">
+<span style="display:none!important; max-height:0; overflow:hidden; opacity:0; color:transparent;">{{ self.preheader() }}</span>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#E6DAC4; padding:24px 12px;">
+  <tr><td align="center">
+    <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="max-width:600px; width:100%; background:#ffffff; border-radius:14px; overflow:hidden;">
+      <tr><td style="background:#292019; padding:22px 28px;">
+        <div style="font-size:20px; font-weight:700; letter-spacing:2px; color:#D9A441;">ABBEY'S TOYS</div>
+        <div style="font-size:14px; color:#E6DAC4; margin-top:2px; letter-spacing:1px;">阿北玩具堂</div>
+      </td></tr>
+      <tr><td style="padding:28px;">
+        {% block content %}{% endblock %}
+      </td></tr>
+      <tr><td style="background:#F5EFE2; padding:20px 28px; font-size:12px; color:#6E4B2A; line-height:1.7;">
+        有任何問題，歡迎直接回覆這封 email，或透過 LINE 聯絡阿北。<br>
+        <a href="{{ site_url }}" style="color:#6E4B2A; text-decoration:underline;">{{ site_url }}</a> · ABBEY'S TOYS 阿北玩具堂
+      </td></tr>
+    </table>
+  </td></tr>
+</table>
+</body>
+</html>

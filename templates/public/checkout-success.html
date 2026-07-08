@@ -14,8 +14,10 @@
     </div>
     <div id="pay-transfer" class="pay-instructions" style="display:none">
         <h3>銀行轉帳</h3>
-        <p>訂單確認後，我們會透過 email／LINE 通知<strong>總額（含運費）與轉帳帳戶</strong>，請收到通知後再轉帳。</p>
-        <p>轉帳完成後回覆<strong>帳號後五碼</strong>即可，確認入帳就安排出貨。</p>
+        <p>請於 <strong>3 日內</strong>轉帳 <strong id="transfer-amount"></strong> 至以下帳戶：</p>
+        <div style="white-space:pre-line; background:#F5EFE2; border:1px solid #D9A441; border-radius:8px; padding:14px 16px; margin:10px 0; font-size:1.05em; line-height:1.7; color:#292019;">{{ bank_info }}</div>
+        <p>轉帳完成後，請到 <a href="/account">會員中心 → 我的訂單</a> 回報<strong>帳號後五碼</strong>（未登入可直接回覆 email／LINE），確認入帳後安排出貨。</p>
+        <p class="transfer-preorder-note" style="display:none"><small>訂單含預購商品，此金額為現貨部分；預購商品到貨後另行通知付款。</small></p>
     </div>
     <div id="pay-linepay" class="pay-instructions" style="display:none">
         <h3>LINE Pay</h3>
@@ -41,6 +43,15 @@ const fee = Number(p.get('fee') || 0);
 document.getElementById('fee-note').textContent = fee ? `（含運費 NT$${fee}）` : '（免運）';
 const pm = p.get('pm');
 if (pm) { const el = document.getElementById('pay-' + pm); if (el) el.style.display = ''; }
+if (pm === 'transfer') {
+    const charge = Number(p.get('charge') || p.get('total') || 0);
+    const ta = document.getElementById('transfer-amount');
+    if (ta) ta.textContent = 'NT$' + charge.toLocaleString();
+    if (charge < Number(p.get('total') || 0)) {
+        const pn = document.querySelector('.transfer-preorder-note');
+        if (pn) pn.style.display = '';
+    }
+}
 if (pm === 'linepay') {
     const state = p.get('paid') === '1' ? 'lp-paid'
         : p.get('paycancel') === '1' ? 'lp-cancel'

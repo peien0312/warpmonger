@@ -1,0 +1,26 @@
+{% extends "emails/base.html" %}
+{% block preheader %}阿北的報價回覆（{{ inquiry_no }}）{% endblock %}
+{% block content %}
+<h1 style="margin:0 0 6px; font-size:22px; color:#292019;">報價回覆</h1>
+<p style="margin:0 0 20px; color:#6E4B2A;">阿北幫您查了絕版／詢價商品，報價如下（{{ inquiry_no }}）：</p>
+
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;">
+  <tr><td colspan="3" style="border-bottom:2px solid #292019; padding-bottom:6px; font-weight:700; color:#292019;">報價商品</td></tr>
+  {% for it in items %}
+  <tr>
+    <td style="padding:9px 0; border-bottom:1px solid #E6DAC4; color:#292019;">{{ it.name }}</td>
+    <td style="padding:9px 0; border-bottom:1px solid #E6DAC4; text-align:center; white-space:nowrap; color:#6E4B2A;">x{{ it.qty }}</td>
+    <td style="padding:9px 0; border-bottom:1px solid #E6DAC4; text-align:right; white-space:nowrap; color:#292019;">
+      {% if it.status == '無法供貨' %}<span style="color:#b23b3b;">無法供貨</span>
+      {% elif it.price %}NT${{ it.price|ntd }}
+      {% else %}—{% endif %}
+    </td>
+  </tr>
+  {% endfor %}
+</table>
+
+{% if expires_at %}
+<p style="margin:16px 0 0; color:#292019;"><strong>報價有效至 {{ expires_at }}</strong></p>
+{% endif %}
+<p style="margin:14px 0 0; color:#6E4B2A; line-height:1.8;">請直接回覆這封 email，或用 LINE 告訴阿北您<strong>想要的商品</strong>，阿北再幫您安排下單與付款。若過了有效期，價格與供貨可能會變動，屆時再幫您重新確認。</p>
+{% endblock %}

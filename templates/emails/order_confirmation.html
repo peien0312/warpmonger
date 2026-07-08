@@ -1,0 +1,59 @@
+{% extends "emails/base.html" %}
+{% block preheader %}訂單 {{ order_no }} 已成立，感謝訂購！{% endblock %}
+{% block content %}
+<h1 style="margin:0 0 6px; font-size:22px; color:#292019;">訂單已成立 🎉</h1>
+<p style="margin:0 0 20px; color:#6E4B2A;">感謝訂購！訂單編號 <strong style="color:#292019;">{{ order_no }}</strong></p>
+
+{% if payment_method == 'transfer' %}
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#F5EFE2; border:1px solid #D9A441; border-radius:10px; margin-bottom:20px;">
+  <tr><td style="padding:16px 18px;">
+    <div style="font-weight:700; color:#292019; margin-bottom:6px;">💳 銀行轉帳</div>
+    <p style="margin:0 0 8px; color:#292019;">請於 <strong>3 日內</strong>轉帳 <strong style="font-size:18px;">NT${{ charge_now|ntd }}</strong> 至：</p>
+    <div style="white-space:pre-line; background:#ffffff; border-radius:6px; padding:12px 14px; line-height:1.8; color:#292019;">{{ bank_info }}</div>
+    <p style="margin:10px 0 0; font-size:13px; color:#6E4B2A;">轉帳後請到 <a href="{{ site_url }}/account" style="color:#6E4B2A; text-decoration:underline;">會員中心 → 我的訂單</a> 回報<strong>帳號後五碼</strong>（或直接回覆此信／LINE），確認入帳後為您安排出貨。</p>
+    {% if charge_now < grand_total %}<p style="margin:8px 0 0; font-size:12px; color:#948669;">此金額為現貨部分；預購商品到貨後會另行通知付款。</p>{% endif %}
+  </td></tr>
+</table>
+{% elif payment_method == 'cod' %}
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#F5EFE2; border:1px solid #D9A441; border-radius:10px; margin-bottom:20px;">
+  <tr><td style="padding:16px 18px;">
+    <div style="font-weight:700; color:#292019; margin-bottom:6px;">📦 取貨付款</div>
+    <p style="margin:0; color:#6E4B2A;">將盡快為您安排出貨，到店取貨時付款即可。</p>
+  </td></tr>
+</table>
+{% elif payment_method == 'linepay' %}
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#F5EFE2; border:1px solid #D9A441; border-radius:10px; margin-bottom:20px;">
+  <tr><td style="padding:16px 18px;">
+    <div style="font-weight:700; color:#292019; margin-bottom:6px;">📱 LINE Pay</div>
+    <p style="margin:0; color:#6E4B2A;">請於 LINE Pay 頁面完成付款 NT${{ charge_now|ntd }}；若中途離開，我們會透過 LINE／email 補寄付款連結。</p>
+  </td></tr>
+</table>
+{% endif %}
+
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;">
+  <tr><td colspan="3" style="border-bottom:2px solid #292019; padding-bottom:6px; font-weight:700; color:#292019;">訂購商品</td></tr>
+  {% for it in items %}
+  <tr>
+    <td style="padding:9px 0; border-bottom:1px solid #E6DAC4; color:#292019;">{{ it.title }}<br><span style="font-size:12px; color:#948669;">{{ it.avail_label }}</span></td>
+    <td style="padding:9px 0; border-bottom:1px solid #E6DAC4; text-align:center; white-space:nowrap; color:#6E4B2A;">x{{ it.qty }}</td>
+    <td style="padding:9px 0; border-bottom:1px solid #E6DAC4; text-align:right; white-space:nowrap; color:#292019;">{% if it.price %}NT${{ it.line_total|ntd }}{% else %}詢價{% endif %}</td>
+  </tr>
+  {% endfor %}
+</table>
+
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-top:12px;">
+  <tr><td style="text-align:right; color:#6E4B2A; padding:2px 0;">商品合計</td><td style="text-align:right; width:120px; color:#292019;">NT${{ subtotal|ntd }}</td></tr>
+  <tr><td style="text-align:right; color:#6E4B2A; padding:2px 0;">運費</td><td style="text-align:right; color:#292019;">{% if shipping_fee %}NT${{ shipping_fee|ntd }}{% else %}免運{% endif %}</td></tr>
+  <tr><td style="text-align:right; font-weight:700; padding-top:6px; color:#292019;">應付總額</td><td style="text-align:right; font-weight:700; padding-top:6px; color:#292019;">NT${{ grand_total|ntd }}</td></tr>
+</table>
+
+<div style="margin-top:22px; font-size:14px; color:#6E4B2A; line-height:1.9;">
+  <div><strong style="color:#292019;">收件</strong>：{{ recipient_name }} {{ recipient_phone }}</div>
+  <div><strong style="color:#292019;">取貨</strong>：{{ delivery_label }}{% if dest %}｜{{ dest }}{% endif %}</div>
+  {% if has_preorder and has_now %}<div><strong style="color:#292019;">出貨</strong>：{% if ship_together %}合併出貨（等全部到齊一次寄）{% else %}現貨先出（現貨先寄，其餘到貨後再寄）{% endif %}</div>{% endif %}
+  {% if note %}<div><strong style="color:#292019;">備註</strong>：{{ note }}</div>{% endif %}
+</div>
+
+{% if has_inquiry %}<p style="margin-top:18px; font-size:13px; color:#6E4B2A;">清單中的詢價（絕版）商品，阿北會另以 email／LINE 回覆報價後再安排。</p>{% endif %}
+{% if has_preorder %}<p style="margin-top:6px; font-size:13px; color:#6E4B2A;">預購商品依到貨日出貨，到貨時會另行通知付款。</p>{% endif %}
+{% endblock %}
