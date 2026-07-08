@@ -97,6 +97,13 @@
             {% endfor %}
             {% if o.shipping_fee_twd %}<li>運費 NT${{ o.shipping_fee_twd|ntd }}</li>{% endif %}
         </ul>
+        {% set pm = {'payuni':'線上付款','linepay':'LINE Pay','cod':'貨到付款','transfer':'銀行轉帳'} %}
+        {% set dm = {'711':'7-11 店到店取貨','fami':'全家 店到店取貨','post':'郵局宅配','meet':'面交'} %}
+        <div style="font-size:0.85rem; color:#948669; line-height:1.8; margin:2px 0;">
+            付款方式：<span style="color:#E6DAC4">{{ pm.get(o.payment_method, o.payment_method) }}</span>
+            ｜取貨：<span style="color:#E6DAC4">{{ dm.get(o.delivery_method, o.delivery_method or '—') }}{% if o.store_name %}｜{{ o.store_name }}{% if o.store_code %}（{{ o.store_code }}）{% endif %}{% endif %}{% if o.address %}｜{{ o.address }}{% endif %}</span>
+            {% if o.recipient_name %}｜收件：<span style="color:#E6DAC4">{{ o.recipient_name }}{% if o.recipient_phone %} {{ o.recipient_phone }}{% endif %}</span>{% endif %}
+        </div>
         {% for sc in o.shipping_codes %}
         <div class="return-status"><small>取貨代碼{% if sc.type %}（{{ sc.type }}）{% endif %}：<strong>{{ sc.code }}</strong></small></div>
         {% endfor %}
