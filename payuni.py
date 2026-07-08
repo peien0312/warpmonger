@@ -78,24 +78,37 @@ def verify_callback(form) -> dict | None:
     return decrypt(enc)
 
 
-def refund(trade_no, amount, close_type=2):
-    """Refund a paid transaction via trade_close (CloseType 2 = 退款).
-    Returns dict {ok, status, result, raw}. `trade_no` is PayUni's UNI序號."""
+# instant-refund endpoint per PaymentType (credit/Apple/Google/Samsung = 1 via
+# trade/close; wallets have their own). ATM(2)/CVS(3) need the offline flow.
+_REFUND_ROUTE = {
+    "6": "trade/common/refund/icash",     # 愛金卡
+    "7": "trade/common/refund/aftee",     # AFTEE 先享後付
+    "11": "trade/common/refund/jkopay",   # 街口
+}
+
+
+def refund(trade_no, amount, payment_type="1"):
+    """Instant refund back to the payment source. PaymentType 1 (信用卡/
+    Apple/Google/Samsung Pay) -> trade/close CloseType 2; 6/7/11 -> their
+    endpoints. ATM(2)/CVS(3) can't be instant -> {needs_bank: True}.
+    Returns {ok, needs_bank, status, message, result, raw}."""
     import time
     import json as _json
     import urllib.request
     import urllib.parse
-    info = {
-        "MerID": mer_id(),
-        "TradeNo": str(trade_no),
-        "CloseType": close_type,     # 2 = 退款
-        "TradeAmt": int(amount),
-        "Timestamp": int(time.time()),
-    }
+    pt = str(payment_type or "1")
+    if pt in ("2", "3"):
+        return {"ok": False, "needs_bank": True, "status": "",
+                "message": "非信用卡付款需退款轉匯", "result": {}, "raw": ""}
+    route = _REFUND_ROUTE.get(pt, "trade/close")
+    info = {"MerID": mer_id(), "TradeNo": str(trade_no),
+            "TradeAmt": int(amount), "Timestamp": int(time.time())}
+    if route == "trade/close":
+        info["CloseType"] = 2
     req = build_request(info)
     data = urllib.parse.urlencode(req).encode()
     r = urllib.request.Request(
-        api_url("trade/close"), data=data, method="POST",
+        api_url(route), data=data, method="POST",
         headers={"Content-Type": "application/x-www-form-urlencoded",
                  "User-Agent": "payuni"})
     raw = ""
@@ -103,19 +116,27 @@ def refund(trade_no, amount, close_type=2):
         with urllib.request.urlopen(r, timeout=25) as resp:
             raw = resp.read().decode("utf-8", "replace")
     except Exception as e:
-        return {"ok": False, "status": "ERROR", "result": {}, "raw": f"request failed: {e}"}
+        return {"ok": False, "needs_bank": False, "status": "ERROR",
+                "message": str(e), "result": {}, "raw": f"request failed: {e}"}
     try:
         env = _json.loads(raw)
     except Exception:
         env = dict(urllib.parse.parse_qsl(raw))
-    enc = env.get("EncryptInfo", "")
     result = {}
     try:
-        result = decrypt(enc) if enc else {}
+        result = decrypt(env.get("EncryptInfo", "")) if env.get("EncryptInfo") else {}
     except Exception:
         pass
     status = str(env.get("Status", "")).upper()
-    ok = status == "SUCCESS"
-    return {"ok": ok, "status": status,
+    return {"ok": status == "SUCCESS", "needs_bank": False, "status": status,
             "message": result.get("Message") or env.get("Message", ""),
             "result": result, "raw": raw[:500]}
+
+
+def offline_refund_fields(trade_no, base_url):
+    """Build the offline_payment/refund hosted-page request for ATM/CVS refunds —
+    the buyer enters their bank account on PayUni's page. Returns (url, fields)."""
+    import time
+    info = {"MerID": mer_id(), "TradeNo": str(trade_no), "Timestamp": int(time.time()),
+            "ReturnURL": f"{base_url}/payuni/refund-done"}
+    return api_url("offline_payment/refund"), build_request(info)

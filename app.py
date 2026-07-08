@@ -3497,6 +3497,29 @@ def payuni_return():
     return redirect('/order-lookup')
 
 
+@app.route('/payuni/refund-page/<order_no>')
+def payuni_refund_page(order_no):
+    """ATM/超商 refund: the buyer enters their bank account on PayUni's page."""
+    import re
+    token = request.args.get('t', '')
+    if not _authorized_for_order(order_no, token):
+        return redirect('/order-lookup?no=' + (order_no or ''))
+    if not payuni.enabled():
+        return 'PayUni 未設定', 503
+    import posdb as _posdb
+    order = _posdb.get_web_order(order_no)
+    m = re.search(r'PayUni\s+(\d+)', (order or {}).get('payment_note', '') or '')
+    if not order or not m:
+        return redirect(f'/order/{order_no}?t={_order_token(order_no)}')
+    action, fields = payuni.offline_refund_fields(m.group(1), request.url_root.rstrip('/'))
+    return render_template('public/payuni_redirect.html', action=action, fields=fields)
+
+
+@app.route('/payuni/refund-done', methods=['POST', 'GET'])
+def payuni_refund_done():
+    return render_template('public/payuni_refund_done.html')
+
+
 def _send_order_emails(order_no, data, lines, totals):
     """Branded HTML order-confirmation to the customer + a copy to the shop.
     `totals` is the POS create-order response (total/shipping/grand/charge_now)."""
@@ -3968,11 +3991,18 @@ def api_payuni_refund():
     data = request.get_json(silent=True) or {}
     trade_no = (data.get('trade_no') or '').strip()
     amount = int(data.get('amount') or 0)
+    payment_type = str(data.get('payment_type') or '1')
+    order_no = (data.get('order_no') or '').strip()
     if not trade_no or amount <= 0:
         return jsonify({'success': False, 'error': '缺少交易序號或金額'}), 400
-    res = payuni.refund(trade_no, amount)
-    print(f"[payuni refund] trade_no={trade_no} amount={amount} -> {res['status']} {res.get('message')}")
-    return jsonify({'success': res['ok'], 'status': res['status'],
+    res = payuni.refund(trade_no, amount, payment_type)
+    if res.get('needs_bank'):
+        # ATM/超商: the buyer enters their bank account on PayUni's hosted page
+        link = (f"{SITE_URL}/payuni/refund-page/{order_no}?t={_order_token(order_no)}"
+                if order_no else '')
+        return jsonify({'success': True, 'needs_bank': True, 'refund_url': link})
+    print(f"[payuni refund] trade_no={trade_no} amt={amount} pt={payment_type} -> {res['status']} {res.get('message')}")
+    return jsonify({'success': res['ok'], 'needs_bank': False, 'status': res['status'],
                     'message': res.get('message', ''),
                     'error': None if res['ok'] else (res.get('message') or res['status'])})
 
