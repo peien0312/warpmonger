@@ -3957,6 +3957,26 @@ def api_internal_notify():
                     'error': None if sent else '客戶未綁定 LINE 且無法寄送 email'})
 
 
+@app.route('/api/internal/payuni-refund', methods=['POST'])
+def api_payuni_refund():
+    """POS -> reverse a PayUni charge (trade_close 退款). Auth: storefront key."""
+    if request.headers.get('X-Storefront-Key') != STOREFRONT_API_KEY or not STOREFRONT_API_KEY:
+        return jsonify({'error': 'bad key'}), 401
+    import payuni
+    if not payuni.enabled():
+        return jsonify({'success': False, 'error': 'PayUni 未設定'}), 503
+    data = request.get_json(silent=True) or {}
+    trade_no = (data.get('trade_no') or '').strip()
+    amount = int(data.get('amount') or 0)
+    if not trade_no or amount <= 0:
+        return jsonify({'success': False, 'error': '缺少交易序號或金額'}), 400
+    res = payuni.refund(trade_no, amount)
+    print(f"[payuni refund] trade_no={trade_no} amount={amount} -> {res['status']} {res.get('message')}")
+    return jsonify({'success': res['ok'], 'status': res['status'],
+                    'message': res.get('message', ''),
+                    'error': None if res['ok'] else (res.get('message') or res['status'])})
+
+
 @app.route('/line/webhook', methods=['POST'])
 def line_webhook():
     """LINE 官方帳號 webhook: binds members via their binding code."""

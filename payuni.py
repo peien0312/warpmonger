@@ -76,3 +76,45 @@ def verify_callback(form) -> dict | None:
     if not enc or (form.get("HashInfo") or "") != hash_info(enc):
         return None
     return decrypt(enc)
+
+
+def refund(trade_no, amount, close_type=2):
+    """Refund a paid transaction via trade_close (CloseType 2 = 退款).
+    Returns dict {ok, status, result, raw}. `trade_no` is PayUni's UNI序號."""
+    import time
+    import json as _json
+    import urllib.request
+    import urllib.parse
+    info = {
+        "MerID": mer_id(),
+        "TradeNo": str(trade_no),
+        "CloseType": close_type,     # 2 = 退款
+        "TradeAmt": int(amount),
+        "Timestamp": int(time.time()),
+    }
+    req = build_request(info)
+    data = urllib.parse.urlencode(req).encode()
+    r = urllib.request.Request(
+        api_url("trade/close"), data=data, method="POST",
+        headers={"Content-Type": "application/x-www-form-urlencoded"})
+    raw = ""
+    try:
+        with urllib.request.urlopen(r, timeout=25) as resp:
+            raw = resp.read().decode("utf-8", "replace")
+    except Exception as e:
+        return {"ok": False, "status": "ERROR", "result": {}, "raw": f"request failed: {e}"}
+    try:
+        env = _json.loads(raw)
+    except Exception:
+        env = dict(urllib.parse.parse_qsl(raw))
+    enc = env.get("EncryptInfo", "")
+    result = {}
+    try:
+        result = decrypt(enc) if enc else {}
+    except Exception:
+        pass
+    status = str(env.get("Status", "")).upper()
+    ok = status == "SUCCESS"
+    return {"ok": ok, "status": status,
+            "message": result.get("Message") or env.get("Message", ""),
+            "result": result, "raw": raw[:500]}
