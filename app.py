@@ -1642,8 +1642,10 @@ ALLOWED_PAGES = ['return-policy', 'terms', 'shopping-guide']
 @public_route('/page/<slug>')
 def static_page(slug):
     """Render a static info/policy page"""
-    if slug == 'shopping-guide':
-        return redirect('/guide', code=301)  # superseded by the richer /guide page
+    # these are now proper webpage routes, not DB markdown pages
+    _moved = {'shopping-guide': '/guide', 'return-policy': '/returns', 'terms': '/terms'}
+    if slug in _moved:
+        return redirect(_moved[slug], code=301)
     if slug not in ALLOWED_PAGES:
         return "Page not found", 404
     page = get_page(slug)
@@ -2069,6 +2071,16 @@ def shopping_guide_page():
     """購物說明 — the canonical how-to-buy page (availability, payment,
     shipping, preorder, inquiry, cancel/return)."""
     return render_template('public/guide.html')
+
+@public_route('/returns')
+def return_policy_page():
+    """退換貨說明 — proper webpage (was a DB markdown page)."""
+    return render_template('public/return.html')
+
+@public_route('/terms')
+def terms_page():
+    """服務條款 — proper webpage (was a DB markdown page)."""
+    return render_template('public/terms.html')
 
 @app.route('/api/quiz-result', methods=['POST'])
 def api_quiz_result():

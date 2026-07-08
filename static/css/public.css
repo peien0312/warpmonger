@@ -1147,20 +1147,53 @@ section h2::after {
     color: #B3A48D;
 }
 
-/* Links inside rendered markdown bodies (blog + codex) — match .codex-term */
+/* Inline content-link standard — gold dotted, hover white-glow (matches
+   .codex-term). Covers markdown bodies (blog + codex), the info/doc pages,
+   and the order-status inline links so nothing falls back to browser purple. */
 .post-content a,
-.entry-body a {
+.entry-body a,
+.info-page a:not(.btn),
+.checkout-success a:not(.btn),
+.account-order a:not(.btn),
+.transfer-report a:not(.btn) {
     color: #D9A441;
     text-decoration: none;
     border-bottom: 1px dotted #D9A441;
     transition: all 0.3s;
 }
 .post-content a:hover,
-.entry-body a:hover {
+.entry-body a:hover,
+.info-page a:not(.btn):hover,
+.checkout-success a:not(.btn):hover,
+.account-order a:not(.btn):hover,
+.transfer-report a:not(.btn):hover {
     color: #fff;
     border-bottom-color: #fff;
     text-shadow: 0 0 8px rgba(217, 164, 65, 0.6);
 }
+
+/* ---- Info / doc pages: 購物說明, 退換貨說明, 服務條款 (dark theme) ---- */
+.info-page { max-width: 860px; margin: 0 auto; padding: 24px 0 56px; }
+.info-page h1 { color: #fff; margin: 0 0 8px; }
+.info-page .lede { color: #948669; font-size: 1.05rem; margin: 0 0 30px; line-height: 1.7; }
+.info-page section { margin: 0 0 28px; scroll-margin-top: 90px; }
+.info-page h2 { font-size: 1.3rem; color: #D9A441; margin: 0 0 14px; padding-bottom: 8px; border-bottom: 2px solid #342A21; }
+.info-page h2 .num { color: #6E4B2A; margin-right: 8px; }
+.info-page p, .info-page li { line-height: 1.85; color: #E6DAC4; }
+.info-page .muted { color: #948669; font-size: 0.9rem; }
+.info-card { background: #292019; border: 2px solid #342A21; border-radius: 6px; padding: 16px 18px; margin: 12px 0; }
+.info-card.gold { border-color: #6E4B2A; }
+.info-card b, .info-page b { color: #fff; }
+.info-steps { padding-left: 20px; line-height: 2; margin: 8px 0 0; }
+.info-toc { display: flex; flex-wrap: wrap; gap: 8px 16px; margin: 0 0 30px; font-size: 0.95rem; }
+.info-cta { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 8px; }
+.avail-wrap { overflow-x: auto; }
+.avail-table { width: 100%; border-collapse: collapse; border: 2px solid #342A21; border-radius: 6px; overflow: hidden; }
+.avail-table th, .avail-table td { text-align: left; padding: 12px 14px; border-bottom: 1px solid #342A21; vertical-align: top; color: #E6DAC4; }
+.avail-table th { background: #17100B; color: #D9A441; font-weight: 600; }
+.avail-table tr:last-child td { border-bottom: none; }
+.avail-table td:first-child { white-space: nowrap; }
+@media (max-width: 600px) { .avail-table th, .avail-table td { padding: 10px; font-size: 0.9rem; } }
 
 .post-content img {
     max-width: 100%;

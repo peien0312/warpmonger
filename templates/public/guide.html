@@ -4,37 +4,12 @@
 {% block meta_description %}阿北玩具堂購物說明：現貨/預購/詢價怎麼分、會員價、付款方式（銀行轉帳先審後付）、運費、取消與退貨。第一次買也能輕鬆上手。{% endblock %}
 
 {% block content %}
-<style>
-.guide { max-width: 860px; margin: 0 auto; padding: 8px 0 48px; }
-.guide h1 { margin: 0 0 6px; }
-.guide .lede { color: var(--muted, #6E4B2A); margin: 0 0 28px; font-size: 1.05rem; }
-.guide section { margin: 0 0 30px; }
-.guide h2 { font-size: 1.35rem; margin: 0 0 12px; padding-bottom: 8px; border-bottom: 2px solid #D9A441; }
-.guide h2 .num { color: #D9A441; margin-right: 8px; }
-.guide p { line-height: 1.8; }
-.guide .card { background: #F5EFE2; border: 1px solid #E6DAC4; border-radius: 12px; padding: 16px 18px; margin: 12px 0; }
-.guide .card.gold { border-color: #D9A441; }
-.avail-table { width: 100%; border-collapse: collapse; overflow: hidden; border-radius: 12px; }
-.avail-table th, .avail-table td { text-align: left; padding: 12px 14px; border-bottom: 1px solid #E6DAC4; vertical-align: top; }
-.avail-table th { background: #292019; color: #E6DAC4; font-weight: 600; }
-.avail-table tr:last-child td { border-bottom: none; }
-.avail-table td:first-child { white-space: nowrap; }
-.guide .steps { margin: 10px 0 0; padding-left: 20px; line-height: 2; }
-.guide .kv { margin: 4px 0; }
-.guide .kv b { color: #292019; }
-.guide-cta { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 8px; }
-.guide-toc { display: flex; flex-wrap: wrap; gap: 8px 14px; margin: 0 0 30px; font-size: 0.95rem; }
-.guide-toc a { color: #6E4B2A; text-decoration: none; border-bottom: 1px dotted #B3A48D; }
-.avail-wrap { overflow-x: auto; }
-@media (max-width: 600px) { .avail-table th, .avail-table td { padding: 10px; font-size: 0.9rem; } }
-</style>
-
 <div class="container">
-<div class="guide">
+<div class="info-page">
     <h1>購物說明</h1>
     <p class="lede">第一次在阿北玩具堂購物？這頁把「現貨/預購/詢價怎麼分、怎麼付款、運費、取消退貨」一次講清楚。</p>
 
-    <nav class="guide-toc">
+    <nav class="info-toc">
         <a href="#avail">商品狀態</a>
         <a href="#price">會員價</a>
         <a href="#pay">付款方式</a>
@@ -64,46 +39,45 @@
 
     <section id="price">
         <h2><span class="num">2</span>會員價</h2>
-        <p>註冊並登入會員即享<b>會員價</b>（一般為定價 <b>9 折</b>；若商品有特價，以較低者為準）。登入後，商品頁與購物車會直接顯示您的會員價。未登入則以定價結帳。</p>
+        <p>註冊並登入會員即享<b>會員價</b>（一般為定價 <b>9 折</b>；若商品有特價，以較低者為準）。登入後，商品頁與購物車會直接顯示您的會員價；未登入則以定價結帳。</p>
     </section>
 
     <section id="pay">
         <h2><span class="num">3</span>付款方式</h2>
-        <div class="card gold">
-            <p class="kv"><b>🏦 銀行轉帳（先審後付）</b></p>
-            <ol class="steps">
+        <div class="info-card gold">
+            <p><b>🏦 銀行轉帳（先審後付）</b></p>
+            <ol class="info-steps">
                 <li>送出訂單後，<b>結帳完成頁與確認信會直接顯示轉帳帳戶與金額</b>。</li>
                 <li>3 日內完成轉帳。</li>
                 <li>到「會員中心 → 我的訂單」<b>回報帳號後五碼</b>（或回覆 email／LINE）。</li>
                 <li>阿北確認入帳後安排出貨。</li>
             </ol>
         </div>
-        <div class="card"><p class="kv"><b>📦 貨到付款</b> — 超商取貨時付款即可。</p></div>
-        <div class="card"><p class="kv"><b>📱 LINE Pay</b> — 送出訂單後導向 LINE Pay 線上付款。</p></div>
-        <p><small>預購與詢價商品不在此時付款，詳見下方說明。</small></p>
+        <div class="info-card"><p><b>📦 貨到付款</b> — 超商取貨時付款即可。</p></div>
+        <div class="info-card"><p><b>📱 LINE Pay</b> — 送出訂單後導向 LINE Pay 線上付款。</p></div>
+        <p class="muted">預購與詢價商品不在此時付款，詳見下方說明。</p>
     </section>
 
     <section id="ship">
         <h2><span class="num">4</span>運費與取貨</h2>
-        <p class="kv">單筆滿 <b>NT$1,000 免運</b>；未滿酌收 <b>NT$60</b>。</p>
-        <p class="kv">取貨方式：<b>7-11</b>、<b>全家</b> 店到店取貨，或 <b>郵局宅配</b>。結帳時選擇門市或填寫地址。</p>
+        <p>單筆滿 <b>NT$1,000 免運</b>；未滿酌收 <b>NT$60</b>。</p>
+        <p>取貨方式：<b>7-11</b>、<b>全家</b> 店到店取貨，或 <b>郵局宅配</b>。結帳時選擇門市或填寫地址。</p>
     </section>
 
     <section id="preorder">
         <h2><span class="num">5</span>預購怎麼運作</h2>
-        <div class="card gold">
+        <div class="info-card gold">
             <p><b>預購商品「不需預付」。</b>下單時不用先付款——到貨後我們會通知您付款，再出貨。商品頁會標示預計到貨日。</p>
-            <p class="kv">若一筆訂單同時有現貨與預購，可選擇：</p>
-            <p class="kv">・<b>合併出貨</b>：等全部到齊一次寄（單筆運費）。</p>
-            <p class="kv">・<b>現貨先出</b>：現貨先寄，預購到貨後再寄第二批。</p>
+            <p>若一筆訂單同時有現貨與預購，可選擇：</p>
+            <p>・<b>合併出貨</b>：等全部到齊一次寄（單筆運費）。<br>・<b>現貨先出</b>：現貨先寄，預購到貨後再寄第二批。</p>
         </div>
     </section>
 
     <section id="inquiry">
         <h2><span class="num">6</span>詢價怎麼運作</h2>
-        <div class="card">
+        <div class="info-card">
             <p>標示 <span class="badge badge-inquiry">絕版詢價</span> 的商品為停產／絕版品，價格與貨況需要確認，所以結帳時不需付款。</p>
-            <ol class="steps">
+            <ol class="info-steps">
                 <li>把詢價商品和其他商品一起送出訂單即可。</li>
                 <li>阿北查詢後，以 <b>email／LINE 回覆報價</b>（報價通常有數日有效期）。</li>
                 <li>您回覆想要的商品，阿北再幫您安排下單與付款。</li>
@@ -113,10 +87,10 @@
 
     <section id="cancel">
         <h2><span class="num">7</span>取消與退貨</h2>
-        <div class="card">
-            <p class="kv"><b>取消訂單</b>：訂單成立、<b>尚未付款</b>前，到「會員中心 → 我的訂單」按「取消訂單」即可，不需聯繫客服。</p>
-            <p class="kv"><b>退貨／退款</b>：已付款或已出貨的訂單，在同一頁按「申請退貨／退款」，勾選商品與原因送出；阿北確認後退款，<b>進度會顯示在訂單上</b>並以 LINE／Email 通知。</p>
-            <p class="kv"><small>依《消費者保護法》享 7 天猶豫期；商品須全新未拆封。詳見 <a href="/page/return-policy">退換貨說明</a>。</small></p>
+        <div class="info-card">
+            <p><b>取消訂單</b>：訂單成立、<b>尚未付款</b>前，到「會員中心 → 我的訂單」按「取消訂單」即可，不需聯繫客服。</p>
+            <p><b>退貨／退款</b>：已付款或已出貨的訂單，在同一頁按「申請退貨／退款」，勾選商品與原因送出；阿北確認後退款，<b>進度會顯示在訂單上</b>並以 LINE／Email 通知。</p>
+            <p class="muted">依《消費者保護法》享 7 天猶豫期；商品須全新未拆封。詳見 <a href="/returns">退換貨說明</a>。</p>
         </div>
     </section>
 
@@ -125,7 +99,7 @@
         <p>加入會員並<b>綁定 LINE</b> 後，訂單通知、報價、到貨/補貨通知都會直接傳到您的 LINE（未綁定則寄 email）。在商品頁按「到貨通知我」，補到貨時就會提醒您。</p>
     </section>
 
-    <div class="guide-cta">
+    <div class="info-cta">
         <a href="/products" class="btn btn-primary">開始逛逛</a>
         <a href="https://lin.ee/OTxThMe" target="_blank" rel="noopener" class="btn btn-secondary">有問題？LINE 問阿北</a>
     </div>

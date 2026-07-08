@@ -1,0 +1,59 @@
+{% extends "public/base.html" %}
+
+{% block title %}退換貨說明 | ABBEY'S TOYS 阿北玩具堂{% endblock %}
+{% block meta_description %}阿北玩具堂退換貨說明：訂單取消、線上申請退貨/退款、退貨資格與退款時程。{% endblock %}
+
+{% block content %}
+<div class="container">
+<div class="info-page">
+    <h1>退換貨說明</h1>
+    <p class="lede">希望您對每次購物都滿意。取消與退貨大多可在「會員中心 → 我的訂單」自助完成，以下是完整說明。</p>
+
+    <section>
+        <h2>取消訂單（尚未付款）</h2>
+        <div class="info-card">
+            <p>訂單成立、<b>尚未付款</b>前，到「會員中心 → 我的訂單」按「<b>取消訂單</b>」即可立即取消，不需聯繫客服。</p>
+            <p class="muted">已付款或已出貨的訂單無法直接取消，請改用下方的退貨／退款申請。</p>
+        </div>
+    </section>
+
+    <section>
+        <h2>退貨／退款（線上申請）</h2>
+        <div class="info-card gold">
+            <ol class="info-steps">
+                <li>到「會員中心 → 我的訂單」，在該筆訂單按「<b>申請退貨／退款</b>」。</li>
+                <li>勾選要退的商品、選擇退貨原因並送出。</li>
+                <li>阿北確認後為您安排退款，<b>申請狀態與退款進度會顯示在訂單上</b>，並以 LINE／Email 通知您。</li>
+            </ol>
+            <p class="muted">若不方便使用會員中心，也可透過 LINE 或 email 聯繫我們，並附上訂單編號、欲退貨商品與原因。</p>
+        </div>
+    </section>
+
+    <section>
+        <h2>退貨資格</h2>
+        <p>・依《消費者保護法》第 19 條，您享有商品到貨後 <b>7 天</b>猶豫期（猶豫期非試用期）。<br>
+           ・退貨商品須為 <b>全新未拆封、未使用</b> 狀態，且包裝完整。<br>
+           ・已拆封、組裝，或因個人因素造成損壞之商品，恕不接受退貨。</p>
+    </section>
+
+    <section>
+        <h2>退款說明</h2>
+        <p>・收到退貨並確認無誤後，將於 <b>5–7 個工作天</b> 內完成退款。<br>
+           ・退款以原付款方式退回（轉帳則退回原轉出帳戶）。<br>
+           ・運費不予退還，除非退貨原因為本店疏失或商品瑕疵。</p>
+    </section>
+
+    <section>
+        <h2>商品瑕疵或運送損壞</h2>
+        <div class="info-card">
+            <p>若收到的商品有瑕疵或運送損壞，請於收貨後 <b>3 天內</b>聯繫我們並附上商品照片，我們會免費為您安排換貨或全額退款。</p>
+        </div>
+    </section>
+
+    <div class="info-cta">
+        <a href="/account" class="btn btn-primary">前往我的訂單</a>
+        <a href="https://lin.ee/OTxThMe" target="_blank" rel="noopener" class="btn btn-secondary">LINE 聯絡阿北</a>
+    </div>
+</div>
+</div>
+{% endblock %}
