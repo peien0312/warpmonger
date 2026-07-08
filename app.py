@@ -3441,45 +3441,56 @@ def payuni_pay(order_no):
                            fields=payuni.build_request(info))
 
 
-@app.route('/payuni/notify', methods=['POST'])
-def payuni_notify():
-    """Server-to-server payment result from PayUni (source of truth)."""
-    if not payuni.enabled():
-        return 'disabled', 503
-    print(f"[payuni notify] form keys={list(request.form.keys())}")
-    info = payuni.verify_callback(request.form)
-    if not info:
-        print("[payuni notify] HASH VERIFY FAILED (or missing EncryptInfo)")
-        return 'bad hash', 400
-    print(f"[payuni notify] Status={info.get('Status')} TradeStatus={info.get('TradeStatus')} "
-          f"MerTradeNo={info.get('MerTradeNo')} PaymentType={info.get('PaymentType')} "
-          f"Msg={info.get('Message')}")
+def _payuni_apply(info, source):
+    """Apply a verified PayUni result to the order (idempotent). Called from
+    both the server-to-server notify and the browser return."""
     if info.get('Status') != 'SUCCESS':
-        return 'OK'
+        print(f"[payuni {source}] not SUCCESS: {info.get('Status')} / {info.get('Message')}")
+        return
     order_no = _order_no_from_mtn(info.get('MerTradeNo', ''))
     if not order_no:
-        print(f"[payuni notify] could not recover order_no from {info.get('MerTradeNo')}")
-        return 'OK'
-    trade_status = str(info.get('TradeStatus', ''))
-    print(f"[payuni notify] -> order {order_no} trade_status={trade_status}")
+        print(f"[payuni {source}] cannot recover order_no from {info.get('MerTradeNo')}")
+        return
+    ts = str(info.get('TradeStatus', ''))
+    print(f"[payuni {source}] order {order_no} TradeStatus={ts} PaymentType={info.get('PaymentType')}")
     try:
-        if trade_status == '1':          # paid
+        if ts == '1':          # paid
             _pos_api('POST', f'/api/storefront/orders/{order_no}/payment',
                      {'payment_status': '已付款',
                       'payment_note': f"PayUni {info.get('TradeNo', '')}"})
-        elif trade_status == '0':        # ATM/CVS code issued, awaiting payment
+            print(f"[payuni {source}] {order_no} -> 已付款")
+        elif ts == '0':        # ATM/CVS code issued, awaiting payment
             _pos_api('POST', f'/api/storefront/orders/{order_no}/payment',
                      {'payment_status': '待付款',
                       'payment_note': _payuni_pending_note(info)})
     except Exception as e:
-        print(f"payuni notify update failed: {e}")
+        print(f"[payuni {source}] update failed: {e}")
+
+
+@app.route('/payuni/notify', methods=['POST'])
+def payuni_notify():
+    """Server-to-server payment result from PayUni."""
+    if not payuni.enabled():
+        return 'disabled', 503
+    print(f"[payuni notify] keys={list(request.form.keys())}")
+    info = payuni.verify_callback(request.form)
+    if not info:
+        print("[payuni notify] HASH VERIFY FAILED (or missing EncryptInfo)")
+        return 'bad hash', 400
+    _payuni_apply(info, 'notify')
     return 'OK'
 
 
 @app.route('/payuni/return', methods=['POST', 'GET'])
 def payuni_return():
-    """Customer's browser lands here after PayUni; send them to the order page."""
+    """Customer's browser lands here after PayUni. Also applies the result,
+    in case the server-to-server notify is delayed/absent (e.g. sandbox)."""
     info = payuni.verify_callback(request.form) if request.method == 'POST' else None
+    if info:
+        print(f"[payuni return] keys={list(request.form.keys())}")
+        _payuni_apply(info, 'return')
+    else:
+        print(f"[payuni return] method={request.method} form_keys={list(request.form.keys())} args={dict(request.args)}")
     order_no = _order_no_from_mtn((info or {}).get('MerTradeNo', '')) or request.args.get('no', '')
     if order_no:
         return redirect(f'/order/{order_no}?t={_order_token(order_no)}')
