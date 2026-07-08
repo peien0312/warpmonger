@@ -1155,7 +1155,9 @@ section h2::after {
 .info-page a:not(.btn),
 .checkout-success a:not(.btn),
 .account-order a:not(.btn),
-.transfer-report a:not(.btn) {
+.transfer-report a:not(.btn),
+.checkout-page a:not(.btn),
+.cart-page a:not(.btn):not(.cart-item-title) {
     color: #D9A441;
     text-decoration: none;
     border-bottom: 1px dotted #D9A441;
@@ -1166,7 +1168,9 @@ section h2::after {
 .info-page a:not(.btn):hover,
 .checkout-success a:not(.btn):hover,
 .account-order a:not(.btn):hover,
-.transfer-report a:not(.btn):hover {
+.transfer-report a:not(.btn):hover,
+.checkout-page a:not(.btn):hover,
+.cart-page a:not(.btn):not(.cart-item-title):hover {
     color: #fff;
     border-bottom-color: #fff;
     text-shadow: 0 0 8px rgba(217, 164, 65, 0.6);
