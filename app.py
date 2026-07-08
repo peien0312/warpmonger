@@ -3463,6 +3463,11 @@ def _payuni_apply(info, source):
             _pos_api('POST', f'/api/storefront/orders/{order_no}/payment',
                      {'payment_status': '待付款',
                       'payment_note': _payuni_pending_note(info)})
+        elif ts == '4':        # ATM/CVS code expired unpaid
+            _pos_api('POST', f'/api/storefront/orders/{order_no}/payment',
+                     {'payment_status': '待付款',
+                      'payment_note': 'PayUni 付款逾期（代碼失效，可重新付款）'})
+            print(f"[payuni {source}] {order_no} 付款逾期")
     except Exception as e:
         print(f"[payuni {source}] update failed: {e}")
 
