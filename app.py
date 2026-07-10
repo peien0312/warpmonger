@@ -140,6 +140,7 @@ TRANSLATIONS = {
         'new': 'New',
         'in_stock': 'In Stock',
         'show_deprecated': 'Show Discontinued',
+        'factions': 'Factions',
         'out_of_stock': 'Out of Stock',
         'quantity': 'Quantity',
         'menu': 'Menu',
@@ -241,6 +242,7 @@ TRANSLATIONS = {
         'new': '新品',
         'in_stock': '有庫存',
         'show_deprecated': '顯示絕版商品',
+        'factions': '派系',
         'out_of_stock': '缺貨',
         'quantity': '數量',
         'menu': '選單',
@@ -1429,6 +1431,24 @@ def products_page():
     # Get products with search filter
     products = get_products(category, search if search else None)
 
+    # Faction sub-nav: which curated faction tags appear in THIS category
+    # (computed category-wide, independent of the active tag, so you can switch
+    # factions). Only on category pages.
+    faction_nav = []
+    if category:
+        import posdb as _posdb
+        faction_set = set(_posdb.get_faction_tags())
+        if faction_set:
+            counts = {}
+            for p in get_products(category):
+                if not show_deprecated and p.get('availability') == 'inquiry':
+                    continue
+                for t in p.get('tags', []):
+                    if t in faction_set:
+                        counts[t] = counts.get(t, 0) + 1
+            faction_nav = sorted(({'tag': t, 'count': n} for t, n in counts.items()),
+                                 key=lambda x: -x['count'])
+
     # Filter by tag if specified
     if tag:
         products = [p for p in products if tag in p.get('tags', [])]
@@ -1480,6 +1500,7 @@ def products_page():
                          show_new_arrival=show_new_arrival,
                          show_in_stock=show_in_stock,
                          show_deprecated=show_deprecated,
+                         faction_nav=faction_nav,
                          current_sort=sort_by)
 
     # Cache simple pages

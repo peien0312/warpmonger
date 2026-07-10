@@ -46,6 +46,18 @@
                 {% endfor %}
             </ul>
 
+            {% if faction_nav %}
+            <h3 style="margin-top: 2rem;">{{ t.factions }}</h3>
+            <ul class="category-list">
+                <li><a href="{{ url_prefix }}/products?category={{ current_category }}"
+                       {% if not current_tag %}class="active"{% endif %}>{{ t.all_products }}</a></li>
+                {% for f in faction_nav %}
+                <li><a href="{{ url_prefix }}/products?category={{ current_category }}&tag={{ f.tag|urlencode }}"
+                       {% if current_tag == f.tag %}class="active"{% endif %}>{{ f.tag|tag_label }} ({{ f.count }})</a></li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+
             <script>
             function toggleFilter(filterType) {
                 const url = new URL(window.location);

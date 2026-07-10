@@ -315,6 +315,13 @@ def get_featured_tags():
     return tags
 
 
+def get_faction_tags():
+    """Curated allowlist of faction / 軍團 tag names, used to build the
+    per-category sub-nav (which of these appear in a given category)."""
+    tags = _setting_json("faction_tags", [])
+    return tags if isinstance(tags, list) else []
+
+
 # ----- editorial posts -----
 
 def _posts(ptype):
