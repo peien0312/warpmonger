@@ -11,7 +11,7 @@
     {% elif product.availability == 'orderable' %}
     <span class="badge badge-orderable" title="可向原廠訂購，下單後約 2-3 週到貨">可訂購｜約2-3週</span>
     {% elif product.availability == 'inquiry' %}
-    <span class="badge badge-inquiry" title="停產／絕版品，送出後由阿北報價，結帳時不需先付款">絕版詢價</span>
+    <span class="badge badge-inquiry" title="停產／絕版品，阿北可協助代尋，送出詢價後報價，結帳時不需先付款">絕版・可代尋</span>
     {% endif %}
 {%- endmacro %}
 
@@ -26,6 +26,6 @@
     {% elif product.availability == 'orderable' %}
     <p class="availability-note">可訂購，下單後約 2-3 週到貨。</p>
     {% elif product.availability == 'inquiry' %}
-    <p class="availability-note">絕版品，價格與貨況請送出詢價清單，阿北會儘快回覆。</p>
+    <p class="availability-note">絕版停產品，阿北可協助代尋──貨況與價格請送出詢價清單，會儘快回覆，結帳時不需先付款。</p>
     {% endif %}
 {%- endmacro %}

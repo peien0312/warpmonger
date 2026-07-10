@@ -213,7 +213,12 @@ def _load_products():
         })
     conn.close()
 
-    products.sort(key=lambda p: (-p["order_weight"], p["title"].lower()))
+    # order_weight (curation) wins; then buyable items ahead of 詢價/絕版; then title.
+    _avail_rank = {"in_stock": 0, "incoming": 0, "preorder": 0, "orderable": 0,
+                   "inquiry": 1}
+    products.sort(key=lambda p: (-p["order_weight"],
+                                 _avail_rank.get(p["availability"], 0),
+                                 p["title"].lower()))
     cache["products"] = products
     return products
 
