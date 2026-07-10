@@ -27,7 +27,10 @@ POS_MEDIA = os.path.abspath(POS_MEDIA)
 _lock = threading.Lock()
 _cache = {"stamp": None}
 
-KIND_ORDER = "CASE kind WHEN 'cover' THEN 0 WHEN 'gallery' THEN 1 ELSE 2 END"
+# gallery-family first (cover=first, then gallery by sort_order), editor last.
+# 'cover'/'detail' are legacy kinds tolerated until the POS image-kind migration.
+KIND_ORDER = ("CASE kind WHEN 'editor' THEN 2 WHEN 'detail' THEN 2 "
+              "WHEN 'cover' THEN 0 ELSE 1 END")
 
 
 def _norm(text):
@@ -129,7 +132,8 @@ def _load_products():
         name = os.path.basename(r["filename"] or "")
         if not name:
             continue
-        bucket = detail if r["kind"] == "detail" else gallery
+        # editor (formerly 'detail') -> the rich section; cover/gallery -> gallery
+        bucket = detail if r["kind"] in ("detail", "editor") else gallery
         bucket.setdefault(r["product_id"], []).append(name)
 
     inv = {}  # product_id -> {location: qty}
