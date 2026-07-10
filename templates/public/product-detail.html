@@ -7,7 +7,7 @@
 
 {% block og_type %}product{% endblock %}
 {% block og_title %}{{ product.zhtw_name if is_zhtw and product.zhtw_name else product.title }} - {% if is_zhtw and product.final_price %}NT${{ product.final_price|ntd }}{% else %}${{ "%.2f"|format(product.price) }}{% endif %}{% endblock %}
-{% block og_description %}{{ product.description[:200] }}{% endblock %}
+{% block og_description %}{{ (product.description_plain or product.description or '')[:200] }}{% endblock %}
 {% if product.images %}
 {% block og_image %}{% for img in product.images if not img.lower().endswith(('.mp4', '.mov', '.avi', '.webm')) %}{% if loop.first %}{{ request.url_root }}static/images/products/{{ product.category }}/{{ product.slug }}/{{ img }}{% endif %}{% endfor %}{% endblock %}
 {% endif %}
@@ -18,7 +18,7 @@
   "@context": "https://schema.org/",
   "@type": "Product",
   "name": "{{ product.zhtw_name if is_zhtw and product.zhtw_name else product.title }}",
-  "description": "{{ product.description|replace('\n', ' ')|replace('"', '\\"') }}",
+  "description": "{{ (product.description_plain or product.description or '')|replace('\n', ' ')|replace('"', '\\"') }}",
   {% if product.images %}
   "image": [
     {% for image in product.images if not image.lower().endswith(('.mp4', '.mov', '.avi', '.webm')) %}

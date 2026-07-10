@@ -1528,6 +1528,12 @@ def product_detail(category, slug):
         _desc = _en or _zh or product.get('description') or ''
     description_with_codex = process_codex_links(_desc)
     product['description_html'] = markdown.markdown(description_with_codex)
+    # Plain, crosslink-stripped text for meta/schema (og:description, JSON-LD):
+    # [[Term]] / [[target|Display]] -> the readable name, newlines -> spaces.
+    import re as _re_meta
+    _plain = _re_meta.sub(r'\[\[([^\]|]+)(?:\|([^\]]+))?\]\]',
+                          lambda m: m.group(2) or m.group(1), _desc)
+    product['description_plain'] = " ".join(_plain.split())
 
     # Get category name for display
     cat_obj = get_category(category)
