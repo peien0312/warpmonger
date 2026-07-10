@@ -616,6 +616,36 @@ section h2::after {
     box-shadow: 0 0 10px rgba(110, 75, 42, 0.5);
 }
 
+/* Faction sub-nav nested under the active category */
+.faction-sublist {
+    list-style: none;
+    margin: 8px 0 4px 14px;
+    padding-left: 10px;
+    border-left: 1px solid #6E4B2A;
+}
+.faction-sublist li { margin-bottom: 4px; }
+.faction-sublist a {
+    display: block;
+    padding: 5px 10px;
+    color: #C9BCA3;
+    text-decoration: none;
+    border-radius: 2px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+    text-transform: none;
+    transition: all 0.2s;
+    border: 1px solid transparent;
+}
+.faction-sublist a:hover,
+.faction-sublist a.active {
+    background: #342A21;
+    color: #fff;
+    border-color: #D9A441;
+}
+.faction-en { color: #8FA3B8; font-weight: 400; }
+.faction-count { color: #948669; font-weight: 400; font-size: 0.72rem; }
+
 .products-header {
     margin-bottom: 30px;
 }
