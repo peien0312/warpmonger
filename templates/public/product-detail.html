@@ -202,9 +202,6 @@
             {# Product badges #}
             <div class="product-badges-detail">
                 {{ avail.badge(product) }}
-                {% if product.is_on_sale %}
-                <span class="badge badge-sale">{{ t.sale }}</span>
-                {% endif %}
                 {% if product.is_new_arrival %}
                 <span class="badge badge-new">{{ t.new }}</span>
                 {% endif %}
@@ -231,13 +228,7 @@
                     {% endif %}
                     {{ avail.note(product) }}
                 {% else %}
-                    {% if product.is_on_sale and product.sale_price > 0 %}
-                    <p class="price">
-                        <span class="original-price">${{ "%.2f"|format(product.price) }}</span>
-                        <span class="sale-price">${{ "%.2f"|format(product.sale_price) }}</span>
-                        <span class="savings">Save ${{ "%.2f"|format(product.price - product.sale_price) }}</span>
-                    </p>
-                    {% elif product.price %}
+                    {% if product.price %}
                     <p class="price">${{ "%.2f"|format(product.price) }}</p>
                     {% elif product.final_price %}
                     <p class="price">NT${{ product.final_price|ntd }}</p>

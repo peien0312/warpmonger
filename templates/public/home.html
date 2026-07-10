@@ -158,61 +158,6 @@
 </section>
 {% endif %}
 
-{% if on_sale %}
-<section class="on-sale">
-    <div class="container">
-        <h2>{{ t.on_sale }}</h2>
-        <div class="products-grid">
-            {% for product in on_sale %}
-            <div class="product-card">
-                <a href="{{ url_prefix }}/products/{{ product.category }}/{{ product.slug }}">
-                    <div class="product-image-container">
-                        {% if product.images %}
-                        <img src="/static/images/products/{{ product.category }}/{{ product.slug }}/thumb_{{ product.images[0].rsplit('.', 1)[0] }}.jpg"
-                             alt="{{ product.title }} - Premium action figure - ${{ '%.2f'|format(product.price) }}"
-                             loading="lazy">
-                        {% else %}
-                        <div class="product-placeholder">{{ t.no_image }}</div>
-                        {% endif %}
-
-                        <div class="product-badges">
-                            <span class="badge badge-sale">{{ t.sale }}</span>
-                        </div>
-                    </div>
-
-                    <h3>{{ product.zhtw_name if is_zhtw and product.zhtw_name else product.title }}</h3>
-                    <p class="card-sub">{% if product.id %}<span class="card-sku">{{ product.id }}</span>{% endif %}{% if product.zhtw_name and product.title and product.title != product.zhtw_name %}<span class="card-sub-text">{{ product.title }}</span>{% endif %}</p>
-
-                    {% if is_zhtw %}
-                        {% if product.final_price %}
-                        <p class="price">
-                            {% if product.member_price and product.member_price < product.final_price %}
-                            <span class="list-price">NT${{ product.final_price|ntd }}</span>
-                            NT${{ product.member_price|ntd }} <span class="member-tag">會員價</span>
-                            {% else %}NT${{ product.final_price|ntd }}{% endif %}{% if product.is_pre_order %} <span class="preorder-tag">預購價</span>{% endif %}
-                        </p>
-                        {% endif %}
-                    {% else %}
-                        {% if product.sale_price > 0 %}
-                        <p class="price">
-                            <span class="original-price">${{ "%.2f"|format(product.price) }}</span>
-                            <span class="sale-price">${{ "%.2f"|format(product.sale_price) }}</span>
-                        </p>
-                        {% elif product.price %}
-                        <p class="price">${{ "%.2f"|format(product.price) }}</p>
-                        {% elif product.final_price %}
-                        <p class="price">NT${{ product.final_price|ntd }}</p>
-                        {% endif %}
-                    {% endif %}
-                </a>
-            </div>
-            {% endfor %}
-        </div>
-        <a href="{{ url_prefix }}/products?on_sale=true" class="btn btn-secondary">{{ t.view_all_sale }}</a>
-    </div>
-</section>
-{% endif %}
-
 <section class="featured-products">
     <div class="container">
         <h2>{{ t.featured }}</h2>

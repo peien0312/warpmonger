@@ -17,11 +17,6 @@
                     {{ t.pre_order }}
                 </label>
                 <label class="filter-checkbox">
-                    <input type="checkbox" id="filter-onsale" {% if show_on_sale %}checked{% endif %}
-                           onchange="toggleFilter('on_sale')">
-                    {{ t.on_sale }}
-                </label>
-                <label class="filter-checkbox">
                     <input type="checkbox" id="filter-newarrival" {% if show_new_arrival %}checked{% endif %}
                            onchange="toggleFilter('new_arrival')">
                     {{ t.new_arrivals }}
@@ -40,10 +35,10 @@
 
             <h3 style="margin-top: 2rem;">{{ t.categories }}</h3>
             <ul class="category-list">
-                <li><a href="{{ url_prefix }}/products{% if show_pre_order or show_on_sale or show_new_arrival or show_in_stock or show_deprecated %}?{% endif %}{% if show_pre_order %}pre_order=true{% endif %}{% if show_on_sale %}{% if show_pre_order %}&{% endif %}on_sale=true{% endif %}{% if show_new_arrival %}{% if show_pre_order or show_on_sale %}&{% endif %}new_arrival=true{% endif %}{% if show_in_stock %}{% if show_pre_order or show_on_sale or show_new_arrival %}&{% endif %}in_stock=true{% endif %}{% if show_deprecated %}{% if show_pre_order or show_on_sale or show_new_arrival or show_in_stock %}&{% endif %}deprecated=true{% endif %}" {% if not current_category %}class="active"{% endif %}>{{ t.all_products }}</a></li>
+                <li><a href="{{ url_prefix }}/products{% if show_pre_order or show_new_arrival or show_in_stock or show_deprecated %}?{% endif %}{% if show_pre_order %}pre_order=true{% endif %}{% if show_new_arrival %}{% if show_pre_order %}&{% endif %}new_arrival=true{% endif %}{% if show_in_stock %}{% if show_pre_order or show_new_arrival %}&{% endif %}in_stock=true{% endif %}{% if show_deprecated %}{% if show_pre_order or show_new_arrival or show_in_stock %}&{% endif %}deprecated=true{% endif %}" {% if not current_category %}class="active"{% endif %}>{{ t.all_products }}</a></li>
                 {% for category in categories %}
                 <li>
-                    <a href="{{ url_prefix }}/products?category={{ category.slug }}{% if show_pre_order %}&pre_order=true{% endif %}{% if show_on_sale %}&on_sale=true{% endif %}{% if show_new_arrival %}&new_arrival=true{% endif %}{% if show_in_stock %}&in_stock=true{% endif %}{% if show_deprecated %}&deprecated=true{% endif %}"
+                    <a href="{{ url_prefix }}/products?category={{ category.slug }}{% if show_pre_order %}&pre_order=true{% endif %}{% if show_new_arrival %}&new_arrival=true{% endif %}{% if show_in_stock %}&in_stock=true{% endif %}{% if show_deprecated %}&deprecated=true{% endif %}"
                        {% if current_category == category.slug %}class="active"{% endif %}>
                         {{ category.name }}
                     </a>

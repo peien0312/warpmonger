@@ -1385,7 +1385,6 @@ def home():
 
     # Get special sections
     new_arrivals = [p for p in all_products if p.get('is_new_arrival', False)][:4]
-    on_sale = [p for p in all_products if p.get('is_on_sale', False)][:4]
 
     posts = get_blog_posts()[:3]  # Recent posts
     featured_tags = get_featured_tags()
@@ -1394,7 +1393,6 @@ def home():
                          products=featured,
                          category_cards=category_cards,
                          new_arrivals=new_arrivals,
-                         on_sale=on_sale,
                          posts=posts,
                          featured_tags=featured_tags,
                          active_promo=active_promo)
@@ -1412,7 +1410,6 @@ def products_page():
     tag = request.args.get('tag')
     search = request.args.get('search', '').strip()
     show_pre_order = request.args.get('pre_order') == 'true'
-    show_on_sale = request.args.get('on_sale') == 'true'
     show_new_arrival = request.args.get('new_arrival') == 'true'
     show_in_stock = request.args.get('in_stock') == 'true'
     show_deprecated = request.args.get('deprecated') == 'true'
@@ -1421,7 +1418,7 @@ def products_page():
     # Check HTML cache for simple category pages (no search/tag/filters)
     from flask import g
     locale = getattr(g, 'locale', 'en')
-    is_simple_page = not tag and not search and not show_pre_order and not show_on_sale and not show_new_arrival and not show_in_stock and not show_deprecated and sort_by == 'default'
+    is_simple_page = not tag and not search and not show_pre_order and not show_new_arrival and not show_in_stock and not show_deprecated and sort_by == 'default'
     cache_key = f"html_products_{locale}_{category or 'all'}"
 
     if is_simple_page:
@@ -1439,10 +1436,6 @@ def products_page():
     # Filter by pre-order if specified
     if show_pre_order:
         products = [p for p in products if p.get('is_pre_order', False)]
-
-    # Filter by on-sale if specified
-    if show_on_sale:
-        products = [p for p in products if p.get('is_on_sale', False)]
 
     # Filter by new arrival if specified
     if show_new_arrival:
@@ -1484,7 +1477,6 @@ def products_page():
                          current_tag=tag,
                          current_search=search,
                          show_pre_order=show_pre_order,
-                         show_on_sale=show_on_sale,
                          show_new_arrival=show_new_arrival,
                          show_in_stock=show_in_stock,
                          show_deprecated=show_deprecated,

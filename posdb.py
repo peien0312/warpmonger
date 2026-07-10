@@ -152,8 +152,18 @@ def _load_products():
     """):
         waiting[r["product_id"]] = r["qty"] or 0
 
-    from datetime import date
+    from datetime import date, datetime as _dt, timedelta
     today = date.today().isoformat()
+    # 新品上架 = created within the last 30 days (manual is_new_arrival still overrides)
+    new_cutoff = _dt.now() - timedelta(days=30)
+
+    def _is_new(created):
+        if not created:
+            return False
+        try:
+            return _dt.fromisoformat(str(created)[:19]) >= new_cutoff
+        except ValueError:
+            return False
 
     products = []
     for row in cur.execute("""
@@ -193,7 +203,7 @@ def _load_products():
             "available_display": _arrival_display(row["preorder_date"]) if avail == "preorder" else "",
             "is_on_sale": bool(row["is_on_sale"]),
             "sale_price": row["sale_price_twd"] or 0,
-            "is_new_arrival": bool(row["is_new_arrival"]),
+            "is_new_arrival": bool(row["is_new_arrival"]) or _is_new(row["created_at"]),
             "id": row["sku"] or "",
             "cn_name": _norm(row["cn_name"]),
             "zhtw_name": _norm(row["zhtw_name"]),
