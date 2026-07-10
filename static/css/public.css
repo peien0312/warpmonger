@@ -1320,6 +1320,7 @@ section h2::after {
     left: 10px;
     display: flex;
     flex-direction: column;
+    align-items: flex-start;   /* each badge hugs its text, not the widest sibling */
     gap: 5px;
     z-index: 10;
 }
