@@ -1653,17 +1653,26 @@ def codex_entry_page(slug):
         _body = _zh or _en
     else:
         _body = _en or _zh
-    # Convert markdown to HTML
-    entry['content_html'] = markdown.markdown(_body)
+    # Process [[crosslinks]] in the body first, then markdown -> HTML (same as
+    # product descriptions; without this the body shows literal [[Term]]).
+    entry['content_html'] = markdown.markdown(process_codex_links(_body))
 
-    # Related products: anything tagged with this codex term (title or alias),
-    # so lore pages funnel visitors to buyable products. In-stock first.
+    # Related products, so lore pages funnel visitors to buyable products:
+    #  - tag match on the codex title/aliases (faction codexes), OR
+    #  - the codex title appearing in the product name (character codexes, e.g.
+    #    the Alpharius entry -> the Alpharius figure). In-stock first.
     terms = {entry['title'].strip().lower()}
     terms |= {str(a).strip().lower() for a in entry.get('aliases', []) if a}
-    related_products = [
-        p for p in get_products()
-        if terms & {str(t).strip().lower() for t in (p.get('tags') or [])}
-    ]
+    name_term = entry['title'].strip().lower()
+
+    def _related(p):
+        tags = {str(t).strip().lower() for t in (p.get('tags') or [])}
+        if terms & tags:
+            return True
+        name = f"{p.get('title') or ''} {p.get('zhtw_name') or ''}".lower()
+        return len(name_term) >= 4 and name_term in name
+
+    related_products = [p for p in get_products() if _related(p)]
     related_products.sort(key=lambda p: (not p.get('in_stock'), -(p.get('order_weight') or 0)))
     related_products = related_products[:12]
 
