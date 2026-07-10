@@ -104,11 +104,20 @@ code kept for rollback (name-rebound to `posdb.*` at the bottom of app.py).
 - Submit posts to POS `/api/storefront/orders` with the shared secret
   `STOREFRONT_API_KEY`; orders stage in POS `web_orders` for review
   (payment tracking lives there, NOT on internal orders).
-- Payments: 取貨付款 (COD) · 銀行轉帳 (先審後付 — bank info only sent after
-  order confirmation) · **LINE Pay pay-first** (`linepay.py`, v3
+- Payments: **PayUni 統一金流** (default online — 信用卡／Apple・Google Pay／
+  ATM／超商代碼, `payuni.py`; UPP with AES-256-GCM, HashInfo-signed) ·
+  取貨付款 (COD) · 銀行轉帳 (先審後付 — bank info only sent after order
+  confirmation) · **LINE Pay pay-first** (`linepay.py`, v3
   request→redirect→confirm; sandbox creds in .env — production = swap
   channel creds + `LINEPAY_API_BASE=https://api-pay.line.me`). Confirm
   marks the web order 已付款 via the POS API; cancel/error keeps the order.
+- PayUni routes: `/payuni/pay` (build+redirect to UPP), `/payuni/notify`
+  (server-to-server callback), `/payuni/return` (browser return),
+  `/payuni/refund-page` + POS-triggered `/api/internal/payuni-refund`.
+  Callbacks are HashInfo-signature-verified and idempotent (re-posts don't
+  double-mark). Sandbox vs production via `PAYUNI_SANDBOX`. Note: the
+  merchant key is still pending PayUni approval, so online checkout is
+  gated/in testing until it clears.
 
 ## Notifications & email
 
@@ -142,9 +151,11 @@ question/result content from other quiz sites.
 `LINE_LOGIN_CHANNEL_ID/SECRET` (LINE Login) ·
 `LINE_CHANNEL_ACCESS_TOKEN/SECRET` (Messaging API / OA push + webhook) ·
 `LINEPAY_CHANNEL_ID/SECRET/API_BASE` ·
-`SMTP_SERVER/PORT/USERNAME/PASSWORD` · `SMTP_FROM` · `REPLY_TO` ·
+`PAYUNI_MER_ID/HASH_KEY/HASH_IV` + `PAYUNI_SANDBOX` (統一金流 UPP; sandbox
+when set) · `SMTP_SERVER/PORT/USERNAME/PASSWORD` · `SMTP_FROM` · `REPLY_TO` ·
 `SHOP_EMAIL` · `BANK_TRANSFER_INFO` · optional `POS_DB` / `POS_MEDIA` /
-`MEMBERS_DB`.
+`MEMBERS_DB` · optional `SENTRY_DSN` (error monitoring) ·
+`SESSION_COOKIE_SECURE` (default on).
 
 ## Development
 

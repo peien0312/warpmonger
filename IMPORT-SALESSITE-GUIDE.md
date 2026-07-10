@@ -1,3 +1,5 @@
+> ⚠️ **LEGACY / OUTDATED** — this document describes an earlier architecture and may be inaccurate. See CLAUDE.md for the current, authoritative architecture.
+
 # Salessite Products Import Guide
 
 Import products from your old salessite structure at `/Users/peienwang/salessite/products/` including all images.

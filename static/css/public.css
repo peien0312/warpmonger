@@ -693,12 +693,35 @@ section h2::after {
 }
 
 .no-products {
+    grid-column: 1 / -1;
     text-align: center;
     padding: 60px 20px;
     color: #5C4B38;
     font-size: 1.1rem;
-    text-transform: uppercase;
     letter-spacing: 1px;
+}
+
+.no-products-msg {
+    margin-bottom: 24px;
+}
+
+.no-products-browse {
+    margin-top: 24px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px 20px;
+    justify-content: center;
+}
+
+.no-products-browse a {
+    color: #D9A441;
+    text-decoration: none;
+    font-size: 0.95rem;
+    letter-spacing: normal;
+}
+
+.no-products-browse a:hover {
+    text-decoration: underline;
 }
 
 /* Product Detail */
@@ -2557,6 +2580,46 @@ section h2::after {
     background: #4A3B2C;
     cursor: not-allowed;
     opacity: 0.6;
+}
+
+/* Mobile-only sticky add-to-cart bar (product detail) */
+.sticky-buy-bar { display: none; }
+
+@media (max-width: 768px) {
+    .sticky-buy-bar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 900;
+        padding: 10px 16px calc(10px + env(safe-area-inset-bottom));
+        background: #292019;
+        border-top: 1px solid #6E4B2A;
+        box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.4);
+    }
+    .sticky-buy-price {
+        color: #D9A441;
+        font-weight: 700;
+        font-size: 1.1rem;
+        white-space: nowrap;
+    }
+    .sticky-buy-tag {
+        font-size: 0.7rem;
+        color: #E6DAC4;
+        font-weight: 600;
+    }
+    .sticky-buy-btn {
+        flex: 1;
+        max-width: 55%;
+    }
+    /* keep page content clear of the fixed bar */
+    body:has(.sticky-buy-bar) .site-main {
+        padding-bottom: 76px;
+    }
 }
 
 /* Cart Toast Notification */

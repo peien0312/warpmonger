@@ -2,6 +2,7 @@ import os
 import json
 import re
 import time
+import hmac
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
@@ -94,10 +95,29 @@ class LoginRateLimiter:
 login_limiter = LoginRateLimiter(max_attempts=5, lockout_seconds=900)  # 5 attempts, 15 min lockout
 
 app = Flask(__name__)
+
+# Optional Sentry error monitoring — a no-op until BOTH the sentry_sdk package
+# and the SENTRY_DSN env var are present, so it never breaks startup.
+try:
+    import sentry_sdk
+    if os.getenv('SENTRY_DSN'):
+        sentry_sdk.init(dsn=os.getenv('SENTRY_DSN'), traces_sample_rate=0.0)
+except ImportError:
+    pass
+
 # Behind Caddy: honor X-Forwarded-Proto/Host so request.url_root is https
 from werkzeug.middleware.proxy_fix import ProxyFix
 app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
-app.secret_key = os.getenv('SECRET_KEY', 'dev-secret-key-change-in-production')
+# Fail closed: a missing SECRET_KEY would silently sign sessions with a shared
+# default, so refuse to start rather than run insecurely.
+app.secret_key = os.getenv('SECRET_KEY')
+if not app.secret_key:
+    raise RuntimeError("SECRET_KEY must be set")
+# Session cookie hardening. SECURE defaults on for prod HTTPS; local dev over
+# http can disable it via SESSION_COOKIE_SECURE=0 so cookies still stick.
+app.config['SESSION_COOKIE_HTTPONLY'] = True
+app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
+app.config['SESSION_COOKIE_SECURE'] = os.getenv('SESSION_COOKIE_SECURE', '1') != '0'
 app.config['MAX_CONTENT_LENGTH'] = 32 * 1024 * 1024  # 32MB (review photos: up to 4 phone shots/request)
 # Public web base URL (for links sent outside a request, e.g. LINE messages).
 # Env-driven so a domain change never needs a code edit.
@@ -108,6 +128,14 @@ def _auth_next(dest, is_new, method):
     ev = 'signup' if is_new else 'login'
     sep = '&' if '?' in dest else '?'
     return f"{dest}{sep}_auth={ev}&_m={method}"
+
+def _safe_next(target):
+    """Guard against open-redirect: only allow same-site relative paths.
+    Rejects protocol-relative ('//evil.com') and backslash tricks ('/\\evil')."""
+    if target and target.startswith('/') and not target.startswith('//') \
+            and not target.startswith('/\\'):
+        return target
+    return '/'
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 31536000  # 1 year cache for static files
 
 @app.after_request
@@ -513,17 +541,10 @@ def login_required(f):
     return decorated_function
 
 def load_users():
-    """Load users from JSON file"""
+    """Load users from JSON file. No file = no accounts (admin login always
+    fails); never auto-create a default backdoor account."""
     if not os.path.exists(USERS_FILE):
-        # Create default admin user
-        default_users = {
-            'admin': {
-                'password_hash': generate_password_hash('admin123'),
-                'role': 'admin'
-            }
-        }
-        save_users(default_users)
-        return default_users
+        return {}
 
     with open(USERS_FILE, 'r', encoding='utf-8') as f:
         return json.load(f)
@@ -1423,7 +1444,12 @@ def products_page():
     is_simple_page = not tag and not search and not show_pre_order and not show_new_arrival and not show_in_stock and not show_deprecated and sort_by == 'default'
     cache_key = f"html_products_{locale}_{category or 'all'}"
 
-    if is_simple_page:
+    # The rendered page embeds the header (avatar/account links) for the current
+    # member, so only anonymous visitors — who all share one identical header —
+    # may read or write this shared cache. Logged-in users always render fresh.
+    is_anon = not current_member()
+
+    if is_simple_page and is_anon:
         cached_html = html_cache.get(cache_key)
         if cached_html:
             return cached_html
@@ -1503,8 +1529,8 @@ def products_page():
                          faction_nav=faction_nav,
                          current_sort=sort_by)
 
-    # Cache simple pages
-    if is_simple_page:
+    # Cache simple pages (anonymous only — see is_anon note above)
+    if is_simple_page and is_anon:
         html_cache.set(cache_key, html)
 
     return html
@@ -3251,6 +3277,14 @@ def api_update_featured_products():
 
 POS_API_URL = os.environ.get('POS_API_URL', 'http://127.0.0.1:8000')
 STOREFRONT_API_KEY = os.environ.get('STOREFRONT_API_KEY', '')
+
+def _valid_storefront_key(submitted):
+    """Timing-safe check of the X-Storefront-Key header against the shared
+    secret. False if either side is empty (no key configured = deny all)."""
+    if not submitted or not STOREFRONT_API_KEY:
+        return False
+    return hmac.compare_digest(submitted, STOREFRONT_API_KEY)
+
 BANK_TRANSFER_INFO = os.environ.get(
     'BANK_TRANSFER_INFO',
     '兆豐國際商業銀行 民生分行（銀行代碼 017）\n帳號：03609026033\n戶名：阿北的店')
@@ -3811,7 +3845,7 @@ def auth_google_callback():
         'google', info['sub'], info.get('email'), info.get('name'), info.get('picture'))
     session.permanent = True
     session['member_id'] = member['id']
-    return redirect(_auth_next(session.pop('login_next', '/') or '/', member.get('_is_new'), 'google'))
+    return redirect(_auth_next(_safe_next(session.pop('login_next', '/')), member.get('_is_new'), 'google'))
 
 
 LINE_LOGIN_CHANNEL_ID = os.environ.get('LINE_LOGIN_CHANNEL_ID', '')
@@ -3889,7 +3923,7 @@ def auth_line_callback():
     memberdb.set_line_user(member['id'], prof['userId'])
     session.permanent = True
     session['member_id'] = member['id']
-    return redirect(_auth_next(session.pop('login_next', '/') or '/', member.get('_is_new'), 'line'))
+    return redirect(_auth_next(_safe_next(session.pop('login_next', '/')), member.get('_is_new'), 'line'))
 
 
 @app.route('/auth/logout')
@@ -4048,7 +4082,7 @@ def _review_api_dict(r):
 @app.route('/api/internal/reviews/pending', methods=['GET'])
 def api_internal_reviews_pending():
     """POS moderation queue: reviews awaiting approval. Shared-secret auth."""
-    if request.headers.get('X-Storefront-Key') != STOREFRONT_API_KEY or not STOREFRONT_API_KEY:
+    if not _valid_storefront_key(request.headers.get('X-Storefront-Key')):
         return jsonify({'error': 'bad key'}), 401
     out = [_review_api_dict(r) for r in memberdb.pending_reviews()]
     return jsonify({'reviews': out, 'count': len(out)})
@@ -4057,7 +4091,7 @@ def api_internal_reviews_pending():
 @app.route('/api/internal/reviews/list', methods=['GET'])
 def api_internal_reviews_list():
     """POS review history: reviews by status (default all), newest first."""
-    if request.headers.get('X-Storefront-Key') != STOREFRONT_API_KEY or not STOREFRONT_API_KEY:
+    if not _valid_storefront_key(request.headers.get('X-Storefront-Key')):
         return jsonify({'error': 'bad key'}), 401
     status = (request.args.get('status') or 'all').strip().lower()
     if status not in ('all', 'pending', 'approved', 'rejected'):
@@ -4070,7 +4104,7 @@ def api_internal_reviews_list():
 @app.route('/api/internal/reviews/<int:review_id>/<action>', methods=['POST'])
 def api_internal_review_action(review_id, action):
     """POS moderation: approve or reject a pending review. Shared-secret auth."""
-    if request.headers.get('X-Storefront-Key') != STOREFRONT_API_KEY or not STOREFRONT_API_KEY:
+    if not _valid_storefront_key(request.headers.get('X-Storefront-Key')):
         return jsonify({'error': 'bad key'}), 401
     status = {'approve': 'approved', 'reject': 'rejected'}.get(action)
     if not status:
@@ -4086,7 +4120,7 @@ def api_internal_notify():
     """POS -> customer notification. Resolves the best channel:
     member LINE binding (matched by phone/email) first, email fallback.
     Auth: same shared secret as the storefront API."""
-    if request.headers.get('X-Storefront-Key') != STOREFRONT_API_KEY or not STOREFRONT_API_KEY:
+    if not _valid_storefront_key(request.headers.get('X-Storefront-Key')):
         return jsonify({'error': 'bad key'}), 401
     data = request.get_json(silent=True) or {}
     phone = (data.get('phone') or '').strip()
@@ -4267,7 +4301,7 @@ def api_internal_notify():
 @app.route('/api/internal/payuni-refund', methods=['POST'])
 def api_payuni_refund():
     """POS -> reverse a PayUni charge (trade_close 退款). Auth: storefront key."""
-    if request.headers.get('X-Storefront-Key') != STOREFRONT_API_KEY or not STOREFRONT_API_KEY:
+    if not _valid_storefront_key(request.headers.get('X-Storefront-Key')):
         return jsonify({'error': 'bad key'}), 401
     import payuni
     if not payuni.enabled():
@@ -4540,17 +4574,30 @@ def guest_order_page(order_no):
 
 @app.route('/order-lookup', methods=['GET', 'POST'])
 def order_lookup():
-    """Guest order lookup: order number + the email/phone used at checkout."""
+    """Guest order lookup: order number + the email/phone used at checkout.
+    Order numbers are sequential, so throttle guesses per IP."""
     error = None
     prefill = (request.args.get('no') or '').strip()
     if request.method == 'POST':
+        client_ip = request.headers.get('X-Forwarded-For', request.remote_addr)
+        if client_ip:
+            client_ip = client_ip.split(',')[0].strip()
+        if login_limiter.is_locked(client_ip):
+            remaining = login_limiter.get_remaining_lockout(client_ip)
+            error = f'嘗試次數過多，請於 {remaining // 60 + 1} 分鐘後再試。'
+            return render_template('public/order-lookup.html', error=error, prefill=prefill), 429
+
         order_no = (request.form.get('order_no') or '').strip()
         contact = (request.form.get('contact') or '').strip()
         import posdb as _posdb
         order = _posdb.get_web_order(order_no) if order_no else None
-        if order and contact and contact in (
-                (order.get('email') or ''), (order.get('phone') or '')):
+        matched = bool(order) and bool(contact) and (
+            hmac.compare_digest(contact, order.get('email') or '')
+            or hmac.compare_digest(contact, order.get('phone') or ''))
+        if matched:
+            login_limiter.clear(client_ip)
             return redirect('/order/' + order_no + '?t=' + _order_token(order_no))
+        login_limiter.record_failure(client_ip)
         error = '找不到符合的訂單，請確認訂單編號與 email／電話。'
         prefill = order_no
     return render_template('public/order-lookup.html', error=error, prefill=prefill)
@@ -4590,5 +4637,11 @@ def tag_label_filter(tag):
     return _posdb.get_tag_glossary().get(tag, tag)
 
 
+@app.errorhandler(404)
+def not_found(e):
+    """Branded, localized 404 page."""
+    return render_template('public/404.html'), 404
+
+
 if __name__ == '__main__':
-    app.run(debug=True, host='127.0.0.1', port=5006)
+    app.run(debug=False, host='127.0.0.1', port=5006)

@@ -146,7 +146,8 @@
                     </video>
                     {% else %}
                     <img id="main-image" src="/static/images/products/{{ product.category }}/{{ product.slug }}/{{ first_file }}"
-                         alt="{{ product.title }} - main product image">
+                         alt="{{ product.zhtw_name if is_zhtw and product.zhtw_name else product.title }}"
+                         fetchpriority="high" decoding="async">
                     {% endif %}
                 </div>
                 {% if product.images|length > 1 %}
@@ -280,9 +281,9 @@
             <!-- Add to Shopping List -->
             <div class="product-actions">
                 <div class="quantity-selector">
-                    <button type="button" class="qty-btn minus" onclick="updateQty(-1)">-</button>
-                    <input type="number" id="product-qty" value="1" min="1" max="99" onchange="validateQty()">
-                    <button type="button" class="qty-btn plus" onclick="updateQty(1)">+</button>
+                    <button type="button" class="qty-btn minus" aria-label="減少數量" onclick="updateQty(-1)">-</button>
+                    <input type="number" id="product-qty" value="1" min="1" max="99" aria-label="數量" onchange="validateQty()">
+                    <button type="button" class="qty-btn plus" aria-label="增加數量" onclick="updateQty(1)">+</button>
                 </div>
                 <button type="button" class="btn btn-primary btn-lg" id="add-to-cart"
                         data-category="{{ product.category }}"
@@ -297,10 +298,12 @@
                     {% if product.availability == 'inquiry' %}加入詢價清單{% else %}{{ t.add_to_list }}{% endif %}
                 </button>
                 <button type="button" class="btn btn-outline wish-btn" title="加入願望清單"
+                        aria-label="加入願望清單" aria-pressed="false"
                         onclick="toggleWishDetail('{{ product.id }}', this)">♡</button>
             </div>
             {% if product.availability not in ('in_stock',) %}
-            <button type="button" class="btn btn-outline notify-btn" onclick="toggleNotify('{{ product.id }}', this)">
+            <button type="button" class="btn btn-outline notify-btn" aria-label="訂閱到貨通知"
+                    onclick="toggleNotify('{{ product.id }}', this)">
                 🔔 到貨通知我
             </button>
             {% endif %}
@@ -468,6 +471,24 @@
         </div>
     </section>
     {% endif %}
+</div>
+
+<!-- Mobile-only sticky add-to-cart bar -->
+<div class="sticky-buy-bar">
+    <div class="sticky-buy-price">
+        {% if is_zhtw and product.final_price %}
+            {% if product.member_price and product.member_price < product.final_price %}
+            NT${{ product.member_price|ntd }} <span class="sticky-buy-tag">會員價</span>
+            {% else %}NT${{ product.final_price|ntd }}{% endif %}
+        {% elif product.availability == 'inquiry' %}
+            價格詢問
+        {% else %}
+            {{ t.contact_price }}
+        {% endif %}
+    </div>
+    <button type="button" class="btn btn-primary sticky-buy-btn" onclick="addToCart()">
+        {% if product.availability == 'inquiry' %}加入詢價清單{% else %}{{ t.add_to_list }}{% endif %}
+    </button>
 </div>
 
 <script>
@@ -759,6 +780,7 @@ async function _memberApi(url, sku, btn, onAdded, onRemoved) {
 function toggleWishDetail(sku, btn) {
     _memberApi('/api/wishlist', sku, btn,
         b => { b.textContent = '♥'; b.title = '已收藏';
+            b.setAttribute('aria-pressed', 'true'); b.setAttribute('aria-label', '已加入願望清單');
             if (typeof gtag === 'function') gtag('event', 'add_to_wishlist', {
                 currency: 'TWD', value: {{ product.final_price or 0 }},
                 items: [{
@@ -769,7 +791,8 @@ function toggleWishDetail(sku, btn) {
                 }]
             });
         },
-        b => { b.textContent = '♡'; b.title = '加入願望清單'; });
+        b => { b.textContent = '♡'; b.title = '加入願望清單';
+            b.setAttribute('aria-pressed', 'false'); b.setAttribute('aria-label', '加入願望清單'); });
 }
 function toggleNotify(sku, btn) {
     _memberApi('/api/notify', sku, btn,

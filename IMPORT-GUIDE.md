@@ -1,3 +1,5 @@
+> ⚠️ **LEGACY / OUTDATED** — this document describes an earlier architecture and may be inaccurate. See CLAUDE.md for the current, authoritative architecture.
+
 # Product CSV Import Guide
 
 This guide explains how to import products from your `products.csv` file into the Toy Seller website.

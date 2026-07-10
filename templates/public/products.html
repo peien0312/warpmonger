@@ -132,7 +132,7 @@
                         <div class="product-image-container">
                             {% if product.images %}
                             <img src="/static/images/products/{{ product.category }}/{{ product.slug }}/thumb_{{ product.images[0].rsplit('.', 1)[0] }}.jpg"
-                                 alt="{{ product.title }} - Premium action figure - ${{ '%.2f'|format(product.price) }}"
+                                 alt="{{ product.zhtw_name if is_zhtw and product.zhtw_name else product.title }}"
                                  loading="lazy">
                             {% else %}
                             <div class="product-placeholder">{{ t.no_image }}</div>
@@ -185,13 +185,23 @@
                 </div>
                 {% endfor %}
                 {% if not products %}
-                <p class="no-products">
-                    {% if current_search %}
-                    {{ t.no_products_search }} "{{ current_search }}"
-                    {% else %}
-                    {{ t.no_products_category }}
+                <div class="no-products">
+                    <p class="no-products-msg">
+                        {% if current_search %}
+                        {{ t.no_products_search }} "{{ current_search }}"
+                        {% else %}
+                        {{ t.no_products_category }}
+                        {% endif %}
+                    </p>
+                    <a href="{{ url_prefix }}/products" class="btn btn-primary">看全部商品</a>
+                    {% if categories %}
+                    <div class="no-products-browse">
+                        {% for category in categories[:6] %}
+                        <a href="{{ url_prefix }}/products?category={{ category.slug }}">{{ category.name }}</a>
+                        {% endfor %}
+                    </div>
                     {% endif %}
-                </p>
+                </div>
                 {% endif %}
             </div>
         </div>

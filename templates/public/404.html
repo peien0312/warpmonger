@@ -1,0 +1,23 @@
+{% extends "public/base.html" %}
+
+{% block title %}找不到頁面 | ABBEY'S TOYS 阿北玩具堂{% endblock %}
+
+{% block meta_description %}您要找的頁面不存在或已移除。回首頁或到全部商品逛逛，也可以直接搜尋想找的模型。{% endblock %}
+
+{% block content %}
+<div class="container checkout-success">
+    <h1 class="page-title">找不到頁面</h1>
+    <p>抱歉，您要找的頁面不存在、已下架或網址有誤。</p>
+
+    <form action="{{ url_prefix }}/products" method="get" class="search-form" style="max-width:420px;margin:1.5rem auto;display:flex;gap:8px;">
+        <input type="text" name="search" class="search-input" placeholder="{{ t.search_placeholder }}"
+               style="flex:1;padding:10px 14px;border:1px solid #6E4B2A;border-radius:8px;background:#292019;color:#E6DAC4;">
+        <button type="submit" class="btn btn-primary">搜尋</button>
+    </form>
+
+    <p style="margin-top:1.5rem;">
+        <a href="{{ url_prefix }}/products" class="btn btn-primary">看全部商品</a>
+        <a href="{{ url_prefix }}/" class="btn btn-secondary">回首頁</a>
+    </p>
+</div>
+{% endblock %}

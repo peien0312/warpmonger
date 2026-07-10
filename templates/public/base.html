@@ -150,6 +150,7 @@
                             id="search-input"
                             class="search-input"
                             placeholder="{{ t.search_placeholder }}"
+                            aria-label="搜尋商品"
                             autocomplete="off"
                             value="{{ current_search if current_search is defined else '' }}"
                         >
@@ -218,6 +219,7 @@
                         id="mobile-search-input"
                         class="search-input"
                         placeholder="{{ t.search_placeholder }}"
+                        aria-label="搜尋商品"
                         autocomplete="off"
                         value="{{ current_search if current_search is defined else '' }}"
                     >
@@ -304,7 +306,7 @@
         flex-wrap: wrap;
     }
     .footer-links a {
-        color: #888;
+        color: #A99A7C;
         text-decoration: none;
         font-size: 0.85rem;
     }

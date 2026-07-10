@@ -1,3 +1,5 @@
+> ⚠️ **LEGACY / OUTDATED** — this document describes an earlier architecture and may be inaccurate. See CLAUDE.md for the current, authoritative architecture.
+
 # Deployment Guide: Syncing Product Images
 
 Product images are **not tracked in git** (they're in .gitignore). Here's how to sync them to your production server.

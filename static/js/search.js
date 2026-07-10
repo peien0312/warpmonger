@@ -10,6 +10,9 @@
         return; // Search not on this page
     }
 
+    // Announce result changes to assistive tech
+    autocompleteResults.setAttribute('aria-live', 'polite');
+
     // Locale detection for zh-TW support
     const locale = (document.body && document.body.getAttribute('data-locale')) || 'en';
     const isZhtw = locale === 'zhtw';
@@ -50,14 +53,14 @@
             return;
         }
 
-        let html = '<ul class="autocomplete-list">';
+        let html = '<ul class="autocomplete-list" role="listbox" aria-label="搜尋建議">';
         suggestions.forEach((product, index) => {
             // Highlight matching text
             const displayName = getDisplayName(product);
             const highlightedName = highlightMatch(displayName, query);
 
             html += `
-                <li class="autocomplete-item" data-index="${index}" data-category="${product.category}" data-slug="${product.slug}">
+                <li class="autocomplete-item" role="option" aria-selected="false" data-index="${index}" data-category="${product.category}" data-slug="${product.slug}">
                     ${product.image ? `<img src="/static/images/products/${product.category}/${product.slug}/${product.image}" alt="${product.title}" class="autocomplete-image" onerror="this.style.display='none'">` : ''}
                     <div class="autocomplete-info">
                         <div class="autocomplete-title">${highlightedName}</div>
@@ -84,6 +87,7 @@
             item.addEventListener('mouseenter', function() {
                 removeActiveClass();
                 this.classList.add('active');
+                this.setAttribute('aria-selected', 'true');
                 currentFocus = parseInt(this.getAttribute('data-index'));
             });
         });
@@ -131,7 +135,10 @@
     // Remove active class from all items
     function removeActiveClass() {
         const items = autocompleteResults.querySelectorAll('.autocomplete-item');
-        items.forEach(item => item.classList.remove('active'));
+        items.forEach(item => {
+            item.classList.remove('active');
+            item.setAttribute('aria-selected', 'false');
+        });
     }
 
     // Add active class to current item
@@ -140,6 +147,7 @@
         removeActiveClass();
         if (currentFocus >= 0 && currentFocus < items.length) {
             items[currentFocus].classList.add('active');
+            items[currentFocus].setAttribute('aria-selected', 'true');
         }
     }
 

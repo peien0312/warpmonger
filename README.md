@@ -1,3 +1,5 @@
+> ⚠️ **LEGACY / OUTDATED** — this document describes an earlier architecture and may be inaccurate. See CLAUDE.md for the current, authoritative architecture.
+
 # Toy Seller Site
 
 A simple file-based content management system for managing product catalogs and blog posts.
