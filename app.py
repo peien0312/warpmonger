@@ -139,6 +139,7 @@ TRANSLATIONS = {
         'sale': 'Sale',
         'new': 'New',
         'in_stock': 'In Stock',
+        'show_deprecated': 'Show Discontinued',
         'out_of_stock': 'Out of Stock',
         'quantity': 'Quantity',
         'menu': 'Menu',
@@ -239,6 +240,7 @@ TRANSLATIONS = {
         'sale': '特價',
         'new': '新品',
         'in_stock': '有庫存',
+        'show_deprecated': '顯示絕版商品',
         'out_of_stock': '缺貨',
         'quantity': '數量',
         'menu': '選單',
@@ -1413,12 +1415,13 @@ def products_page():
     show_on_sale = request.args.get('on_sale') == 'true'
     show_new_arrival = request.args.get('new_arrival') == 'true'
     show_in_stock = request.args.get('in_stock') == 'true'
+    show_deprecated = request.args.get('deprecated') == 'true'
     sort_by = request.args.get('sort', 'default')  # default, price_asc, price_desc
 
     # Check HTML cache for simple category pages (no search/tag/filters)
     from flask import g
     locale = getattr(g, 'locale', 'en')
-    is_simple_page = not tag and not search and not show_pre_order and not show_on_sale and not show_new_arrival and not show_in_stock and sort_by == 'default'
+    is_simple_page = not tag and not search and not show_pre_order and not show_on_sale and not show_new_arrival and not show_in_stock and not show_deprecated and sort_by == 'default'
     cache_key = f"html_products_{locale}_{category or 'all'}"
 
     if is_simple_page:
@@ -1448,6 +1451,10 @@ def products_page():
     # Filter by in stock if specified
     if show_in_stock:
         products = [p for p in products if p.get('in_stock', True)]
+
+    # Hide 絕版/詢價 (inquiry) items by default; the 顯示絕版商品 filter shows them
+    if not show_deprecated:
+        products = [p for p in products if p.get('availability') != 'inquiry']
 
     # Sort products based on sort_by parameter
     if sort_by == 'price_asc':
@@ -1480,6 +1487,7 @@ def products_page():
                          show_on_sale=show_on_sale,
                          show_new_arrival=show_new_arrival,
                          show_in_stock=show_in_stock,
+                         show_deprecated=show_deprecated,
                          current_sort=sort_by)
 
     # Cache simple pages
