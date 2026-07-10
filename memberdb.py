@@ -82,6 +82,29 @@ def init():
             member_id INTEGER,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         );
+        CREATE TABLE IF NOT EXISTS product_reviews (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            member_id INTEGER NOT NULL REFERENCES members(id),
+            sku TEXT NOT NULL,
+            category TEXT,
+            slug TEXT,
+            product_name TEXT,
+            rating INTEGER NOT NULL,
+            title TEXT,
+            body TEXT,
+            photos TEXT,
+            verified_purchase INTEGER DEFAULT 0,
+            status TEXT DEFAULT 'pending',
+            author_name TEXT,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            reviewed_at TIMESTAMP,
+            UNIQUE(member_id, sku)
+        );
+        CREATE INDEX IF NOT EXISTS idx_reviews_sku_status
+            ON product_reviews(sku, status);
+        CREATE INDEX IF NOT EXISTS idx_reviews_status
+            ON product_reviews(status);
     """)
     # backfill identities from the legacy google_sub column
     # ("line:<uid>" rows were LINE logins, everything else Google)
@@ -496,3 +519,172 @@ def find_matching_address(member_id, fields):
           fields.get("recipient_name") or "")).fetchone()
     conn.close()
     return bool(row)
+
+
+# ----- product reviews (商品評價) -----
+
+def _review_row(r):
+    """Normalize a product_reviews row: decode photos JSON to a list."""
+    d = dict(r)
+    try:
+        d["photos"] = json.loads(d.get("photos") or "[]")
+    except Exception:
+        d["photos"] = []
+    return d
+
+
+def get_review(member_id, sku):
+    """A member's own review for a product (any status), or None."""
+    conn = _conn()
+    row = conn.execute(
+        "SELECT * FROM product_reviews WHERE member_id = ? AND sku = ?",
+        (member_id, sku)).fetchone()
+    conn.close()
+    return _review_row(row) if row else None
+
+
+def get_review_by_id(review_id):
+    conn = _conn()
+    row = conn.execute(
+        "SELECT * FROM product_reviews WHERE id = ?", (review_id,)).fetchone()
+    conn.close()
+    return _review_row(row) if row else None
+
+
+def save_review(member_id, sku, fields):
+    """Insert or update a member's review for a product. Any submit resets the
+    review to 'pending' so edits get re-moderated. Returns the saved review id.
+
+    `fields` keys: category, slug, product_name, rating (1-5), title, body,
+    photos (list of stored filenames), verified_purchase (bool), author_name.
+    """
+    try:
+        rating = int(fields.get("rating") or 0)
+    except (TypeError, ValueError):
+        rating = 0
+    if rating < 1 or rating > 5:
+        return None
+    photos = json.dumps(fields.get("photos") or [])
+    vals = (
+        fields.get("category"), fields.get("slug"), fields.get("product_name"),
+        rating, (fields.get("title") or None), (fields.get("body") or None),
+        photos, 1 if fields.get("verified_purchase") else 0,
+        fields.get("author_name"),
+    )
+    conn = _conn()
+    conn.execute("""
+        INSERT INTO product_reviews
+            (member_id, sku, category, slug, product_name, rating, title, body,
+             photos, verified_purchase, status, author_name,
+             created_at, updated_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', ?,
+                CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+        ON CONFLICT(member_id, sku) DO UPDATE SET
+            category=excluded.category, slug=excluded.slug,
+            product_name=excluded.product_name, rating=excluded.rating,
+            title=excluded.title, body=excluded.body, photos=excluded.photos,
+            verified_purchase=excluded.verified_purchase,
+            author_name=excluded.author_name,
+            status='pending', updated_at=CURRENT_TIMESTAMP, reviewed_at=NULL
+    """, (member_id, sku, *vals))
+    conn.commit()
+    row = conn.execute(
+        "SELECT id FROM product_reviews WHERE member_id = ? AND sku = ?",
+        (member_id, sku)).fetchone()
+    conn.close()
+    return row["id"] if row else None
+
+
+def approved_reviews(sku):
+    """Approved reviews for a product, newest first (verified purchases first)."""
+    conn = _conn()
+    rows = conn.execute("""
+        SELECT * FROM product_reviews
+        WHERE sku = ? AND status = 'approved'
+        ORDER BY verified_purchase DESC, id DESC
+    """, (sku,)).fetchall()
+    conn.close()
+    return [_review_row(r) for r in rows]
+
+
+def review_stats(sku):
+    """Aggregate rating for a product: {count, average} over approved reviews."""
+    conn = _conn()
+    row = conn.execute("""
+        SELECT COUNT(*) AS count, AVG(rating) AS average
+        FROM product_reviews WHERE sku = ? AND status = 'approved'
+    """, (sku,)).fetchone()
+    conn.close()
+    count = row["count"] or 0
+    avg = round(row["average"], 1) if row["average"] is not None else None
+    return {"count": count, "average": avg}
+
+
+def review_stats_bulk(skus):
+    """{sku: {count, average}} for many products (approved only)."""
+    skus = [s for s in (skus or []) if s]
+    if not skus:
+        return {}
+    conn = _conn()
+    ph = ",".join("?" * len(skus))
+    rows = conn.execute(f"""
+        SELECT sku, COUNT(*) AS count, AVG(rating) AS average
+        FROM product_reviews WHERE status = 'approved' AND sku IN ({ph})
+        GROUP BY sku
+    """, skus).fetchall()
+    conn.close()
+    return {r["sku"]: {"count": r["count"],
+                       "average": round(r["average"], 1) if r["average"] is not None else None}
+            for r in rows}
+
+
+def pending_reviews(limit=100):
+    """Reviews awaiting moderation, oldest first (FIFO queue)."""
+    conn = _conn()
+    rows = conn.execute("""
+        SELECT pr.*, m.email AS member_email, m.name AS member_name
+        FROM product_reviews pr JOIN members m ON m.id = pr.member_id
+        WHERE pr.status = 'pending'
+        ORDER BY pr.id ASC LIMIT ?
+    """, (limit,)).fetchall()
+    conn.close()
+    return [_review_row(r) for r in rows]
+
+
+def reviews_by_status(status=None, limit=200):
+    """Reviews for moderation history, newest first. status=None returns all
+    statuses; otherwise filter to 'pending'|'approved'|'rejected'."""
+    conn = _conn()
+    if status:
+        rows = conn.execute("""
+            SELECT pr.*, m.email AS member_email, m.name AS member_name
+            FROM product_reviews pr JOIN members m ON m.id = pr.member_id
+            WHERE pr.status = ? ORDER BY pr.id DESC LIMIT ?
+        """, (status, limit)).fetchall()
+    else:
+        rows = conn.execute("""
+            SELECT pr.*, m.email AS member_email, m.name AS member_name
+            FROM product_reviews pr JOIN members m ON m.id = pr.member_id
+            ORDER BY pr.id DESC LIMIT ?
+        """, (limit,)).fetchall()
+    conn.close()
+    return [_review_row(r) for r in rows]
+
+
+def set_review_status(review_id, status):
+    """Moderator action: 'approved' or 'rejected'. Returns the updated review."""
+    if status not in ("approved", "rejected", "pending"):
+        return None
+    conn = _conn()
+    cur = conn.execute("""
+        UPDATE product_reviews SET status = ?, reviewed_at = CURRENT_TIMESTAMP
+        WHERE id = ?
+    """, (status, review_id))
+    conn.commit()
+    changed = cur.rowcount
+    row = conn.execute(
+        "SELECT * FROM product_reviews WHERE id = ?", (review_id,)).fetchone()
+    conn.close()
+    if not changed or not row:
+        return None
+    return _review_row(row)

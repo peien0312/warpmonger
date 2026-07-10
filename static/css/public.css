@@ -1811,6 +1811,11 @@ section h2::after {
     top: 100%;
     left: 0;
     right: 0;
+    /* the header search box is often squeezed narrow by the nav; give the
+       dropdown a readable minimum so product names aren't clipped to "阿…".
+       min-width grows the panel rightward from the input's left edge. */
+    min-width: 400px;
+    max-width: 90vw;
     background: #292019;
     border: 2px solid #6E4B2A;
     border-radius: 2px;
@@ -3647,6 +3652,35 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
     border-radius: 4px;
 }
 .product-editor-images img + img { margin-top: 10px; }
+/* collapse the long detail-image strip so reviews are reachable */
+.editor-images-clip {
+    position: relative;
+    max-height: 620px;
+    overflow: hidden;
+}
+.editor-images-clip.open { max-height: none; }
+.editor-images-clip:not(.open)::after {
+    content: "";
+    position: absolute;
+    left: 0; right: 0; bottom: 0;
+    height: 140px;
+    background: linear-gradient(to bottom, rgba(30, 23, 18, 0), #1E1712);
+    pointer-events: none;
+}
+.editor-images-toggle {
+    display: block;
+    margin: 16px auto 0;
+    padding: 9px 26px;
+    background: #292019;
+    color: #D9A441;
+    border: 1px solid #6E4B2A;
+    border-radius: 4px;
+    cursor: pointer;
+    font-family: 'Noto Sans TC', sans-serif;
+    font-size: 0.92rem;
+    transition: background 0.2s;
+}
+.editor-images-toggle:hover { background: #342A21; }
 
 .product-en-name {
     color: #948669;
@@ -3895,3 +3929,172 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
     white-space: nowrap;
 }
 .dev-notice .btn-line:hover { background: #05a948; }
+
+/* ============================================================
+   商品評價 Product Reviews
+   Stained-glass palette: card #342A21, amber #D9A441,
+   parchment #E6DAC4, lead #17100B, glass blue #8FA3B8
+   ============================================================ */
+.product-reviews {
+    margin: 48px 0;
+    padding-top: 8px;
+}
+.reviews-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+/* keep 商品評價 on one line — the flex parent was squeezing the title */
+.reviews-head .section-title {
+    flex-shrink: 0;
+    white-space: nowrap;
+}
+.reviews-summary {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.reviews-avg {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #D9A441;
+    font-family: 'Cinzel', serif;
+}
+.reviews-count { color: #B8A88F; font-size: .95rem; }
+.reviews-empty { color: #B8A88F; }
+.reviews-empty a { color: #D9A441; }
+
+/* inline rating badge shown near the product title */
+.rating-badge-inline {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin: 8px 0 2px;
+    text-decoration: none;
+    color: #E6DAC4;
+}
+.rating-badge-inline .stars { font-size: 1rem; }
+.rating-badge-inline .rb-avg { font-weight: 700; color: #D9A441; }
+.rating-badge-inline .rb-count { color: #B8A88F; font-size: .88rem; }
+.rating-badge-inline:hover .rb-count { color: #D9A441; }
+
+/* anchor targets clear the sticky header */
+.product-reviews, .review-write { scroll-margin-top: 90px; }
+.review-write { margin: 32px 0; }
+.reviews-cta { margin-top: 18px; }
+.reviews-cta a { color: #D9A441; text-decoration: none; font-size: .95rem; }
+.reviews-cta a:hover { text-decoration: underline; }
+
+/* stars */
+.stars { display: inline-flex; letter-spacing: 1px; }
+.stars .star { color: #4a3d30; }
+.stars .star.on { color: #D9A441; }
+.stars-lg { font-size: 1.35rem; }
+
+/* review list */
+.review-list { list-style: none; padding: 0; margin: 24px 0 0; }
+.review-item {
+    padding: 18px 0;
+    border-top: 1px solid #342A21;
+}
+.review-item-head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 6px;
+}
+.review-author { font-weight: 600; color: #E6DAC4; }
+.verified-badge {
+    font-size: .72rem;
+    color: #1E1712;
+    background: #7FB27A;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-weight: 700;
+}
+.review-date { color: #8a7c68; font-size: .82rem; margin-left: auto; }
+.review-title { font-weight: 600; color: #E6DAC4; margin: 4px 0; }
+.review-body { color: #cbbfa8; line-height: 1.7; margin: 4px 0; white-space: pre-wrap; }
+.review-item-photos { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+.review-item-photos img {
+    width: 84px; height: 84px; object-fit: cover;
+    border-radius: 6px; cursor: pointer;
+    border: 1px solid #4a3d30;
+    transition: transform .15s;
+}
+.review-item-photos img:hover { transform: scale(1.04); }
+
+/* submit / edit form */
+.review-form {
+    background: #292019;
+    border: 1px solid #342A21;
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 8px;
+}
+.review-form h3 { margin: 0 0 8px; color: #D9A441; font-family: 'Cinzel', serif; }
+.review-note { color: #B8A88F; font-size: .88rem; margin: 0 0 12px; }
+.review-form input[type="text"],
+.review-form textarea {
+    width: 100%;
+    background: #1E1712;
+    border: 1px solid #4a3d30;
+    color: #E6DAC4;
+    border-radius: 6px;
+    padding: 10px 12px;
+    margin-top: 10px;
+    font-family: inherit;
+    box-sizing: border-box;
+}
+.review-form textarea { resize: vertical; }
+
+/* star radio input (reversed so hover fills left-to-right) */
+.star-input { display: inline-flex; flex-direction: row-reverse; gap: 2px; }
+.star-input input { display: none; }
+.star-input label {
+    font-size: 1.9rem;
+    color: #4a3d30;
+    cursor: pointer;
+    transition: color .1s;
+}
+.star-input label:hover,
+.star-input label:hover ~ label,
+.star-input input:checked ~ label { color: #D9A441; }
+
+.review-photos-field { margin-top: 12px; }
+.photo-upload-btn {
+    display: inline-block;
+    background: #342A21;
+    color: #D9A441;
+    border: 1px solid #6E4B2A;
+    padding: 8px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: .9rem;
+}
+.photo-upload-btn:hover { background: #3d3128; }
+.review-photo-preview { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+.review-photo-preview span {
+    position: relative;
+    width: 72px; height: 72px;
+}
+.review-photo-preview img {
+    width: 72px; height: 72px; object-fit: cover;
+    border-radius: 6px; border: 1px solid #4a3d30;
+}
+.review-photo-preview button {
+    position: absolute; top: -8px; right: -8px;
+    width: 20px; height: 20px; line-height: 18px;
+    border-radius: 50%; border: none;
+    background: #17100B; color: #E6DAC4;
+    cursor: pointer; font-size: 14px;
+}
+.review-form-actions { display: flex; align-items: center; gap: 14px; margin-top: 16px; }
+.review-form-msg { font-size: .88rem; }
+.review-form-msg.ok { color: #7FB27A; }
+.review-form-msg.err { color: #d98a8a; }
+.review-login-prompt { margin-bottom: 8px; }

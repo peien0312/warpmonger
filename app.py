@@ -98,7 +98,7 @@ app = Flask(__name__)
 from werkzeug.middleware.proxy_fix import ProxyFix
 app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
 app.secret_key = os.getenv('SECRET_KEY', 'dev-secret-key-change-in-production')
-app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
+app.config['MAX_CONTENT_LENGTH'] = 32 * 1024 * 1024  # 32MB (review photos: up to 4 phone shots/request)
 # Public web base URL (for links sent outside a request, e.g. LINE messages).
 # Env-driven so a domain change never needs a code edit.
 SITE_URL = os.environ.get('SITE_URL', 'https://abbeystoys.com').rstrip('/')
@@ -404,6 +404,25 @@ def inject_seo_config():
         # code change. Default keeps the current property. Set '' to disable.
         'ga4_id': os.environ.get('GA4_MEASUREMENT_ID', 'G-HYSSEZVZNK'),
     }
+
+@app.context_processor
+def inject_canonical():
+    """Canonical URL for <link rel=canonical>. Defaults to the full request URL
+    (self-referencing, unchanged). The product listing fragments into many
+    sort/filter/search combinations of the SAME products, so we canonicalize it
+    to the clean path keeping only the facets that define a distinct,
+    uniquely-titled page — category and tag. Everything else (sort, search,
+    pre_order/on_sale/new_arrival/in_stock) is dropped so those variants
+    consolidate onto the canonical instead of diluting indexing."""
+    if request.path.startswith('/admin') or request.path.startswith('/api'):
+        return {}
+    canonical = request.url
+    if request.endpoint == 'products_page':
+        from urllib.parse import urlencode
+        kept = [(k, request.args[k]) for k in ('category', 'tag')
+                if request.args.get(k)]
+        canonical = request.base_url + ('?' + urlencode(kept) if kept else '')
+    return {'canonical_url': canonical}
 
 @app.context_processor
 def inject_nav_categories():
@@ -1521,10 +1540,24 @@ def product_detail(category, slug):
     # Combine: group first, then tag matches, then rest of category (max 16 items)
     related = (group_products + tag_products + other_products)[:16]
 
+    # Reviews (商品評價): approved reviews + aggregate for this product. Keyed on
+    # product.id, matching the wishlist/notify convention. The logged-in
+    # member's own review (any status) is passed so the form can prefill/edit.
+    review_sku = product.get('id') or product.get('sku')
+    reviews = memberdb.approved_reviews(review_sku) if review_sku else []
+    review_stats = memberdb.review_stats(review_sku) if review_sku else {'count': 0, 'average': None}
+    _m = current_member()
+    my_review = memberdb.get_review(_m['id'], review_sku) if (_m and review_sku) else None
+
     return render_template('public/product-detail.html',
                          product=product,
                          category_name=category_name,
-                         related=related)
+                         related=related,
+                         reviews=reviews,
+                         review_stats=review_stats,
+                         review_sku=review_sku,
+                         my_review=my_review,
+                         review_photo_url=_review_photo_url)
 
 @public_route('/blog')
 def blog_page():
@@ -2109,6 +2142,20 @@ def api_quiz_result():
         print(f"quiz result save failed: {e}")
         return jsonify({'success': False}), 500
     return jsonify({'success': True})
+
+@app.route('/favicon.ico')
+def favicon_root():
+    """Serve favicon at the domain root — Google's favicon crawler and browsers
+    request /favicon.ico directly, regardless of the <link rel="icon"> tags."""
+    return send_from_directory(os.path.join(app.root_path, 'static'),
+                               'favicon.ico', mimetype='image/vnd.microsoft.icon')
+
+@app.route('/apple-touch-icon.png')
+@app.route('/apple-touch-icon-precomposed.png')
+def apple_touch_icon_root():
+    """Serve the apple-touch-icon at the root path (iOS/crawlers probe here)."""
+    return send_from_directory(os.path.join(app.root_path, 'static'),
+                               'favicon-192.png', mimetype='image/png')
 
 @app.route('/robots.txt')
 def robots():
@@ -3607,6 +3654,48 @@ def checkout_success():
 import memberdb
 memberdb.init()
 
+# ----- product review photos (member-uploaded, site-owned) -----
+# Stored alongside members.db under data/ so they survive deploys (deploy.sh
+# ships code only, never data/). Served by /review-photo/<file>; the POS admin
+# renders them via absolute URLs built from SITE_PUBLIC_URL.
+REVIEW_PHOTOS_DIR = os.path.join(os.path.dirname(memberdb.DB_PATH), 'review_photos')
+os.makedirs(REVIEW_PHOTOS_DIR, exist_ok=True)
+REVIEW_PHOTO_EXTS = {'jpg', 'jpeg', 'png', 'webp', 'gif', 'heic', 'heif'}
+MAX_REVIEW_PHOTOS = 4
+SITE_PUBLIC_URL = os.environ.get('SITE_PUBLIC_URL', 'https://abbeystoys.com').rstrip('/')
+
+
+def _process_review_photo(file_storage):
+    """Validate + re-encode an uploaded review photo into a safe JPEG (strips
+    EXIF/metadata, caps dimensions, neutralizes malicious payloads) plus a
+    thumbnail. Returns the stored base filename (<hex>.jpg) or None on failure."""
+    import uuid
+    fn = (file_storage.filename or '').lower()
+    ext = fn.rsplit('.', 1)[1] if '.' in fn else ''
+    if ext not in REVIEW_PHOTO_EXTS:
+        return None
+    try:
+        img = Image.open(file_storage.stream)
+        img = img.convert('RGB')
+        img.thumbnail((1600, 1600), Image.Resampling.LANCZOS)
+        base = uuid.uuid4().hex
+        img.save(os.path.join(REVIEW_PHOTOS_DIR, base + '.jpg'),
+                 'JPEG', quality=85, optimize=True)
+        thumb = img.copy()
+        thumb.thumbnail((400, 400), Image.Resampling.LANCZOS)
+        thumb.save(os.path.join(REVIEW_PHOTOS_DIR, base + '_thumb.jpg'),
+                   'JPEG', quality=82, optimize=True)
+        return base + '.jpg'
+    except Exception as e:
+        print(f"review photo process failed: {e}")
+        return None
+
+
+def _review_photo_url(filename, thumb=False):
+    """Absolute URL for a stored review photo (or its thumbnail)."""
+    name = filename[:-4] + '_thumb.jpg' if thumb and filename.endswith('.jpg') else filename
+    return f"{SITE_PUBLIC_URL}/review-photo/{name}"
+
 GOOGLE_CLIENT_ID = os.environ.get('GOOGLE_CLIENT_ID', '')
 GOOGLE_CLIENT_SECRET = os.environ.get('GOOGLE_CLIENT_SECRET', '')
 
@@ -3812,6 +3901,144 @@ def api_notify():
         return jsonify({'error': 'bad sku'}), 400
     added = memberdb.notify_toggle(member['id'], sku)
     return jsonify({'success': True, 'added': added})
+
+
+# ----- product reviews (商品評價) -----
+
+@app.route('/review-photo/<path:filename>')
+def review_photo(filename):
+    """Serve a member-uploaded review photo from data/review_photos/."""
+    name = os.path.basename(filename)
+    if not name.endswith('.jpg'):
+        return '', 404
+    return send_from_directory(REVIEW_PHOTOS_DIR, name, max_age=86400)
+
+
+@app.route('/api/reviews', methods=['POST'])
+def api_submit_review():
+    """Member submits (or edits) a product review. Multipart form: sku,
+    category, slug, rating(1-5), title, body, photos[] (files), keep(csv of
+    existing photo filenames to retain on edit). Lands as 'pending'."""
+    member = current_member()
+    if not member:
+        return jsonify({'error': 'login', 'login_url': '/login'}), 401
+    f = request.form
+    sku = (f.get('sku') or '').strip()
+    category = (f.get('category') or '').strip()
+    slug = (f.get('slug') or '').strip()
+    try:
+        rating = int(f.get('rating') or 0)
+    except (TypeError, ValueError):
+        rating = 0
+    if not sku or rating < 1 or rating > 5:
+        return jsonify({'error': 'bad', 'message': '請給 1-5 星評分'}), 400
+    title = (f.get('title') or '').strip()[:120]
+    body = (f.get('body') or '').strip()[:4000]
+
+    import posdb as _posdb
+    product = _posdb.get_product(category, slug) if category and slug else None
+    product_name = ((product or {}).get('zhtw_name')
+                    or (product or {}).get('title') or sku)
+
+    # verified purchase: does the member's order history contain this product?
+    verified = False
+    try:
+        for o in _posdb.get_member_orders(member.get('email'), member.get('phone')):
+            for it in o.get('items', []):
+                if it.get('slug') == slug and it.get('category_slug') == category:
+                    verified = True
+                    break
+            if verified:
+                break
+    except Exception as e:
+        print(f"review verified-purchase check failed: {e}")
+
+    # photos: keep chosen existing ones (validated against the member's own
+    # current review), then append newly uploaded files up to the cap.
+    existing = memberdb.get_review(member['id'], sku)
+    allowed_keep = set(existing['photos']) if existing else set()
+    photos = [p for p in (f.get('keep') or '').split(',') if p.strip() in allowed_keep]
+    photo_errors = 0
+    for fs in request.files.getlist('photos'):
+        if not fs or not fs.filename:
+            continue
+        if len(photos) >= MAX_REVIEW_PHOTOS:
+            break
+        name = _process_review_photo(fs)
+        if name:
+            photos.append(name)
+        else:
+            photo_errors += 1
+
+    rid = memberdb.save_review(member['id'], sku, {
+        'category': category, 'slug': slug, 'product_name': product_name,
+        'rating': rating, 'title': title, 'body': body, 'photos': photos,
+        'verified_purchase': verified, 'author_name': member.get('name') or '會員',
+    })
+    if not rid:
+        return jsonify({'error': 'save', 'message': '儲存失敗'}), 500
+    msg = '感謝您的評價！送出後經審核就會顯示。'
+    if photo_errors:
+        msg += f'（{photo_errors} 張照片格式不支援，已略過）'
+    return jsonify({'success': True, 'status': 'pending', 'message': msg})
+
+
+def _review_api_dict(r):
+    """Serialize a review row for the POS moderation API (absolute media URLs)."""
+    return {
+        'id': r['id'],
+        'sku': r['sku'],
+        'product_name': r.get('product_name'),
+        'product_url': (f"{SITE_PUBLIC_URL}/products/{r['category']}/{r['slug']}"
+                        if r.get('category') and r.get('slug') else None),
+        'rating': r['rating'],
+        'title': r.get('title'),
+        'body': r.get('body'),
+        'author_name': r.get('author_name'),
+        'member_email': r.get('member_email'),
+        'verified_purchase': bool(r.get('verified_purchase')),
+        'status': r.get('status'),
+        'created_at': r.get('created_at'),
+        'reviewed_at': r.get('reviewed_at'),
+        'photos': [_review_photo_url(p) for p in r.get('photos', [])],
+        'thumbs': [_review_photo_url(p, thumb=True) for p in r.get('photos', [])],
+    }
+
+
+@app.route('/api/internal/reviews/pending', methods=['GET'])
+def api_internal_reviews_pending():
+    """POS moderation queue: reviews awaiting approval. Shared-secret auth."""
+    if request.headers.get('X-Storefront-Key') != STOREFRONT_API_KEY or not STOREFRONT_API_KEY:
+        return jsonify({'error': 'bad key'}), 401
+    out = [_review_api_dict(r) for r in memberdb.pending_reviews()]
+    return jsonify({'reviews': out, 'count': len(out)})
+
+
+@app.route('/api/internal/reviews/list', methods=['GET'])
+def api_internal_reviews_list():
+    """POS review history: reviews by status (default all), newest first."""
+    if request.headers.get('X-Storefront-Key') != STOREFRONT_API_KEY or not STOREFRONT_API_KEY:
+        return jsonify({'error': 'bad key'}), 401
+    status = (request.args.get('status') or 'all').strip().lower()
+    if status not in ('all', 'pending', 'approved', 'rejected'):
+        status = 'all'
+    rows = memberdb.reviews_by_status(None if status == 'all' else status)
+    out = [_review_api_dict(r) for r in rows]
+    return jsonify({'reviews': out, 'count': len(out), 'status': status})
+
+
+@app.route('/api/internal/reviews/<int:review_id>/<action>', methods=['POST'])
+def api_internal_review_action(review_id, action):
+    """POS moderation: approve or reject a pending review. Shared-secret auth."""
+    if request.headers.get('X-Storefront-Key') != STOREFRONT_API_KEY or not STOREFRONT_API_KEY:
+        return jsonify({'error': 'bad key'}), 401
+    status = {'approve': 'approved', 'reject': 'rejected'}.get(action)
+    if not status:
+        return jsonify({'error': 'bad action'}), 400
+    updated = memberdb.set_review_status(review_id, status)
+    if not updated:
+        return jsonify({'error': 'not found'}), 404
+    return jsonify({'success': True, 'status': updated['status']})
 
 
 @app.route('/api/internal/notify', methods=['POST'])

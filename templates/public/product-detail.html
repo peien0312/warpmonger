@@ -9,7 +9,7 @@
 {% block og_title %}{{ product.zhtw_name if is_zhtw and product.zhtw_name else product.title }} - {% if is_zhtw and product.final_price %}NT${{ product.final_price|ntd }}{% else %}${{ "%.2f"|format(product.price) }}{% endif %}{% endblock %}
 {% block og_description %}{{ product.description[:200] }}{% endblock %}
 {% if product.images %}
-{% block og_image %}{{ request.url_root }}static/images/products/{{ product.category }}/{{ product.slug }}/{{ product.images[0] }}{% endblock %}
+{% block og_image %}{% for img in product.images if not img.lower().endswith(('.mp4', '.mov', '.avi', '.webm')) %}{% if loop.first %}{{ request.url_root }}static/images/products/{{ product.category }}/{{ product.slug }}/{{ img }}{% endif %}{% endfor %}{% endblock %}
 {% endif %}
 
 {% block structured_data %}
@@ -21,7 +21,7 @@
   "description": "{{ product.description|replace('\n', ' ')|replace('"', '\\"') }}",
   {% if product.images %}
   "image": [
-    {% for image in product.images %}
+    {% for image in product.images if not image.lower().endswith(('.mp4', '.mov', '.avi', '.webm')) %}
     "{{ request.url_root }}static/images/products/{{ product.category }}/{{ product.slug }}/{{ image }}"{% if not loop.last %},{% endif %}
     {% endfor %}
   ],
@@ -31,15 +31,68 @@
   {% endif %}
   "brand": {
     "@type": "Brand",
-    "name": "Toy Seller"
+    "name": "{% if (product.id or '')[:2]|upper == 'JT' %}JOYTOY{% else %}ABBEY'S TOYS 阿北玩具堂{% endif %}"
   },
   "offers": {
     "@type": "Offer",
     "url": "{{ request.url }}",
     "priceCurrency": "{% if is_zhtw %}TWD{% else %}USD{% endif %}",
     "price": "{% if is_zhtw %}{{ product.final_price or 0 }}{% elif product.is_on_sale and product.sale_price > 0 %}{{ product.sale_price }}{% else %}{{ product.price }}{% endif %}",
-    "availability": "https://schema.org/{% if product.availability == 'preorder' %}PreOrder{% elif product.availability in ('in_stock', 'incoming') %}InStock{% elif product.availability == 'orderable' %}BackOrder{% else %}LimitedAvailability{% endif %}"
-  }
+    "availability": "https://schema.org/{% if product.availability == 'preorder' %}PreOrder{% elif product.availability == 'in_stock' %}InStock{% elif product.availability in ('incoming', 'orderable') %}BackOrder{% elif product.availability == 'inquiry' %}OutOfStock{% else %}InStock{% endif %}",
+    "hasMerchantReturnPolicy": {
+      "@type": "MerchantReturnPolicy",
+      "applicableCountry": "TW",
+      "returnPolicyCategory": "https://schema.org/MerchantReturnFiniteReturnWindow",
+      "merchantReturnDays": 7,
+      "returnMethod": "https://schema.org/ReturnByMail",
+      "returnFees": "https://schema.org/ReturnShippingFees"
+    },
+    "shippingDetails": {
+      "@type": "OfferShippingDetails",
+      "shippingRate": {
+        "@type": "MonetaryAmount",
+        "value": "60",
+        "currency": "TWD"
+      },
+      "shippingDestination": {
+        "@type": "DefinedRegion",
+        "addressCountry": "TW"
+      },
+      "deliveryTime": {
+        "@type": "ShippingDeliveryTime",
+        "handlingTime": {
+          "@type": "QuantitativeValue",
+          "minValue": 1,
+          "maxValue": 2,
+          "unitCode": "DAY"
+        },
+        "transitTime": {
+          "@type": "QuantitativeValue",
+          "minValue": 1,
+          "maxValue": 3,
+          "unitCode": "DAY"
+        }
+      }
+    }
+  }{% if review_stats and review_stats.count %},
+  "aggregateRating": {
+    "@type": "AggregateRating",
+    "ratingValue": "{{ review_stats.average }}",
+    "reviewCount": "{{ review_stats.count }}",
+    "bestRating": "5",
+    "worstRating": "1"
+  },
+  "review": [
+    {% for r in reviews[:20] %}{
+      "@type": "Review",
+      "author": { "@type": "Person", "name": {{ (r.author_name or '會員')|tojson }} },
+      {% if r.created_at %}"datePublished": "{{ r.created_at[:10] }}",{% endif %}
+      "reviewRating": { "@type": "Rating", "ratingValue": "{{ r.rating }}", "bestRating": "5", "worstRating": "1" },
+      {% if r.body %}"reviewBody": {{ r.body|tojson }},{% endif %}
+      "name": {{ (r.title or '商品評價')|tojson }}
+    }{% if not loop.last %},{% endif %}
+    {% endfor %}
+  ]{% endif %}
 }
 </script>
 
@@ -136,6 +189,14 @@
             <p class="product-en-name">{{ product.title }}{% if product.id %} · {{ product.id }}{% endif %}</p>
             {% elif product.id %}
             <p class="product-en-name">{{ product.id }}</p>
+            {% endif %}
+
+            {% if review_stats.count %}
+            <a href="#reviews" class="rating-badge-inline" title="查看評價">
+                <span class="stars" aria-hidden="true">{% for i in range(1,6) %}<span class="star {{ 'on' if i <= review_stats.average|round(0,'common')|int else '' }}">★</span>{% endfor %}</span>
+                <span class="rb-avg">{{ review_stats.average }}</span>
+                <span class="rb-count">· {{ review_stats.count }} 則評價</span>
+            </a>
             {% endif %}
 
             {# Product badges #}
@@ -269,13 +330,109 @@
         </div>
     </div>
 
+    {# 商品評價 — summary + reviews list first (social proof before the marketing images) #}
+    <section class="product-reviews" id="reviews">
+        <div class="reviews-head">
+            <h2 class="section-title">商品評價</h2>
+            {% if review_stats.count %}
+            <div class="reviews-summary">
+                <span class="reviews-avg">{{ review_stats.average }}</span>
+                <span class="stars stars-lg" aria-hidden="true">{% for i in range(1,6) %}<span class="star {{ 'on' if i <= review_stats.average|round(0,'common')|int else '' }}">★</span>{% endfor %}</span>
+                <span class="reviews-count">{{ review_stats.count }} 則評價</span>
+            </div>
+            {% else %}
+            <p class="reviews-empty">還沒有評價，成為第一個分享的人吧！{% if review_sku %} <a href="#write-review">撰寫評價</a>{% endif %}</p>
+            {% endif %}
+        </div>
+
+        {# Approved reviews #}
+        {% if reviews %}
+        <ul class="review-list">
+            {% for r in reviews %}
+            <li class="review-item">
+                <div class="review-item-head">
+                    <span class="stars" aria-label="{{ r.rating }} 星">{% for i in range(1,6) %}<span class="star {{ 'on' if i <= r.rating else '' }}">★</span>{% endfor %}</span>
+                    <span class="review-author">{{ r.author_name or '會員' }}</span>
+                    {% if r.verified_purchase %}<span class="verified-badge">已購買</span>{% endif %}
+                    {% if r.created_at %}<span class="review-date">{{ r.created_at[:10] }}</span>{% endif %}
+                </div>
+                {% if r.title %}<p class="review-title">{{ r.title }}</p>{% endif %}
+                {% if r.body %}<p class="review-body">{{ r.body }}</p>{% endif %}
+                {% if r.photos %}
+                <div class="review-item-photos">
+                    {% for p in r.photos %}
+                    <img src="/review-photo/{{ p[:-4] }}_thumb.jpg" data-full="/review-photo/{{ p }}"
+                         alt="{{ (r.author_name or '會員') }} 的評價照片" loading="lazy"
+                         onclick="openReviewPhoto(this)">
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </li>
+            {% endfor %}
+        </ul>
+        {% if review_sku %}<p class="reviews-cta"><a href="#write-review">{% if my_review %}編輯你的評價{% else %}撰寫評價 ↓{% endif %}</a></p>{% endif %}
+        {% endif %}
+    </section>
+
     {% if product.detail_images %}
     <section class="product-editor-images">
         <h2 class="section-title">商品詳情</h2>
-        {% for image in product.detail_images %}
-        <img src="/static/images/products/{{ product.category }}/{{ product.slug }}/{{ image }}"
-             alt="{{ product.zhtw_name or product.title }} - 商品詳情 {{ loop.index }}" loading="lazy">
-        {% endfor %}
+        <div class="editor-images-clip" id="editor-images-clip">
+            {% for image in product.detail_images %}
+            <img src="/static/images/products/{{ product.category }}/{{ product.slug }}/{{ image }}"
+                 alt="{{ product.zhtw_name or product.title }} - 商品詳情 {{ loop.index }}" loading="lazy">
+            {% endfor %}
+        </div>
+        <button type="button" class="editor-images-toggle" id="editor-images-toggle"
+                onclick="toggleDetailImages()">展開商品詳情 ▾</button>
+    </section>
+    {% endif %}
+
+    {# Write / edit your review — kept below the details #}
+    {% if review_sku %}
+    <section class="review-write" id="write-review">
+        {% if member %}
+        <form id="review-form" class="review-form" onsubmit="return submitReview(event)"
+              data-sku="{{ review_sku }}" data-category="{{ product.category }}" data-slug="{{ product.slug }}">
+            <h3>{% if my_review %}編輯你的評價{% else %}撰寫評價{% endif %}</h3>
+            {% if my_review and my_review.status == 'pending' %}
+            <p class="review-note">你的評價審核中，通過後就會顯示。</p>
+            {% elif my_review and my_review.status == 'approved' %}
+            <p class="review-note">你已發表評價，可在下方修改（修改後需重新審核）。</p>
+            {% endif %}
+            <div class="star-input" role="radiogroup" aria-label="評分">
+                {# descending order: the row-reverse CSS fills left-to-right, which
+                   requires the highest value first in the DOM #}
+                {% for i in range(5, 0, -1) %}
+                <input type="radio" name="rating" id="star{{ i }}" value="{{ i }}" {{ 'checked' if my_review and my_review.rating == i else '' }}>
+                <label for="star{{ i }}" title="{{ i }} 星">★</label>
+                {% endfor %}
+            </div>
+            <input type="text" name="title" maxlength="120" placeholder="標題（選填）"
+                   value="{{ my_review.title or '' if my_review else '' }}">
+            <textarea name="body" rows="4" maxlength="4000" placeholder="分享你的心得（選填）">{{ my_review.body or '' if my_review else '' }}</textarea>
+            <div class="review-photos-field">
+                <label class="photo-upload-btn">📷 加入照片（最多 {{ 4 }} 張）
+                    <input type="file" name="photos" accept="image/*" multiple hidden onchange="previewReviewPhotos(this)">
+                </label>
+                <div id="review-photo-preview" class="review-photo-preview">
+                    {% if my_review and my_review.photos %}
+                    {% for p in my_review.photos %}
+                    <span class="rp-keep" data-keep="{{ p }}"><img src="/review-photo/{{ p[:-4] }}_thumb.jpg" alt="評價照片"><button type="button" onclick="removeKeepPhoto(this)">×</button></span>
+                    {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+            <div class="review-form-actions">
+                <button type="submit" class="btn btn-primary">{% if my_review %}更新評價{% else %}送出評價{% endif %}</button>
+                <span id="review-form-msg" class="review-form-msg"></span>
+            </div>
+        </form>
+        {% else %}
+        <div class="review-login-prompt">
+            <a href="/login?next={{ (url_prefix ~ '/products/' ~ product.category ~ '/' ~ product.slug)|urlencode }}#write-review" class="btn btn-outline">登入後撰寫評價</a>
+        </div>
+        {% endif %}
     </section>
     {% endif %}
 
@@ -628,6 +785,111 @@ function toggleNotify(sku, btn) {
         b => { b.textContent = '🔔 已訂閱到貨通知'; },
         b => { b.textContent = '🔔 到貨通知我'; });
 }
+
+// ----- 商品評價 reviews -----
+const MAX_REVIEW_PHOTOS = 4;
+let _reviewNewFiles = [];
+
+function _reviewPhotoCount() {
+    const kept = document.querySelectorAll('#review-photo-preview .rp-keep').length;
+    return kept + _reviewNewFiles.length;
+}
+
+function previewReviewPhotos(input) {
+    const preview = document.getElementById('review-photo-preview');
+    for (const file of Array.from(input.files)) {
+        if (_reviewPhotoCount() >= MAX_REVIEW_PHOTOS) break;
+        if (!file.type.startsWith('image/')) continue;
+        _reviewNewFiles.push(file);
+        const span = document.createElement('span');
+        span.className = 'rp-new';
+        const img = document.createElement('img');
+        img.src = URL.createObjectURL(file);
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.textContent = '×';
+        btn.onclick = function () {
+            const i = _reviewNewFiles.indexOf(file);
+            if (i > -1) _reviewNewFiles.splice(i, 1);
+            span.remove();
+        };
+        span.appendChild(img);
+        span.appendChild(btn);
+        preview.appendChild(span);
+    }
+    input.value = '';
+}
+
+function removeKeepPhoto(btn) {
+    btn.closest('.rp-keep').remove();
+}
+
+function submitReview(e) {
+    e.preventDefault();
+    const form = e.target;
+    const msg = document.getElementById('review-form-msg');
+    const rating = form.querySelector('input[name="rating"]:checked');
+    if (!rating) { msg.textContent = '請先選擇星等'; msg.className = 'review-form-msg err'; return false; }
+    const fd = new FormData();
+    fd.append('sku', form.dataset.sku);
+    fd.append('category', form.dataset.category);
+    fd.append('slug', form.dataset.slug);
+    fd.append('rating', rating.value);
+    fd.append('title', form.title.value);
+    fd.append('body', form.body.value);
+    const keep = Array.from(document.querySelectorAll('#review-photo-preview .rp-keep'))
+        .map(s => s.dataset.keep).join(',');
+    fd.append('keep', keep);
+    _reviewNewFiles.forEach(f => fd.append('photos', f));
+    const btn = form.querySelector('button[type="submit"]');
+    btn.disabled = true;
+    msg.textContent = '送出中…'; msg.className = 'review-form-msg';
+    fetch('/api/reviews', { method: 'POST', body: fd })
+        .then(r => r.json().then(d => ({ ok: r.ok, d })))
+        .then(({ ok, d }) => {
+            btn.disabled = false;
+            if (!ok) {
+                if (d.login_url) { window.location = d.login_url; return; }
+                msg.textContent = d.message || '送出失敗'; msg.className = 'review-form-msg err';
+                return;
+            }
+            msg.textContent = d.message || '已送出，等待審核'; msg.className = 'review-form-msg ok';
+            _reviewNewFiles = [];
+        })
+        .catch(() => { btn.disabled = false; msg.textContent = '送出失敗，請稍後再試'; msg.className = 'review-form-msg err'; });
+    return false;
+}
+
+function openReviewPhoto(img) {
+    const lightbox = document.getElementById('image-lightbox');
+    document.getElementById('lightbox-content').innerHTML =
+        '<img src="' + img.dataset.full + '" alt="評價照片" style="max-width:90vw;max-height:90vh;object-fit:contain;">';
+    lightbox.classList.add('active');
+    document.body.style.overflow = 'hidden';
+}
+
+// ----- collapse the 商品詳情 image strip -----
+function toggleDetailImages() {
+    const clip = document.getElementById('editor-images-clip');
+    const btn = document.getElementById('editor-images-toggle');
+    const open = clip.classList.toggle('open');
+    btn.textContent = open ? '收合商品詳情 ▲' : '展開商品詳情 ▾';
+    if (!open) clip.scrollIntoView({ block: 'nearest' });
+}
+(function () {
+    const clip = document.getElementById('editor-images-clip');
+    const btn = document.getElementById('editor-images-toggle');
+    if (!clip || !btn) return;
+    // If the strip already fits, no need to collapse — show it all, drop the button.
+    const check = function () {
+        if (clip.scrollHeight <= clip.clientHeight + 8) {
+            clip.classList.add('open');
+            btn.style.display = 'none';
+        }
+    };
+    window.addEventListener('load', check);
+    setTimeout(check, 1000);
+})();
 </script>
 <script src="/static/js/codex.js"></script>
 {% endblock %}
