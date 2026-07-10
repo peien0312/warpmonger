@@ -1656,6 +1656,10 @@ def codex_entry_page(slug):
     # Process [[crosslinks]] in the body first, then markdown -> HTML (same as
     # product descriptions; without this the body shows literal [[Term]]).
     entry['content_html'] = markdown.markdown(process_codex_links(_body))
+    # Plain, crosslink-stripped text for the meta description.
+    entry['content_plain'] = " ".join(
+        re.sub(r'\[\[([^\]|]+)(?:\|([^\]]+))?\]\]',
+               lambda m: m.group(2) or m.group(1), _body).split())
 
     # Related products, so lore pages funnel visitors to buyable products:
     #  - tag match on the codex title/aliases (faction codexes), OR
