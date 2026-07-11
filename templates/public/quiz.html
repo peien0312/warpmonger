@@ -52,6 +52,8 @@
             <p>喜歡你的結果嗎？註冊會員，領取 NT$50 首購禮。</p>
             <a id="quiz-cta-link" class="btn btn-primary" href="/login">註冊 / 登入</a>
         </div>
+        {% else %}
+        <div id="quiz-coupon-note" class="quiz-cta" style="display:none"></div>
         {% endif %}
     </div>
 </div>
@@ -268,7 +270,15 @@ function showResult(key, axisVotes, isNew) {
                 method: 'POST', headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({result_key: key, character: r.character,
                     legion: r.legion, scores: axisVotes || null})
-            });
+            }).then(resp => resp.json()).then(d => {
+                const note = document.getElementById('quiz-coupon-note');
+                if (note && d && d.coupon) {
+                    note.innerHTML = '🎁 完成測驗禮：<strong>' + (d.coupon.title || '') +
+                        ' NT$' + d.coupon.amount_twd + ' 折價券</strong>已發送到你的帳戶！' +
+                        ' <a href="/account">前往查看</a>';
+                    note.style.display = '';
+                }
+            }).catch(() => {});
         } catch (e) {}
     }
 }

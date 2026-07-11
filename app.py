@@ -2197,7 +2197,10 @@ def api_quiz_result():
     except Exception as e:
         print(f"quiz result save failed: {e}")
         return jsonify({'success': False}), 500
-    return jsonify({'success': True})
+    coupon = None
+    if session.get('member_id'):
+        coupon = _grant_quiz_coupon(session['member_id'])
+    return jsonify({'success': True, 'coupon': coupon})
 
 @app.route('/favicon.ico')
 def favicon_root():
@@ -2617,9 +2620,17 @@ def _validate_coupon(member, lines, code):
     min_spend = c.get('min_spend_twd') or 0
     if min_spend and priced < min_spend:
         return None, f'消費滿 NT${int(min_spend):,} 才能使用'
-    per_limit = c.get('per_member_limit') or 1
-    if memberdb.count_used_coupons(member['id'], code) >= per_limit:
-        return None, '您已使用過此優惠券'
+    if memberdb.count_granted_coupons(member['id'], code) == 0:
+        # no earned coupon in the wallet — typing the code only works for
+        # campaign coupons (auto_grant=none); system-granted codes
+        # (signup/review/quiz) must be earned, or they'd be free for anyone
+        if (c.get('auto_grant') or 'none') != 'none':
+            if memberdb.count_used_coupons(member['id'], code) > 0:
+                return None, '您已使用過此優惠券'
+            return None, '此優惠券由系統發放至會員帳戶，無法直接輸入'
+        per_limit = c.get('per_member_limit') or 1
+        if memberdb.count_used_coupons(member['id'], code) >= per_limit:
+            return None, '您已使用過此優惠券'
     return {'code': code, 'title': c.get('title') or code,
             'discount_twd': int(c.get('amount_twd') or 0)}, None
 
@@ -2689,6 +2700,22 @@ def _grant_signup_coupon(member_id):
         print(f"signup coupon grant failed: {e}")
 
 
+def _grant_quiz_coupon(member_id):
+    """Best-effort quiz-completion coupon, once per member. Returns
+    {title, amount_twd} when newly granted (drives the result-page note),
+    None when unconfigured or already granted."""
+    try:
+        import posdb as _posdb
+        c = _posdb.get_auto_grant_coupon('quiz')
+        if c and c.get('code') and memberdb.grant_coupon(
+                member_id, c['code'], 'quiz', ''):
+            return {'title': c.get('title') or c['code'],
+                    'amount_twd': int(c.get('amount_twd') or 0)}
+    except Exception as e:
+        print(f"quiz coupon grant failed: {e}")
+    return None
+
+
 def _grant_review_reward(review):
     """Grant the review-reward coupon for an approved, verified-purchase review.
     Exactly-once per review id via the wallet UNIQUE constraint."""
@@ -2755,7 +2782,8 @@ def checkout_submit():
             return jsonify({'success': False, 'error': coupon_err}), 400
         cdef = _posdb.get_coupon(coupon_code) or {}
         claim_id = memberdb.claim_coupon(
-            member['id'], coupon_code, cdef.get('per_member_limit') or 1)
+            member['id'], coupon_code, cdef.get('per_member_limit') or 1,
+            allow_new_claim=(cdef.get('auto_grant') or 'none') == 'none')
         if not claim_id:
             return jsonify({'success': False, 'error': '您已使用過此優惠券'}), 400
 

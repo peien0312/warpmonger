@@ -820,12 +820,24 @@ def count_used_coupons(member_id, code):
     return n
 
 
-def claim_coupon(member_id, code, per_member_limit):
-    """Atomically claim one use of `code` at checkout. Enforces the per-member
-    limit by COUNTing already-used rows inside a write transaction, then marks
-    an existing granted wallet row 'used' (preferred) or inserts a fresh
-    checkout-sourced 'used' row. Returns the claimed row id, or None if the
-    member has already hit their limit."""
+def count_granted_coupons(member_id, code):
+    """How many unspent wallet grants of `code` this member holds."""
+    conn = _conn()
+    n = conn.execute(
+        "SELECT COUNT(*) FROM member_coupons "
+        "WHERE member_id = ? AND code = ? AND status = 'granted'",
+        (member_id, (code or '').strip().upper())).fetchone()[0]
+    conn.close()
+    return n
+
+
+def claim_coupon(member_id, code, per_member_limit, allow_new_claim=True):
+    """Atomically claim one use of `code` at checkout. An earned wallet grant
+    is always spendable — one use per granted row; the grant side already
+    limits how many a member earns. With no granted row left, a fresh
+    checkout-sourced claim is allowed only for typed campaign codes
+    (`allow_new_claim`), gated by the per-member limit. Returns the claimed
+    row id, or None."""
     import uuid
     code = (code or '').strip().upper()
     if not code:
@@ -835,13 +847,6 @@ def claim_coupon(member_id, code, per_member_limit):
     conn.isolation_level = None   # manual BEGIN IMMEDIATE / COMMIT
     try:
         conn.execute("BEGIN IMMEDIATE")
-        used = conn.execute(
-            "SELECT COUNT(*) FROM member_coupons "
-            "WHERE member_id = ? AND code = ? AND status = 'used'",
-            (member_id, code)).fetchone()[0]
-        if used >= limit:
-            conn.execute("ROLLBACK")
-            return None
         row = conn.execute(
             "SELECT id FROM member_coupons "
             "WHERE member_id = ? AND code = ? AND status = 'granted' "
@@ -852,6 +857,16 @@ def claim_coupon(member_id, code, per_member_limit):
                 "UPDATE member_coupons SET status = 'used', "
                 "used_at = CURRENT_TIMESTAMP WHERE id = ?", (claim_id,))
         else:
+            if not allow_new_claim:
+                conn.execute("ROLLBACK")
+                return None
+            used = conn.execute(
+                "SELECT COUNT(*) FROM member_coupons "
+                "WHERE member_id = ? AND code = ? AND status = 'used'",
+                (member_id, code)).fetchone()[0]
+            if used >= limit:
+                conn.execute("ROLLBACK")
+                return None
             cur = conn.execute(
                 "INSERT INTO member_coupons "
                 "(member_id, code, source, source_ref, status, used_at) "
