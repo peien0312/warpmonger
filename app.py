@@ -512,7 +512,6 @@ CATEGORIES_DIR = os.path.join(CONTENT_DIR, 'categories')
 CODEX_DIR = os.path.join(CONTENT_DIR, 'codex')
 PAGES_DIR = os.path.join(CONTENT_DIR, 'pages')
 DATA_DIR = os.path.join(os.path.dirname(__file__), 'data')
-USERS_FILE = os.path.join(DATA_DIR, 'users.json')
 FEATURED_TAGS_FILE = os.path.join(DATA_DIR, 'featured_tags.json')
 FEATURED_PRODUCTS_FILE = os.path.join(DATA_DIR, 'featured_products.json')
 FEATURED_TAGS_ICONS_DIR = os.path.join(os.path.dirname(__file__), 'static', 'images', 'featured_tags')
@@ -529,30 +528,6 @@ os.makedirs(PAGES_DIR, exist_ok=True)
 os.makedirs(DATA_DIR, exist_ok=True)
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 os.makedirs(FEATURED_TAGS_ICONS_DIR, exist_ok=True)
-
-# ===== Authentication =====
-
-def login_required(f):
-    @wraps(f)
-    def decorated_function(*args, **kwargs):
-        if 'username' not in session:
-            return redirect(url_for('admin_login'))
-        return f(*args, **kwargs)
-    return decorated_function
-
-def load_users():
-    """Load users from JSON file. No file = no accounts (admin login always
-    fails); never auto-create a default backdoor account."""
-    if not os.path.exists(USERS_FILE):
-        return {}
-
-    with open(USERS_FILE, 'r', encoding='utf-8') as f:
-        return json.load(f)
-
-def save_users(users):
-    """Save users to JSON file"""
-    with open(USERS_FILE, 'w', encoding='utf-8') as f:
-        json.dump(users, f, indent=2)
 
 # ===== Utility Functions =====
 
@@ -2276,67 +2251,6 @@ def rss_feed():
 
     return Response(xml, mimetype='application/rss+xml')
 
-# ===== Routes - Admin =====
-
-@app.route('/admin/login', methods=['GET', 'POST'])
-def admin_login():
-    """Admin login page"""
-    # Get client IP (supports reverse proxy)
-    client_ip = request.headers.get('X-Forwarded-For', request.remote_addr)
-    if client_ip:
-        client_ip = client_ip.split(',')[0].strip()
-
-    if request.method == 'POST':
-        # Check if IP is locked out
-        if login_limiter.is_locked(client_ip):
-            remaining = login_limiter.get_remaining_lockout(client_ip)
-            return jsonify({
-                'success': False,
-                'error': f'Too many failed attempts. Try again in {remaining // 60} minutes.'
-            }), 429
-
-        data = request.get_json()
-        username = data.get('username')
-        password = data.get('password')
-
-        users = load_users()
-
-        if username in users and check_password_hash(users[username]['password_hash'], password):
-            login_limiter.clear(client_ip)  # Clear on successful login
-            session['username'] = username
-            return jsonify({'success': True})
-
-        # Record failed attempt
-        now_locked = login_limiter.record_failure(client_ip)
-        if now_locked:
-            return jsonify({
-                'success': False,
-                'error': 'Too many failed attempts. Locked out for 15 minutes.'
-            }), 429
-
-        return jsonify({'success': False, 'error': 'Invalid credentials'}), 401
-
-    return render_template('admin/login.html')
-
-@app.route('/admin/logout')
-def admin_logout():
-    """Admin logout"""
-    session.pop('username', None)
-    return redirect(url_for('admin_login'))
-
-@app.route('/admin')
-@login_required
-def admin_dashboard():
-    """Admin dashboard"""
-    return render_template('admin/dashboard.html')
-
-@app.route('/api/admin/clear-cache', methods=['POST'])
-@login_required
-def api_clear_cache():
-    """Clear all caches"""
-    cache.invalidate()
-    html_cache.invalidate()
-    return jsonify({'success': True, 'message': 'Cache cleared'})
 
 # ===== API Routes - Products =====
 
@@ -2355,57 +2269,8 @@ def api_get_product(category, slug):
         return jsonify({'error': 'Product not found'}), 404
     return jsonify({'product': product})
 
-@app.route('/api/products', methods=['POST'])
-@login_required
-def api_create_product():
-    """Create new product"""
-    data = request.get_json()
 
-    category = data.get('category')
-    title = data.get('title')
 
-    if not category or not title:
-        return jsonify({'error': 'Category and title required'}), 400
-
-    slug = slugify(title)
-
-    # Check if already exists
-    if get_product(category, slug):
-        return jsonify({'error': 'Product already exists'}), 400
-
-    save_product(category, slug, data)
-
-    return jsonify({'success': True, 'slug': slug, 'category': category})
-
-@app.route('/api/products/<category>/<slug>', methods=['PUT'])
-@login_required
-def api_update_product(category, slug):
-    """Update product"""
-    data = request.get_json()
-
-    if not get_product(category, slug):
-        return jsonify({'error': 'Product not found'}), 404
-
-    save_product(category, slug, data)
-
-    return jsonify({'success': True})
-
-@app.route('/api/products/<category>/<slug>', methods=['DELETE'])
-@login_required
-def api_delete_product(category, slug):
-    """Delete product"""
-    product_path = os.path.join(PRODUCTS_DIR, category, slug)
-
-    if not os.path.exists(product_path):
-        return jsonify({'error': 'Product not found'}), 404
-
-    import shutil
-    shutil.rmtree(product_path)
-
-    # Invalidate cache
-    cache.invalidate()
-    html_cache.invalidate()
-    return jsonify({'success': True})
 
 @app.route('/api/categories', methods=['GET'])
 def api_get_categories():
@@ -2421,94 +2286,9 @@ def api_get_category(slug):
         return jsonify({'error': 'Category not found'}), 404
     return jsonify({'category': category})
 
-@app.route('/api/categories', methods=['POST'])
-@login_required
-def api_create_category():
-    """Create new category"""
-    data = request.get_json()
 
-    name = data.get('name')
-    if not name:
-        return jsonify({'error': 'Name required'}), 400
 
-    slug = slugify(name)
 
-    # Check if already exists
-    if get_category(slug):
-        return jsonify({'error': 'Category already exists'}), 400
-
-    save_category(slug, data)
-
-    return jsonify({'success': True, 'slug': slug})
-
-@app.route('/api/categories/<slug>', methods=['PUT'])
-@login_required
-def api_update_category(slug):
-    """Update category"""
-    data = request.get_json()
-
-    if not get_category(slug):
-        return jsonify({'error': 'Category not found'}), 404
-
-    save_category(slug, data)
-
-    return jsonify({'success': True})
-
-@app.route('/api/categories/<slug>', methods=['DELETE'])
-@login_required
-def api_delete_category(slug):
-    """Delete category"""
-    if not get_category(slug):
-        return jsonify({'error': 'Category not found'}), 404
-
-    # Check if category has products
-    products_in_category = get_products(category=slug)
-    if products_in_category:
-        return jsonify({'error': f'Cannot delete category with {len(products_in_category)} products'}), 400
-
-    delete_category(slug)
-
-    return jsonify({'success': True})
-
-@app.route('/api/categories/<slug>/upload-icon', methods=['POST'])
-@login_required
-def api_upload_category_icon(slug):
-    """Upload category icon"""
-    if 'icon' not in request.files:
-        return jsonify({'error': 'No file provided'}), 400
-
-    file = request.files['icon']
-
-    if file.filename == '':
-        return jsonify({'error': 'No file selected'}), 400
-
-    if file and allowed_file(file.filename):
-        filename = secure_filename(file.filename)
-
-        # Create category images directory
-        images_dir = os.path.join(CATEGORIES_DIR, slug, 'images')
-        os.makedirs(images_dir, exist_ok=True)
-
-        # Save file
-        filepath = os.path.join(images_dir, filename)
-        file.save(filepath)
-
-        # Update category.md with the new icon
-        category = get_category(slug)
-        if category:
-            category['icon'] = filename
-            save_category(slug, category)
-
-        # Return relative URL
-        icon_url = f"/static/images/categories/{slug}/{filename}"
-
-        return jsonify({
-            'success': True,
-            'filename': filename,
-            'url': icon_url
-        })
-
-    return jsonify({'error': 'Invalid file type'}), 400
 
 @app.route('/api/products/autocomplete', methods=['GET'])
 def api_autocomplete():
@@ -2552,81 +2332,9 @@ def api_get_blog_post(slug):
         return jsonify({'error': 'Post not found'}), 404
     return jsonify({'post': post})
 
-@app.route('/api/blog', methods=['POST'])
-@login_required
-def api_create_blog_post():
-    """Create new blog post"""
-    data = request.get_json()
 
-    title = data.get('title')
-    if not title:
-        return jsonify({'error': 'Title required'}), 400
 
-    slug = slugify(title)
 
-    # Check if already exists
-    if get_blog_post(slug):
-        return jsonify({'error': 'Post already exists'}), 400
-
-    save_blog_post(slug, data)
-
-    return jsonify({'success': True, 'slug': slug})
-
-@app.route('/api/blog/<slug>', methods=['PUT'])
-@login_required
-def api_update_blog_post(slug):
-    """Update blog post"""
-    data = request.get_json()
-
-    if not get_blog_post(slug):
-        return jsonify({'error': 'Post not found'}), 404
-
-    save_blog_post(slug, data)
-
-    return jsonify({'success': True})
-
-@app.route('/api/blog/<slug>', methods=['DELETE'])
-@login_required
-def api_delete_blog_post(slug):
-    """Delete blog post"""
-    filepath = os.path.join(BLOG_DIR, f"{slug}.md")
-
-    if not os.path.exists(filepath):
-        return jsonify({'error': 'Post not found'}), 404
-
-    os.remove(filepath)
-
-    return jsonify({'success': True})
-
-@app.route('/api/blog/upload-image', methods=['POST'])
-@login_required
-def api_upload_blog_image():
-    """Upload image for blog post"""
-    if 'image' not in request.files:
-        return jsonify({'error': 'No file provided'}), 400
-
-    file = request.files['image']
-    if file.filename == '':
-        return jsonify({'error': 'No file selected'}), 400
-
-    if file and allowed_file(file.filename):
-        filename = secure_filename(file.filename)
-
-        # Store in static/images/blog/
-        images_dir = os.path.join(app.static_folder, 'images', 'blog')
-        os.makedirs(images_dir, exist_ok=True)
-
-        # Add timestamp to avoid filename conflicts
-        name, ext = os.path.splitext(filename)
-        filename = f"{name}_{int(time.time())}{ext}"
-
-        filepath = os.path.join(images_dir, filename)
-        file.save(filepath)
-
-        image_url = f"/static/images/blog/{filename}"
-        return jsonify({'success': True, 'url': image_url})
-
-    return jsonify({'error': 'Invalid file type'}), 400
 
 # ===== API Routes - Promotions =====
 
@@ -2644,120 +2352,10 @@ def api_get_promotion(slug):
         return jsonify({'error': 'Promotion not found'}), 404
     return jsonify({'promotion': promo})
 
-@app.route('/api/promotions', methods=['POST'])
-@login_required
-def api_create_promotion():
-    """Create new promotion"""
-    data = request.get_json()
 
-    title = data.get('title')
-    if not title:
-        return jsonify({'error': 'Title required'}), 400
 
-    slug = slugify(title)
 
-    # Check if already exists
-    if get_promotion(slug):
-        return jsonify({'error': 'Promotion already exists'}), 400
 
-    save_promotion(slug, data)
-
-    return jsonify({'success': True, 'slug': slug})
-
-@app.route('/api/promotions/<slug>', methods=['PUT'])
-@login_required
-def api_update_promotion(slug):
-    """Update promotion"""
-    data = request.get_json()
-
-    if not get_promotion(slug):
-        return jsonify({'error': 'Promotion not found'}), 404
-
-    save_promotion(slug, data)
-
-    return jsonify({'success': True})
-
-@app.route('/api/promotions/<slug>', methods=['DELETE'])
-@login_required
-def api_delete_promotion(slug):
-    """Delete promotion"""
-    import shutil
-    promo_dir = os.path.join(PROMOTIONS_DIR, slug)
-
-    if not os.path.exists(promo_dir):
-        return jsonify({'error': 'Promotion not found'}), 404
-
-    shutil.rmtree(promo_dir)
-
-    return jsonify({'success': True})
-
-@app.route('/api/promotions/upload-banner', methods=['POST'])
-@login_required
-def api_upload_promotion_banner():
-    """Upload banner image for promotion"""
-    if 'image' not in request.files:
-        return jsonify({'error': 'No file provided'}), 400
-
-    slug = request.form.get('slug')
-    if not slug:
-        return jsonify({'error': 'Slug required'}), 400
-
-    file = request.files['image']
-    if file.filename == '':
-        return jsonify({'error': 'No file selected'}), 400
-
-    if file and allowed_file(file.filename):
-        # Get file extension
-        ext = file.filename.rsplit('.', 1)[1].lower()
-
-        # Store in static/images/promotions/{slug}/
-        images_dir = os.path.join(app.static_folder, 'images', 'promotions', slug)
-        os.makedirs(images_dir, exist_ok=True)
-
-        # Remove old banners if exist
-        for old_file in os.listdir(images_dir):
-            if old_file.startswith('banner.'):
-                os.remove(os.path.join(images_dir, old_file))
-
-        # Save as banner.{timestamp}.{ext} to avoid caching
-        filename = f'banner.{int(time.time())}.{ext}'
-        filepath = os.path.join(images_dir, filename)
-        file.save(filepath)
-
-        image_url = f"/static/images/promotions/{slug}/{filename}"
-        return jsonify({'success': True, 'url': image_url})
-
-    return jsonify({'error': 'Invalid file type'}), 400
-
-@app.route('/api/promotions/upload-image', methods=['POST'])
-@login_required
-def api_upload_promotion_image():
-    """Upload content image for promotion"""
-    if 'image' not in request.files:
-        return jsonify({'error': 'No file provided'}), 400
-
-    file = request.files['image']
-    if file.filename == '':
-        return jsonify({'error': 'No file selected'}), 400
-
-    if file and allowed_file(file.filename):
-        filename = secure_filename(file.filename)
-
-        # Store in static/images/promotions/
-        images_dir = os.path.join(app.static_folder, 'images', 'promotions')
-        os.makedirs(images_dir, exist_ok=True)
-
-        # Add timestamp to avoid filename conflicts
-        name, ext = os.path.splitext(filename)
-        filename = f"{name}_{int(time.time())}{ext}"
-
-        filepath = os.path.join(images_dir, filename)
-        file.save(filepath)
-
-        image_url = f"/static/images/promotions/{filename}"
-        return jsonify({'success': True, 'url': image_url})
-
-    return jsonify({'error': 'Invalid file type'}), 400
 
 # ===== API Routes - Codex =====
 
@@ -2800,293 +2398,19 @@ def api_get_codex_entry(slug):
 
     return jsonify({'entry': entry})
 
-@app.route('/api/codex', methods=['POST'])
-@login_required
-def api_create_codex_entry():
-    """Create new codex entry"""
-    data = request.get_json()
 
-    title = data.get('title')
-    if not title:
-        return jsonify({'error': 'Title required'}), 400
 
-    slug = slugify(title)
-
-    # Check if already exists
-    if get_codex_entry(slug):
-        return jsonify({'error': 'Entry already exists'}), 400
-
-    save_codex_entry(slug, data)
-
-    return jsonify({'success': True, 'slug': slug})
-
-@app.route('/api/codex/<slug>', methods=['PUT'])
-@login_required
-def api_update_codex_entry(slug):
-    """Update codex entry"""
-    data = request.get_json()
-
-    if not get_codex_entry(slug):
-        return jsonify({'error': 'Entry not found'}), 404
-
-    save_codex_entry(slug, data)
-
-    return jsonify({'success': True})
-
-@app.route('/api/codex/<slug>', methods=['DELETE'])
-@login_required
-def api_delete_codex_entry(slug):
-    """Delete codex entry"""
-    filepath = os.path.join(CODEX_DIR, f"{slug}.md")
-
-    if not os.path.exists(filepath):
-        return jsonify({'error': 'Entry not found'}), 404
-
-    os.remove(filepath)
-
-    # Invalidate cache
-    cache.invalidate()
-    html_cache.invalidate()
-    return jsonify({'success': True})
 
 # ===== API Routes - Tags =====
 
-@app.route('/api/tags', methods=['GET'])
-@login_required
-def api_get_tags():
-    """Get all tags with their products"""
-    tags = get_all_tags()
-    products = get_products()
 
-    # Build tag -> products mapping
-    tag_products = {}
-    for tag in tags:
-        tag_name = tag['name']
-        tag_products[tag_name] = []
-        for product in products:
-            if tag_name in product.get('tags', []):
-                tag_products[tag_name].append({
-                    'slug': product['slug'],
-                    'category': product['category'],
-                    'title': product['title']
-                })
 
-    result = []
-    for tag in tags:
-        result.append({
-            'name': tag['name'],
-            'count': tag['count'],
-            'products': tag_products[tag['name']]
-        })
 
-    return jsonify({'tags': result})
 
-@app.route('/api/tags/<path:tag_name>', methods=['PUT'])
-@login_required
-def api_rename_tag(tag_name):
-    """Rename a tag across all products"""
-    data = request.get_json()
-    new_name = data.get('new_name', '').strip()
-
-    if not new_name:
-        return jsonify({'error': 'New tag name is required'}), 400
-
-    if new_name == tag_name:
-        return jsonify({'error': 'New name is the same as old name'}), 400
-
-    products = get_products()
-    updated_count = 0
-
-    for product in products:
-        if tag_name in product.get('tags', []):
-            # Read current tags
-            tags_file = os.path.join(PRODUCTS_DIR, product['category'], product['slug'], 'tags.txt')
-            if os.path.exists(tags_file):
-                with open(tags_file, 'r', encoding='utf-8') as f:
-                    tags = [line.strip() for line in f if line.strip()]
-
-                # Replace the tag
-                new_tags = [new_name if t == tag_name else t for t in tags]
-
-                # Write back
-                with open(tags_file, 'w', encoding='utf-8') as f:
-                    for t in new_tags:
-                        f.write(f"{t}\n")
-
-                updated_count += 1
-
-    # Invalidate cache
-    cache.invalidate()
-    html_cache.invalidate()
-
-    return jsonify({'success': True, 'updated_count': updated_count})
-
-@app.route('/api/tags/<path:tag_name>', methods=['DELETE'])
-@login_required
-def api_delete_tag(tag_name):
-    """Remove a tag from all products"""
-    products = get_products()
-    updated_count = 0
-
-    for product in products:
-        if tag_name in product.get('tags', []):
-            # Read current tags
-            tags_file = os.path.join(PRODUCTS_DIR, product['category'], product['slug'], 'tags.txt')
-            if os.path.exists(tags_file):
-                with open(tags_file, 'r', encoding='utf-8') as f:
-                    tags = [line.strip() for line in f if line.strip()]
-
-                # Remove the tag
-                new_tags = [t for t in tags if t != tag_name]
-
-                # Write back
-                with open(tags_file, 'w', encoding='utf-8') as f:
-                    for t in new_tags:
-                        f.write(f"{t}\n")
-
-                updated_count += 1
-
-    # Invalidate cache
-    cache.invalidate()
-    html_cache.invalidate()
-
-    return jsonify({'success': True, 'updated_count': updated_count})
-
-@app.route('/api/tags/<path:tag_name>/products', methods=['POST'])
-@login_required
-def api_add_product_to_tag(tag_name):
-    """Add a product to a tag"""
-    data = request.get_json()
-    category = data.get('category')
-    slug = data.get('slug')
-
-    if not category or not slug:
-        return jsonify({'error': 'Category and slug are required'}), 400
-
-    tags_file = os.path.join(PRODUCTS_DIR, category, slug, 'tags.txt')
-
-    # Read current tags
-    tags = []
-    if os.path.exists(tags_file):
-        with open(tags_file, 'r', encoding='utf-8') as f:
-            tags = [line.strip() for line in f if line.strip()]
-
-    # Add tag if not already present
-    if tag_name not in tags:
-        tags.append(tag_name)
-        with open(tags_file, 'w', encoding='utf-8') as f:
-            for t in tags:
-                f.write(f"{t}\n")
-
-        # Invalidate cache
-        cache.invalidate()
-    html_cache.invalidate()
-
-    return jsonify({'success': True})
-
-@app.route('/api/tags/<path:tag_name>/products/<category>/<slug>', methods=['DELETE'])
-@login_required
-def api_remove_product_from_tag(tag_name, category, slug):
-    """Remove a product from a tag"""
-    tags_file = os.path.join(PRODUCTS_DIR, category, slug, 'tags.txt')
-
-    if not os.path.exists(tags_file):
-        return jsonify({'error': 'Tags file not found'}), 404
-
-    # Read current tags
-    with open(tags_file, 'r', encoding='utf-8') as f:
-        tags = [line.strip() for line in f if line.strip()]
-
-    # Remove the tag
-    if tag_name in tags:
-        tags.remove(tag_name)
-        with open(tags_file, 'w', encoding='utf-8') as f:
-            for t in tags:
-                f.write(f"{t}\n")
-
-        # Invalidate cache
-        cache.invalidate()
-    html_cache.invalidate()
-
-    return jsonify({'success': True})
 
 # ===== API Routes - Images =====
 
-@app.route('/api/upload-image', methods=['POST'])
-@login_required
-def api_upload_image():
-    """Upload product image"""
-    if 'image' not in request.files:
-        return jsonify({'error': 'No file provided'}), 400
 
-    file = request.files['image']
-    category = request.form.get('category')
-    slug = request.form.get('slug')
-
-    if not category or not slug:
-        return jsonify({'error': 'Category and slug required'}), 400
-
-    if file.filename == '':
-        return jsonify({'error': 'No file selected'}), 400
-
-    if file and allowed_file(file.filename):
-        filename = secure_filename(file.filename)
-
-        # Create product images directory
-        images_dir = os.path.join(PRODUCTS_DIR, category, slug, 'images')
-        os.makedirs(images_dir, exist_ok=True)
-
-        # Save original
-        filepath = os.path.join(images_dir, filename)
-        file.save(filepath)
-
-        # Create thumbnail only for images, not videos
-        is_video = filename.lower().endswith(('.mp4', '.mov', '.avi', '.webm'))
-        if not is_video:
-            thumb_filename = f"thumb_{filename}"
-            thumb_path = os.path.join(images_dir, thumb_filename)
-            create_thumbnail(filepath, thumb_path)
-            thumb_url = f"/static/images/products/{category}/{slug}/{thumb_filename}"
-        else:
-            thumb_url = None
-
-        # Return relative URL
-        image_url = f"/static/images/products/{category}/{slug}/{filename}"
-
-        return jsonify({
-            'success': True,
-            'filename': filename,
-            'url': image_url,
-            'thumbnail': thumb_url
-        })
-
-    return jsonify({'error': 'Invalid file type'}), 400
-
-@app.route('/api/scan-images', methods=['GET'])
-@login_required
-def api_scan_images():
-    """Scan product images directory and return list of all images/videos"""
-    category = request.args.get('category')
-    slug = request.args.get('slug')
-
-    if not category or not slug:
-        return jsonify({'error': 'Category and slug required'}), 400
-
-    images_dir = os.path.join(PRODUCTS_DIR, category, slug, 'images')
-
-    if not os.path.exists(images_dir):
-        return jsonify({'success': True, 'images': []})
-
-    try:
-        # Get all image and video files, excluding thumbnails and hidden files
-        files = sorted([f for f in os.listdir(images_dir)
-                       if f.lower().endswith(('.jpg', '.jpeg', '.png', '.webp', '.mp4', '.mov', '.avi', '.webm'))
-                       and not f.startswith('thumb_')
-                       and not f.startswith('.')])
-
-        return jsonify({'success': True, 'images': files})
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
 
 # ===== Static Files =====
 
@@ -3154,122 +2478,14 @@ warm_cache()
 
 # ===== API Routes - Featured Tags =====
 
-@app.route('/api/featured-tags', methods=['GET'])
-@login_required
-def api_get_featured_tags():
-    """Get all featured tags"""
-    return jsonify({'featured_tags': get_featured_tags()})
 
-@app.route('/api/featured-tags', methods=['POST'])
-@login_required
-def api_create_featured_tag():
-    """Create a new featured tag"""
-    data = request.get_json()
-    name = data.get('name', '').strip()
 
-    if not name:
-        return jsonify({'error': 'Tag name is required'}), 400
 
-    tags = get_featured_tags()
 
-    # Check if already exists
-    if any(t['name'] == name for t in tags):
-        return jsonify({'error': 'Featured tag already exists'}), 400
-
-    new_tag = {
-        'name': name,
-        'icon': data.get('icon', ''),
-        'order_weight': data.get('order_weight', 0)
-    }
-    tags.append(new_tag)
-    save_featured_tags(tags)
-
-    return jsonify({'success': True, 'tag': new_tag})
-
-@app.route('/api/featured-tags/<path:tag_name>', methods=['PUT'])
-@login_required
-def api_update_featured_tag(tag_name):
-    """Update a featured tag"""
-    data = request.get_json()
-    tags = get_featured_tags()
-
-    tag = next((t for t in tags if t['name'] == tag_name), None)
-    if not tag:
-        return jsonify({'error': 'Featured tag not found'}), 404
-
-    # Update fields
-    if 'name' in data:
-        tag['name'] = data['name'].strip()
-    if 'icon' in data:
-        tag['icon'] = data['icon']
-    if 'order_weight' in data:
-        tag['order_weight'] = data['order_weight']
-
-    save_featured_tags(tags)
-    return jsonify({'success': True, 'tag': tag})
-
-@app.route('/api/featured-tags/<path:tag_name>', methods=['DELETE'])
-@login_required
-def api_delete_featured_tag(tag_name):
-    """Delete a featured tag"""
-    tags = get_featured_tags()
-    tags = [t for t in tags if t['name'] != tag_name]
-    save_featured_tags(tags)
-    return jsonify({'success': True})
-
-@app.route('/api/featured-tags/<path:tag_name>/icon', methods=['POST'])
-@login_required
-def api_upload_featured_tag_icon(tag_name):
-    """Upload icon for a featured tag"""
-    if 'icon' not in request.files:
-        return jsonify({'error': 'No icon file provided'}), 400
-
-    file = request.files['icon']
-    if file.filename == '':
-        return jsonify({'error': 'No file selected'}), 400
-
-    if file:
-        # Create safe filename
-        ext = file.filename.rsplit('.', 1)[-1].lower()
-        if ext not in {'png', 'jpg', 'jpeg', 'webp'}:
-            return jsonify({'error': 'Invalid file type'}), 400
-
-        # Use tag name as filename (slugified)
-        from werkzeug.utils import secure_filename
-        safe_name = secure_filename(tag_name.lower().replace(' ', '-'))
-        filename = f"{safe_name}.{ext}"
-
-        # Save file
-        filepath = os.path.join(FEATURED_TAGS_ICONS_DIR, filename)
-        file.save(filepath)
-
-        # Update tag with icon filename
-        tags = get_featured_tags()
-        tag = next((t for t in tags if t['name'] == tag_name), None)
-        if tag:
-            tag['icon'] = filename
-            save_featured_tags(tags)
-
-        return jsonify({'success': True, 'icon': filename})
-
-    return jsonify({'error': 'Upload failed'}), 500
 
 # ===== API Routes - Featured Products =====
 
-@app.route('/api/featured-products', methods=['GET'])
-@login_required
-def api_get_featured_products():
-    """Get list of featured product references"""
-    return jsonify({'featured_products': get_featured_products_refs()})
 
-@app.route('/api/featured-products', methods=['PUT'])
-@login_required
-def api_update_featured_products():
-    """Update the entire featured products list (for reordering)"""
-    data = request.get_json()
-    refs = data.get('products', [])
-    save_featured_products_refs(refs)
-    return jsonify({'success': True})
 
 # ===== Main =====
 
