@@ -200,6 +200,7 @@ TRANSLATIONS = {
         'no_products_category': 'No products found in this category.',
         'filters': 'Filters',
         'sort_default': 'Default',
+        'sort_newest': 'Newest',
         'sort_price_asc': 'Price ↑',
         'sort_price_desc': 'Price ↓',
         'series': 'Series',
@@ -302,6 +303,7 @@ TRANSLATIONS = {
         'no_products_category': '此分類目前沒有商品。',
         'filters': '篩選',
         'sort_default': '預設',
+        'sort_newest': '最新上架',
         'sort_price_asc': '價格 ↑',
         'sort_price_desc': '價格 ↓',
         'series': '系列',
@@ -1471,12 +1473,22 @@ def products_page():
         products = [p for p in products if p.get('availability') != 'inquiry']
 
     # Sort products based on sort_by parameter
+    # Effective displayed price: sale price when on sale, else 定價 (final_price).
+    # 詢價 items have no price (0) — always sort them last.
+    def _price_key(p):
+        if p.get('is_on_sale') and p.get('sale_price', 0) > 0:
+            return p['sale_price']
+        return p.get('final_price', 0)
+
     if sort_by == 'price_asc':
-        # Sort by price low to high (use sale_price if on sale)
-        products.sort(key=lambda p: p.get('sale_price', 0) if p.get('is_on_sale') and p.get('sale_price', 0) > 0 else p.get('price', 0))
+        products.sort(key=lambda p: (_price_key(p) == 0, _price_key(p)))
     elif sort_by == 'price_desc':
-        # Sort by price high to low (use sale_price if on sale)
-        products.sort(key=lambda p: p.get('sale_price', 0) if p.get('is_on_sale') and p.get('sale_price', 0) > 0 else p.get('price', 0), reverse=True)
+        products.sort(key=lambda p: (_price_key(p) == 0, -_price_key(p)))
+    elif sort_by == 'newest':
+        # 最新上架: newest created_at first; ties broken by curation weight.
+        # Missing dates sort last (reverse puts '' at the end).
+        products.sort(key=lambda p: (p.get('created_at') or '',
+                                     p.get('order_weight', 0)), reverse=True)
     else:
         # Default: Sort by group for visual clustering (grouped products together, then by order_weight and title)
         products.sort(key=lambda p: (p.get('group') or 'zzz', -p.get('order_weight', 0), p['title'].lower()))

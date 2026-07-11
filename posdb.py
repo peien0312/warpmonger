@@ -204,6 +204,7 @@ def _load_products():
             "is_on_sale": bool(row["is_on_sale"]),
             "sale_price": row["sale_price_twd"] or 0,
             "is_new_arrival": bool(row["is_new_arrival"]) or _is_new(row["created_at"]),
+            "created_at": str(row["created_at"] or ""),
             "id": row["sku"] or "",
             "cn_name": _norm(row["cn_name"]),
             "zhtw_name": _norm(row["zhtw_name"]),

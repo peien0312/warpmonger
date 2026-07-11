@@ -122,6 +122,7 @@
 
             <div class="sort-controls">
                 <button class="sort-btn {% if current_sort == 'default' %}active{% endif %}" onclick="changeSort('default')">{{ t.sort_default }}</button>
+                <button class="sort-btn {% if current_sort == 'newest' %}active{% endif %}" onclick="changeSort('newest')">{{ t.sort_newest }}</button>
                 <button class="sort-btn {% if current_sort == 'price_asc' %}active{% endif %}" onclick="changeSort('price_asc')">{{ t.sort_price_asc }}</button>
                 <button class="sort-btn {% if current_sort == 'price_desc' %}active{% endif %}" onclick="changeSort('price_desc')">{{ t.sort_price_desc }}</button>
             </div>
