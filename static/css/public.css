@@ -2094,8 +2094,8 @@ section h2::after {
     }
 
     .thumbnail-nav {
-        width: 30px;
-        height: 30px;
+        width: 40px;
+        height: 40px;
         font-size: 16px;
     }
 }
@@ -2125,8 +2125,8 @@ section h2::after {
     }
 
     .thumbnail-nav {
-        width: 28px;
-        height: 28px;
+        width: 40px;
+        height: 40px;
         font-size: 14px;
     }
 
@@ -2618,7 +2618,7 @@ section h2::after {
     }
     /* keep page content clear of the fixed bar */
     body:has(.sticky-buy-bar) .site-main {
-        padding-bottom: 76px;
+        padding-bottom: 84px;
     }
 }
 
@@ -2958,15 +2958,15 @@ section h2::after {
     }
 
     .product-actions .qty-btn {
-        width: 36px;
-        height: 36px;
+        width: 40px;
+        height: 40px;
         font-size: 1rem;
     }
 
     .product-actions .quantity-selector input {
-        width: 40px;
-        height: 36px;
-        font-size: 0.9rem;
+        width: 44px;
+        height: 40px;
+        font-size: 16px;
     }
 
     #add-to-cart {
@@ -4192,3 +4192,78 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
 .review-form-msg.ok { color: #7FB27A; }
 .review-form-msg.err { color: #d98a8a; }
 .review-login-prompt { margin-bottom: 8px; }
+
+/* Mobile filter/category toggle (products listing) — desktop: hidden */
+.filter-toggle { display: none; }
+
+/* =====================================================================
+   Mobile responsive fixes (iPhone-viewport pass)
+   Appended last so these win by source order over the identity layer.
+   ===================================================================== */
+@media (max-width: 768px) {
+    /* 1. Prevent iOS zoom-on-focus: all form controls ≥16px */
+    input, select, textarea { font-size: 16px; }
+
+    /* 2a. Two-column product grid on the listing (scoped so home/related
+       grids keep their own sizing) */
+    .products-page .products-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+    }
+    /* tighten card text for the narrower two-up cards */
+    .products-page .product-card h3 {
+        padding: 10px 10px 4px;
+        font-size: 0.95rem;
+        letter-spacing: 0.3px;
+    }
+    .products-page .product-card .card-sub { padding: 0 10px; }
+    .products-page .product-card .price {
+        padding: 0 10px 10px;
+        font-size: 1.05rem;
+    }
+
+    /* 2b. Collapsible filter/category sidebar behind a 篩選 toggle */
+    .filter-toggle {
+        display: block;
+        width: 100%;
+        margin-bottom: 14px;
+        padding: 12px 14px;
+        background: #292019;
+        color: #D9A441;
+        border: 1px solid #6E4B2A;
+        border-radius: 4px;
+        font-family: 'Noto Serif TC', 'Cinzel', serif;
+        font-size: 1rem;
+        letter-spacing: 1px;
+        cursor: pointer;
+        text-align: left;
+    }
+    .filter-toggle:hover { border-color: #D9A441; }
+    .products-sidebar { display: none; }
+    .products-sidebar.open { display: block; }
+
+    /* 3. Finger-friendly tap targets */
+    .cart-icon { padding: 8px; }
+    .filter-checkbox {
+        padding: 8px 0;
+        margin-bottom: 2px;
+    }
+    .filter-checkbox input[type="checkbox"] {
+        width: 18px;
+        height: 18px;
+        margin-right: 10px;
+        vertical-align: middle;
+    }
+    /* footer links (base.html defines .footer-links a inline — beat it
+       with a higher-specificity selector) */
+    .site-footer .footer-links a {
+        display: inline-block;
+        padding: 10px 6px;
+    }
+
+    /* 5. Compact header: smaller logo mark + wordmark */
+    .site-header { padding: 10px 0; }
+    .site-logo .logo-img { height: 48px; width: 48px; }
+    .logo-wordmark { font-size: 1.05rem; }
+    .site-logo .logo-tagline { font-size: 0.55rem; letter-spacing: 2px; }
+}

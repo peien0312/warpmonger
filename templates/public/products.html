@@ -8,7 +8,8 @@
 {% block content %}
 <div class="container">
     <div class="products-page">
-        <aside class="products-sidebar">
+        <button type="button" class="filter-toggle" id="filter-toggle" aria-expanded="false" aria-controls="products-sidebar">篩選 / 分類 ▾</button>
+        <aside class="products-sidebar" id="products-sidebar">
             <h3>{{ t.filters }}</h3>
             <div class="filters">
                 <label class="filter-checkbox">
@@ -236,5 +237,16 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 });
+
+// Mobile: toggle the filter/category sidebar
+(function() {
+    var toggle = document.getElementById('filter-toggle');
+    var sidebar = document.getElementById('products-sidebar');
+    if (!toggle || !sidebar) return;
+    toggle.addEventListener('click', function() {
+        var open = sidebar.classList.toggle('open');
+        toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
+})();
 </script>
 {% endblock %}
