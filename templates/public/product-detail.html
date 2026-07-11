@@ -152,7 +152,7 @@
                 </div>
                 {% if product.images|length > 1 %}
                 <div class="thumbnails-container">
-                    <button class="thumbnail-nav thumbnail-nav-left" onclick="scrollThumbnails(-1)" id="thumb-left-btn">&lt;</button>
+                    <button class="thumbnail-nav thumbnail-nav-left" onclick="stepThumbnail(-1)" aria-label="上一張" id="thumb-left-btn">&lt;</button>
                     <div class="image-thumbnails" id="thumbnails-wrapper">
                         {% for image in product.images %}
                         {% if image.lower().endswith(('.mp4', '.mov', '.avi', '.webm')) %}
@@ -170,7 +170,7 @@
                         {% endif %}
                         {% endfor %}
                     </div>
-                    <button class="thumbnail-nav thumbnail-nav-right" onclick="scrollThumbnails(1)" id="thumb-right-btn">&gt;</button>
+                    <button class="thumbnail-nav thumbnail-nav-right" onclick="stepThumbnail(1)" aria-label="下一張" id="thumb-right-btn">&gt;</button>
                 </div>
                 {% endif %}
             {% else %}
@@ -611,13 +611,18 @@ function navigateLightbox(direction, e) {
     });
 }
 
-function scrollThumbnails(direction) {
-    const wrapper = document.getElementById('thumbnails-wrapper');
-    const scrollAmount = wrapper.offsetWidth / 2;
-    wrapper.scrollBy({
-        left: scrollAmount * direction,
-        behavior: 'smooth'
-    });
+function stepThumbnail(direction) {
+    // Move the selection to the prev/next image (updates the main image and the
+    // active thumbnail), wrapping around at both ends. Then bring the newly
+    // selected thumbnail into view within the strip.
+    const thumbs = document.querySelectorAll('.thumbnail');
+    if (thumbs.length <= 1) return;
+    let idx = currentMediaIndex + direction;
+    if (idx < 0) idx = thumbs.length - 1;      // left from the first wraps to the last
+    if (idx >= thumbs.length) idx = 0;         // right from the last wraps to the first
+    const thumb = thumbs[idx];
+    switchToMedia(idx, thumb);
+    thumb.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
 }
 
 // Keyboard navigation
