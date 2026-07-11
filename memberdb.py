@@ -105,6 +105,22 @@ def init():
             ON product_reviews(sku, status);
         CREATE INDEX IF NOT EXISTS idx_reviews_status
             ON product_reviews(status);
+        CREATE TABLE IF NOT EXISTS member_coupons (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            member_id INTEGER NOT NULL REFERENCES members(id),
+            code TEXT NOT NULL,                     -- UPPER, matches POS coupons.code
+            source TEXT NOT NULL DEFAULT 'manual',  -- signup|review|manual|checkout
+            source_ref TEXT NOT NULL DEFAULT '',    -- review: review_id; checkout: uuid4
+            status TEXT NOT NULL DEFAULT 'granted', -- granted|used|revoked
+            order_no TEXT,
+            granted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            used_at TIMESTAMP,
+            UNIQUE(member_id, code, source, source_ref)
+        );
+        CREATE INDEX IF NOT EXISTS idx_member_coupons_member
+            ON member_coupons(member_id);
+        CREATE INDEX IF NOT EXISTS idx_member_coupons_order
+            ON member_coupons(order_no);
     """)
     # backfill identities from the legacy google_sub column
     # ("line:<uid>" rows were LINE logins, everything else Google)
@@ -128,6 +144,16 @@ def init():
             conn.execute(stmt)
         except Exception:
             pass
+    # wishlist restock-notify marker. Adding the column and backfilling every
+    # existing row happen in the SAME try block: the ALTER only succeeds when
+    # the column is new, so the backfill runs exactly once, at creation. This
+    # arms only *future* restocks (no mass blast on first cron run); the daily
+    # job re-arms rows by clearing the marker when a product isn't in stock.
+    try:
+        conn.execute("ALTER TABLE wishlist ADD COLUMN restock_notified_at TIMESTAMP")
+        conn.execute("UPDATE wishlist SET restock_notified_at = CURRENT_TIMESTAMP")
+    except Exception:
+        pass
     # migrate legacy single default_delivery into the address book (once)
     for m in conn.execute("""
         SELECT id, name, phone, default_delivery, default_store_code,
@@ -228,10 +254,12 @@ def notify_toggle(member_id, sku):
 
 
 def pending_notifications():
-    """[(request_id, member_email, member_name, sku)] awaiting arrival."""
+    """[(request_id, member_id, email, name, sku, line_user_id)] awaiting
+    arrival — 到貨通知 subscriptions not yet sent, for members reachable by
+    email or LINE. member_id lets the cron dedupe against wishlist restocks."""
     conn = _conn()
     rows = conn.execute("""
-        SELECT n.id, m.email, m.name, n.sku, m.line_user_id
+        SELECT n.id, n.member_id, m.email, m.name, n.sku, m.line_user_id
         FROM notify_requests n JOIN members m ON m.id = n.member_id
         WHERE n.notified_at IS NULL
           AND (m.email IS NOT NULL OR m.line_user_id IS NOT NULL)
@@ -245,6 +273,57 @@ def mark_notified(request_id):
     conn.execute(
         "UPDATE notify_requests SET notified_at = CURRENT_TIMESTAMP WHERE id = ?",
         (request_id,))
+    conn.commit()
+    conn.close()
+
+
+# ----- wishlist restock notifications -----
+
+def pending_wishlist_restocks():
+    """[(row_id, member_id, email, name, sku, line_user_id)] for wishlist rows
+    whose restock marker is cleared (armed), for members reachable by email or
+    LINE. The daily cron sends when the product is in stock, then re-arms."""
+    conn = _conn()
+    rows = conn.execute("""
+        SELECT w.id, w.member_id, m.email, m.name, w.sku, m.line_user_id
+        FROM wishlist w JOIN members m ON m.id = w.member_id
+        WHERE w.restock_notified_at IS NULL
+          AND (m.email IS NOT NULL OR m.line_user_id IS NOT NULL)
+    """).fetchall()
+    conn.close()
+    return [tuple(r) for r in rows]
+
+
+def mark_wishlist_notified(row_id):
+    conn = _conn()
+    conn.execute(
+        "UPDATE wishlist SET restock_notified_at = CURRENT_TIMESTAMP WHERE id = ?",
+        (row_id,))
+    conn.commit()
+    conn.close()
+
+
+def notified_wishlist_rows():
+    """[(row_id, sku)] for wishlist rows whose marker is set — candidates the
+    cron re-arms when their product is no longer in stock."""
+    conn = _conn()
+    rows = conn.execute(
+        "SELECT id, sku FROM wishlist WHERE restock_notified_at IS NOT NULL"
+    ).fetchall()
+    conn.close()
+    return [(r["id"], r["sku"]) for r in rows]
+
+
+def rearm_wishlist_rows(row_ids):
+    """Clear the restock marker on the given rows so a future restock notifies
+    again. No-op on an empty list."""
+    row_ids = list(row_ids or [])
+    if not row_ids:
+        return
+    conn = _conn()
+    conn.executemany(
+        "UPDATE wishlist SET restock_notified_at = NULL WHERE id = ?",
+        [(rid,) for rid in row_ids])
     conn.commit()
     conn.close()
 
@@ -387,8 +466,8 @@ def merge_members(keep_id, drop_id):
     conn = _conn()
     conn.execute("UPDATE member_identities SET member_id = ? WHERE member_id = ?",
                  (keep_id, drop_id))
-    # move wishlist / notify subscriptions, ignoring duplicates
-    for table in ("wishlist", "notify_requests"):
+    # move wishlist / notify subscriptions / coupon wallet, ignoring duplicates
+    for table in ("wishlist", "notify_requests", "member_coupons"):
         conn.execute(f"""
             UPDATE OR IGNORE {table} SET member_id = ? WHERE member_id = ?
         """, (keep_id, drop_id))
@@ -551,13 +630,17 @@ def get_review_by_id(review_id):
     return _review_row(row) if row else None
 
 
-def save_review(member_id, sku, fields):
+def save_review(member_id, sku, fields, status="pending"):
     """Insert or update a member's review for a product. Any submit resets the
-    review to 'pending' so edits get re-moderated. Returns the saved review id.
+    review to `status` (default 'pending') so edits get re-moderated; a
+    verified-purchase review may be saved 'approved' to publish instantly.
+    Returns the saved review id.
 
     `fields` keys: category, slug, product_name, rating (1-5), title, body,
     photos (list of stored filenames), verified_purchase (bool), author_name.
     """
+    if status not in ("pending", "approved"):
+        status = "pending"
     try:
         rating = int(fields.get("rating") or 0)
     except (TypeError, ValueError):
@@ -569,7 +652,7 @@ def save_review(member_id, sku, fields):
         fields.get("category"), fields.get("slug"), fields.get("product_name"),
         rating, (fields.get("title") or None), (fields.get("body") or None),
         photos, 1 if fields.get("verified_purchase") else 0,
-        fields.get("author_name"),
+        status, fields.get("author_name"),
     )
     conn = _conn()
     conn.execute("""
@@ -577,7 +660,7 @@ def save_review(member_id, sku, fields):
             (member_id, sku, category, slug, product_name, rating, title, body,
              photos, verified_purchase, status, author_name,
              created_at, updated_at)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', ?,
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
                 CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
         ON CONFLICT(member_id, sku) DO UPDATE SET
             category=excluded.category, slug=excluded.slug,
@@ -585,7 +668,7 @@ def save_review(member_id, sku, fields):
             title=excluded.title, body=excluded.body, photos=excluded.photos,
             verified_purchase=excluded.verified_purchase,
             author_name=excluded.author_name,
-            status='pending', updated_at=CURRENT_TIMESTAMP, reviewed_at=NULL
+            status=excluded.status, updated_at=CURRENT_TIMESTAMP, reviewed_at=NULL
     """, (member_id, sku, *vals))
     conn.commit()
     row = conn.execute(
@@ -688,3 +771,159 @@ def set_review_status(review_id, status):
     if not changed or not row:
         return None
     return _review_row(row)
+
+
+# ----- coupon wallet (definitions live in the POS; redemptions owned here) -----
+# State machine: granted -> used(order_no) at checkout; used -> granted on
+# cancel-release; granted -> revoked on review rejection. Exactly-once for
+# signup/review grants is the UNIQUE(member_id, code, source, source_ref)
+# constraint (source_ref = '' for signup/manual, review_id for reviews).
+# Checkout-entered codes INSERT directly as 'used' with a uuid4 source_ref;
+# the per-member limit is enforced by COUNT inside claim_coupon, not UNIQUE.
+
+def grant_coupon(member_id, code, source, source_ref=''):
+    """Add a granted wallet coupon. Returns the new row id, or None when it
+    already exists (idempotent via the UNIQUE constraint)."""
+    code = (code or '').strip().upper()
+    if not code:
+        return None
+    conn = _conn()
+    cur = conn.execute("""
+        INSERT OR IGNORE INTO member_coupons
+            (member_id, code, source, source_ref, status)
+        VALUES (?, ?, ?, ?, 'granted')
+    """, (member_id, code, source, source_ref or ''))
+    conn.commit()
+    rid = cur.lastrowid if cur.rowcount else None
+    conn.close()
+    return rid
+
+
+def list_coupons(member_id):
+    """All of a member's wallet rows (any status), newest first."""
+    conn = _conn()
+    rows = conn.execute(
+        "SELECT * FROM member_coupons WHERE member_id = ? ORDER BY id DESC",
+        (member_id,)).fetchall()
+    conn.close()
+    return [dict(r) for r in rows]
+
+
+def count_used_coupons(member_id, code):
+    """How many times this member has already spent `code` (per-member limit)."""
+    conn = _conn()
+    n = conn.execute(
+        "SELECT COUNT(*) FROM member_coupons "
+        "WHERE member_id = ? AND code = ? AND status = 'used'",
+        (member_id, (code or '').strip().upper())).fetchone()[0]
+    conn.close()
+    return n
+
+
+def claim_coupon(member_id, code, per_member_limit):
+    """Atomically claim one use of `code` at checkout. Enforces the per-member
+    limit by COUNTing already-used rows inside a write transaction, then marks
+    an existing granted wallet row 'used' (preferred) or inserts a fresh
+    checkout-sourced 'used' row. Returns the claimed row id, or None if the
+    member has already hit their limit."""
+    import uuid
+    code = (code or '').strip().upper()
+    if not code:
+        return None
+    limit = per_member_limit if (per_member_limit or 0) > 0 else 1
+    conn = _conn()
+    conn.isolation_level = None   # manual BEGIN IMMEDIATE / COMMIT
+    try:
+        conn.execute("BEGIN IMMEDIATE")
+        used = conn.execute(
+            "SELECT COUNT(*) FROM member_coupons "
+            "WHERE member_id = ? AND code = ? AND status = 'used'",
+            (member_id, code)).fetchone()[0]
+        if used >= limit:
+            conn.execute("ROLLBACK")
+            return None
+        row = conn.execute(
+            "SELECT id FROM member_coupons "
+            "WHERE member_id = ? AND code = ? AND status = 'granted' "
+            "ORDER BY id LIMIT 1", (member_id, code)).fetchone()
+        if row:
+            claim_id = row["id"]
+            conn.execute(
+                "UPDATE member_coupons SET status = 'used', "
+                "used_at = CURRENT_TIMESTAMP WHERE id = ?", (claim_id,))
+        else:
+            cur = conn.execute(
+                "INSERT INTO member_coupons "
+                "(member_id, code, source, source_ref, status, used_at) "
+                "VALUES (?, ?, 'checkout', ?, 'used', CURRENT_TIMESTAMP)",
+                (member_id, code, uuid.uuid4().hex))
+            claim_id = cur.lastrowid
+        conn.execute("COMMIT")
+        return claim_id
+    except Exception:
+        try:
+            conn.execute("ROLLBACK")
+        except Exception:
+            pass
+        raise
+    finally:
+        conn.close()
+
+
+def finalize_claim(claim_id, order_no):
+    """Attach the order number to a just-claimed row (after the POS accepts)."""
+    conn = _conn()
+    conn.execute("UPDATE member_coupons SET order_no = ? WHERE id = ?",
+                 (order_no, claim_id))
+    conn.commit()
+    conn.close()
+
+
+def unclaim(claim_id):
+    """Reverse a claim (POS rejected the order): delete a checkout-entered row,
+    or revert a wallet grant back to 'granted' so it stays usable."""
+    conn = _conn()
+    row = conn.execute("SELECT source FROM member_coupons WHERE id = ?",
+                       (claim_id,)).fetchone()
+    if row:
+        if row["source"] == 'checkout':
+            conn.execute("DELETE FROM member_coupons WHERE id = ?", (claim_id,))
+        else:
+            conn.execute("UPDATE member_coupons SET status = 'granted', "
+                         "used_at = NULL, order_no = NULL WHERE id = ?", (claim_id,))
+    conn.commit()
+    conn.close()
+
+
+def release_coupon_by_order(order_no):
+    """Order cancelled: return its spent coupon rows to the wallet. Idempotent
+    (only touches rows still 'used'). Checkout-entered rows are deleted; wallet
+    grants revert to 'granted'. Returns the number of rows released."""
+    if not order_no:
+        return 0
+    conn = _conn()
+    rows = conn.execute(
+        "SELECT id, source FROM member_coupons "
+        "WHERE order_no = ? AND status = 'used'", (order_no,)).fetchall()
+    n = 0
+    for r in rows:
+        if r["source"] == 'checkout':
+            conn.execute("DELETE FROM member_coupons WHERE id = ?", (r["id"],))
+        else:
+            conn.execute("UPDATE member_coupons SET status = 'granted', "
+                         "used_at = NULL, order_no = NULL WHERE id = ?", (r["id"],))
+        n += 1
+    conn.commit()
+    conn.close()
+    return n
+
+
+def revoke_review_coupon(review_id):
+    """Review rejected: revoke its unused reward grant (spent ones stand)."""
+    conn = _conn()
+    conn.execute(
+        "UPDATE member_coupons SET status = 'revoked' "
+        "WHERE source = 'review' AND source_ref = ? AND status = 'granted'",
+        (str(review_id),))
+    conn.commit()
+    conn.close()

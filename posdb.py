@@ -422,6 +422,58 @@ def get_page(slug):
     return None
 
 
+# ----- coupons (definitions managed in the POS; wallet lives in members.db) -----
+
+def _load_coupons():
+    """All coupon definitions, cached. Degrades to [] on a POS deployed before
+    the coupons migration (the table may not exist yet)."""
+    cache = _fresh()
+    if "coupons" in cache:
+        return cache["coupons"]
+    out = []
+    try:
+        conn = _conn()
+        out = [dict(r) for r in conn.execute("SELECT * FROM coupons")]
+        conn.close()
+    except sqlite3.OperationalError:
+        out = []
+    cache["coupons"] = out
+    return out
+
+
+def get_coupons():
+    return _load_coupons()
+
+
+def get_coupon(code):
+    """A coupon definition by code (case-insensitive), or None."""
+    code = (code or "").strip().upper()
+    if not code:
+        return None
+    for c in _load_coupons():
+        if (c.get("code") or "").upper() == code:
+            return c
+    return None
+
+
+def get_auto_grant_coupon(kind):
+    """First active, within-window coupon whose auto_grant == kind (lowest id),
+    or None — the coupon to auto-grant on signup / review reward."""
+    from datetime import date
+    today = date.today().isoformat()
+    best = None
+    for c in _load_coupons():
+        if (c.get("auto_grant") or "") != kind or not c.get("active"):
+            continue
+        vf = str(c.get("valid_from") or "")[:10]
+        vu = str(c.get("valid_until") or "")[:10]
+        if (vf and today < vf) or (vu and today > vu):
+            continue
+        if best is None or (c.get("id") or 0) < (best.get("id") or 0):
+            best = c
+    return best
+
+
 # ----- member order history (web orders live in the POS DB, read-only) -----
 
 # raw internal Order.status -> customer-friendly label; missing keys
@@ -466,8 +518,12 @@ def _enrich_orders(conn, orders):
         if now_total <= 0 and o.get("payment_status") == "待付款":
             now_total = sum((it["unit_price_twd"] or 0) * it["quantity"]
                             for it in o["items"] if it["availability"] != "inquiry")
+        # coupon fields (may be absent on a pre-migration POS -> default 0/'')
+        o["coupon_discount_twd"] = o.get("coupon_discount_twd") or 0
+        o["coupon_code"] = o.get("coupon_code") or ""
         o["amount_due"] = (max(0, now_total + (o.get("shipping_fee_twd") or 0)
-                               - (o.get("discount_twd") or 0)) if now_total > 0 else 0)
+                               - (o.get("discount_twd") or 0)
+                               - o["coupon_discount_twd"]) if now_total > 0 else 0)
 
     order_nos = [o["order_no"] for o in orders]
     if order_nos:

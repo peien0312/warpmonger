@@ -34,6 +34,7 @@
                 <p class="checkout-total">商品合計：<span id="checkout-total">NT$0</span><br>
                     運費：<span id="checkout-shipping">NT$60</span>
                     <small id="shipping-hint">（滿 NT$1,000 免運）</small><br>
+                    <span id="coupon-discount-row" style="display:none">優惠券折抵：<span id="coupon-discount-amt">−NT$0</span><br></span>
                     應付總額：<strong id="checkout-grand">NT$0</strong>
                     <span id="inquiry-hint" style="display:none"><br><small>（詢價商品另計）</small></span>
                 </p>
@@ -91,6 +92,23 @@
                 </div>
                 </div><!-- /manual-recipient -->
 
+                <h3>優惠券</h3>
+                {% if member %}
+                <div id="coupon-box" class="coupon-box">
+                    <div id="wallet-coupons"></div>
+                    <label class="coupon-radio">
+                        <input type="radio" name="coupon_choice" value="" checked onchange="chooseCoupon(this)"> 不使用優惠券
+                    </label>
+                    <div class="coupon-code-entry">
+                        <input type="text" id="coupon-code-input" placeholder="輸入優惠券代碼" maxlength="40" autocomplete="off">
+                        <button type="button" class="btn btn-sm btn-secondary" onclick="applyTypedCode()">套用</button>
+                    </div>
+                    <p id="coupon-msg" class="coupon-msg"></p>
+                </div>
+                {% else %}
+                <p class="text-muted"><a href="/login?next=/checkout">登入會員</a>即可使用優惠券。</p>
+                {% endif %}
+
                 <h3>付款方式 <small style="font-weight:400"><a href="/guide#pay" target="_blank">付款/運送說明</a></small></h3>
                 <div class="option-row option-col">
                     <label><input type="radio" name="payment_method" value="payuni" checked>
@@ -116,6 +134,8 @@
 <script>
 let resolved = [];
 let pickedStore = null;
+let appliedCoupon = null;   // coupon code applied to this order (or null)
+let couponDiscount = 0;     // authoritative discount from the server
 
 const GROUPS = {
     now: ['in_stock', 'incoming', 'orderable'],
@@ -145,6 +165,7 @@ async function loadCheckout() {
     });
     const data = await res.json();
     resolved = data.items;
+    renderWallet(data.wallet);
     if (data.errors && data.errors.length) {
         alert('部分商品已變動：' + data.errors.join('、'));
     }
@@ -229,11 +250,71 @@ function currentDelivery() {
 }
 function updateFee() {
     const total = checkoutTotal;
+    // free-shipping threshold stays based on the pre-discount item total
     const fee = (currentDelivery() !== 'meet' && total > 0 && total < 1000) ? 60 : 0;
     document.getElementById('checkout-shipping').textContent =
         currentDelivery() === 'meet' ? '面交免運' : (fee ? 'NT$60' : '免運');
     document.getElementById('shipping-hint').style.display = fee ? '' : 'none';
-    document.getElementById('checkout-grand').textContent = 'NT$' + Math.round(total + fee).toLocaleString();
+    const disc = Math.min(couponDiscount || 0, total + fee);   // never below 0
+    const discRow = document.getElementById('coupon-discount-row');
+    if (discRow) {
+        discRow.style.display = disc > 0 ? '' : 'none';
+        const amtEl = document.getElementById('coupon-discount-amt');
+        if (amtEl) amtEl.textContent = '−NT$' + Math.round(disc).toLocaleString();
+    }
+    document.getElementById('checkout-grand').textContent =
+        'NT$' + Math.round(total + fee - disc).toLocaleString();
+}
+
+// ----- 優惠券 -----
+function renderWallet(wallet) {
+    const box = document.getElementById('wallet-coupons');
+    if (!box) return;
+    box.innerHTML = (wallet || []).map(w => {
+        const cond = w.min_spend_twd ? '，滿 NT$' + w.min_spend_twd.toLocaleString() : '';
+        const label = `${w.title}（折 NT$${w.discount_twd.toLocaleString()}${cond}）`;
+        if (w.usable) {
+            return `<label class="coupon-radio"><input type="radio" name="coupon_choice" value="${w.code}" onchange="chooseCoupon(this)"> ${label}</label>`;
+        }
+        return `<label class="coupon-radio coupon-disabled"><input type="radio" name="coupon_choice" disabled> ${label} <small>${w.reason || '無法使用'}</small></label>`;
+    }).join('');
+}
+
+function chooseCoupon(radio) {
+    applyCoupon(radio.value || '');
+}
+
+function applyTypedCode() {
+    const input = document.getElementById('coupon-code-input');
+    const code = (input.value || '').trim().toUpperCase();
+    if (!code) return;
+    // clear any wallet radio selection — a typed code takes over
+    document.querySelectorAll('input[name=coupon_choice]').forEach(r => { r.checked = false; });
+    applyCoupon(code);
+}
+
+async function applyCoupon(code) {
+    const msg = document.getElementById('coupon-msg');
+    const res = await fetch('/api/checkout/resolve', {
+        method: 'POST', headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({items: Cart.getItems(), coupon_code: code || ''}),
+    });
+    const data = await res.json();
+    if (!code) {
+        appliedCoupon = null; couponDiscount = 0;
+        if (msg) { msg.textContent = ''; msg.className = 'coupon-msg'; }
+        updateFee();
+        return;
+    }
+    if (data.coupon) {
+        appliedCoupon = data.coupon.code;
+        couponDiscount = data.coupon.discount_twd || 0;
+        if (msg) { msg.textContent = `已套用「${data.coupon.title}」`; msg.className = 'coupon-msg ok'; }
+    } else {
+        appliedCoupon = null; couponDiscount = 0;
+        if (msg) { msg.textContent = data.coupon_error || '優惠券無法使用'; msg.className = 'coupon-msg err'; }
+    }
+    updateFee();
 }
 
 let savedAddr = null;
@@ -281,6 +362,7 @@ async function submitOrder(ev) {
         payment_method: f.payment_method.value,
         ship_together: shipEl ? shipEl.value === '1' : true,
         note: f.note.value.trim(),
+        coupon_code: appliedCoupon || null,
     };
     // GA4: shipping + payment info added (both chosen by submit time)
     if (typeof gtag === 'function' && checkoutTotal > 0) {
@@ -303,7 +385,7 @@ async function submitOrder(ev) {
     try {
         sessionStorage.setItem('ga_purchase', JSON.stringify({
             transaction_id: data.order_no, currency: 'TWD',
-            value: Math.round(data.grand_total_twd ?? data.total_twd),
+            value: Math.round((data.grand_total_twd ?? data.total_twd) - (data.coupon_discount_twd || 0)),
             shipping: Math.round(data.shipping_fee_twd || 0),
             items: gaItems(),
         }));

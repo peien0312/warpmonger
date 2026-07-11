@@ -48,7 +48,8 @@
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-top:12px;">
   <tr><td style="text-align:right; color:#6E4B2A; padding:2px 0;">商品合計</td><td style="text-align:right; width:120px; color:#292019;">NT${{ subtotal|ntd }}</td></tr>
   <tr><td style="text-align:right; color:#6E4B2A; padding:2px 0;">運費</td><td style="text-align:right; color:#292019;">{% if shipping_fee %}NT${{ shipping_fee|ntd }}{% else %}免運{% endif %}</td></tr>
-  <tr><td style="text-align:right; font-weight:700; padding-top:6px; color:#292019;">應付總額</td><td style="text-align:right; font-weight:700; padding-top:6px; color:#292019;">NT${{ grand_total|ntd }}</td></tr>
+  {% if coupon_discount %}<tr><td style="text-align:right; color:#6E4B2A; padding:2px 0;">優惠券折抵{% if coupon_code %}（{{ coupon_code }}）{% endif %}</td><td style="text-align:right; color:#292019;">−NT${{ coupon_discount|ntd }}</td></tr>{% endif %}
+  <tr><td style="text-align:right; font-weight:700; padding-top:6px; color:#292019;">應付總額</td><td style="text-align:right; font-weight:700; padding-top:6px; color:#292019;">NT${{ (grand_total - coupon_discount)|ntd }}</td></tr>
 </table>
 
 <div style="margin-top:22px; font-size:14px; color:#6E4B2A; line-height:1.9;">

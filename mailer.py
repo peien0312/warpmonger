@@ -100,6 +100,8 @@ def _order_ctx(order_no, data, lines, totals, bank_info, order_url=None):
         "items": items,
         "subtotal": int(totals.get("total_twd", 0) or 0),
         "shipping_fee": int(totals.get("shipping_fee_twd", 0) or 0),
+        "coupon_discount": int(totals.get("coupon_discount_twd", 0) or 0),
+        "coupon_code": totals.get("coupon_code") or "",
         "grand_total": int(totals.get("grand_total_twd", 0) or 0),
         "charge_now": int(totals.get("charge_now_twd",
                                      totals.get("grand_total_twd", 0)) or 0),

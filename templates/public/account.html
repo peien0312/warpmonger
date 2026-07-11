@@ -94,6 +94,7 @@
             </li>
             {% endfor %}
             {% if o.shipping_fee_twd %}<li>運費 NT${{ o.shipping_fee_twd|ntd }}</li>{% endif %}
+            {% if o.coupon_discount_twd %}<li>優惠券折抵{% if o.coupon_code %}（{{ o.coupon_code }}）{% endif %} −NT${{ o.coupon_discount_twd|ntd }}</li>{% endif %}
         </ul>
         {% set pm = {'payuni':'線上付款','linepay':'LINE Pay','cod':'貨到付款','transfer':'銀行轉帳'} %}
         {% set dm = {'711':'7-11 店到店取貨','fami':'全家 店到店取貨','post':'郵局宅配','meet':'面交'} %}
@@ -174,6 +175,25 @@
             <small id="return-msg" style="color:#b23b3b; display:block; margin-top:8px;"></small>
         </div>
     </div>
+
+    <h2 class="section-title">我的優惠券</h2>
+    {% if not coupons %}
+    <p class="text-muted">目前沒有優惠券。結帳時可在「優惠券」欄位選用。</p>
+    {% else %}
+    {% set chips = {'granted': ('可使用', 'badge-instock'), 'used': ('已使用', 'badge-orderable'), 'expired': ('已失效', 'badge-inquiry'), 'revoked': ('已撤銷', 'badge-inquiry')} %}
+    <div class="coupon-list">
+        {% for c in coupons %}
+        <div class="coupon-card{% if c.disp_status != 'granted' %} coupon-spent{% endif %}">
+            <div class="coupon-amt">NT${{ c.discount_twd|ntd }}</div>
+            <div class="coupon-info">
+                <strong>{{ c.title }}</strong> <span class="coupon-code">{{ c.code }}</span><br>
+                <small>{% if c.min_spend_twd %}滿 NT${{ c.min_spend_twd|ntd }}可用{% endif %}{% if c.valid_until %}｜效期至 {{ c.valid_until }}{% endif %}{% if c.disp_status == 'used' and c.order_no %}｜用於 {{ c.order_no }}{% endif %}</small>
+            </div>
+            <span class="badge {{ chips.get(c.disp_status, ('', 'badge-orderable'))[1] }}">{{ chips.get(c.disp_status, (c.disp_status, ''))[0] }}</span>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
 
     <h2 class="section-title">願望清單</h2>
     {% if not wish_products %}

@@ -456,6 +456,9 @@ def inject_canonical():
         kept = [(k, request.args[k]) for k in ('category', 'tag')
                 if request.args.get(k)]
         canonical = request.base_url + ('?' + urlencode(kept) if kept else '')
+    elif request.endpoint == 'quiz_page':
+        # ?r=/&s= share variants all consolidate onto the bare /quiz page.
+        canonical = request.base_url
     return {'canonical_url': canonical}
 
 @app.context_processor
@@ -2581,11 +2584,139 @@ def _resolve_cart_items(raw_items):
     return lines, errors
 
 
+# ===== Coupons (definitions in the POS; wallet/redemptions in members.db) =====
+
+def _validate_coupon(member, lines, code):
+    """Preview a coupon against the current cart, mirroring the POS submit-time
+    checks (exists/active/window/global-limit/min-spend + per-member count).
+    Returns (info, error): info = {code, title, discount_twd} when usable,
+    else (None, zh-TW error string)."""
+    import posdb as _posdb
+    code = (code or '').strip().upper()
+    if not code:
+        return None, None
+    if not member:
+        return None, '優惠券限會員使用，請先登入'
+    c = _posdb.get_coupon(code)
+    if not c or not c.get('active'):
+        return None, '優惠券不存在或已停用'
+    if (c.get('kind') or 'fixed') != 'fixed':
+        return None, '優惠券暫不支援'
+    from datetime import date
+    today = date.today().isoformat()
+    vf = str(c.get('valid_from') or '')[:10]
+    vu = str(c.get('valid_until') or '')[:10]
+    if vf and today < vf:
+        return None, '優惠券尚未開始'
+    if vu and today > vu:
+        return None, '優惠券已過期'
+    total_limit = c.get('total_limit') or 0
+    if total_limit > 0 and (c.get('used_count') or 0) >= total_limit:
+        return None, '優惠券已被兌換完畢'
+    priced = sum((l['price'] or 0) * l['qty'] for l in lines)
+    min_spend = c.get('min_spend_twd') or 0
+    if min_spend and priced < min_spend:
+        return None, f'消費滿 NT${int(min_spend):,} 才能使用'
+    per_limit = c.get('per_member_limit') or 1
+    if memberdb.count_used_coupons(member['id'], code) >= per_limit:
+        return None, '您已使用過此優惠券'
+    return {'code': code, 'title': c.get('title') or code,
+            'discount_twd': int(c.get('amount_twd') or 0)}, None
+
+
+def _wallet_view(member, lines):
+    """A member's granted wallet coupons joined with POS defs, each annotated
+    usable/reason against the current cart (drives the checkout coupon box)."""
+    import posdb as _posdb
+    if not member:
+        return []
+    out, seen = [], set()
+    for row in memberdb.list_coupons(member['id']):
+        if row['status'] != 'granted':
+            continue
+        code = (row['code'] or '').upper()
+        if code in seen:
+            continue
+        seen.add(code)
+        info, error = _validate_coupon(member, lines, code)
+        c = _posdb.get_coupon(code) or {}
+        out.append({
+            'code': code,
+            'title': c.get('title') or code,
+            'discount_twd': int(c.get('amount_twd') or 0),
+            'min_spend_twd': int(c.get('min_spend_twd') or 0),
+            'usable': bool(info),
+            'reason': error or '',
+        })
+    return out
+
+
+def _account_coupons(member_id):
+    """A member's full coupon history joined with POS defs, for 會員中心.
+    `disp_status` folds an expired-but-unused grant into 'expired'."""
+    import posdb as _posdb
+    from datetime import date
+    today = date.today().isoformat()
+    out = []
+    for row in memberdb.list_coupons(member_id):
+        c = _posdb.get_coupon(row['code']) or {}
+        valid_until = str(c.get('valid_until') or '')[:10]
+        disp = row['status']
+        if disp == 'granted' and valid_until and today > valid_until:
+            disp = 'expired'
+        out.append({
+            'code': row['code'],
+            'title': c.get('title') or row['code'],
+            'discount_twd': int(c.get('amount_twd') or 0),
+            'min_spend_twd': int(c.get('min_spend_twd') or 0),
+            'valid_until': valid_until,
+            'status': row['status'],
+            'disp_status': disp,
+            'order_no': row['order_no'] or '',
+        })
+    return out
+
+
+def _grant_signup_coupon(member_id):
+    """Best-effort first-purchase coupon on signup. No-op if unconfigured;
+    idempotent via the wallet UNIQUE constraint."""
+    try:
+        import posdb as _posdb
+        c = _posdb.get_auto_grant_coupon('signup')
+        if c and c.get('code'):
+            memberdb.grant_coupon(member_id, c['code'], 'signup', '')
+    except Exception as e:
+        print(f"signup coupon grant failed: {e}")
+
+
+def _grant_review_reward(review):
+    """Grant the review-reward coupon for an approved, verified-purchase review.
+    Exactly-once per review id via the wallet UNIQUE constraint."""
+    if not review or not review.get('verified_purchase'):
+        return
+    if review.get('status') != 'approved':
+        return
+    import posdb as _posdb
+    c = _posdb.get_auto_grant_coupon('review')
+    if c and c.get('code'):
+        memberdb.grant_coupon(review['member_id'], c['code'],
+                              'review', str(review['id']))
+
+
 @app.route('/api/checkout/resolve', methods=['POST'])
 def checkout_resolve():
     data = request.get_json(silent=True) or {}
     lines, errors = _resolve_cart_items(data.get('items') or [])
-    return jsonify({'items': lines, 'errors': errors})
+    member = current_member()
+    resp = {'items': lines, 'errors': errors}
+    if member:
+        resp['wallet'] = _wallet_view(member, lines)
+    code = (data.get('coupon_code') or '').strip().upper()
+    if code:
+        info, error = _validate_coupon(member, lines, code)
+        resp['coupon'] = info
+        resp['coupon_error'] = error
+    return jsonify(resp)
 
 
 @app.route('/api/checkout/submit', methods=['POST'])
@@ -2610,6 +2741,24 @@ def checkout_submit():
         return jsonify({'success': False,
                         'error': '未登入時請留 email，以便接收訂單通知'}), 400
 
+    # coupon: members only, claimed BEFORE the POS call so a concurrent
+    # double-submit can't spend the same wallet coupon twice.
+    import posdb as _posdb
+    coupon_code = (data.get('coupon_code') or '').strip().upper()
+    claim_id = None
+    if coupon_code:
+        if not member:
+            return jsonify({'success': False,
+                            'error': '優惠券限會員使用，請先登入'}), 401
+        _info, coupon_err = _validate_coupon(member, lines, coupon_code)
+        if coupon_err:
+            return jsonify({'success': False, 'error': coupon_err}), 400
+        cdef = _posdb.get_coupon(coupon_code) or {}
+        claim_id = memberdb.claim_coupon(
+            member['id'], coupon_code, cdef.get('per_member_limit') or 1)
+        if not claim_id:
+            return jsonify({'success': False, 'error': '您已使用過此優惠券'}), 400
+
     payload = json.dumps({
         'member': bool(member),
         'name': data.get('name'), 'phone': data.get('phone'),
@@ -2622,6 +2771,7 @@ def checkout_submit():
         'payment_method': data.get('payment_method'),
         'ship_together': bool(data.get('ship_together', True)),
         'note': data.get('note'),
+        'coupon_code': coupon_code or None,
         'items': [{'sku': l['sku'], 'qty': l['qty']} for l in lines],
     }).encode()
 
@@ -2634,13 +2784,46 @@ def checkout_submit():
         with urllib.request.urlopen(req, timeout=15) as resp:
             result = json.loads(resp.read())
     except urllib.error.HTTPError as e:
+        if claim_id:
+            try:
+                memberdb.unclaim(claim_id)
+            except Exception as ue:
+                print(f"coupon unclaim failed: {ue}")
         try:
             detail = json.loads(e.read()).get('detail', '訂單送出失敗')
         except Exception:
             detail = '訂單送出失敗'
         return jsonify({'success': False, 'error': detail}), 400
     except Exception:
+        if claim_id:
+            try:
+                memberdb.unclaim(claim_id)
+            except Exception as ue:
+                print(f"coupon unclaim failed: {ue}")
         return jsonify({'success': False, 'error': '系統忙碌中，請稍後再試或改用 LINE 聯絡'}), 502
+
+    # old-POS guard: we sent a coupon but the POS didn't echo the discount
+    # (deployed before the coupon migration) — never silently drop it. Revert
+    # the claim and best-effort cancel the order that was just created.
+    if coupon_code and 'coupon_discount_twd' not in result:
+        if claim_id:
+            try:
+                memberdb.unclaim(claim_id)
+            except Exception as ue:
+                print(f"coupon unclaim failed: {ue}")
+        if result.get('order_no'):
+            try:
+                _pos_api('POST', f"/api/storefront/orders/{result['order_no']}/cancel")
+            except Exception as ce:
+                print(f"coupon guard cancel failed: {ce}")
+        return jsonify({'success': False,
+                        'error': '優惠券系統更新中，請稍後再試或移除優惠券後送出'}), 503
+
+    if claim_id:
+        try:
+            memberdb.finalize_claim(claim_id, result['order_no'])
+        except Exception as fe:
+            print(f"finalize_claim failed: {fe}")
 
     if member:
         used = {
@@ -2668,9 +2851,12 @@ def checkout_submit():
             import linepush
             if linepush.enabled():
                 grand = result.get('grand_total_twd', result.get('total_twd', 0))
+                cdisc = int(result.get('coupon_discount_twd') or 0)
+                net = max(0, int(grand) - cdisc)
+                disc_txt = f"（已折抵 NT${cdisc:,}）" if cdisc else ""
                 linepush.push_text(member['line_user_id'],
                     f"感謝訂購！訂單 {result['order_no']} 已收到，"
-                    f"合計 NT${int(grand):,}。確認後會再通知您。")
+                    f"合計 NT${net:,}{disc_txt}。確認後會再通知您。")
         except Exception as e:
             print(f"line order push failed: {e}")
 
@@ -2919,11 +3105,50 @@ QUIZ_RESULTS = {
     'XHRS': {'character': '荷魯斯', 'legion': '荷魯斯之子', 'codex': 'horus', 'term': '荷魯斯之子'},
 }
 
+# original epigraphs + descriptions (our own writing) — [quote, desc] per result.
+# Injected into quiz.html as the JS `FLAVOR` dict AND used for share-card
+# og:description. Keep the copy in sync with QUIZ_RESULTS keys.
+QUIZ_FLAVOR = {
+    'ICRD': ['「先有制度，才有勝利。」',
+        '你是天生的統籌者：讀說明書、訂計畫、寫章程，然後真的照著做。別人覺得你古板，直到專案燒起來時發現只有你的部分如期完工。你的收藏排列大概精確到公分。'],
+    'ICRS': ['「血肉苦弱，機械飛升——順帶一提，我有備份。」',
+        '你冷靜、縝密，永遠多想三步，資料夾裡是資料夾的資料夾。東西壞了你反而興奮，因為終於有藉口拆開研究。你的收藏有清單、有編號，可能還有版本控制。'],
+    'ICFD': ['「我答應的牆，一塊磚都不會少。」',
+        '你把責任當呼吸，答應了就做到，過程中還會順手把別人漏掉的補完。你不說漂亮話，所以你說的每句話都有人信。缺點？你對自己和別人一樣嚴。'],
+    'ICFS': ['「我知道的比我說的多。」',
+        '你忠誠可靠，但心裡永遠留著一層別人進不去的房間。你習慣自己消化問題、自己收拾殘局，等大家發現時事情已經處理完了。你的秘密收藏清單，大概連家人都沒看過。'],
+    'IHFD': ['「既然要做，就做到值得被記住。」',
+        '你有一種罕見的組合：熱烈而優雅。你全力以赴，也在乎姿態好不好看；朋友被你鼓舞，卻很少看見你深夜的自我懷疑。你挑公仔的眼光極高——醜的東西進不了你的櫃子。'],
+    'IHFS': ['「等你回頭，我已經在下一個地方了。」',
+        '你來去如風：說走就走、說買就買，行程永遠比朋友的想像快半拍。你不愛被綁住，也不多解釋自己，但該出現的時刻從沒缺席。你的開箱速度大概是全群組最快的。'],
+    'IHRD': ['「講什麼戰術，衝就對了——但我贏得比你想的多。」',
+        '你直來直往、嗓門最大、笑聲最響，朋友有事你第一個到。大家以為你只憑衝勁，其實你心裡精得很，只是懶得解釋。你的收藏不多講究，但每一隻都陪你「實戰」過。'],
+    'IHRS': ['「我一直都在，只是你沒看見。」',
+        '你話少、標準高、觀察力驚人，默默守著自己在乎的人事物。你不需要掌聲，但你在的地方就是不會出事。你的櫃子可能不大，但每一隻都是精挑細選的完美品相。'],
+    'XCRD': ['「我的計算沒有錯，錯的是分配。」',
+        '你能力極強、做事極穩，但你受夠了功勞被拿走。你不吵不鬧，只是默默記著帳。給你一個公平的舞台，你能蓋出誰都拆不掉的東西。你的收藏大概按結構強度排列（開玩笑的……嗎？）。'],
+    'XCRS': ['「我是阿爾法留斯。」',
+        '沒有人真的知道你在想什麼——這正是你要的效果。你擅長觀察、佈局、多線並行，事情總在不知不覺間照你的劇本走。你買了什麼、藏了什麼、值多少，永遠是謎。'],
+    'XCFD': ['「慢，不代表停。」',
+        '你的耐受度高得驚人：延期、跳票、梅雨、漲價，你聳聳肩繼續前進。你認定的事就會走到底，用你自己的步調。桌面看起來「有生態系」，但你什麼都找得到，什麼都丟不掉。'],
+    'XCFS': ['「知識沒有錯，錯的是害怕知識的人。」',
+        '你聰明、好奇、藏書量驚人，永遠在研究別人沒聽過的東西。你堅信理解就是力量，偶爾因此鑽進別人勸不出來的深坑。你的收藏附帶考據筆記，冷知識存量全群組第一。'],
+    'XHFD': ['「先動手，後悔的事交給明天。」',
+        '你的能量條永遠是滿的：想到就做、看到就買、憤怒與熱情都不打折。你討厭虛偽勝過討厭敵人，朋友又怕你又愛你。剁手速度快過大腦，但你從不後悔——大概。'],
+    'XHFS': ['「我只是讓他們看見自己的樣子。」',
+        '你看得太清楚了——人性的、體制的、藏在客套話底下的。你用黑色幽默武裝自己，嚇跑不值得的人。真正被你放進心裡的人，會得到你出乎意料的溫柔。'],
+    'XHRD': ['「WAAAGH！（翻譯：衝啊！）」',
+        '你的人生哲學簡單而強大：更大、更快、更好玩。想太多是別人的事，你負責把氣氛拉滿。神奇的是——你相信會成的事，常常真的就成了。紅色的跑比較快，你懂的。'],
+    'XHRS': ['「王座很好，但為什麼坐的人不是我？」',
+        '你有魅力、有野心、有讓人願意跟隨的本事。你聽得進所有人說話，然後做自己早就決定的事。站在光裡你是完美的領袖——只是小心深夜裡那些太好聽的耳語。'],
+}
+
 
 @public_route('/quiz')
 def quiz_page():
     """陣營心理測驗 — result links to codex + that legion's products.
-    Product link prefers the legion tag once products are tagged."""
+    Product link prefers the legion tag once products are tagged.
+    A ?r=<KEY> share link renders per-result OG tags (share cards)."""
     import posdb as _posdb
     all_tags = set()
     for prod in _posdb.get_products():
@@ -2935,7 +3160,12 @@ def quiz_page():
             url = (f"/products?tag={r['term']}" if r['term'] in all_tags
                    else f"/products?search={r['term']}")
         results[key] = {**r, 'products_url': url}
-    return render_template('public/quiz.html', results=results)
+    share_key = (request.args.get('r') or '').upper() or None
+    if share_key not in QUIZ_RESULTS:
+        share_key = None
+    share = QUIZ_RESULTS[share_key] if share_key else None
+    return render_template('public/quiz.html', results=results,
+                           flavor=QUIZ_FLAVOR, share_key=share_key, share=share)
 
 
 @public_route('/checkout')
@@ -3073,6 +3303,8 @@ def auth_google_callback():
         'google', info['sub'], info.get('email'), info.get('name'), info.get('picture'))
     session.permanent = True
     session['member_id'] = member['id']
+    if member.get('_is_new'):
+        _grant_signup_coupon(member['id'])
     return redirect(_auth_next(_safe_next(session.pop('login_next', '/')), member.get('_is_new'), 'google'))
 
 
@@ -3151,6 +3383,8 @@ def auth_line_callback():
     memberdb.set_line_user(member['id'], prof['userId'])
     session.permanent = True
     session['member_id'] = member['id']
+    if member.get('_is_new'):
+        _grant_signup_coupon(member['id'])
     return redirect(_auth_next(_safe_next(session.pop('login_next', '/')), member.get('_is_new'), 'line'))
 
 
@@ -3176,6 +3410,7 @@ def account_page():
     return render_template('public/account.html', member=member,
                            orders=orders, wish_products=wish_products,
                            notify_skus=notify, bank_info=BANK_TRANSFER_INFO,
+                           coupons=_account_coupons(member['id']),
                            addresses=memberdb.list_addresses(member['id']),
                            identities=memberdb.identities_for(member['id']),
                            line_bind_code=memberdb.get_bind_code(member['id']))
@@ -3272,17 +3507,27 @@ def api_submit_review():
         else:
             photo_errors += 1
 
+    # verified-purchase reviews publish instantly (and earn a reward coupon);
+    # everything else queues for moderation.
+    status = 'approved' if verified else 'pending'
     rid = memberdb.save_review(member['id'], sku, {
         'category': category, 'slug': slug, 'product_name': product_name,
         'rating': rating, 'title': title, 'body': body, 'photos': photos,
         'verified_purchase': verified, 'author_name': member.get('name') or '會員',
-    })
+    }, status=status)
     if not rid:
         return jsonify({'error': 'save', 'message': '儲存失敗'}), 500
-    msg = '感謝您的評價！送出後經審核就會顯示。'
+    if status == 'approved':
+        try:
+            _grant_review_reward(memberdb.get_review_by_id(rid))
+        except Exception as e:
+            print(f"review reward grant failed: {e}")
+        msg = '感謝您的評價！已通過審核並顯示於商品頁。'
+    else:
+        msg = '感謝您的評價！送出後經審核就會顯示。'
     if photo_errors:
         msg += f'（{photo_errors} 張照片格式不支援，已略過）'
-    return jsonify({'success': True, 'status': 'pending', 'message': msg})
+    return jsonify({'success': True, 'status': status, 'message': msg})
 
 
 def _review_api_dict(r):
@@ -3337,10 +3582,67 @@ def api_internal_review_action(review_id, action):
     status = {'approve': 'approved', 'reject': 'rejected'}.get(action)
     if not status:
         return jsonify({'error': 'bad action'}), 400
+    before = memberdb.get_review_by_id(review_id)
     updated = memberdb.set_review_status(review_id, status)
     if not updated:
         return jsonify({'error': 'not found'}), 404
+    if status == 'approved' and (not before or before.get('status') != 'approved'):
+        try:
+            _grant_review_reward(updated)
+        except Exception as e:
+            print(f"review reward grant failed: {e}")
+    elif status == 'rejected':
+        try:
+            memberdb.revoke_review_coupon(review_id)
+        except Exception as e:
+            print(f"review reward revoke failed: {e}")
     return jsonify({'success': True, 'status': updated['status']})
+
+
+@app.route('/api/internal/coupons/release', methods=['POST'])
+def api_internal_coupon_release():
+    """POS -> release an order's spent coupon rows back to the wallet (order
+    cancelled). Idempotent. Shared-secret auth."""
+    if not _valid_storefront_key(request.headers.get('X-Storefront-Key')):
+        return jsonify({'error': 'bad key'}), 401
+    data = request.get_json(silent=True) or {}
+    order_no = (data.get('order_no') or '').strip()
+    if not order_no:
+        return jsonify({'success': False, 'error': 'need order_no'}), 400
+    released = memberdb.release_coupon_by_order(order_no)
+    return jsonify({'success': True, 'released': released})
+
+
+@app.route('/api/internal/coupons/grant', methods=['POST'])
+def api_internal_coupon_grant():
+    """POS admin -> manually grant a coupon to a member (matched by phone then
+    email, like api_internal_notify). Shared-secret auth."""
+    if not _valid_storefront_key(request.headers.get('X-Storefront-Key')):
+        return jsonify({'error': 'bad key'}), 401
+    import posdb as _posdb
+    import sqlite3 as _sq
+    data = request.get_json(silent=True) or {}
+    code = (data.get('code') or '').strip().upper()
+    phone = (data.get('phone') or '').strip()
+    email = (data.get('email') or '').strip()
+    if not code:
+        return jsonify({'success': False, 'error': 'need code'}), 400
+    if not _posdb.get_coupon(code):
+        return jsonify({'success': False, 'error': '優惠券不存在'}), 400
+    conn = _sq.connect(memberdb.DB_PATH)
+    conn.row_factory = _sq.Row
+    row = None
+    if phone:
+        row = conn.execute("SELECT id FROM members WHERE phone = ?", (phone,)).fetchone()
+    if not row and email:
+        row = conn.execute("SELECT id FROM members WHERE email = ?", (email,)).fetchone()
+    conn.close()
+    if not row:
+        return jsonify({'success': False, 'error': '找不到會員'}), 404
+    gid = memberdb.grant_coupon(row['id'], code, 'manual', '')
+    if not gid:
+        return jsonify({'success': False, 'error': '已發放過此優惠券'}), 409
+    return jsonify({'success': True})
 
 
 @app.route('/api/internal/notify', methods=['POST'])

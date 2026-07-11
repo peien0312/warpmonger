@@ -7,7 +7,7 @@
 【訂購商品】
 {% for it in items %}・{{ it.title }} x{{ it.qty }} {% if it.price %}NT${{ it.line_total|ntd }}{% else %}詢價{% endif %}（{{ it.avail_label }}）
 {% endfor %}
-商品合計 NT${{ subtotal|ntd }}／運費 {% if shipping_fee %}NT${{ shipping_fee|ntd }}{% else %}免運{% endif %}／應付總額 NT${{ grand_total|ntd }}
+商品合計 NT${{ subtotal|ntd }}／運費 {% if shipping_fee %}NT${{ shipping_fee|ntd }}{% else %}免運{% endif %}{% if coupon_discount %}／優惠券折抵 −NT${{ coupon_discount|ntd }}{% endif %}／應付總額 NT${{ (grand_total - coupon_discount)|ntd }}
 
 收件：{{ recipient_name }} {{ recipient_phone }}
 取貨：{{ delivery_label }}{% if dest %}｜{{ dest }}{% endif %}

@@ -4,6 +4,12 @@
 
 {% block meta_description %}16 題四維度測驗，測出你最像哪位戰鎚原體 — 基里曼、聖吉爾斯、魯斯、馬格努斯、荷魯斯…共 16 種結果，測完直接逛該軍團的公仔。{% endblock %}
 
+{% block og_title %}{% if share %}我是{{ share.character }} — {{ share.legion }}｜你是哪位原體？{% else %}{{ super() }}{% endif %}{% endblock %}
+
+{% block og_description %}{% if share %}{{ flavor[share_key][0] }}16 題原體人格測驗，測出你的軍團——來看看你是誰。{% else %}{{ super() }}{% endif %}{% endblock %}
+
+{% block og_image %}{{ request.url_root }}static/images/quiz/{{ share_key if share else 'default' }}.png{% endblock %}
+
 {% block content %}
 <div class="container quiz-page">
     <!-- intro -->
@@ -41,6 +47,12 @@
             <button class="btn btn-secondary btn-sm" onclick="location.href='/quiz'">重新測驗</button>
             <span id="share-msg" class="profile-msg"></span>
         </div>
+        {% if not member %}
+        <div class="quiz-cta">
+            <p>喜歡你的結果嗎？註冊會員，領取 NT$50 首購禮。</p>
+            <a id="quiz-cta-link" class="btn btn-primary" href="/login">註冊 / 登入</a>
+        </div>
+        {% endif %}
     </div>
 </div>
 {% endblock %}
@@ -51,41 +63,9 @@ const RESULTS = {{ results|tojson }};
 
 const AXIS_LABEL = {I: '忠誠', X: '反骨', H: '熱血', C: '沉穩', F: '信念', R: '理性', D: '直率', S: '深沉'};
 
-// original epigraphs + descriptions (our own writing)
-const FLAVOR = {
-    'ICRD': ['「先有制度，才有勝利。」',
-        '你是天生的統籌者：讀說明書、訂計畫、寫章程，然後真的照著做。別人覺得你古板，直到專案燒起來時發現只有你的部分如期完工。你的收藏排列大概精確到公分。'],
-    'ICRS': ['「血肉苦弱，機械飛升——順帶一提，我有備份。」',
-        '你冷靜、縝密，永遠多想三步，資料夾裡是資料夾的資料夾。東西壞了你反而興奮，因為終於有藉口拆開研究。你的收藏有清單、有編號，可能還有版本控制。'],
-    'ICFD': ['「我答應的牆，一塊磚都不會少。」',
-        '你把責任當呼吸，答應了就做到，過程中還會順手把別人漏掉的補完。你不說漂亮話，所以你說的每句話都有人信。缺點？你對自己和別人一樣嚴。'],
-    'ICFS': ['「我知道的比我說的多。」',
-        '你忠誠可靠，但心裡永遠留著一層別人進不去的房間。你習慣自己消化問題、自己收拾殘局，等大家發現時事情已經處理完了。你的秘密收藏清單，大概連家人都沒看過。'],
-    'IHFD': ['「既然要做，就做到值得被記住。」',
-        '你有一種罕見的組合：熱烈而優雅。你全力以赴，也在乎姿態好不好看；朋友被你鼓舞，卻很少看見你深夜的自我懷疑。你挑公仔的眼光極高——醜的東西進不了你的櫃子。'],
-    'IHFS': ['「等你回頭，我已經在下一個地方了。」',
-        '你來去如風：說走就走、說買就買，行程永遠比朋友的想像快半拍。你不愛被綁住，也不多解釋自己，但該出現的時刻從沒缺席。你的開箱速度大概是全群組最快的。'],
-    'IHRD': ['「講什麼戰術，衝就對了——但我贏得比你想的多。」',
-        '你直來直往、嗓門最大、笑聲最響，朋友有事你第一個到。大家以為你只憑衝勁，其實你心裡精得很，只是懶得解釋。你的收藏不多講究，但每一隻都陪你「實戰」過。'],
-    'IHRS': ['「我一直都在，只是你沒看見。」',
-        '你話少、標準高、觀察力驚人，默默守著自己在乎的人事物。你不需要掌聲，但你在的地方就是不會出事。你的櫃子可能不大，但每一隻都是精挑細選的完美品相。'],
-    'XCRD': ['「我的計算沒有錯，錯的是分配。」',
-        '你能力極強、做事極穩，但你受夠了功勞被拿走。你不吵不鬧，只是默默記著帳。給你一個公平的舞台，你能蓋出誰都拆不掉的東西。你的收藏大概按結構強度排列（開玩笑的……嗎？）。'],
-    'XCRS': ['「我是阿爾法留斯。」',
-        '沒有人真的知道你在想什麼——這正是你要的效果。你擅長觀察、佈局、多線並行，事情總在不知不覺間照你的劇本走。你買了什麼、藏了什麼、值多少，永遠是謎。'],
-    'XCFD': ['「慢，不代表停。」',
-        '你的耐受度高得驚人：延期、跳票、梅雨、漲價，你聳聳肩繼續前進。你認定的事就會走到底，用你自己的步調。桌面看起來「有生態系」，但你什麼都找得到，什麼都丟不掉。'],
-    'XCFS': ['「知識沒有錯，錯的是害怕知識的人。」',
-        '你聰明、好奇、藏書量驚人，永遠在研究別人沒聽過的東西。你堅信理解就是力量，偶爾因此鑽進別人勸不出來的深坑。你的收藏附帶考據筆記，冷知識存量全群組第一。'],
-    'XHFD': ['「先動手，後悔的事交給明天。」',
-        '你的能量條永遠是滿的：想到就做、看到就買、憤怒與熱情都不打折。你討厭虛偽勝過討厭敵人，朋友又怕你又愛你。剁手速度快過大腦，但你從不後悔——大概。'],
-    'XHFS': ['「我只是讓他們看見自己的樣子。」',
-        '你看得太清楚了——人性的、體制的、藏在客套話底下的。你用黑色幽默武裝自己，嚇跑不值得的人。真正被你放進心裡的人，會得到你出乎意料的溫柔。'],
-    'XHRD': ['「WAAAGH！（翻譯：衝啊！）」',
-        '你的人生哲學簡單而強大：更大、更快、更好玩。想太多是別人的事，你負責把氣氛拉滿。神奇的是——你相信會成的事，常常真的就成了。紅色的跑比較快，你懂的。'],
-    'XHRS': ['「王座很好，但為什麼坐的人不是我？」',
-        '你有魅力、有野心、有讓人願意跟隨的本事。你聽得進所有人說話，然後做自己早就決定的事。站在光裡你是完美的領袖——只是小心深夜裡那些太好聽的耳語。'],
-};
+// epigraphs + descriptions (our own writing) — moved to app.py QUIZ_FLAVOR,
+// server-injected so og:description share cards can reuse the epigraph.
+const FLAVOR = {{ flavor|tojson }};
 
 // 16 original questions — 4 per axis; each option votes one pole
 const QUESTIONS = [
@@ -274,6 +254,8 @@ function showResult(key, axisVotes, isNew) {
         url += '&s=' + ['I', 'H', 'F', 'D'].map(c => axisVotes[c] || 0).join('');
     }
     history.replaceState(null, '', url);
+    const cta = document.getElementById('quiz-cta-link');
+    if (cta) cta.href = '/login?next=' + encodeURIComponent(url);
 
     // Only on a real completion (not when viewing a shared ?r= link)
     if (isNew) {

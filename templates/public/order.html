@@ -26,6 +26,7 @@
             </li>
             {% endfor %}
             {% if order.shipping_fee_twd %}<li>運費 NT${{ order.shipping_fee_twd|ntd }}</li>{% endif %}
+            {% if order.coupon_discount_twd %}<li>優惠券折抵{% if order.coupon_code %}（{{ order.coupon_code }}）{% endif %} −NT${{ order.coupon_discount_twd|ntd }}</li>{% endif %}
         </ul>
         {% set pm = {'payuni':'線上付款','linepay':'LINE Pay','cod':'貨到付款','transfer':'銀行轉帳'} %}
         {% set dm = {'711':'7-11 店到店取貨','fami':'全家 店到店取貨','post':'郵局宅配','meet':'面交'} %}
