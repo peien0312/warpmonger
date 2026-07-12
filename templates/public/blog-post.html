@@ -1,6 +1,6 @@
 {% extends "public/base.html" %}
 
-{% block title %}{{ post.title }} | Blog - ABBEY'S TOYS 阿北玩具堂{% endblock %}
+{% block title %}{{ post.title | truncate(40, True, '…') }}｜阿北玩具堂 Blog{% endblock %}
 
 {% block meta_description %}{{ post.content[:155] }}...{% endblock %}
 

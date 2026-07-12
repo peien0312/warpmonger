@@ -207,7 +207,7 @@ html {
     pointer-events: none;
 }
 
-.hero h2 {
+.hero h1, .hero h2 {
     font-size: 3rem;
     margin-bottom: 20px;
     text-transform: uppercase;
@@ -2029,7 +2029,7 @@ section h2::after {
 }
 
 @media (max-width: 768px) {
-    .hero h2 {
+    .hero h1, .hero h2 {
         font-size: 2rem;
     }
 
@@ -3545,7 +3545,7 @@ body.menu-open {
         padding: 60px 0;
     }
 
-    .hero h2 {
+    .hero h1, .hero h2 {
         font-size: 1.5rem;
         letter-spacing: 1px;
     }

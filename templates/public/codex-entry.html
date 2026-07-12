@@ -1,6 +1,6 @@
 {% extends "public/base.html" %}
 
-{% block title %}{% if entry.title_zhtw %}{{ entry.title_zhtw }}（{{ entry.title }}）{% else %}{{ entry.title }}{% endif %} 背景故事與設定｜阿北玩具堂 背景圖鑑{% endblock %}
+{% block title %}{{ (entry.title_zhtw or entry.title) | truncate(30, True, '…') }} 背景故事與設定｜阿北玩具堂圖鑑{% endblock %}
 
 {% block meta_description %}{% if entry.title_zhtw %}{{ entry.title_zhtw }}（{{ entry.title }}）{% else %}{{ entry.title }}{% endif %}的背景故事、設定與相關模型。{{ (entry.content_plain or entry.content)[:110] }}{% endblock %}
 
