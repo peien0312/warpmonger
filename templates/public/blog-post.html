@@ -74,7 +74,7 @@
             {% if post.tags %}
             <div class="post-tags">
                 {% for tag in post.tags %}
-                <span class="tag">{{ tag }}</span>
+                <a href="{{ url_prefix }}/blog?tag={{ tag|urlencode }}" class="tag tag-link">{{ tag }}</a>
                 {% endfor %}
             </div>
             {% endif %}
@@ -83,6 +83,15 @@
         <div class="post-content">
             {{ post.content_html|safe }}
         </div>
+
+        {% if post.shop_tags %}
+        <div class="post-shop-tags">
+            <span class="post-shop-tags-label">🛒 想收這個派系？</span>
+            {% for tag in post.shop_tags %}
+            <a href="{{ url_prefix }}/products?tag={{ tag|urlencode }}" class="tag tag-link">{{ tag|tag_label }}</a>
+            {% endfor %}
+        </div>
+        {% endif %}
 
         <footer class="post-footer">
             <a href="{{ url_prefix }}/blog" class="btn btn-secondary">{{ t.back_to_blog }}</a>

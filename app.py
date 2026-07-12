@@ -1604,9 +1604,23 @@ def product_detail(category, slug):
 
 @public_route('/blog')
 def blog_page():
-    """Blog listing page"""
+    """Blog listing page, optionally filtered by ?tag="""
     posts = get_blog_posts()
-    return render_template('public/blog.html', posts=posts)
+
+    # tag chips with counts (from all published posts, not the filtered set)
+    tag_counts = {}
+    for p in posts:
+        for t in p.get('tags') or []:
+            tag_counts[t] = tag_counts.get(t, 0) + 1
+    blog_tags = [{'name': n, 'count': c} for n, c in tag_counts.items()]
+    blog_tags.sort(key=lambda t: (-t['count'], t['name'].lower()))
+
+    active_tag = request.args.get('tag', '').strip()
+    if active_tag:
+        posts = [p for p in posts if active_tag in (p.get('tags') or [])]
+
+    return render_template('public/blog.html', posts=posts,
+                           blog_tags=blog_tags, active_tag=active_tag)
 
 _SPOILER_MD_BLOCK = re.compile(r'^:::spoiler[ \t]*([^\n]*)\n(.*?)^:::[ \t]*$',
                                re.M | re.S)
@@ -1648,6 +1662,10 @@ def blog_post_page(slug):
     # Spoiler-free plain text for meta description / schema.org articleBody
     post['content_plain'] = _SPOILER_INLINE.sub(
         '……', _SPOILER_MD_BLOCK.sub('', post['content']))
+    # Post tags that are also product tags → 相關商品 links
+    product_tags = {t['name'] for t in get_all_tags()}
+    post['shop_tags'] = [t for t in (post.get('tags') or [])
+                         if t in product_tags]
 
     return render_template('public/blog-post.html', post=post)
 

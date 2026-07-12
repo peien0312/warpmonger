@@ -4258,6 +4258,35 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
 }
 
 /* =====================================================================
+   Blog tags — clickable chips, listing tag-cloud filter, 相關商品 bridge
+   ===================================================================== */
+a.tag.tag-link {
+    text-decoration: none;
+    transition: border-color .15s, color .15s;
+}
+a.tag.tag-link:hover { border-color: #D9A441; }
+.blog-tag-cloud { margin: 0 0 26px; }
+.blog-tag-cloud .tag-active {
+    background: #6E4B2A;
+    color: #E6DAC4;
+    border-color: #D9A441;
+}
+.post-shop-tags {
+    margin: 28px 0 10px;
+    padding: 14px 16px;
+    border: 1px solid #6E4B2A;
+    border-left: 4px solid #D9A441;
+    border-radius: 8px;
+    background: #342A21;
+}
+.post-shop-tags-label {
+    margin-right: 10px;
+    color: #E6DAC4;
+    font-family: 'Noto Serif TC', 'Cinzel', serif;
+    letter-spacing: 1px;
+}
+
+/* =====================================================================
    劇透警告 spoiler reveals (blog posts) — stained-glass identity
    ===================================================================== */
 details.spoiler-block {
