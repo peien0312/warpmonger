@@ -1608,6 +1608,34 @@ def blog_page():
     posts = get_blog_posts()
     return render_template('public/blog.html', posts=posts)
 
+_SPOILER_MD_BLOCK = re.compile(r'^:::spoiler[ \t]*([^\n]*)\n(.*?)^:::[ \t]*$',
+                               re.M | re.S)
+_SPOILER_INLINE = re.compile(r'\|\|(.+?)\|\|')
+
+
+def markdown_with_spoilers(text):
+    """Markdown → HTML with click-to-reveal spoiler support.
+
+    Markdown syntax:
+      :::spoiler 自訂標題        ->  collapsed <details> box (title optional)
+      ...被隱藏的段落...
+      :::
+      ||短句||                   ->  blacked-out inline span, click to reveal
+    """
+    def _block(m):
+        title = m.group(1).strip() or '劇透警告'
+        inner = markdown.markdown(m.group(2))
+        return ('\n\n<details class="spoiler-block"><summary>⚠️ ' + title
+                + '（點我展開）</summary><div class="spoiler-body">'
+                + inner + '</div></details>\n\n')
+
+    html = markdown.markdown(_SPOILER_MD_BLOCK.sub(_block, text))
+    html = _SPOILER_INLINE.sub(
+        r'<span class="spoiler-inline" role="button" tabindex="0"'
+        r' title="劇透——點一下顯示">\1</span>', html)
+    return html
+
+
 @public_route('/blog/<slug>')
 def blog_post_page(slug):
     """Blog post detail page"""
@@ -1616,7 +1644,10 @@ def blog_post_page(slug):
         return "Post not found", 404
 
     # Convert markdown to HTML
-    post['content_html'] = markdown.markdown(post['content'])
+    post['content_html'] = markdown_with_spoilers(post['content'])
+    # Spoiler-free plain text for meta description / schema.org articleBody
+    post['content_plain'] = _SPOILER_INLINE.sub(
+        '……', _SPOILER_MD_BLOCK.sub('', post['content']))
 
     return render_template('public/blog-post.html', post=post)
 

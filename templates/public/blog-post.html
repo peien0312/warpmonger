@@ -2,11 +2,11 @@
 
 {% block title %}{{ post.title | truncate(40, True, '…') }}｜阿北玩具堂 Blog{% endblock %}
 
-{% block meta_description %}{{ post.content[:155] }}...{% endblock %}
+{% block meta_description %}{{ post.content_plain[:155] }}...{% endblock %}
 
 {% block og_type %}article{% endblock %}
 {% block og_title %}{{ post.title }}{% endblock %}
-{% block og_description %}{{ post.content[:200] }}{% endblock %}
+{% block og_description %}{{ post.content_plain[:200] }}{% endblock %}
 
 {% block structured_data %}
 <script type="application/ld+json">
@@ -33,7 +33,7 @@
     "@type": "WebPage",
     "@id": "{{ request.url }}"
   },
-  "articleBody": "{{ post.content|replace('\n', ' ')|replace('"', '\\"') }}"
+  "articleBody": "{{ post.content_plain|replace('\n', ' ')|replace('"', '\\"') }}"
 }
 </script>
 
@@ -89,4 +89,15 @@
         </footer>
     </article>
 </div>
+<script>
+document.querySelectorAll('.spoiler-inline').forEach(function (el) {
+    el.addEventListener('click', function () { el.classList.add('revealed'); });
+    el.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            el.classList.add('revealed');
+        }
+    });
+});
+</script>
 {% endblock %}

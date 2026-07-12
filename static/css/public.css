@@ -4258,6 +4258,53 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
 }
 
 /* =====================================================================
+   劇透警告 spoiler reveals (blog posts) — stained-glass identity
+   ===================================================================== */
+details.spoiler-block {
+    margin: 18px 0;
+    border: 1px solid #6E4B2A;
+    border-left: 4px solid #8FA3B8;
+    border-radius: 8px;
+    background: #17100B;
+}
+details.spoiler-block summary {
+    padding: 12px 16px;
+    cursor: pointer;
+    color: #8FA3B8;
+    font-family: 'Noto Serif TC', 'Cinzel', serif;
+    letter-spacing: 1px;
+    list-style: none;
+}
+details.spoiler-block summary::-webkit-details-marker { display: none; }
+details.spoiler-block summary:hover { color: #D9A441; }
+details.spoiler-block[open] summary {
+    color: #D9A441;
+    border-bottom: 1px dashed #6E4B2A;
+}
+details.spoiler-block .spoiler-body { padding: 4px 16px 12px; }
+
+.spoiler-inline {
+    background: #17100B;
+    color: transparent;
+    border-radius: 4px;
+    padding: 0 6px;
+    cursor: pointer;
+    user-select: none;
+    transition: color .15s, background .15s;
+}
+.spoiler-inline:not(.revealed):hover,
+.spoiler-inline:not(.revealed):focus {
+    box-shadow: 0 0 0 1px #6E4B2A inset;
+    outline: none;
+}
+.spoiler-inline.revealed {
+    color: #E6DAC4;
+    background: #292019;
+    cursor: auto;
+    user-select: auto;
+}
+
+/* =====================================================================
    Mobile responsive fixes (iPhone-viewport pass)
    Appended last so these win by source order over the identity layer.
    ===================================================================== */
