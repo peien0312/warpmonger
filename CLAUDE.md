@@ -188,3 +188,12 @@ lead `#17100B`, oak bronze `#6E4B2A`, candle amber `#D9A441`, parchment
 Noto Sans TC. Signature: lead-came frames on cards, glass-panel hero.
 The identity layer lives at the bottom of `static/css/public.css` —
 prefer extending it over scattering new colors.
+
+## Tests
+
+`venv/bin/python -m pytest tests/ -q` — smoke-loads every public GET route,
+seeded detail pages, single-h1 / title-length SEO guards, and the
+member-price + availability parity rules mirrored from the POS.
+The POS fixture DB is built by the sibling repo's venv
+(tests/make_pos_fixture.py imports the POS models, so the schema can't
+drift from the source of truth). Run before every deploy.sh.
