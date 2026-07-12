@@ -8,6 +8,14 @@ ZONE=asia-east1-b
 VM=warpmonger-pos
 TARBALL=$(mktemp -t abbeys-deploy).tar.gz
 
+# this script ships the WORKING TREE — refuse to silently deploy
+# uncommitted changes (override with DEPLOY_DIRTY=1)
+if [[ -z "${DEPLOY_DIRTY:-}" && -n "$(git status --porcelain -- app.py mailer.py payuni.py posdb.py linepay.py linepush.py memberdb.py notify_arrivals.py templates static requirements.txt)" ]]; then
+    echo "✗ uncommitted changes in shipped files — commit first, or DEPLOY_DIRTY=1 to override" >&2
+    git status --short -- app.py templates static | head -10 >&2
+    exit 1
+fi
+
 echo "==> packing"
 tar czf "$TARBALL" \
     --exclude=venv --exclude=.git --exclude=__pycache__ \
