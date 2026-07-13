@@ -23,7 +23,13 @@
         {% if posts %}
         <div class="blog-posts">
             {% for post in posts %}
-            <article class="blog-post-preview">
+            <article class="blog-post-preview {% if post.cover %}has-cover{% endif %}">
+                {% if post.cover %}
+                <a href="{{ url_prefix }}/blog/{{ post.slug }}" class="preview-cover">
+                    <img src="{{ post.cover }}" alt="{{ post.title }}" loading="lazy">
+                </a>
+                {% endif %}
+                <div class="preview-body">
                 <h2><a href="{{ url_prefix }}/blog/{{ post.slug }}">{{ post.title }}</a></h2>
                 <p class="post-meta">
                     {{ post.date }}
@@ -38,6 +44,7 @@
                 </div>
                 {% endif %}
                 <a href="{{ url_prefix }}/blog/{{ post.slug }}" class="read-more">{{ t.read_more }}</a>
+                </div>
             </article>
             {% endfor %}
         </div>

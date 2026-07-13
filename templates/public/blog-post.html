@@ -7,6 +7,7 @@
 {% block og_type %}article{% endblock %}
 {% block og_title %}{{ post.title }}{% endblock %}
 {% block og_description %}{{ post.content_plain[:200] }}{% endblock %}
+{% if post.cover %}{% block og_image %}{{ request.url_root.rstrip('/') }}{{ post.cover }}{% endblock %}{% endif %}
 
 {% block structured_data %}
 <script type="application/ld+json">
@@ -14,6 +15,9 @@
   "@context": "https://schema.org",
   "@type": "BlogPosting",
   "headline": "{{ post.title }}",
+  {% if post.cover %}
+  "image": "{{ request.url_root.rstrip('/') }}{{ post.cover }}",
+  {% endif %}
   "datePublished": "{{ post.date }}",
   {% if post.author %}
   "author": {
@@ -79,6 +83,12 @@
             </div>
             {% endif %}
         </header>
+
+        {% if post.cover %}
+        <div class="post-cover">
+            <img src="{{ post.cover }}" alt="{{ post.title }}" loading="eager">
+        </div>
+        {% endif %}
 
         <div class="post-content">
             {{ post.content_html|safe }}

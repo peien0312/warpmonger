@@ -358,6 +358,7 @@ def get_blog_posts():
             "author": extra.get("author") or "",
             "excerpt": extra.get("excerpt") or body[:200],
             "content": body, "tags": extra.get("tags") or [],
+            "cover": extra.get("cover") or "",
         })
     return posts
 

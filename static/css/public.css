@@ -4334,6 +4334,54 @@ details.spoiler-block .spoiler-body { padding: 4px 16px 12px; }
 }
 
 /* =====================================================================
+   Blog cover images — hero on posts, thumbnails on the listing
+   ===================================================================== */
+.post-cover {
+    margin: 4px 0 26px;
+    border: 1px solid #6E4B2A;
+    border-radius: 10px;
+    overflow: hidden;
+    background: #17100B;
+}
+.post-cover img {
+    display: block;
+    width: 100%;
+    max-height: 420px;
+    object-fit: cover;
+}
+.post-content img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+    border: 1px solid #453729;
+}
+.blog-post-preview.has-cover {
+    display: flex;
+    gap: 18px;
+    align-items: flex-start;
+}
+.blog-post-preview .preview-cover {
+    flex: 0 0 168px;
+    border: 1px solid #453729;
+    border-radius: 8px;
+    overflow: hidden;
+    background: #17100B;
+}
+.blog-post-preview .preview-cover img {
+    display: block;
+    width: 168px;
+    height: 126px;
+    object-fit: cover;
+}
+.blog-post-preview .preview-body { flex: 1; min-width: 0; }
+@media (max-width: 768px) {
+    .blog-post-preview.has-cover { flex-direction: column; }
+    .blog-post-preview .preview-cover,
+    .blog-post-preview .preview-cover img { width: 100%; height: auto; flex: none; }
+    .blog-post-preview .preview-cover img { max-height: 200px; }
+}
+
+/* =====================================================================
    部落格留言 blog comments — stained-glass identity
    ===================================================================== */
 .blog-comments { margin: 36px 0 10px; }
