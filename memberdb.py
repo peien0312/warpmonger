@@ -121,6 +121,17 @@ def init():
             ON member_coupons(member_id);
         CREATE INDEX IF NOT EXISTS idx_member_coupons_order
             ON member_coupons(order_no);
+        CREATE TABLE IF NOT EXISTS blog_comments (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            member_id INTEGER NOT NULL REFERENCES members(id),
+            post_slug TEXT NOT NULL,
+            body TEXT NOT NULL,
+            author_name TEXT,
+            status TEXT NOT NULL DEFAULT 'visible',  -- visible|hidden (auto-accept; POS can hide)
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+        CREATE INDEX IF NOT EXISTS idx_blog_comments_slug
+            ON blog_comments(post_slug, status);
     """)
     # backfill identities from the legacy google_sub column
     # ("line:<uid>" rows were LINE logins, everything else Google)
@@ -771,6 +782,82 @@ def set_review_status(review_id, status):
     if not changed or not row:
         return None
     return _review_row(row)
+
+
+# ----- blog comments (部落格留言) -----
+# Auto-accepted (status 'visible' on insert, text only); the POS moderation
+# page can hide/show/delete them retroactively via the internal API.
+
+def add_blog_comment(member_id, post_slug, body, author_name):
+    """Insert a comment, visible immediately. Returns the new row id."""
+    conn = _conn()
+    cur = conn.execute("""
+        INSERT INTO blog_comments (member_id, post_slug, body, author_name)
+        VALUES (?, ?, ?, ?)
+    """, (member_id, post_slug, body, author_name))
+    conn.commit()
+    cid = cur.lastrowid
+    conn.close()
+    return cid
+
+
+def last_blog_comment_at(member_id):
+    """Timestamp of the member's most recent comment (flood guard)."""
+    conn = _conn()
+    row = conn.execute(
+        "SELECT created_at FROM blog_comments WHERE member_id = ? "
+        "ORDER BY id DESC LIMIT 1", (member_id,)).fetchone()
+    conn.close()
+    return row["created_at"] if row else None
+
+
+def blog_comments_for(post_slug):
+    """Visible comments for a post, oldest first (conversation order)."""
+    conn = _conn()
+    rows = conn.execute("""
+        SELECT * FROM blog_comments
+        WHERE post_slug = ? AND status = 'visible' ORDER BY id
+    """, (post_slug,)).fetchall()
+    conn.close()
+    return [dict(r) for r in rows]
+
+
+def blog_comments_list(status=None, limit=300):
+    """All comments for POS moderation, newest first."""
+    conn = _conn()
+    if status in ("visible", "hidden"):
+        rows = conn.execute(
+            "SELECT * FROM blog_comments WHERE status = ? "
+            "ORDER BY id DESC LIMIT ?", (status, limit)).fetchall()
+    else:
+        rows = conn.execute(
+            "SELECT * FROM blog_comments ORDER BY id DESC LIMIT ?",
+            (limit,)).fetchall()
+    conn.close()
+    return [dict(r) for r in rows]
+
+
+def set_blog_comment_status(comment_id, status):
+    """POS moderation: 'visible' or 'hidden'. Returns the updated row."""
+    if status not in ("visible", "hidden"):
+        return None
+    conn = _conn()
+    cur = conn.execute("UPDATE blog_comments SET status = ? WHERE id = ?",
+                       (status, comment_id))
+    conn.commit()
+    row = conn.execute("SELECT * FROM blog_comments WHERE id = ?",
+                       (comment_id,)).fetchone()
+    conn.close()
+    return dict(row) if cur.rowcount and row else None
+
+
+def delete_blog_comment(comment_id):
+    """POS moderation: permanently remove a comment."""
+    conn = _conn()
+    cur = conn.execute("DELETE FROM blog_comments WHERE id = ?", (comment_id,))
+    conn.commit()
+    conn.close()
+    return bool(cur.rowcount)
 
 
 # ----- coupon wallet (definitions live in the POS; redemptions owned here) -----

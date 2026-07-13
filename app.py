@@ -1667,7 +1667,9 @@ def blog_post_page(slug):
     post['shop_tags'] = [t for t in (post.get('tags') or [])
                          if t in product_tags]
 
-    return render_template('public/blog-post.html', post=post)
+    comments = memberdb.blog_comments_for(slug)
+    return render_template('public/blog-post.html', post=post,
+                           comments=comments, member=current_member())
 
 @public_route('/promotions')
 def promotions_page():
@@ -3673,6 +3675,67 @@ def api_internal_review_action(review_id, action):
             memberdb.revoke_review_coupon(review_id)
         except Exception as e:
             print(f"review reward revoke failed: {e}")
+    return jsonify({'success': True, 'status': updated['status']})
+
+
+@app.route('/api/blog-comments', methods=['POST'])
+def api_submit_blog_comment():
+    """Member posts a text comment on a blog post. Auto-accepted (visible
+    immediately); the POS can hide/delete it retroactively."""
+    member = current_member()
+    if not member:
+        return jsonify({'error': 'login', 'login_url': '/login'}), 401
+    f = request.form
+    slug = (f.get('post_slug') or '').strip()
+    body = (f.get('body') or '').strip()[:1000]
+    if not slug or not get_blog_post(slug):
+        return jsonify({'error': 'bad', 'message': '找不到這篇文章'}), 400
+    if len(body) < 2:
+        return jsonify({'error': 'bad', 'message': '留言太短了'}), 400
+    # flood guard: one comment per member per 20 seconds
+    last = memberdb.last_blog_comment_at(member['id'])
+    if last:
+        try:
+            age = (datetime.utcnow()
+                   - datetime.strptime(last[:19], '%Y-%m-%d %H:%M:%S')).total_seconds()
+            if age < 20:
+                return jsonify({'error': 'slow',
+                                'message': '留言太頻繁，請稍等幾秒再送出'}), 429
+        except ValueError:
+            pass
+    cid = memberdb.add_blog_comment(
+        member['id'], slug, body, member.get('name') or '會員')
+    return jsonify({'success': True, 'id': cid})
+
+
+@app.route('/api/internal/blog-comments/list', methods=['GET'])
+def api_internal_blog_comments_list():
+    """POS moderation: blog comments by status (default all), newest first."""
+    if not _valid_storefront_key(request.headers.get('X-Storefront-Key')):
+        return jsonify({'error': 'bad key'}), 401
+    status = (request.args.get('status') or 'all').strip().lower()
+    rows = memberdb.blog_comments_list(None if status == 'all' else status)
+    for r in rows:
+        post = get_blog_post(r['post_slug'])
+        r['post_title'] = post['title'] if post else r['post_slug']
+    return jsonify({'comments': rows, 'count': len(rows)})
+
+
+@app.route('/api/internal/blog-comments/<int:comment_id>/<action>', methods=['POST'])
+def api_internal_blog_comment_action(comment_id, action):
+    """POS moderation: hide / show / delete a blog comment."""
+    if not _valid_storefront_key(request.headers.get('X-Storefront-Key')):
+        return jsonify({'error': 'bad key'}), 401
+    if action == 'delete':
+        if not memberdb.delete_blog_comment(comment_id):
+            return jsonify({'error': 'not found'}), 404
+        return jsonify({'success': True, 'deleted': True})
+    status = {'hide': 'hidden', 'show': 'visible'}.get(action)
+    if not status:
+        return jsonify({'error': 'bad action'}), 400
+    updated = memberdb.set_blog_comment_status(comment_id, status)
+    if not updated:
+        return jsonify({'error': 'not found'}), 404
     return jsonify({'success': True, 'status': updated['status']})
 
 

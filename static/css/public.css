@@ -4334,6 +4334,61 @@ details.spoiler-block .spoiler-body { padding: 4px 16px 12px; }
 }
 
 /* =====================================================================
+   部落格留言 blog comments — stained-glass identity
+   ===================================================================== */
+.blog-comments { margin: 36px 0 10px; }
+.blog-comments h2 {
+    font-family: 'Noto Serif TC', 'Cinzel', serif;
+    color: #D9A441;
+    font-size: 1.25rem;
+    letter-spacing: 1px;
+    border-bottom: 1px solid #6E4B2A;
+    padding-bottom: 8px;
+}
+.comment-card {
+    margin: 14px 0;
+    padding: 12px 16px;
+    background: #292019;
+    border: 1px solid #453729;
+    border-left: 3px solid #6E4B2A;
+    border-radius: 6px;
+}
+.comment-meta { margin-bottom: 6px; font-size: 0.85rem; }
+.comment-author {
+    color: #D9A441;
+    font-weight: 700;
+    margin-right: 10px;
+}
+.comment-date { color: #948669; }
+.comment-body {
+    color: #E6DAC4;
+    margin: 0;
+    white-space: pre-line;
+    line-height: 1.7;
+}
+.comment-empty, .comment-login-prompt { color: #948669; }
+.comment-login-prompt a { color: #D9A441; }
+.comment-form { margin-top: 18px; }
+.comment-form textarea {
+    width: 100%;
+    box-sizing: border-box;
+    background: #17100B;
+    color: #E6DAC4;
+    border: 1px solid #6E4B2A;
+    border-radius: 6px;
+    padding: 10px 12px;
+    resize: vertical;
+}
+.comment-form textarea:focus { outline: none; border-color: #D9A441; }
+.comment-form-actions {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-top: 10px;
+}
+.comment-msg { font-size: 0.88rem; color: #d98a8a; }
+
+/* =====================================================================
    Mobile responsive fixes (iPhone-viewport pass)
    Appended last so these win by source order over the identity layer.
    ===================================================================== */

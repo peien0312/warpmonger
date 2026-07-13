@@ -93,12 +93,67 @@
         </div>
         {% endif %}
 
+        <section class="blog-comments" id="comments">
+            <h2>留言（{{ comments|length }}）</h2>
+            {% for c in comments %}
+            <div class="comment-card">
+                <div class="comment-meta">
+                    <span class="comment-author">{{ c.author_name or '會員' }}</span>
+                    <span class="comment-date">{{ (c.created_at or '')[:16] }}</span>
+                </div>
+                <p class="comment-body">{{ c.body }}</p>
+            </div>
+            {% else %}
+            <p class="comment-empty">還沒有人留言——搶頭香聊聊你的看法吧。</p>
+            {% endfor %}
+
+            {% if member %}
+            <form id="comment-form" class="comment-form">
+                <input type="hidden" name="post_slug" value="{{ post.slug }}">
+                <textarea name="body" rows="3" maxlength="1000" required
+                          placeholder="以 {{ member.name or '會員' }} 的身分留言…"></textarea>
+                <div class="comment-form-actions">
+                    <button type="submit" class="btn btn-primary">送出留言</button>
+                    <span id="comment-msg" class="comment-msg"></span>
+                </div>
+            </form>
+            {% else %}
+            <p class="comment-login-prompt">
+                <a href="{{ url_prefix }}/login?next={{ request.path|urlencode }}">登入會員</a>即可留言。
+            </p>
+            {% endif %}
+        </section>
+
         <footer class="post-footer">
             <a href="{{ url_prefix }}/blog" class="btn btn-secondary">{{ t.back_to_blog }}</a>
         </footer>
     </article>
 </div>
 <script>
+(function () {
+    const form = document.getElementById('comment-form');
+    if (!form) return;
+    form.addEventListener('submit', async function (e) {
+        e.preventDefault();
+        const btn = form.querySelector('button[type="submit"]');
+        const msg = document.getElementById('comment-msg');
+        btn.disabled = true;
+        try {
+            const r = await fetch('/api/blog-comments', {method: 'POST', body: new FormData(form)});
+            const data = await r.json().catch(() => ({}));
+            if (r.ok && data.success) {
+                location.hash = 'comments';
+                location.reload();
+                return;
+            }
+            if (r.status === 401 && data.login_url) { location.href = data.login_url; return; }
+            msg.textContent = data.message || '送出失敗，請再試一次';
+        } catch (err) {
+            msg.textContent = '連線失敗，請再試一次';
+        }
+        btn.disabled = false;
+    });
+})();
 document.querySelectorAll('.spoiler-inline').forEach(function (el) {
     el.addEventListener('click', function () { el.classList.add('revealed'); });
     el.addEventListener('keydown', function (e) {
