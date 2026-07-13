@@ -2509,6 +2509,12 @@ def serve_category_icon(slug, filename):
     images_dir = os.path.join(CATEGORIES_DIR, slug, 'images')
     return send_from_directory(images_dir, filename)
 
+@app.route('/static/images/blog/<filename>')
+def serve_blog_image(filename):
+    """Serve blog images uploaded via the POS admin (POS media/blog/)."""
+    import posdb as _posdb
+    return send_from_directory(os.path.join(_posdb.POS_MEDIA, 'blog'), filename)
+
 # ===== Cache Warming =====
 
 def warm_cache():
