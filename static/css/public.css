@@ -4352,6 +4352,19 @@ details.spoiler-block .spoiler-body { padding: 4px 16px 12px; }
     max-height: 340px;
     object-fit: contain;
 }
+.post-cover a { display: block; text-decoration: none; position: relative; }
+.post-cover a:hover img { opacity: 0.92; }
+.post-cover-shop {
+    display: block;
+    padding: 6px 10px;
+    background: #17100B;
+    color: #D9A441;
+    font-size: 0.8rem;
+    letter-spacing: 1px;
+    text-align: center;
+    border-top: 1px solid #453729;
+}
+.post-cover a:hover .post-cover-shop { color: #E6DAC4; }
 /* sections below the article text must not wrap around the cover */
 .post-shop-tags, .blog-comments, .post-footer { clear: both; }
 @media (max-width: 768px) {

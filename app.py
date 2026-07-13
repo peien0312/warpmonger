@@ -1667,8 +1667,22 @@ def blog_post_page(slug):
     post['shop_tags'] = [t for t in (post.get('tags') or [])
                          if t in product_tags]
 
+    # product-image covers link back to their product page; the caption is
+    # the author's own description when set, else the product name
+    cover_link = None
+    cover_caption = post.get('cover_caption') or ''
+    m = re.match(r'^/static/images/products/([^/]+)/([^/]+)/', post.get('cover') or '')
+    if m:
+        cover_product = get_product(m.group(1), m.group(2))
+        if cover_product:
+            cover_link = f"/products/{m.group(1)}/{m.group(2)}"
+            if not cover_caption:
+                cover_caption = "🛒 " + (cover_product.get('zhtw_name')
+                                        or cover_product.get('title') or '圖中商品')
+
     comments = memberdb.blog_comments_for(slug)
     return render_template('public/blog-post.html', post=post,
+                           cover_link=cover_link, cover_caption=cover_caption,
                            comments=comments, member=current_member())
 
 @public_route('/promotions')

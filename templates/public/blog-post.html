@@ -86,7 +86,15 @@
 
         {% if post.cover %}
         <div class="post-cover">
-            <img src="{{ post.cover }}" alt="{{ post.title }}" loading="eager">
+            {% if cover_link %}
+            <a href="{{ url_prefix }}{{ cover_link }}" title="點圖看這款商品">
+                <img src="{{ post.cover }}" alt="{{ cover_caption or post.title }}" loading="eager">
+                {% if cover_caption %}<span class="post-cover-shop">{{ cover_caption }}</span>{% endif %}
+            </a>
+            {% else %}
+            <img src="{{ post.cover }}" alt="{{ cover_caption or post.title }}" loading="eager">
+            {% if cover_caption %}<span class="post-cover-shop">{{ cover_caption }}</span>{% endif %}
+            {% endif %}
         </div>
         {% endif %}
 

@@ -359,6 +359,7 @@ def get_blog_posts():
             "excerpt": extra.get("excerpt") or body[:200],
             "content": body, "tags": extra.get("tags") or [],
             "cover": extra.get("cover") or "",
+            "cover_caption": extra.get("cover_caption") or "",
         })
     return posts
 
