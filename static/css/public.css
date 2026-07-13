@@ -4337,7 +4337,9 @@ details.spoiler-block .spoiler-body { padding: 4px 16px 12px; }
    Blog cover images — hero on posts, thumbnails on the listing
    ===================================================================== */
 .post-cover {
-    margin: 4px 0 26px;
+    float: right;
+    width: min(300px, 44%);
+    margin: 6px 0 16px 22px;
     border: 1px solid #6E4B2A;
     border-radius: 10px;
     overflow: hidden;
@@ -4346,8 +4348,19 @@ details.spoiler-block .spoiler-body { padding: 4px 16px 12px; }
 .post-cover img {
     display: block;
     width: 100%;
-    max-height: 420px;
-    object-fit: cover;
+    height: auto;
+    max-height: 340px;
+    object-fit: contain;
+}
+/* sections below the article text must not wrap around the cover */
+.post-shop-tags, .blog-comments, .post-footer { clear: both; }
+@media (max-width: 768px) {
+    .post-cover {
+        float: none;
+        width: auto;
+        max-width: 260px;
+        margin: 4px auto 18px;
+    }
 }
 .post-content img {
     max-width: 100%;
