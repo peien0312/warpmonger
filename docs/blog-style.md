@@ -73,10 +73,20 @@
 - 品牌寫 **JOYTOY**（全大寫）。比例寫 1/18、1/25。
 - 產品 tag 保持英文 key（`Night Lords`），顯示時模板會套中文標籤。
 
+## 封面圖片（每篇必備）
+
+- 每篇文章都要在 POS 的「封面圖片」欄設定 `extra.cover`——**優先選店內商品圖**
+  （文章主角的模型：原體篇用原體模型、派系篇用招牌角色），
+  路徑格式 `/static/images/products/<分類>/<商品slug>/<檔名>.jpg`。
+- 封面同時成為：og:image／Twitter 卡（LINE、FB 分享縮圖）、文章頁 hero 圖、
+  部落格列表縮圖、schema.org image。**沒設封面＝分享出去沒有圖**。
+- 內文可用標準 markdown 圖片 `![說明](路徑)`，樣式會自動處理。
+- 沒有對應商品的主題（冷知識類），選一張氣氛相近的商品圖即可。
+
 ## 資料格式（storefront_posts）
 
 - `type='blog'`、`slug` 全小寫連字號英文、`title` 中文、`body` markdown。
-- `extra` JSON：`{"author": "阿北", "excerpt": "50~70字帶懸念的摘要", "tags": [中英混合 3~5 個]}`。
+- `extra` JSON：`{"author": "阿北", "excerpt": "50~70字帶懸念的摘要", "tags": [中英混合 3~5 個], "cover": "/static/images/products/..."}`。
 - `published_at` = `YYYY-MM-DD`；**草稿用 `is_published=0`**，
   阿北在 POS 審完改 1 才上線。
 - 發佈流程：冪等 upsert script（`ON CONFLICT(type,slug) DO UPDATE`）→
