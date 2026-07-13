@@ -1619,8 +1619,17 @@ def blog_page():
     if active_tag:
         posts = [p for p in posts if active_tag in (p.get('tags') or [])]
 
+    query = request.args.get('q', '').strip()
+    if query:
+        q = query.lower()
+        posts = [p for p in posts
+                 if q in p['title'].lower() or q in p['content'].lower()
+                 or q in (p.get('excerpt') or '').lower()
+                 or any(q in t.lower() for t in (p.get('tags') or []))]
+
     return render_template('public/blog.html', posts=posts,
-                           blog_tags=blog_tags, active_tag=active_tag)
+                           blog_tags=blog_tags, active_tag=active_tag,
+                           blog_query=query)
 
 _SPOILER_MD_BLOCK = re.compile(r'^:::spoiler[ \t]*([^\n]*)\n(.*?)^:::[ \t]*$',
                                re.M | re.S)

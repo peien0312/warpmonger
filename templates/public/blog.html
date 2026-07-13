@@ -9,6 +9,17 @@
     <div class="blog-page">
         <h1>Blog</h1>
 
+        <form class="blog-search" method="get" action="{{ url_prefix }}/blog">
+            <input type="search" name="q" value="{{ blog_query or '' }}"
+                   placeholder="搜尋文章：角色、軍團、事件…" aria-label="搜尋文章">
+            {% if active_tag %}<input type="hidden" name="tag" value="{{ active_tag }}">{% endif %}
+            <button type="submit">搜尋</button>
+        </form>
+        {% if blog_query %}
+        <p class="blog-search-info">「{{ blog_query }}」的搜尋結果：{{ posts|length }} 篇
+            <a href="{{ url_prefix }}/blog">清除</a></p>
+        {% endif %}
+
         {% if blog_tags %}
         <div class="blog-tag-cloud">
             <a href="{{ url_prefix }}/blog"
