@@ -7,7 +7,7 @@
 {% block og_type %}article{% endblock %}
 {% block og_title %}{{ post.title }}{% endblock %}
 {% block og_description %}{{ post.content_plain[:200] }}{% endblock %}
-{% if post.cover %}{% block og_image %}{{ request.url_root.rstrip('/') }}{{ post.cover }}{% endblock %}{% endif %}
+{% block og_image %}{% if post.cover %}{{ request.url_root.rstrip('/') }}{{ post.cover }}{% else %}{{ request.url_root }}static/images/abbeys_logo_round.png{% endif %}{% endblock %}
 
 {% block structured_data %}
 <script type="application/ld+json">
