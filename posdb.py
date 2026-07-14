@@ -500,32 +500,55 @@ def _enrich_orders(conn, orders):
         o["fulfillment"] = []
         o["shipping_codes"] = []
         o["returns"] = []
-        for key in ("order_id_now", "order_id_later"):
-            if o.get(key):
-                r = conn.execute("SELECT * FROM orders WHERE id = ?", (o[key],)).fetchone()
-                if r:
-                    row = dict(r)   # robust to schema differences (shipping_carrier vs _type)
-                    label = _FRIENDLY_STATUS.get(row.get("status"))
-                    if label and label not in o["fulfillment"]:
-                        o["fulfillment"].append(label)
-                    if row.get("shipping_code"):
-                        o["shipping_codes"].append(
-                            {"code": row["shipping_code"],
-                             "type": row.get("shipping_carrier") or row.get("shipping_type") or ""})
+        # all internal orders converted from this web order (現貨/調貨/預購批,
+        # incl. 拆單 copies); pre-migration POS lacks web_order_id -> fallback
+        # to the legacy two link columns
+        related = []
+        try:
+            related = [dict(r) for r in conn.execute(
+                "SELECT * FROM orders WHERE web_order_id = ? "
+                "AND (is_deleted IS NULL OR is_deleted = 0) ORDER BY id",
+                (o["id"],))]
+        except Exception:
+            pass
+        if not related:
+            for key in ("order_id_now", "order_id_later"):
+                if o.get(key):
+                    r = conn.execute("SELECT * FROM orders WHERE id = ?", (o[key],)).fetchone()
+                    if r:
+                        related.append(dict(r))
+        for row in related:   # robust to schema differences (shipping_carrier vs _type)
+            label = _FRIENDLY_STATUS.get(row.get("status"))
+            if label and label not in o["fulfillment"]:
+                o["fulfillment"].append(label)
+            if row.get("shipping_code"):
+                o["shipping_codes"].append(
+                    {"code": row["shipping_code"],
+                     "type": row.get("shipping_carrier") or row.get("shipping_type") or ""})
         # amount due now — mirrors the POS _charge_now_twd: 現貨/調貨 portion,
-        # but the whole priced order once a preorder is actively 待付款
-        _now = ("in_stock", "incoming", "orderable")
-        now_total = sum((it["unit_price_twd"] or 0) * it["quantity"]
-                        for it in o["items"] if it["availability"] in _now)
-        if now_total <= 0 and o.get("payment_status") == "待付款":
-            now_total = sum((it["unit_price_twd"] or 0) * it["quantity"]
-                            for it in o["items"] if it["availability"] != "inquiry")
-        # coupon fields (may be absent on a pre-migration POS -> default 0/'')
+        # but the whole priced order once a preorder is actively 待付款, and
+        # only the remainder once part of the order was collected (paid_twd)
+        # coupon/paid fields (may be absent on a pre-migration POS -> 0/'')
         o["coupon_discount_twd"] = o.get("coupon_discount_twd") or 0
         o["coupon_code"] = o.get("coupon_code") or ""
-        o["amount_due"] = (max(0, now_total + (o.get("shipping_fee_twd") or 0)
-                               - (o.get("discount_twd") or 0)
-                               - o["coupon_discount_twd"]) if now_total > 0 else 0)
+        o["paid_twd"] = o.get("paid_twd") or 0
+        if o["paid_twd"] > 0:
+            grand = max(0, sum((it["unit_price_twd"] or 0) * it["quantity"]
+                               for it in o["items"])
+                        + (o.get("shipping_fee_twd") or 0)
+                        - (o.get("discount_twd") or 0)
+                        - o["coupon_discount_twd"])
+            o["amount_due"] = max(0, grand - o["paid_twd"])
+        else:
+            _now = ("in_stock", "incoming", "orderable")
+            now_total = sum((it["unit_price_twd"] or 0) * it["quantity"]
+                            for it in o["items"] if it["availability"] in _now)
+            if now_total <= 0 and o.get("payment_status") == "待付款":
+                now_total = sum((it["unit_price_twd"] or 0) * it["quantity"]
+                                for it in o["items"] if it["availability"] != "inquiry")
+            o["amount_due"] = (max(0, now_total + (o.get("shipping_fee_twd") or 0)
+                                   - (o.get("discount_twd") or 0)
+                                   - o["coupon_discount_twd"]) if now_total > 0 else 0)
 
     order_nos = [o["order_no"] for o in orders]
     if order_nos:
