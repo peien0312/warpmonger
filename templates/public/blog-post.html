@@ -2,11 +2,11 @@
 
 {% block title %}{{ post.title | truncate(40, True, '…') }}｜阿北玩具堂 Blog{% endblock %}
 
-{% block meta_description %}{{ post.content_plain[:155] }}...{% endblock %}
+{% block meta_description %}{{ (post.excerpt or post.content_plain)|truncate(155, True, '…') }}{% endblock %}
 
 {% block og_type %}article{% endblock %}
 {% block og_title %}{{ post.title }}{% endblock %}
-{% block og_description %}{{ post.content_plain[:200] }}{% endblock %}
+{% block og_description %}{{ (post.excerpt or post.content_plain)|truncate(200, True, '…') }}{% endblock %}
 {% block og_image %}{% if post.cover %}{{ request.url_root.rstrip('/') }}{{ post.cover }}{% else %}{{ request.url_root }}static/images/abbeys_logo_round.png{% endif %}{% endblock %}
 
 {% block structured_data %}
@@ -19,6 +19,7 @@
   "image": "{{ request.url_root.rstrip('/') }}{{ post.cover }}",
   {% endif %}
   "datePublished": "{{ post.date }}",
+  "description": {{ (post.excerpt or post.content_plain)|truncate(200, True, '…')|tojson }},
   {% if post.author %}
   "author": {
     "@type": "Person",

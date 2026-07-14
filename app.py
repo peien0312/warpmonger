@@ -459,6 +459,10 @@ def inject_canonical():
     elif request.endpoint == 'quiz_page':
         # ?r=/&s= share variants all consolidate onto the bare /quiz page.
         canonical = request.base_url
+    elif request.endpoint == 'blog_page':
+        # ?tag=/?q= listing variants consolidate onto /blog — the posts
+        # themselves should rank, not the parameterized listing.
+        canonical = request.base_url
     return {'canonical_url': canonical}
 
 @app.context_processor
@@ -2174,6 +2178,20 @@ def sitemap_images():
                     xml += '    </image:image>\n'
 
             xml += '  </url>\n'
+
+    for post in get_blog_posts():
+        cover = (post.get('cover') or '').lstrip('/')
+        if not cover or cover.lower().endswith(('.mp4', '.mov', '.avi', '.webm')):
+            continue
+        title = escape(post['title'])
+        xml += '  <url>\n'
+        xml += f'    <loc>{request.url_root}blog/{post["slug"]}</loc>\n'
+        xml += '    <image:image>\n'
+        xml += f'      <image:loc>{escape(request.url_root + cover)}</image:loc>\n'
+        xml += f'      <image:title>{title}</image:title>\n'
+        xml += f'      <image:caption>{title}｜阿北玩具堂部落格</image:caption>\n'
+        xml += '    </image:image>\n'
+        xml += '  </url>\n'
 
     xml += '</urlset>'
 
