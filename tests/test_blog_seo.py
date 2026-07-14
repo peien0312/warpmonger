@@ -19,6 +19,21 @@ def test_blog_post_stays_self_canonical(client):
     assert _canonical(html) == "http://localhost/blog/hello"
 
 
+def test_structured_data_is_valid_json(client):
+    """Every JSON-LD block must parse — the fixture post body contains CRLF,
+    quotes, a backslash and a tab (GSC rejected a post over a raw \\r)."""
+    import json
+    for url in ("/blog/hello", "/products/warhammer-40k/stock-item", "/"):
+        r = client.get(url)
+        assert r.status_code == 200, url
+        blocks = re.findall(
+            r'<script type="application/ld\+json">(.*?)</script>',
+            r.get_data(as_text=True), re.S)
+        assert blocks, url
+        for b in blocks:
+            json.loads(b)
+
+
 def test_image_sitemap_renders(client):
     r = client.get("/sitemap-images.xml")
     assert r.status_code == 200

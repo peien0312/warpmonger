@@ -17,8 +17,8 @@
 {
   "@context": "https://schema.org/",
   "@type": "Product",
-  "name": "{{ product.zhtw_name if is_zhtw and product.zhtw_name else product.title }}",
-  "description": "{{ (product.description_plain or product.description or '')|replace('\n', ' ')|replace('"', '\\"') }}",
+  "name": {{ (product.zhtw_name if is_zhtw and product.zhtw_name else product.title)|tojson }},
+  "description": {{ (product.description_plain or product.description or '')|tojson }},
   {% if product.images %}
   "image": [
     {% for image in product.images if not image.lower().endswith(('.mp4', '.mov', '.avi', '.webm')) %}

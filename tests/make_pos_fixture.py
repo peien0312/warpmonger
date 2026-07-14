@@ -52,8 +52,12 @@ async def main():
                                 location="taiwan", quantity=5))
         db.add(models.Inventory(product_id=prods["JT0003"].id,
                                 location="china", quantity=2))
+        # body deliberately hostile to naive JSON embedding: CRLF line
+        # endings, double quotes, backslash, tab (GSC "invalid escape
+        # sequence" regression — JSON-LD must be built with |tojson)
         db.add(models.StorefrontPost(type="blog", slug="hello", title="Hello",
-                                     title_zhtw="首篇", body="內文",
+                                     title_zhtw="首篇",
+                                     body="內文 \"引號\" back\\slash\r\n\ttabbed",
                                      is_published=True,
                                      published_at=datetime.now()))
         db.add(models.StorefrontPost(type="codex", slug="ultramarines",

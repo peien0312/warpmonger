@@ -14,16 +14,16 @@
 {
   "@context": "https://schema.org",
   "@type": "BlogPosting",
-  "headline": "{{ post.title }}",
+  "headline": {{ post.title|tojson }},
   {% if post.cover %}
-  "image": "{{ request.url_root.rstrip('/') }}{{ post.cover }}",
+  "image": {{ (request.url_root.rstrip('/') ~ post.cover)|tojson }},
   {% endif %}
   "datePublished": "{{ post.date }}",
   "description": {{ (post.excerpt or post.content_plain)|truncate(200, True, '…')|tojson }},
   {% if post.author %}
   "author": {
     "@type": "Person",
-    "name": "{{ post.author }}"
+    "name": {{ post.author|tojson }}
   },
   {% endif %}
   "publisher": {
@@ -38,7 +38,7 @@
     "@type": "WebPage",
     "@id": "{{ request.url }}"
   },
-  "articleBody": "{{ post.content_plain|replace('\n', ' ')|replace('"', '\\"') }}"
+  "articleBody": {{ post.content_plain|tojson }}
 }
 </script>
 
@@ -56,7 +56,7 @@
     {
       "@type": "ListItem",
       "position": 2,
-      "name": "{{ post.title }}"
+      "name": {{ post.title|tojson }}
     }
   ]
 }
