@@ -132,6 +132,18 @@ def init():
         );
         CREATE INDEX IF NOT EXISTS idx_blog_comments_slug
             ON blog_comments(post_slug, status);
+        CREATE TABLE IF NOT EXISTS blog_views (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            post_slug TEXT NOT NULL,
+            member_id INTEGER,
+            ref_source TEXT NOT NULL DEFAULT 'direct',  -- site|google|line|facebook|...|direct|other
+            ref_detail TEXT,   -- internal path for site, host for external, utm_source value
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+        CREATE INDEX IF NOT EXISTS idx_blog_views_slug
+            ON blog_views(post_slug, created_at);
+        CREATE INDEX IF NOT EXISTS idx_blog_views_created
+            ON blog_views(created_at);
     """)
     # backfill identities from the legacy google_sub column
     # ("line:<uid>" rows were LINE logins, everything else Google)
@@ -799,6 +811,18 @@ def add_blog_comment(member_id, post_slug, body, author_name):
     cid = cur.lastrowid
     conn.close()
     return cid
+
+
+def record_blog_view(post_slug, member_id=None, ref_source="direct", ref_detail=None):
+    """Log one blog-post pageview (bot/refresh filtering happens in app.py)."""
+    conn = _conn()
+    conn.execute(
+        "INSERT INTO blog_views (post_slug, member_id, ref_source, ref_detail) "
+        "VALUES (?, ?, ?, ?)",
+        (post_slug, member_id, (ref_source or "direct")[:40],
+         (ref_detail or "")[:300] or None))
+    conn.commit()
+    conn.close()
 
 
 def last_blog_comment_at(member_id):

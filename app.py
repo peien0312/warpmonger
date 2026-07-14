@@ -1659,12 +1659,81 @@ def markdown_with_spoilers(text):
     return html
 
 
+# --- blog view tracking (stats shown in the POS at /storefront/blog-stats) ---
+
+_BOT_UA_RE = re.compile(
+    r'bot|crawl|spider|slurp|fetch|preview|scan|monitor|headless|lighthouse'
+    r'|facebookexternalhit|whatsapp|telegram|curl|wget|python-requests|go-http',
+    re.I)
+
+# hostname's registrable label → source key (line.me → line, google.com.tw → google)
+_REF_HOST_SOURCES = {
+    'google': 'google', 'bing': 'bing', 'yahoo': 'yahoo', 'duckduckgo': 'duckduckgo',
+    'facebook': 'facebook', 'fb': 'facebook', 'instagram': 'instagram',
+    'threads': 'threads', 'line': 'line', 'lin': 'line', 'liff': 'line',
+    'twitter': 'x', 'x': 'x', 'youtube': 'youtube',
+    'dcard': 'dcard', 'ptt': 'ptt', 'reddit': 'reddit', 'shopee': 'shopee',
+}
+
+
+def _classify_referrer():
+    """(source, detail) for this request: utm_source wins, then the Referer
+    host (site = our own pages, keeping the path), else direct."""
+    utm = (request.args.get('utm_source') or '').strip().lower()
+    if utm:
+        return 'utm:' + utm[:30], (request.args.get('utm_medium') or '')[:100] or None
+    ref = request.referrer or ''
+    if not ref:
+        return 'direct', None
+    try:
+        from urllib.parse import urlparse
+        u = urlparse(ref)
+        host = (u.hostname or '').lower()
+    except ValueError:
+        return 'other', ref[:200]
+    if not host:
+        return 'direct', None
+    if host.endswith('abbeystoys.com') or host in ('localhost', '127.0.0.1'):
+        return 'site', u.path or '/'
+    if host == 't.co':
+        return 'x', host
+    for label in host.split('.'):
+        if label in _REF_HOST_SOURCES:
+            return _REF_HOST_SOURCES[label], host
+    return 'other', host
+
+
+def _record_blog_view(slug):
+    """Count one view — skipping bots and same-browser refreshes (30 min)."""
+    try:
+        if request.method != 'GET':
+            return
+        ua = request.headers.get('User-Agent') or ''
+        if not ua or _BOT_UA_RE.search(ua):
+            return
+        now = int(time.time())
+        seen = session.get('blog_seen') or {}
+        if now - seen.get(slug, 0) < 1800:
+            return
+        seen[slug] = now
+        # keep the session cookie small: only the 10 most recent posts
+        session['blog_seen'] = dict(
+            sorted(seen.items(), key=lambda kv: kv[1])[-10:])
+        source, detail = _classify_referrer()
+        member = current_member()
+        memberdb.record_blog_view(slug, member['id'] if member else None,
+                                  source, detail)
+    except Exception:
+        pass  # stats must never break the page
+
+
 @public_route('/blog/<slug>')
 def blog_post_page(slug):
     """Blog post detail page"""
     post = get_blog_post(slug)
     if not post:
         return "Post not found", 404
+    _record_blog_view(slug)
 
     # Convert markdown to HTML
     post['content_html'] = markdown_with_spoilers(post['content'])
