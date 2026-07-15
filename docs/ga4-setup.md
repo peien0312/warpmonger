@@ -1,11 +1,14 @@
-# GA4 setup guide (abbeystoys.com, G-HYSSEZVZNK)
+# GA4 setup guide (abbeystoys.com)
 
-The site's templates already send a full e-commerce event stream. GA4, however,
-only surfaces custom event parameters and funnels after one-time manual setup
-in the GA console. This doc lists what the site sends and exactly what to
-configure. Everything below is console-side config — no deploy needed, and
-(except where noted) it starts collecting from the day you set it up, not
-retroactively.
+- Property: `properties/544443478` "ABBEY'S TOYS 阿北玩具堂" (created 2026-07-07)
+- Web stream: `G-FV2XNYBDS5` (the old default `G-HYSSEZVZNK` in app.py was a
+  stale earlier property; prod overrides via `GA4_MEASUREMENT_ID`)
+
+The site's templates send a full e-commerce event stream. GA4, however, only
+surfaces custom event parameters and funnels after one-time property setup.
+**Sections 1, 2 and the retention bump were applied 2026-07-16 via the Admin
+API** (see "API automation" at the bottom) — kept here as the record of what
+exists and how to recreate it.
 
 ## What the site sends
 
@@ -36,9 +39,9 @@ retroactively.
 | `filter_applied` | `filter_type`, `filter_value` | product list filter/sort used |
 | `video_start` | — | hero intro video |
 
-## One-time GA4 console setup
+## One-time GA4 property setup
 
-### 1. Register custom dimensions (管理 → 資料顯示 → 自訂定義 → 建立自訂維度)
+### 1. Register custom dimensions — ✅ done 2026-07-16 via API
 
 All **event-scoped**. Without these, the params are collected but invisible in
 reports. Registration is not retroactive — do it once, data appears from then on.
@@ -57,14 +60,10 @@ Do **not** register `item_list_name`, `item_id`, `search_term`, `method` — tho
 are built-in dimensions (Item list name, Item ID, Search term, Method) and
 already work.
 
-### 2. Mark key events (管理 → 資料顯示 → 事件 → toggle「標示為關鍵事件」)
+### 2. Mark key events — ✅ done 2026-07-16 via API
 
-`purchase` is a key event automatically. Additionally mark:
-
-- `begin_checkout` — checkout intent
-- `add_to_cart` — shopping intent
-- `sign_up` — member growth
-- `quiz_complete` — engagement/lead magnet
+Key events on the property: `purchase`, `generate_lead`, `sign_up` (pre-existing)
++ `begin_checkout`, `add_to_cart`, `quiz_complete` (added).
 
 Key events unlock per-channel conversion columns in acquisition reports
 (which traffic source produces carts/checkouts, not just sessions).
@@ -112,8 +111,7 @@ pageviews to get read-through rate per post.
 - **管理 → 資料串流 → 加強型評估**: keep scroll/outbound/site-search on.
 - **Search Console link** (管理 → Search Console 連結): pulls Google-search
   query data into GA4 — complements the click-source picture.
-- **Data retention** (管理 → 資料設定 → 資料保留): bump from 2 → **14 months**
-  so Explorations can look back more than 2 months.
+- **Data retention**: ✅ set to 14 months via API 2026-07-16.
 - **Internal traffic filter**: 管理 → 資料串流 → 更多標記設定 → 定義內部流量,
   add your home/office IP, then activate the filter under 資料設定 → 資料篩選器.
 
@@ -124,3 +122,30 @@ pageviews to get read-through rate per post.
   around — every event and its params show live.
 - Events also appear in 報表 → 即時 within seconds; custom-dimension breakdowns
   take 24–48 h to appear in standard reports.
+
+## API automation
+
+The GA4 property is manageable headlessly through the service account
+`ga4-admin@warpmonger-prod.iam.gserviceaccount.com` (created 2026-07-16;
+GA4 property 編輯者 + impersonatable by the gcloud user via
+`roles/iam.serviceAccountTokenCreator`). No key files — mint short-lived
+tokens by impersonation:
+
+```sh
+TOK=$(gcloud auth print-access-token \
+  --impersonate-service-account=ga4-admin@warpmonger-prod.iam.gserviceaccount.com \
+  --scopes=https://www.googleapis.com/auth/analytics.edit,https://www.googleapis.com/auth/analytics.readonly)
+
+# Admin API (dimensions, key events, retention):
+curl -H "Authorization: Bearer $TOK" \
+  https://analyticsadmin.googleapis.com/v1beta/properties/544443478/customDimensions
+
+# Data API (reports, incl. funnels via v1alpha runFunnelReport):
+curl -X POST -H "Authorization: Bearer $TOK" -H "Content-Type: application/json" \
+  -d '{"dateRanges":[{"startDate":"30daysAgo","endDate":"today"}],"dimensions":[{"name":"itemListName"}],"metrics":[{"name":"itemsClickedInList"}]}' \
+  https://analyticsdata.googleapis.com/v1beta/properties/544443478:runReport
+```
+
+Note the direct browser path (`gcloud auth application-default login
+--scopes=…analytics…`) is blocked by Google for the default gcloud OAuth
+client — the service account is the supported route.
