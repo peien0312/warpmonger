@@ -3872,6 +3872,7 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
 .login-google { background: #E6DAC4; color: #241C15; }
 .login-btn:hover { filter: brightness(1.08); }
 .login-note { color: #948669; }
+.login-error { margin: 14px 0 0; padding: 10px 14px; border: 1px solid #8a4a3a; border-radius: 6px; background: rgba(138, 74, 58, 0.18); color: #E6DAC4; }
 
 /* Saved addresses at checkout + account address book */
 .saved-addresses { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }

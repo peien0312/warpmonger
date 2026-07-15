@@ -3509,13 +3509,42 @@ LINE_LOGIN_CHANNEL_ID = os.environ.get('LINE_LOGIN_CHANNEL_ID', '')
 LINE_LOGIN_CHANNEL_SECRET = os.environ.get('LINE_LOGIN_CHANNEL_SECRET', '')
 
 
+def _in_line_browser():
+    """LINE's in-app browser appends ' Line/<ver>' to the user agent."""
+    return ' Line/' in request.headers.get('User-Agent', '')
+
+
+def _login_ctx(login_error=None, line_noauto=False):
+    """Template context for login.html; also used by the LINE callback to
+    re-render the login page with an error after a failed auto-login retry."""
+    from urllib.parse import urlencode
+    in_line = _in_line_browser()
+    nxt = request.args.get('next')
+
+    def href(base, **extra):
+        params = {}
+        if nxt:
+            params['next'] = nxt
+        params.update(extra)
+        return base + ('?' + urlencode(params) if params else '')
+
+    # Google blocks OAuth inside webviews (disallowed_useragent);
+    # openExternalBrowser=1 makes LINE open the link in Safari/Chrome instead.
+    return dict(
+        has_google=bool(GOOGLE_CLIENT_ID),
+        has_line=bool(LINE_LOGIN_CHANNEL_ID),
+        line_href=href('/auth/line', **({'noauto': 1} if line_noauto else {})),
+        google_href=href('/auth/google', **({'openExternalBrowser': 1} if in_line else {})),
+        in_line=in_line,
+        login_error=login_error,
+    )
+
+
 @public_route('/login')
 def login_page():
     if current_member():
         return redirect('/account')
-    return render_template('public/login.html',
-                           has_google=bool(GOOGLE_CLIENT_ID),
-                           has_line=bool(LINE_LOGIN_CHANNEL_ID))
+    return render_template('public/login.html', **_login_ctx())
 
 
 @app.route('/auth/line')
@@ -3528,23 +3557,38 @@ def auth_line():
     session['oauth_state'] = state
     session['link_mode'] = bool(request.args.get('link')) and bool(current_member())
     session['login_next'] = request.args.get('next') or request.referrer or '/'
-    params = urlencode({
+    params = {
         'response_type': 'code',
         'client_id': LINE_LOGIN_CHANNEL_ID,
         'redirect_uri': request.url_root.rstrip('/') + '/auth/line/callback',
         'state': state,
         'scope': 'profile openid',
         'bot_prompt': 'aggressive',   # prompt adding the 官方帳號 as friend
-    })
-    return redirect('https://access.line.me/oauth2/v2.1/authorize?' + params)
+    }
+    if request.args.get('noauto'):
+        # Retry after a failed auto login (LINE in-app browser): show the
+        # normal LINE login screen instead of attempting auto login again.
+        params['disable_auto_login'] = 'true'
+    return redirect('https://access.line.me/oauth2/v2.1/authorize?' + urlencode(params))
 
 
 @app.route('/auth/line/callback')
 def auth_line_callback():
     import urllib.request
-    from urllib.parse import urlencode
+    from urllib.parse import urlencode, quote
     if request.args.get('state') != session.pop('oauth_state', None):
-        return "登入驗證失敗，請重試", 400
+        # LINE's documented auto-login failure signature (common in the LINE
+        # in-app browser): callback arrives with an invalid code + mismatched
+        # state. Retry once with auto login disabled before showing an error.
+        if not request.cookies.get('line_login_retry'):
+            nxt = _safe_next(session.get('login_next') or '/')
+            resp = redirect('/auth/line?noauto=1&next=' + quote(nxt))
+            resp.set_cookie('line_login_retry', '1', max_age=300)
+            return resp
+        return render_template('public/login.html', **_login_ctx(
+            login_error='LINE 登入驗證失敗，請再試一次。若仍無法登入，'
+                        '請點右下角「⋯」改用外部瀏覽器開啟本站後再登入。',
+            line_noauto=True)), 400
     code = request.args.get('code')
     if not code:
         return redirect('/')
@@ -3582,7 +3626,9 @@ def auth_line_callback():
     session['member_id'] = member['id']
     if member.get('_is_new'):
         _grant_signup_coupon(member['id'])
-    return redirect(_auth_next(_safe_next(session.pop('login_next', '/')), member.get('_is_new'), 'line'))
+    resp = redirect(_auth_next(_safe_next(session.pop('login_next', '/')), member.get('_is_new'), 'line'))
+    resp.delete_cookie('line_login_retry')
+    return resp
 
 
 @app.route('/auth/logout')
