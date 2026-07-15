@@ -41,11 +41,13 @@ reads). It depends on this POS schema:
   the availability engine in `posdb._availability` (priority order):
   1. in_stock 現貨: tw − waiting > 0 (overrides the preorder flag)
   2. incoming 約2週到貨: tw + in_transit + china − waiting > 0
-  3. preorder 預購: is_preorder with future preorder_date
+  3. preorder 預購: is_preorder, no stock — the date is display-only
+     (arrival month; hidden once stale). A passed date does NOT release
+     the product; it stays 預購 until stock arrives (→ 1/2).
   4. orderable 可訂購約2-3週: not is_deprecated (can order from JoyToy)
   5. inquiry 絕版詢價: deprecated + not preorder — price hidden (final_price
      forced to 0), cart line shows 詢價
-  Stale preorders (date passed) fall through to 4/5. Badges/notes live in
+  Badges/notes live in
   `templates/public/_availability.html`. Show/hide on site = `is_published`.
 - `storefront_categories`, `storefront_posts` (type blog|codex|promotion|page,
   extra JSON). Codex `body` is the displayed zh-TW; `body_enus` preserves the

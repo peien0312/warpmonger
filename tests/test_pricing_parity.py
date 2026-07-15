@@ -24,8 +24,17 @@ def test_sale_price_caps_member_price():
 def test_availability_states():
     cases = {"stock-item": "in_stock", "sale-item": "incoming",
              "preorder-item": "preorder", "inquiry-item": "inquiry",
-             "member-item": "orderable"}
+             "member-item": "orderable",
+             # a passed preorder_date does NOT release the product
+             "stale-preorder-item": "preorder"}
     for slug, want in cases.items():
         p = _product(slug)
         got = p["availability"]
         assert got == want, f"{slug}: {got} != {want}"
+
+
+def test_stale_preorder_hides_arrival_month():
+    fresh = _product("preorder-item")
+    stale = _product("stale-preorder-item")
+    assert fresh["available_display"]          # future date -> shows 到貨月
+    assert stale["available_display"] == ""    # slipped date -> plain 預購

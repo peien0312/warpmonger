@@ -39,6 +39,10 @@ async def main():
             ("JT0004", "絕版測試品", 2000, dict(slug="inquiry-item", is_deprecated=True)),
             ("JT0005", "預購測試品", 3000, dict(slug="preorder-item", is_preorder=True,
                                             preorder_date=datetime.now() + timedelta(days=30))),
+            # vendor slipped the release: date passed but still 預購
+            # (90d back so arrival month = release+1 is fully in the past)
+            ("JT0006", "逾期預購測試品", 3200, dict(slug="stale-preorder-item", is_preorder=True,
+                                              preorder_date=datetime.now() - timedelta(days=90))),
         ]:
             p = models.Product(sku=sku, zhtw_name=name, en_name=name,
                                cost_cny=100, selling_price_twd=price,

@@ -68,7 +68,9 @@ def _fresh():
 
 def _arrival_display(preorder_date):
     """Customer-facing arrival: vendor release month + 1 (China->Taiwan
-    shipping), rendered as e.g. 2026年9月."""
+    shipping), rendered as e.g. 2026年9月. Once that month is in the past
+    (vendor slipped the release) return "" — the badge shows plain 預購
+    rather than a stale promise."""
     raw = str(preorder_date or "")[:7]
     try:
         y, m = int(raw[:4]), int(raw[5:7])
@@ -77,6 +79,10 @@ def _arrival_display(preorder_date):
     m += 1
     if m > 12:
         y, m = y + 1, 1
+    from datetime import date
+    now = date.today()
+    if (y, m) < (now.year, now.month):
+        return ""
     return f"{y}年{m}月"
 
 
@@ -97,19 +103,20 @@ def _availability(row, inv, waiting, today):
     """Availability state per the shop's fulfillment rules (priority order):
       in_stock  現貨            tw - waiting > 0 (preorder flag ignored)
       incoming  約2週內到貨      tw + in_transit + china - waiting > 0
-      preorder  預購            is_preorder with a future date, no stock
+      preorder  預購            is_preorder, no stock (date is display-only)
       orderable 可訂購 約2-3週   not deprecated -> can order from JoyToy
       inquiry   絕版詢價         deprecated, not preorder -> price on inquiry
-    A preorder whose date has passed is treated as released (falls through
-    to orderable/inquiry)."""
+    A passed preorder_date does NOT release the product (vendors slip
+    dates) — it stays 預購 until stock actually arrives, which flips it
+    to incoming/in_stock through the normal inventory flow. The date only
+    drives the arrival-month display and is hidden once stale."""
     tw = inv.get("taiwan", 0)
     total = tw + inv.get("in_transit", 0) + inv.get("china", 0)
     if tw - waiting > 0:
         return "in_stock"
     if total - waiting > 0:
         return "incoming"
-    preorder_date = str(row["preorder_date"] or "")[:10]
-    if row["is_preorder"] and preorder_date > today:
+    if row["is_preorder"]:
         return "preorder"
     if not row["is_deprecated"]:
         return "orderable"

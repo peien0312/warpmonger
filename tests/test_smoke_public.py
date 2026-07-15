@@ -27,6 +27,7 @@ DETAIL_PATHS = [
     "/products/warhammer-40k/stock-item",
     "/products/warhammer-40k/sale-item",
     "/products/warhammer-40k/preorder-item",
+    "/products/warhammer-40k/stale-preorder-item",
     "/blog/hello",
     "/codex/ultramarines",
 ]
