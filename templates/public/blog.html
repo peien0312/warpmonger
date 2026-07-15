@@ -73,7 +73,7 @@ document.querySelectorAll('.blog-post-preview a').forEach(function(link) {
             var title = this.closest('.blog-post-preview').querySelector('h2 a')?.textContent?.trim();
             gtag('event', 'select_content', {
                 content_type: 'blog_post',
-                item_id: title || 'unknown'
+                content_id: title || 'unknown'
             });
         }
     });

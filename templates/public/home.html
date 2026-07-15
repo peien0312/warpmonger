@@ -107,7 +107,7 @@
 <section class="new-arrivals">
     <div class="container">
         <h2>{{ t.new_arrivals }}</h2>
-        <div class="products-grid">
+        <div class="products-grid" data-ga-list="home:new-arrivals" data-ga-impressions>
             {% for product in new_arrivals %}
             <div class="product-card">
                 <a href="{{ url_prefix }}/products/{{ product.category }}/{{ product.slug }}">
@@ -161,7 +161,7 @@
 <section class="featured-products">
     <div class="container">
         <h2>{{ t.featured }}</h2>
-        <div class="products-grid">
+        <div class="products-grid" data-ga-list="home:featured" data-ga-impressions>
             {% for product in products %}
             <div class="product-card">
                 <a href="{{ url_prefix }}/products/{{ product.category }}/{{ product.slug }}">
@@ -263,7 +263,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 var title = this.closest('.post-card').querySelector('h3 a')?.textContent?.trim();
                 gtag('event', 'select_content', {
                     content_type: 'blog_post',
-                    item_id: title || 'unknown'
+                    content_id: title || 'unknown'
                 });
             }
         });

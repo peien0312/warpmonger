@@ -441,7 +441,7 @@
             </div>
         </div>
         <div class="related-grid-container">
-            <div class="related-grid" id="related-grid">
+            <div class="related-grid" id="related-grid" data-ga-list="related-products" data-ga-impressions>
                 {% for prod in related %}
                 <div class="related-card">
                     <a href="{{ url_prefix }}/products/{{ prod.category }}/{{ prod.slug }}">
