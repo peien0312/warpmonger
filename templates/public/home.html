@@ -245,6 +245,13 @@ document.addEventListener('DOMContentLoaded', function() {
     {% if active_promo %}
     var promoBanner = document.querySelector('.promo-banner-link');
     if (promoBanner) {
+        // Impression pairs with select_promotion below → promo banner CTR
+        if (typeof gtag === 'function') {
+            gtag('event', 'view_promotion', {
+                promotion_id: '{{ active_promo.slug }}',
+                promotion_name: '{{ active_promo.title|replace("'", "\\'") }}'
+            });
+        }
         promoBanner.addEventListener('click', function() {
             if (typeof gtag === 'function') {
                 gtag('event', 'select_promotion', {

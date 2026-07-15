@@ -292,6 +292,7 @@
                         data-price="{% if member and product.member_price %}{{ product.member_price }}{% else %}{{ product.final_price or 0 }}{% endif %}"
                         data-image="{{ product.images[0] if product.images else '' }}"
                         data-in-stock="{{ 'true' if product.in_stock else 'false' }}"
+                        data-availability="{{ product.availability }}"
                         data-pre-order="{{ 'true' if product.is_pre_order else 'false' }}"
                         data-availability="{{ product.availability }}"
                         onclick="addToCart()">
@@ -738,6 +739,7 @@ function addToCart() {
         gtag('event', 'add_to_cart', {
             currency: document.documentElement.lang === 'zh-TW' ? 'TWD' : 'USD',
             value: product.price * qty,
+            availability: btn.getAttribute('data-availability') || '',
             items: [{
                 item_id: product.category + '/' + product.slug,
                 item_name: product.title,
@@ -759,6 +761,7 @@ document.addEventListener('DOMContentLoaded', function() {
             gtag('event', 'view_item', {
                 currency: document.documentElement.lang === 'zh-TW' ? 'TWD' : 'USD',
                 value: parseFloat(btn.getAttribute('data-price')),
+                availability: btn.getAttribute('data-availability') || '',
                 items: [{
                     item_id: btn.getAttribute('data-category') + '/' + btn.getAttribute('data-slug'),
                     item_name: btn.getAttribute('data-title'),
@@ -801,7 +804,14 @@ function toggleWishDetail(sku, btn) {
 }
 function toggleNotify(sku, btn) {
     _memberApi('/api/notify', sku, btn,
-        b => { b.textContent = '🔔 已訂閱到貨通知'; },
+        b => { b.textContent = '🔔 已訂閱到貨通知';
+            // GA4: demand signal for out-of-stock items — which products people wait for
+            if (typeof gtag === 'function') gtag('event', 'notify_arrival', {
+                content_type: 'arrival_notify',
+                content_id: {{ (product.category ~ '/' ~ product.slug)|tojson }},
+                availability: {{ product.availability|tojson }}
+            });
+        },
         b => { b.textContent = '🔔 到貨通知我'; });
 }
 
@@ -874,6 +884,10 @@ function submitReview(e) {
             }
             msg.textContent = d.message || '已送出，等待審核'; msg.className = 'review-form-msg ok';
             _reviewNewFiles = [];
+            if (typeof gtag === 'function') gtag('event', 'review_submit', {
+                content_type: 'product_review',
+                content_id: form.dataset.category + '/' + form.dataset.slug
+            });
         })
         .catch(() => { btn.disabled = false; msg.textContent = '送出失敗，請稍後再試'; msg.className = 'review-form-msg err'; });
     return false;

@@ -33,11 +33,19 @@ exists and how to recreate it.
 
 | Event | Params | Meaning |
 |---|---|---|
-| `select_content` | `content_type` (blog_post/codex_entry), `content_id` (title) | click on a blog/codex card |
-| `article_read` | `content_type`, `content_id` (post slug) | reader reached the end of a blog post body |
-| `quiz_complete` | `quiz_result`, `character`, `legion` | quiz finished (first time only) |
+| `select_content` | `content_type` (blog_post/codex_entry/shop_tag), `content_id` | click on a blog/codex card, or a 想收這個派系 shop-tag CTA in a post |
+| `article_read` | `content_type` (blog_post/codex_entry), `content_id` (slug) | reader reached the end of a blog post / codex entry |
+| `notify_arrival` | `content_id` (cat/slug), `availability` | 到貨通知 subscription — demand signal for out-of-stock items |
+| `review_submit` | `content_type`, `content_id` (cat/slug) | product review submitted |
+| `quiz_start` / `quiz_complete` | complete: `quiz_result`, `character`, `legion` | quiz funnel (start → finish rate) |
+| `share` | `method`, `content_type`, `content_id` | quiz result link copied |
+| `page_not_found` | — (page_location/page_referrer auto) | 404s — find broken/dead links |
 | `filter_applied` | `filter_type`, `filter_value` | product list filter/sort used |
 | `video_start` | — | hero intro video |
+
+`view_item` / `add_to_cart` also carry `availability` (in_stock/incoming/preorder/
+orderable/inquiry) — conversion by stock state. `purchase` carries `coupon` +
+`payment_type`; `view_promotion`+`select_promotion` on the home banner give promo CTR.
 
 ## One-time GA4 property setup
 
@@ -55,6 +63,7 @@ reports. Registration is not retroactive — do it once, data appears from then 
 | Quiz legion | `legion` |
 | Filter type | `filter_type` |
 | Filter value | `filter_value` |
+| Availability state | `availability` |
 
 Do **not** register `item_list_name`, `item_id`, `search_term`, `method` — those
 are built-in dimensions (Item list name, Item ID, Search term, Method) and

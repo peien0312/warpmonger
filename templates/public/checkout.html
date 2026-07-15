@@ -387,6 +387,8 @@ async function submitOrder(ev) {
             transaction_id: data.order_no, currency: 'TWD',
             value: Math.round((data.grand_total_twd ?? data.total_twd) - (data.coupon_discount_twd || 0)),
             shipping: Math.round(data.shipping_fee_twd || 0),
+            coupon: appliedCoupon || undefined,
+            payment_type: payload.payment_method,
             items: gaItems(),
         }));
     } catch (e) {}
