@@ -3679,7 +3679,8 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
     text-align: left;
 }
 .hero-copy { max-width: 460px; }
-.hero-glass img {
+.hero-glass img,
+.hero-glass video {
     width: 300px;
     height: auto;
     max-width: 38vw;
@@ -3690,7 +3691,8 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
 }
 @media (max-width: 768px) {
     .hero-split { flex-direction: column-reverse; text-align: center; gap: 28px; }
-    .hero-glass img { max-width: 62vw; }
+    .hero-glass img,
+    .hero-glass video { max-width: 62vw; }
 }
 
 /* Language switcher: quiet, parchment on lead */
