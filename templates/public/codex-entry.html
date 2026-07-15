@@ -90,3 +90,26 @@
     </div>
 </div>
 {% endblock %}
+
+{% block extra_js %}
+<script>
+// GA4: article_read when the reader reaches the end of the entry (same as blog posts)
+(function () {
+    const body = document.querySelector('.entry-body');
+    if (!body || !('IntersectionObserver' in window)) return;
+    const observer = new IntersectionObserver(function (entries) {
+        if (!entries.some(e => e.isIntersecting)) return;
+        observer.disconnect();
+        if (typeof gtag === 'function') {
+            gtag('event', 'article_read', {
+                content_type: 'codex_entry',
+                content_id: decodeURIComponent(location.pathname.split('/').pop())
+            });
+        }
+    });
+    const sentinel = document.createElement('span');
+    body.appendChild(sentinel);
+    observer.observe(sentinel);
+})();
+</script>
+{% endblock %}

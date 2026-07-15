@@ -127,7 +127,7 @@
                 <button class="sort-btn {% if current_sort == 'price_desc' %}active{% endif %}" onclick="changeSort('price_desc')">{{ t.sort_price_desc }}</button>
             </div>
 
-            <div class="products-grid">
+            <div class="products-grid" data-ga-list="{% if current_search %}Search: {{ current_search }}{% elif current_tag %}Tag: {{ current_tag }}{% else %}{{ current_category_name|default('All Products', true) }}{% endif %}">
                 {% for product in products %}
                 <div class="product-card" {% if product.group %}data-group="{{ product.group }}"{% endif %}>
                     <a href="{{ url_prefix }}/products/{{ product.category }}/{{ product.slug }}">
@@ -214,9 +214,8 @@
 // GA4: Track view_item_list on page load
 document.addEventListener('DOMContentLoaded', function() {
     if (typeof gtag === 'function') {
-        var listName = '{{ current_category_name|default("All Products", true) }}';
-        {% if current_tag %}listName = 'Tag: {{ current_tag }}';{% endif %}
-        {% if current_search %}listName = 'Search: {{ current_search }}';{% endif %}
+        var grid = document.querySelector('.products-grid[data-ga-list]');
+        var listName = (grid && grid.getAttribute('data-ga-list')) || 'All Products';
 
         var items = [
             {% for product in products[:20] %}

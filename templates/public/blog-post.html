@@ -182,5 +182,37 @@ document.querySelectorAll('.spoiler-inline').forEach(function (el) {
         }
     });
 });
+
+// GA4: 想收這個派系 shop-tag CTA clicks — which posts push readers into the shop
+document.querySelectorAll('.post-shop-tags a').forEach(function (a) {
+    a.addEventListener('click', function () {
+        if (typeof gtag === 'function') {
+            gtag('event', 'select_content', {
+                content_type: 'shop_tag',
+                content_id: (a.textContent || '').trim()
+            });
+        }
+    });
+});
+
+// GA4: article_read fires once when the reader reaches the end of the post body —
+// distinguishes actual reads from bounces (page 90%-scroll can't, on short pages).
+(function () {
+    const body = document.querySelector('.post-content');
+    if (!body || !('IntersectionObserver' in window)) return;
+    const observer = new IntersectionObserver(function (entries) {
+        if (!entries.some(e => e.isIntersecting)) return;
+        observer.disconnect();
+        if (typeof gtag === 'function') {
+            gtag('event', 'article_read', {
+                content_type: 'blog_post',
+                content_id: {{ post.slug|tojson }}
+            });
+        }
+    });
+    const sentinel = document.createElement('span');
+    body.appendChild(sentinel);
+    observer.observe(sentinel);
+})();
 </script>
 {% endblock %}

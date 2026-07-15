@@ -21,3 +21,11 @@
     </p>
 </div>
 {% endblock %}
+
+{% block extra_js %}
+<script>
+// GA4: broken/dead links — page_location + page_referrer are auto-collected,
+// so a free-form report on this event shows which URLs 404 and who links to them.
+if (typeof gtag === 'function') gtag('event', 'page_not_found');
+</script>
+{% endblock %}
