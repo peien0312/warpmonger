@@ -22,7 +22,7 @@
     {% elif product.availability == 'incoming' %}
     <p class="availability-note">已調貨中，約 2 週內到貨後出貨。</p>
     {% elif product.availability == 'preorder' %}
-    <p class="availability-note">預購商品{% if product.available_display %}，預計 {{ product.available_display }}到貨{% endif %}。</p>
+    <p class="availability-note">預購商品，<b>不需預付</b>——下單時不收款，到貨後通知付款再出貨{% if product.available_display %}，預計 {{ product.available_display }}到貨{% endif %}。</p>
     {% elif product.availability == 'orderable' %}
     <p class="availability-note">可訂購，下單後約 2-3 週到貨。</p>
     {% elif product.availability == 'inquiry' %}
