@@ -1391,7 +1391,9 @@ def home():
         featured = all_products[:8]
 
     # Get special sections
-    new_arrivals = [p for p in all_products if p.get('is_new_arrival', False)][:4]
+    new_arrivals = sorted(
+        (p for p in all_products if p.get('is_new_arrival', False)),
+        key=lambda p: p.get('created_at', ''), reverse=True)[:4]
 
     posts = get_blog_posts()[:3]  # Recent posts
     featured_tags = get_featured_tags()
