@@ -192,6 +192,9 @@ function showQuestion() {
         `<button class="quiz-option" onclick="pick(${i})">${o[0]}</button>`).join('');
 }
 function pick(i) {
+    // Per-question progress — GA report of eventCount by question number is
+    // the drop-off curve (question N count − N+1 count = quitters at N).
+    if (typeof gtag === 'function') gtag('event', 'quiz_answer', {question: qi + 1});
     votes[QUESTIONS[qi][1][i][1]]++;
     qi++;
     if (qi < QUESTIONS.length) showQuestion();
