@@ -45,7 +45,7 @@ document.querySelectorAll('.codex-card').forEach(function(card) {
             var title = this.querySelector('h3')?.textContent?.trim();
             gtag('event', 'select_content', {
                 content_type: 'codex_entry',
-                item_id: title || 'unknown'
+                content_id: title || 'unknown'
             });
         }
     });

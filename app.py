@@ -436,7 +436,7 @@ def inject_seo_config():
         'social_links': social,
         # GA4 measurement ID — env-overridable so switching properties needs no
         # code change. Default keeps the current property. Set '' to disable.
-        'ga4_id': os.environ.get('GA4_MEASUREMENT_ID', 'G-HYSSEZVZNK'),
+        'ga4_id': os.environ.get('GA4_MEASUREMENT_ID', 'G-FV2XNYBDS5'),
     }
 
 @app.context_processor

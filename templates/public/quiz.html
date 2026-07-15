@@ -177,6 +177,8 @@ let qi = 0;
 const votes = {I: 0, X: 0, H: 0, C: 0, F: 0, R: 0, D: 0, S: 0};
 
 function startQuiz() {
+    // Pairs with quiz_complete → completion rate of the 16 questions
+    if (typeof gtag === 'function') gtag('event', 'quiz_start');
     document.getElementById('quiz-intro').style.display = 'none';
     document.getElementById('quiz-question').style.display = '';
     showQuestion();
@@ -283,8 +285,14 @@ function showResult(key, axisVotes, isNew) {
     }
 }
 function shareResult() {
-    navigator.clipboard.writeText(location.href).then(() =>
-        document.getElementById('share-msg').textContent = '已複製 ✓');
+    navigator.clipboard.writeText(location.href).then(() => {
+        document.getElementById('share-msg').textContent = '已複製 ✓';
+        if (typeof gtag === 'function') gtag('event', 'share', {
+            method: 'copy_link',
+            content_type: 'quiz_result',
+            content_id: new URLSearchParams(location.search).get('r') || 'unknown'
+        });
+    });
 }
 const _params = new URLSearchParams(location.search);
 const rp = _params.get('r');

@@ -160,7 +160,7 @@
                                 <path d="m21 21-4.35-4.35"></path>
                             </svg>
                         </button>
-                        <div id="autocomplete-results" class="autocomplete-results" style="display: none;"></div>
+                        <div id="autocomplete-results" class="autocomplete-results" data-ga-list="search-suggestions" style="display: none;"></div>
                     </form>
                 </div>
 
@@ -403,19 +403,68 @@
             }
         });
 
-        // Track product clicks
-        document.querySelectorAll('.product-card a').forEach(function(link) {
-            link.addEventListener('click', function() {
-                const card = this.closest('.product-card');
-                const productName = card?.querySelector('.product-title')?.textContent?.trim();
-                const productPrice = card?.querySelector('.current-price')?.textContent?.trim();
-                if (typeof gtag === 'function') {
-                    gtag('event', 'select_item', {
-                        item_name: productName || 'Unknown',
-                        item_price: productPrice || ''
-                    });
+        // Product-click attribution: any link to a product page fires select_item,
+        // tagged with the list it was clicked from. The origin comes from the nearest
+        // [data-ga-list] ancestor; pages without one fall back to a name derived from
+        // the current path (blog:<slug>, codex:<slug>, quiz, page:<path>), so clicks
+        // inside blog/codex bodies are attributed without per-template wiring.
+        function gaProductFromLink(link) {
+            var m = link.pathname && link.pathname.match(/^(?:\/zhtw)?\/products\/([^\/]+)\/([^\/]+)\/?$/);
+            if (!m) return null;
+            var card = link.closest('.product-card');
+            var title = card && card.querySelector('h3');
+            var name = (title ? title.textContent : link.textContent || '').trim().replace(/\s+/g, ' ');
+            var category = decodeURIComponent(m[1]);
+            return {
+                item_id: category + '/' + decodeURIComponent(m[2]),
+                item_name: name.slice(0, 100) || 'unknown',
+                item_category: category
+            };
+        }
+
+        function gaListNameFor(el) {
+            var scope = el.closest('[data-ga-list]');
+            if (scope) return scope.getAttribute('data-ga-list');
+            var p = location.pathname.replace(/^\/zhtw(?=\/|$)/, '') || '/';
+            var m = p.match(/^\/(blog|codex)\/([^\/]+)/);
+            if (m) return m[1] + ':' + decodeURIComponent(m[2]);
+            if (p.indexOf('/quiz') === 0) return 'quiz';
+            return 'page:' + p;
+        }
+
+        document.addEventListener('click', function(e) {
+            if (typeof gtag !== 'function' || !e.target.closest) return;
+            var link = e.target.closest('a[href]');
+            if (!link) return;
+            var item = gaProductFromLink(link);
+            if (!item) return;
+            var list = gaListNameFor(link);
+            gtag('event', 'select_item', {
+                item_list_id: list,
+                item_list_name: list,
+                items: [item]
+            });
+        });
+
+        // List impressions: sections opted in via data-ga-impressions fire
+        // view_item_list so CTR per section (clicks / impressions) is reportable.
+        document.querySelectorAll('[data-ga-impressions][data-ga-list]').forEach(function(section) {
+            if (typeof gtag !== 'function') return;
+            var items = [];
+            section.querySelectorAll('a[href]').forEach(function(link) {
+                var item = gaProductFromLink(link);
+                if (item && !items.some(function(i) { return i.item_id === item.item_id; })) {
+                    item.index = items.length;
+                    items.push(item);
                 }
             });
+            if (items.length > 0) {
+                gtag('event', 'view_item_list', {
+                    item_list_id: section.getAttribute('data-ga-list'),
+                    item_list_name: section.getAttribute('data-ga-list'),
+                    items: items.slice(0, 20)
+                });
+            }
         });
     </script>
 
