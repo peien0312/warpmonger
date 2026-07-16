@@ -1313,6 +1313,36 @@ section h2::after {
     border: 1px solid #342A21;
 }
 
+/* Section divider in markdown bodies (blog + codex). `---` renders an <hr>;
+   without this it falls back to the browser default (a light inset line that
+   reads near-white on the dark theme). Lead-came ornament: a bronze hairline
+   that fades at both edges with a centered candle-amber diamond. The ::after
+   masks the line behind the glyph, so its background must match the container
+   the body sits on — walnut for blog, the #292019 card for codex. */
+.post-content hr,
+.entry-body hr {
+    border: none;
+    height: 1px;
+    background: linear-gradient(to right, transparent, #6E4B2A 22%, #6E4B2A 78%, transparent);
+    margin: 44px 0;
+    position: relative;
+    overflow: visible;
+}
+.post-content hr::after,
+.entry-body hr::after {
+    content: "\25C6"; /* ◆ BLACK DIAMOND — echoes the lead-came glass joins */
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    color: #D9A441;
+    font-size: 0.8rem;
+    line-height: 1;
+    padding: 0 14px;
+}
+.post-content hr::after { background: #1E1712; } /* walnut page bg */
+.entry-body hr::after   { background: #292019; } /* codex card bg */
+
 .post-footer {
     padding-top: 30px;
     border-top: 1px solid #342A21;
