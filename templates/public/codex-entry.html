@@ -103,6 +103,7 @@
     box.addEventListener('click', function () { box.classList.remove('active'); });
     document.body.appendChild(box);
     imgs.forEach(function (img) {
+        if (img.closest('a')) return;   // shoppable image → let the link open the product
         img.addEventListener('click', function () {
             var full = document.createElement('img');
             full.src = img.dataset.full || img.src;

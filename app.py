@@ -1668,31 +1668,69 @@ def markdown_with_spoilers(text):
 # --- post body images: figures, captions, pairs, thumbnails, lightbox ---
 # Markdown authors write plain ![圖說](/static/images/blog/x.jpg); this pass
 # upgrades the rendered HTML. Two images written on one line sit side-by-side.
+# An image wrapped in a link — [![圖說](img)](/products/…) — becomes a
+# clickable "shoppable" figure that opens the product page (🛒 caption).
 
-_POST_IMG_P = re.compile(r'<p>\s*(<img [^>]+?/?>)\s*(<img [^>]+?/?>)?\s*</p>')
+# one image, optionally wrapped in an <a> (a linked/shoppable image)
+_POST_IMG_UNIT = r'(?:<a\b[^>]*>\s*)?<img [^>]+?/?>(?:\s*</a>)?'
+_POST_IMG_P = re.compile(
+    r'<p>\s*(' + _POST_IMG_UNIT + r')\s*(' + _POST_IMG_UNIT + r')?\s*</p>')
 _BLOG_SRC = re.compile(r'^/static/images/blog/([^/]+)$')
+_PRODUCT_PATH = re.compile(r'^/products/[^/]+/[^/]+/?$')
 
 
-def _post_figure(img_tag):
-    alt_m = re.search(r'alt="([^"]*)"', img_tag)
-    src_m = re.search(r'src="([^"]+)"', img_tag)
+def _norm_site_link(href):
+    """Normalise an author-supplied link to a site-relative path: strip our
+    own scheme+host (so a pasted full product URL becomes /products/…), and
+    the /zhtw locale prefix. Off-site links are returned unchanged."""
+    href = (href or '').strip()
+    if not href:
+        return ''
+    href = re.sub(r'^https?://(?:www\.)?abbeystoys\.com', '', href, flags=re.I)
+    if href.startswith('/zhtw/'):
+        href = href[5:]
+    return href
+
+
+def _post_figure(unit_html):
+    """One rendered image (possibly <a>-wrapped) → a <figure>. Blog-dir images
+    swap to a body-width thumbnail (original opens in the lightbox); a wrapped
+    product link makes the figure clickable with a 🛒 shop caption instead."""
+    src_m = re.search(r'src="([^"]+)"', unit_html)
     if not src_m:
-        return img_tag
+        return unit_html
+    alt_m = re.search(r'alt="([^"]*)"', unit_html)
+    href_m = re.search(r'<a\b[^>]*\shref="([^"]+)"', unit_html)
     alt, full = (alt_m.group(1) if alt_m else ''), src_m.group(1)
+    link = _norm_site_link(href_m.group(1)) if href_m else ''
+    is_shop = bool(link) and bool(_PRODUCT_PATH.match(link))
+
     display = full
     m = _BLOG_SRC.match(full)
     if m and not full.lower().endswith('.gif'):   # gif thumbnail loses animation
         display = '/static/images/blog/thumb_' + m.group(1)
     img = (f'<img src="{display}" alt="{alt}" loading="lazy" decoding="async"'
            f' class="post-img" data-full="{full}">')
-    cap = f'<figcaption>{alt}</figcaption>' if alt else ''
-    return f'<figure class="post-figure">{img}{cap}</figure>'
+
+    if link:
+        title = ' title="點圖看這款商品"' if is_shop else ''
+        img = f'<a class="post-figure-link" href="{link}"{title}>{img}</a>'
+        cls = 'post-figure has-link'
+        if is_shop:
+            label = '🛒 ' + (alt or '看這款商品')
+            cap = f'<figcaption><a href="{link}">{label}</a></figcaption>'
+        else:
+            cap = f'<figcaption><a href="{link}">{alt}</a></figcaption>' if alt else ''
+    else:
+        cls, cap = 'post-figure', (f'<figcaption>{alt}</figcaption>' if alt else '')
+    return f'<figure class="{cls}">{img}{cap}</figure>'
 
 
 def enrich_post_images(html):
     """Standalone image paragraphs → <figure> (alt text becomes the 圖說);
     a paragraph of exactly two images becomes a side-by-side pair. Blog-dir
-    images swap to a body-width thumbnail; the original opens in a lightbox."""
+    images swap to a body-width thumbnail; the original opens in a lightbox.
+    An image wrapped in a product link renders as a shoppable figure."""
     def _sub(m):
         first = _post_figure(m.group(1))
         if m.group(2):
@@ -1788,12 +1826,24 @@ def blog_post_page(slug):
     post['shop_tags'] = [t for t in (post.get('tags') or [])
                          if t in product_tags]
 
-    # product-image covers link back to their product page; the caption is
-    # the author's own description when set, else the product name
+    # the cover links to a product page: an explicit 封面連結 wins (needed for
+    # custom-uploaded covers), else it's derived from a product-image cover
+    # path. The caption is the author's own description when set, else the
+    # linked product's name.
     cover_link = None
     cover_caption = post.get('cover_caption') or ''
+    explicit = _norm_site_link(post.get('cover_link'))
+    pm = _PRODUCT_PATH.match(explicit) and re.match(
+        r'^/products/([^/]+)/([^/]+)', explicit)
     m = re.match(r'^/static/images/products/([^/]+)/([^/]+)/', post.get('cover') or '')
-    if m:
+    if explicit:
+        cover_link = explicit
+        if pm and not cover_caption:
+            cp = get_product(pm.group(1), pm.group(2))
+            if cp:
+                cover_caption = "🛒 " + (cp.get('zhtw_name')
+                                        or cp.get('title') or '圖中商品')
+    elif m:
         cover_product = get_product(m.group(1), m.group(2))
         if cover_product:
             cover_link = f"/products/{m.group(1)}/{m.group(2)}"

@@ -4574,7 +4574,11 @@ details.spoiler-block .spoiler-body { padding: 4px 16px 12px; }
     text-align: center;
 }
 .post-figure img {
+    /* cap by HEIGHT, not width: a wide banner keeps its full body width
+       (it's naturally short), while a tall/square image is reined in so it
+       doesn't dominate the column — it shrinks and centres itself */
     max-width: 100%;
+    max-height: min(560px, 80vh);
     height: auto;
     display: inline-block;
     margin: 0;
@@ -4592,6 +4596,13 @@ details.spoiler-block .spoiler-body { padding: 4px 16px 12px; }
     font-style: normal;
     line-height: 1.6;
 }
+/* shoppable figure: the image links to a product page, so it points (not
+   zooms) and the caption glows in candle amber like the cover shop-link */
+.post-figure-link { display: inline-block; text-decoration: none; }
+.post-figure.has-link img { cursor: pointer; }
+.post-figure.has-link .post-figure-link:hover img { border-color: #D9A441; }
+.post-figure figcaption a { color: #D9A441; text-decoration: none; }
+.post-figure figcaption a:hover { color: #E6DAC4; text-decoration: underline; }
 .post-figure-pair {
     display: grid;
     grid-template-columns: 1fr 1fr;
