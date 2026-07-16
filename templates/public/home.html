@@ -80,33 +80,6 @@
 </section>
 {% endif %}
 
-<section class="categories-section">
-    <div class="container">
-        <div class="faction-tags">
-            {% for tag in featured_tags %}
-            <a href="{{ url_prefix }}/products?tag={{ tag.name|urlencode }}" class="faction-tag">{{ tag.name|tag_label }}</a>
-            {% endfor %}
-        </div>
-    </div>
-</section>
-
-{% if category_cards %}
-<section class="category-showcase">
-    <div class="container">
-        <h2 class="section-title">商品分類</h2>
-        <div class="category-grid">
-            {% for cat in category_cards %}
-            <a href="{{ url_prefix }}/products?category={{ cat.slug }}" class="category-card">
-                {% if cat.cover %}<img src="{{ cat.cover }}" alt="{{ cat.name }}" loading="lazy">{% endif %}
-                <span class="category-card-name">{{ cat.name }}</span>
-                <span class="category-card-count">{{ cat.count }} 件</span>
-            </a>
-            {% endfor %}
-        </div>
-    </div>
-</section>
-{% endif %}
-
 {% if posts %}
 <section class="recent-posts">
     <div class="container">
@@ -249,6 +222,33 @@
         </div>
     </div>
 </section>
+
+<section class="categories-section">
+    <div class="container">
+        <div class="faction-tags">
+            {% for tag in featured_tags %}
+            <a href="{{ url_prefix }}/products?tag={{ tag.name|urlencode }}" class="faction-tag">{{ tag.name|tag_label }}</a>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+{% if category_cards %}
+<section class="category-showcase">
+    <div class="container">
+        <h2 class="section-title">商品分類</h2>
+        <div class="category-grid">
+            {% for cat in category_cards %}
+            <a href="{{ url_prefix }}/products?category={{ cat.slug }}" class="category-card">
+                {% if cat.cover %}<img src="{{ cat.cover }}" alt="{{ cat.name }}" loading="lazy">{% endif %}
+                <span class="category-card-name">{{ cat.name }}</span>
+                <span class="category-card-count">{{ cat.count }} 件</span>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
 
 <script>
 // GA4: Track promotion banner click
