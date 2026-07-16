@@ -36,10 +36,10 @@
 
             <h3 style="margin-top: 2rem;">{{ t.categories }}</h3>
             <ul class="category-list">
-                <li><a href="{{ url_prefix }}/products{% if show_pre_order or show_new_arrival or show_in_stock or show_deprecated %}?{% endif %}{% if show_pre_order %}pre_order=true{% endif %}{% if show_new_arrival %}{% if show_pre_order %}&{% endif %}new_arrival=true{% endif %}{% if show_in_stock %}{% if show_pre_order or show_new_arrival %}&{% endif %}in_stock=true{% endif %}{% if show_deprecated %}{% if show_pre_order or show_new_arrival or show_in_stock %}&{% endif %}deprecated=true{% endif %}" {% if not current_category %}class="active"{% endif %}>{{ t.all_products }}</a></li>
+                <li><a href="{{ url_prefix }}/products{% if show_pre_order or show_new_arrival or show_in_stock or deprecated_explicit %}?{% endif %}{% if show_pre_order %}pre_order=true{% endif %}{% if show_new_arrival %}{% if show_pre_order %}&{% endif %}new_arrival=true{% endif %}{% if show_in_stock %}{% if show_pre_order or show_new_arrival %}&{% endif %}in_stock=true{% endif %}{% if deprecated_explicit %}{% if show_pre_order or show_new_arrival or show_in_stock %}&{% endif %}deprecated=true{% endif %}" {% if not current_category %}class="active"{% endif %}>{{ t.all_products }}</a></li>
                 {% for category in categories %}
                 <li>
-                    <a href="{{ url_prefix }}/products?category={{ category.slug }}{% if show_pre_order %}&pre_order=true{% endif %}{% if show_new_arrival %}&new_arrival=true{% endif %}{% if show_in_stock %}&in_stock=true{% endif %}{% if show_deprecated %}&deprecated=true{% endif %}"
+                    <a href="{{ url_prefix }}/products?category={{ category.slug }}{% if show_pre_order %}&pre_order=true{% endif %}{% if show_new_arrival %}&new_arrival=true{% endif %}{% if show_in_stock %}&in_stock=true{% endif %}{% if deprecated_explicit %}&deprecated=true{% endif %}"
                        {% if current_category == category.slug %}class="active"{% endif %}>
                         {{ category.name }}
                     </a>
@@ -72,6 +72,9 @@
 
                 if (checkbox.checked) {
                     url.searchParams.set(filterType, 'true');
+                } else if (filterType === 'deprecated' && url.searchParams.get('search')) {
+                    // 顯示絕版商品 defaults on for searches — hiding needs an explicit false
+                    url.searchParams.set(filterType, 'false');
                 } else {
                     url.searchParams.delete(filterType);
                 }

@@ -37,6 +37,9 @@
                     <span id="coupon-discount-row" style="display:none">優惠券折抵：<span id="coupon-discount-amt">−NT$0</span><br></span>
                     應付總額：<strong id="checkout-grand">NT$0</strong>
                     <span id="inquiry-hint" style="display:none"><br><small>（詢價商品另計）</small></span>
+                    <span id="paynow-row" style="display:none"><br>
+                        本次應付：<strong id="paynow-amt">NT$0</strong><br>
+                        <small>預購商品 <span id="preorder-later-amt">NT$0</span> 不需預付，到貨後另行通知付款</small></span>
                 </p>
                 <div id="batch-choice" style="display:none" class="batch-choice">
                     <label><input type="radio" name="ship_together" value="1" checked>
@@ -118,6 +121,7 @@
                     <label><input type="radio" name="payment_method" value="cod">
                         取貨付款（超商取貨時付款）</label>
                 </div>
+                <p class="text-muted" id="pay-preorder-note" style="display:none"><small>預購商品不需預付——本次僅就現貨／調貨商品與運費收款，預購商品到貨後才會通知付款。</small></p>
 
                 <label>備註<textarea name="note" rows="2" maxlength="500"></textarea></label>
 
@@ -173,7 +177,7 @@ async function loadCheckout() {
         document.getElementById('checkout-empty').style.display = '';
         return;
     }
-    let total = 0, hasPre = false, hasNow = false, hasInq = false;
+    let total = 0, preTotal = 0, hasPre = false, hasNow = false, hasInq = false;
     for (const [key, states] of Object.entries(GROUPS)) {
         const lines = resolved.filter(l => states.includes(l.availability));
         const box = document.getElementById('group-' + key);
@@ -191,14 +195,16 @@ async function loadCheckout() {
             </div>`;
         }).join('');
         for (const l of lines) total += l.price * l.qty;
-        if (key === 'preorder') hasPre = true;
+        if (key === 'preorder') { hasPre = true; for (const l of lines) preTotal += l.price * l.qty; }
         if (key === 'now') hasNow = true;
         if (key === 'inquiry') hasInq = true;
     }
     document.getElementById('checkout-total').textContent = 'NT$' + Math.round(total).toLocaleString();
     checkoutTotal = total;
+    checkoutPreTotal = preTotal;
     updateFee();
     document.getElementById('inquiry-hint').style.display = hasInq ? '' : 'none';
+    document.getElementById('pay-preorder-note').style.display = hasPre ? '' : 'none';
     document.getElementById('batch-choice').style.display = (hasPre && hasNow) ? '' : 'none';
     document.getElementById('checkout-body').style.display = '';
 
@@ -243,6 +249,7 @@ function pickStore(s) {
 }
 
 let checkoutTotal = 0;
+let checkoutPreTotal = 0;
 function currentDelivery() {
     if (savedAddr) return savedAddr.delivery;
     const el = document.querySelector('input[name=delivery_method]:checked');
@@ -264,6 +271,16 @@ function updateFee() {
     }
     document.getElementById('checkout-grand').textContent =
         'NT$' + Math.round(total + fee - disc).toLocaleString();
+    // 預購 split — mirrors POS _charge_now_twd: preorders are pay-on-arrival,
+    // and a preorder-only order charges nothing now (shipping included)
+    const preTotal = checkoutPreTotal || 0;
+    const nowTotal = total - preTotal;
+    const payNow = nowTotal > 0 ? Math.max(0, nowTotal + fee - disc) : 0;
+    document.getElementById('paynow-row').style.display = preTotal > 0 ? '' : 'none';
+    if (preTotal > 0) {
+        document.getElementById('paynow-amt').textContent = 'NT$' + Math.round(payNow).toLocaleString();
+        document.getElementById('preorder-later-amt').textContent = 'NT$' + Math.round(preTotal).toLocaleString();
+    }
 }
 
 // ----- 優惠券 -----

@@ -1421,7 +1421,10 @@ def products_page():
     show_pre_order = request.args.get('pre_order') == 'true'
     show_new_arrival = request.args.get('new_arrival') == 'true'
     show_in_stock = request.args.get('in_stock') == 'true'
-    show_deprecated = request.args.get('deprecated') == 'true'
+    # 顯示絕版商品 defaults ON for search results (so 絕版 items stay findable)
+    # and OFF when browsing; an explicit ?deprecated=true/false overrides both.
+    deprecated_arg = request.args.get('deprecated')
+    show_deprecated = (deprecated_arg == 'true') if deprecated_arg is not None else bool(search)
     sort_by = request.args.get('sort', 'default')  # default, price_asc, price_desc
 
     # Check HTML cache for simple category pages (no search/tag/filters)
@@ -1477,7 +1480,7 @@ def products_page():
     if show_in_stock:
         products = [p for p in products if p.get('in_stock', True)]
 
-    # Hide 絕版/詢價 (inquiry) items by default; the 顯示絕版商品 filter shows them
+    # Hide 絕版/詢價 (inquiry) items unless 顯示絕版商品 is on (default for searches)
     if not show_deprecated:
         products = [p for p in products if p.get('availability') != 'inquiry']
 
@@ -1522,6 +1525,7 @@ def products_page():
                          show_new_arrival=show_new_arrival,
                          show_in_stock=show_in_stock,
                          show_deprecated=show_deprecated,
+                         deprecated_explicit=deprecated_arg == 'true',
                          faction_nav=faction_nav,
                          current_sort=sort_by)
 
