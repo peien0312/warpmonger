@@ -107,6 +107,32 @@
 </section>
 {% endif %}
 
+{% if posts %}
+<section class="recent-posts">
+    <div class="container">
+        <h2>{{ t.recent_blog }}</h2>
+        <div class="posts-grid">
+            {% for post in posts %}
+            <article class="post-card {% if post.cover %}has-cover{% endif %}">
+                {% if post.cover %}
+                <a href="{{ url_prefix }}/blog/{{ post.slug }}" class="post-card-cover">
+                    <img src="{{ post.cover }}" alt="{{ post.title }}" loading="lazy">
+                </a>
+                {% endif %}
+                <div class="post-card-body">
+                    <h3><a href="{{ url_prefix }}/blog/{{ post.slug }}">{{ post.title }}</a></h3>
+                    <p class="post-meta">{{ post.date }} {% if post.author %}by {{ post.author }}{% endif %}</p>
+                    <p class="post-card-excerpt">{{ post.excerpt }}</p>
+                    <a href="{{ url_prefix }}/blog/{{ post.slug }}" class="read-more">{{ t.read_more }}</a>
+                </div>
+            </article>
+            {% endfor %}
+        </div>
+        <a href="{{ url_prefix }}/blog" class="btn btn-secondary">{{ t.view_all_posts }}</a>
+    </div>
+</section>
+{% endif %}
+
 {% if new_arrivals %}
 <section class="new-arrivals">
     <div class="container">
@@ -223,32 +249,6 @@
         </div>
     </div>
 </section>
-
-{% if posts %}
-<section class="recent-posts">
-    <div class="container">
-        <h2>{{ t.recent_blog }}</h2>
-        <div class="posts-grid">
-            {% for post in posts %}
-            <article class="post-card {% if post.cover %}has-cover{% endif %}">
-                {% if post.cover %}
-                <a href="{{ url_prefix }}/blog/{{ post.slug }}" class="post-card-cover">
-                    <img src="{{ post.cover }}" alt="{{ post.title }}" loading="lazy">
-                </a>
-                {% endif %}
-                <div class="post-card-body">
-                    <h3><a href="{{ url_prefix }}/blog/{{ post.slug }}">{{ post.title }}</a></h3>
-                    <p class="post-meta">{{ post.date }} {% if post.author %}by {{ post.author }}{% endif %}</p>
-                    <p class="post-card-excerpt">{{ post.excerpt }}</p>
-                    <a href="{{ url_prefix }}/blog/{{ post.slug }}" class="read-more">{{ t.read_more }}</a>
-                </div>
-            </article>
-            {% endfor %}
-        </div>
-        <a href="{{ url_prefix }}/blog" class="btn btn-secondary">{{ t.view_all_posts }}</a>
-    </div>
-</section>
-{% endif %}
 
 <script>
 // GA4: Track promotion banner click
