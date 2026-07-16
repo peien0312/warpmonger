@@ -3895,9 +3895,17 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
     line-height: 1.6; flex-shrink: 0;
 }
 .card-sub .card-sub-text { flex: 1; min-width: 0; }
-/* equal-height cards: price sits at the bottom regardless of text length */
+/* equal-height cards: price sits at the bottom regardless of text length.
+   The card is the flex column and the anchor grows to fill it (flex: 1)
+   rather than the anchor using height: 100%. A percentage height on the
+   anchor resolves against the grid-stretched card height, but the anchor's
+   own content (image + long English card-sub) can exceed that height and
+   spill past the card's overflow:hidden — clipping the price entirely.
+   This showed up on narrow/mobile cards (notably iOS WKWebView / the LINE
+   in-app browser) where the card-sub wraps to several lines. */
+.product-card { display: flex; flex-direction: column; }
 .product-card > a {
-    display: flex; flex-direction: column; height: 100%;
+    display: flex; flex-direction: column; flex: 1 1 auto; min-height: 0;
 }
 .product-card > a .price { margin-top: auto; padding-top: 4px; }
 
