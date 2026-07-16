@@ -20,14 +20,28 @@
             <a href="{{ url_prefix }}/blog">清除</a></p>
         {% endif %}
 
-        {% if blog_tags %}
+        {% if rail_tags %}
         <div class="blog-tag-cloud">
-            <a href="{{ url_prefix }}/blog"
-               class="tag tag-link {% if not active_tag %}tag-active{% endif %}">全部</a>
-            {% for tag in blog_tags %}
-            <a href="{{ url_prefix }}/blog?tag={{ tag.name|urlencode }}"
-               class="tag tag-link {% if tag.name == active_tag %}tag-active{% endif %}">{{ tag.name }} ({{ tag.count }})</a>
-            {% endfor %}
+            <div class="blog-tag-rail" id="blog-tag-rail">
+                <a href="{{ url_prefix }}/blog"
+                   class="tag tag-link {% if not active_tag %}tag-active{% endif %}">全部</a>
+                {% for tag in rail_tags %}
+                <a href="{{ url_prefix }}/blog?tag={{ tag.name|urlencode }}"
+                   class="tag tag-link {% if tag.name == active_tag %}tag-active{% endif %}">{{ tag.name|tag_label }} ({{ tag.count }})</a>
+                {% endfor %}
+                {% if more_tags %}
+                <button type="button" class="tag tag-more-toggle" id="tag-more-toggle"
+                        aria-expanded="false" aria-controls="blog-tag-more">全部標籤 +</button>
+                {% endif %}
+            </div>
+            {% if more_tags %}
+            <div class="blog-tag-more" id="blog-tag-more" hidden>
+                {% for tag in more_tags %}
+                <a href="{{ url_prefix }}/blog?tag={{ tag.name|urlencode }}"
+                   class="tag tag-link">{{ tag.name|tag_label }} ({{ tag.count }})</a>
+                {% endfor %}
+            </div>
+            {% endif %}
         </div>
         {% endif %}
 
@@ -50,7 +64,7 @@
                 {% if post.tags %}
                 <div class="post-tags">
                     {% for tag in post.tags %}
-                    <a href="{{ url_prefix }}/blog?tag={{ tag|urlencode }}" class="tag tag-link">{{ tag }}</a>
+                    <a href="{{ url_prefix }}/blog?tag={{ tag|urlencode }}" class="tag tag-link">{{ tag|tag_label }}</a>
                     {% endfor %}
                 </div>
                 {% endif %}
@@ -66,6 +80,25 @@
 </div>
 
 <script>
+// tag rail: 全部標籤 expander + keep the active chip in view on mobile
+(function () {
+    var toggle = document.getElementById('tag-more-toggle');
+    if (toggle) {
+        toggle.addEventListener('click', function () {
+            var box = document.getElementById('blog-tag-more');
+            var opening = box.hasAttribute('hidden');
+            if (opening) { box.removeAttribute('hidden'); } else { box.setAttribute('hidden', ''); }
+            this.setAttribute('aria-expanded', opening ? 'true' : 'false');
+            this.textContent = opening ? '收合 −' : '全部標籤 +';
+        });
+    }
+    var rail = document.getElementById('blog-tag-rail');
+    var active = rail && rail.querySelector('.tag-active');
+    if (rail && active && rail.scrollWidth > rail.clientWidth) {
+        rail.scrollLeft = active.offsetLeft - rail.clientWidth / 2 + active.clientWidth / 2;
+    }
+})();
+
 // GA4: Track blog post clicks
 document.querySelectorAll('.blog-post-preview a').forEach(function(link) {
     link.addEventListener('click', function() {

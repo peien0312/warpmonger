@@ -1625,17 +1625,29 @@ def blog_page():
     if active_tag:
         posts = [p for p in posts if active_tag in (p.get('tags') or [])]
 
+    # curated rail: multi-post tags stay visible, single-post long tail sits
+    # behind a 全部標籤 expander (a fully expanded cloud buried the articles)
+    rail_tags = [t for t in blog_tags if t['count'] >= 2]
+    more_tags = [t for t in blog_tags if t['count'] < 2]
+    if not rail_tags:
+        rail_tags, more_tags = blog_tags, []
+    if active_tag and any(t['name'] == active_tag for t in more_tags):
+        rail_tags = rail_tags + [t for t in more_tags if t['name'] == active_tag]
+        more_tags = [t for t in more_tags if t['name'] != active_tag]
+
     query = request.args.get('q', '').strip()
     if query:
         q = query.lower()
+        glossary = get_tag_glossary()
         posts = [p for p in posts
                  if q in p['title'].lower() or q in p['content'].lower()
                  or q in (p.get('excerpt') or '').lower()
-                 or any(q in t.lower() for t in (p.get('tags') or []))]
+                 or any(q in t.lower() or q in glossary.get(t, '').lower()
+                        for t in (p.get('tags') or []))]
 
     return render_template('public/blog.html', posts=posts,
-                           blog_tags=blog_tags, active_tag=active_tag,
-                           blog_query=query)
+                           rail_tags=rail_tags, more_tags=more_tags,
+                           active_tag=active_tag, blog_query=query)
 
 _SPOILER_MD_BLOCK = re.compile(r'^:::spoiler[ \t]*([^\n]*)\n(.*?)^:::[ \t]*$',
                                re.M | re.S)

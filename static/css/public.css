@@ -4340,6 +4340,31 @@ a.tag.tag-link:hover { border-color: #D9A441; }
     color: #E6DAC4;
     border-color: #D9A441;
 }
+/* curated rail: wraps on desktop, one swipeable row on mobile */
+.blog-tag-rail .tag { white-space: nowrap; }
+.tag-more-toggle {
+    font-family: inherit;
+    cursor: pointer;
+    color: #C9BBA0;
+    border-style: dashed;
+    border-color: #6E4B2A;
+}
+.tag-more-toggle:hover { color: #D9A441; border-color: #D9A441; }
+.blog-tag-more { margin-top: 6px; }
+@media (max-width: 768px) {
+    .blog-tag-rail {
+        display: flex;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: thin;
+        scrollbar-color: #6E4B2A transparent;
+        padding-bottom: 4px;
+    }
+    .blog-tag-rail .tag { flex: 0 0 auto; margin-bottom: 4px; }
+    .blog-tag-rail::-webkit-scrollbar { height: 4px; }
+    .blog-tag-rail::-webkit-scrollbar-thumb { background: #6E4B2A; border-radius: 2px; }
+}
 .post-shop-tags {
     margin: 28px 0 10px;
     padding: 14px 16px;
