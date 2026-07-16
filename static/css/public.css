@@ -3747,6 +3747,10 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
     text-align: left;
 }
 .hero-copy { max-width: 460px; }
+.hero-glass {
+    position: relative;
+    line-height: 0;
+}
 .hero-glass img,
 .hero-glass video {
     width: 330px;
@@ -3754,11 +3758,28 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
     max-width: 40vw;
     display: block;
     /* Clip to the stained-glass roundel so the corners are transparent and the
-       page gradient shows through — no square, no baked matte, no hard frame.
-       The medallion's own dark lead ring becomes the edge; drop-shadow (not
-       box-shadow) follows the circular clip to give a soft amber glow. */
+       page gradient shows through — no square, no baked matte. The lead-came
+       ring is drawn by .hero-glass::after so it can follow the circular clip
+       (a border/box-shadow on the clipped video itself wouldn't). */
     clip-path: circle(48%);
-    filter: drop-shadow(0 10px 24px rgba(0, 0, 0, 0.5)) drop-shadow(0 0 18px rgba(217, 164, 65, 0.16));
+    filter: drop-shadow(0 8px 20px rgba(0, 0, 0, 0.5));
+}
+/* Lead-came ring around the roundel, sized to the circle(48%) clip (96% = 2 × 48%).
+   Abuts the medallion's own painted lead so the two read as one frame. */
+.hero-glass::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 96%;
+    aspect-ratio: 1;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    border: 3px solid #17100B;              /* lead came */
+    box-shadow:
+        0 0 0 1px #6E4B2A,                  /* oak-bronze bead */
+        0 0 26px rgba(217, 164, 65, 0.18);  /* candle glow */
+    pointer-events: none;
 }
 @media (max-width: 768px) {
     .hero-split { flex-direction: column-reverse; text-align: center; gap: 28px; }
