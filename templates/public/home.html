@@ -110,7 +110,7 @@
 {% if posts %}
 <section class="recent-posts">
     <div class="container">
-        <h2>{{ t.recent_blog }}</h2>
+        <h2 class="section-title">{{ t.recent_blog }}</h2>
         <div class="posts-grid">
             {% for post in posts %}
             <article class="post-card {% if post.cover %}has-cover{% endif %}">
@@ -136,7 +136,7 @@
 {% if new_arrivals %}
 <section class="new-arrivals">
     <div class="container">
-        <h2>{{ t.new_arrivals }}</h2>
+        <h2 class="section-title">{{ t.new_arrivals }}</h2>
         <div class="products-grid" data-ga-list="home:new-arrivals" data-ga-impressions>
             {% for product in new_arrivals %}
             <div class="product-card">
@@ -190,7 +190,7 @@
 
 <section class="featured-products">
     <div class="container">
-        <h2>{{ t.featured }}</h2>
+        <h2 class="section-title">{{ t.featured }}</h2>
         <div class="products-grid" data-ga-list="home:featured" data-ga-impressions>
             {% for product in products %}
             <div class="product-card">

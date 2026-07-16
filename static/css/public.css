@@ -1724,12 +1724,12 @@ section h2::after {
     border-bottom: 1px solid #342A21;
 }
 
-.new-arrivals h2 {
+.new-arrivals h2:not(.section-title) {
     color: #D9A441;
     text-shadow: 0 0 10px rgba(217, 164, 65, 0.6);
 }
 
-.on-sale h2 {
+.on-sale h2:not(.section-title) {
     color: #6E4B2A;
     text-shadow: 0 0 10px rgba(110, 75, 42, 0.6);
 }
