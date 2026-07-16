@@ -1665,6 +1665,43 @@ def markdown_with_spoilers(text):
     return html
 
 
+# --- post body images: figures, captions, pairs, thumbnails, lightbox ---
+# Markdown authors write plain ![圖說](/static/images/blog/x.jpg); this pass
+# upgrades the rendered HTML. Two images written on one line sit side-by-side.
+
+_POST_IMG_P = re.compile(r'<p>\s*(<img [^>]+?/?>)\s*(<img [^>]+?/?>)?\s*</p>')
+_BLOG_SRC = re.compile(r'^/static/images/blog/([^/]+)$')
+
+
+def _post_figure(img_tag):
+    alt_m = re.search(r'alt="([^"]*)"', img_tag)
+    src_m = re.search(r'src="([^"]+)"', img_tag)
+    if not src_m:
+        return img_tag
+    alt, full = (alt_m.group(1) if alt_m else ''), src_m.group(1)
+    display = full
+    m = _BLOG_SRC.match(full)
+    if m and not full.lower().endswith('.gif'):   # gif thumbnail loses animation
+        display = '/static/images/blog/thumb_' + m.group(1)
+    img = (f'<img src="{display}" alt="{alt}" loading="lazy" decoding="async"'
+           f' class="post-img" data-full="{full}">')
+    cap = f'<figcaption>{alt}</figcaption>' if alt else ''
+    return f'<figure class="post-figure">{img}{cap}</figure>'
+
+
+def enrich_post_images(html):
+    """Standalone image paragraphs → <figure> (alt text becomes the 圖說);
+    a paragraph of exactly two images becomes a side-by-side pair. Blog-dir
+    images swap to a body-width thumbnail; the original opens in a lightbox."""
+    def _sub(m):
+        first = _post_figure(m.group(1))
+        if m.group(2):
+            return ('<div class="post-figure-pair">' + first
+                    + _post_figure(m.group(2)) + '</div>')
+        return first
+    return _POST_IMG_P.sub(_sub, html)
+
+
 # --- blog view tracking (stats shown in the POS at /storefront/blog-stats) ---
 
 _BOT_UA_RE = re.compile(
@@ -1742,7 +1779,7 @@ def blog_post_page(slug):
     _record_blog_view(slug)
 
     # Convert markdown to HTML
-    post['content_html'] = markdown_with_spoilers(post['content'])
+    post['content_html'] = enrich_post_images(markdown_with_spoilers(post['content']))
     # Spoiler-free plain text for meta description / schema.org articleBody
     post['content_plain'] = _SPOILER_INLINE.sub(
         '……', _SPOILER_MD_BLOCK.sub('', post['content']))
@@ -1820,7 +1857,8 @@ def codex_entry_page(slug):
         _body = _en or _zh
     # Process [[crosslinks]] in the body first, then markdown -> HTML (same as
     # product descriptions; without this the body shows literal [[Term]]).
-    entry['content_html'] = markdown.markdown(process_codex_links(_body))
+    entry['content_html'] = enrich_post_images(
+        markdown.markdown(process_codex_links(_body)))
     # Plain, crosslink-stripped text for the meta description.
     entry['content_plain'] = " ".join(
         re.sub(r'\[\[([^\]|]+)(?:\|([^\]]+))?\]\]',
@@ -2623,9 +2661,17 @@ def serve_category_icon(slug, filename):
 
 @app.route('/static/images/blog/<filename>')
 def serve_blog_image(filename):
-    """Serve blog images uploaded via the POS admin (POS media/blog/)."""
+    """Serve blog images uploaded via the POS admin (POS media/blog/), with
+    on-demand body-width thumbnails (thumb_<name>, same format as the
+    original so transparency survives; gifs are never thumbnailed)."""
     import posdb as _posdb
-    return send_from_directory(os.path.join(_posdb.POS_MEDIA, 'blog'), filename)
+    blog_dir = os.path.join(_posdb.POS_MEDIA, 'blog')
+    path = os.path.join(blog_dir, filename)
+    if not os.path.exists(path) and filename.startswith('thumb_'):
+        orig = os.path.join(blog_dir, filename[len('thumb_'):])
+        if os.path.exists(orig):
+            create_thumbnail(orig, path, size=(1200, 1200))
+    return send_from_directory(blog_dir, filename)
 
 # ===== Cache Warming =====
 

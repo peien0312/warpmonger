@@ -195,6 +195,28 @@ document.querySelectorAll('.post-shop-tags a').forEach(function (a) {
     });
 });
 
+// Body-image lightbox: click a figure to zoom the original (CSS in public.css)
+(function () {
+    var imgs = document.querySelectorAll('.post-content img.post-img');
+    if (!imgs.length) return;
+    var box = document.createElement('div');
+    box.id = 'image-lightbox'; box.className = 'image-lightbox';
+    box.innerHTML = '<button class="lightbox-close">&times;</button><div id="lightbox-content"></div>';
+    box.addEventListener('click', function () { box.classList.remove('active'); });
+    document.body.appendChild(box);
+    imgs.forEach(function (img) {
+        img.addEventListener('click', function () {
+            var full = document.createElement('img');
+            full.src = img.dataset.full || img.src;
+            full.alt = img.alt || '';
+            var slot = document.getElementById('lightbox-content');
+            slot.innerHTML = '';
+            slot.appendChild(full);
+            box.classList.add('active');
+        });
+    });
+})();
+
 // GA4: article_read fires once when the reader reaches the end of the post body —
 // distinguishes actual reads from bounces (page 90%-scroll can't, on short pages).
 (function () {

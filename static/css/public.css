@@ -4564,3 +4564,42 @@ details.spoiler-block .spoiler-body { padding: 4px 16px 12px; }
     .logo-wordmark { font-size: 1.05rem; }
     .site-logo .logo-tagline { font-size: 0.55rem; letter-spacing: 2px; }
 }
+
+/* ============================================================
+   Post body figures — blog & codex images with 圖說, side-by-side
+   pairs, and lightbox zoom (lead-came frame, workshop palette)
+   ============================================================ */
+.post-figure {
+    margin: 28px 0;
+    text-align: center;
+}
+.post-figure img {
+    max-width: 100%;
+    height: auto;
+    display: inline-block;
+    margin: 0;
+    border-radius: 4px;
+    border: 2px solid #342A21;
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.45);
+    cursor: zoom-in;
+    transition: border-color 0.3s;
+}
+.post-figure img:hover { border-color: #6E4B2A; }
+.post-figure figcaption {
+    margin-top: 10px;
+    font-size: 0.85rem;
+    color: #948669;
+    font-style: normal;
+    line-height: 1.6;
+}
+.post-figure-pair {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    align-items: start;
+    margin: 28px 0;
+}
+.post-figure-pair .post-figure { margin: 0; }
+@media (max-width: 600px) {
+    .post-figure-pair { grid-template-columns: 1fr; gap: 20px; }
+}
