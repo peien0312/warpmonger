@@ -3749,13 +3749,16 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
 .hero-copy { max-width: 460px; }
 .hero-glass img,
 .hero-glass video {
-    width: 300px;
+    width: 330px;
     height: auto;
-    max-width: 38vw;
+    max-width: 40vw;
     display: block;
-    border: 3px solid #17100B;
-    border-radius: 4px;
-    box-shadow: 0 0 0 1px #6E4B2A, 0 0 42px rgba(217, 164, 65, 0.18), 0 12px 30px rgba(0,0,0,0.55);
+    /* Clip to the stained-glass roundel so the corners are transparent and the
+       page gradient shows through — no square, no baked matte, no hard frame.
+       The medallion's own dark lead ring becomes the edge; drop-shadow (not
+       box-shadow) follows the circular clip to give a soft amber glow. */
+    clip-path: circle(48%);
+    filter: drop-shadow(0 10px 24px rgba(0, 0, 0, 0.5)) drop-shadow(0 0 18px rgba(217, 164, 65, 0.16));
 }
 @media (max-width: 768px) {
     .hero-split { flex-direction: column-reverse; text-align: center; gap: 28px; }
