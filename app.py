@@ -1684,6 +1684,13 @@ def markdown_with_spoilers(text):
     return html
 
 
+def spoiler_free_text(text):
+    """Spoiler-stripped markdown for meta description / schema.org
+    articleBody: blocks removed, inline reveals elided."""
+    text = text.replace('\r\n', '\n').replace('\r', '\n')
+    return _SPOILER_INLINE.sub('……', _SPOILER_MD_BLOCK.sub('', text))
+
+
 # --- post body images: figures, captions, pairs, thumbnails, lightbox ---
 # Markdown authors write plain ![圖說](/static/images/blog/x.jpg); this pass
 # upgrades the rendered HTML. Two images written on one line sit side-by-side.
@@ -1838,8 +1845,7 @@ def blog_post_page(slug):
     # Convert markdown to HTML
     post['content_html'] = enrich_post_images(markdown_with_spoilers(post['content']))
     # Spoiler-free plain text for meta description / schema.org articleBody
-    post['content_plain'] = _SPOILER_INLINE.sub(
-        '……', _SPOILER_MD_BLOCK.sub('', post['content']))
+    post['content_plain'] = spoiler_free_text(post['content'])
     # Post tags that are also product tags → 相關商品 links
     product_tags = {t['name'] for t in get_all_tags()}
     post['shop_tags'] = [t for t in (post.get('tags') or [])

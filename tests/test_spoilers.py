@@ -1,7 +1,7 @@
 """劇透 markup: :::spoiler blocks and ||inline|| reveals render to the
 click-to-reveal HTML regardless of line endings (POS editor textareas and
 the AI writer emit CRLF)."""
-from app import markdown_with_spoilers
+from app import markdown_with_spoilers, spoiler_free_text
 
 BLOCK = ":::spoiler 結局重雷\n他死了。\n:::\n\n後記。"
 
@@ -28,3 +28,11 @@ def test_inline_reveal():
     html = markdown_with_spoilers("其實||兇手是管家||啦。")
     assert '<span class="spoiler-inline"' in html
     assert "||" not in html
+
+
+def test_plain_text_strips_spoilers_with_crlf():
+    plain = spoiler_free_text(BLOCK.replace("\n", "\r\n"))
+    assert "他死了" not in plain
+    assert ":::" not in plain
+    assert "後記。" in plain
+    assert spoiler_free_text("其實||兇手是管家||啦。") == "其實……啦。"
