@@ -1838,12 +1838,22 @@ def _related_posts(post, limit=4):
     """延伸閱讀: other posts ranked by shared tags, newest first; padded with
     the most recent posts so the rail always exists. Computed at render, so
     publishing a new post immediately adds it to every related older post."""
+    all_posts = get_blog_posts()
     mine = {t.lower() for t in (post.get('tags') or [])}
 
-    def score(p):
-        return len(mine & {t.lower() for t in (p.get('tags') or [])})
+    # Shared tags weighted by rarity, so a faction tag (few posts) outranks a
+    # broad one like 戰鎚40K (many posts) instead of tying and losing to recency.
+    freq = {}
+    for p in all_posts:
+        for t in (p.get('tags') or []):
+            t = t.lower()
+            freq[t] = freq.get(t, 0) + 1
 
-    others = [p for p in get_blog_posts() if p['slug'] != post['slug']]
+    def score(p):
+        shared = mine & {t.lower() for t in (p.get('tags') or [])}
+        return sum(1.0 / freq[t] for t in shared)
+
+    others = [p for p in all_posts if p['slug'] != post['slug']]
     others.sort(key=lambda p: p.get('date') or '', reverse=True)  # newest first
     others.sort(key=score, reverse=True)                          # stable: score wins
     return others[:limit]
