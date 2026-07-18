@@ -1674,6 +1674,9 @@ def markdown_with_spoilers(text):
                 + '（點我展開）</summary><div class="spoiler-body">'
                 + inner + '</div></details>\n\n')
 
+    # POS editor textareas and the AI writer emit CRLF; the \r breaks the
+    # ^:::$ line anchors and the block falls through as literal text.
+    text = text.replace('\r\n', '\n').replace('\r', '\n')
     html = markdown.markdown(_SPOILER_MD_BLOCK.sub(_block, text))
     html = _SPOILER_INLINE.sub(
         r'<span class="spoiler-inline" role="button" tabindex="0"'
