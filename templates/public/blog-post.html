@@ -112,6 +112,23 @@
         </div>
         {% endif %}
 
+        {% if related_posts %}
+        <section class="related-posts">
+            <h2 class="section-title">延伸閱讀</h2>
+            <div class="related-posts-grid">
+                {% for rp in related_posts %}
+                <a class="related-post-card" href="{{ url_prefix }}/blog/{{ rp.slug }}">
+                    {% if rp.cover %}
+                    <img src="{{ rp.cover }}" alt="{{ rp.title }}" loading="lazy">
+                    {% endif %}
+                    <span class="related-post-title">{{ rp.title }}</span>
+                    <span class="related-post-date">{{ rp.date }}</span>
+                </a>
+                {% endfor %}
+            </div>
+        </section>
+        {% endif %}
+
         <section class="blog-comments" id="comments">
             <h2>留言（{{ comments|length }}）</h2>
             {% for c in comments %}

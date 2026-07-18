@@ -1834,6 +1834,21 @@ def _record_blog_view(slug):
         pass  # stats must never break the page
 
 
+def _related_posts(post, limit=4):
+    """延伸閱讀: other posts ranked by shared tags, newest first; padded with
+    the most recent posts so the rail always exists. Computed at render, so
+    publishing a new post immediately adds it to every related older post."""
+    mine = {t.lower() for t in (post.get('tags') or [])}
+
+    def score(p):
+        return len(mine & {t.lower() for t in (p.get('tags') or [])})
+
+    others = [p for p in get_blog_posts() if p['slug'] != post['slug']]
+    others.sort(key=lambda p: p.get('date') or '', reverse=True)  # newest first
+    others.sort(key=score, reverse=True)                          # stable: score wins
+    return others[:limit]
+
+
 @public_route('/blog/<slug>')
 def blog_post_page(slug):
     """Blog post detail page"""
@@ -1879,6 +1894,7 @@ def blog_post_page(slug):
     comments = memberdb.blog_comments_for(slug)
     return render_template('public/blog-post.html', post=post,
                            cover_link=cover_link, cover_caption=cover_caption,
+                           related_posts=_related_posts(post),
                            comments=comments, member=current_member())
 
 @public_route('/promotions')
@@ -1958,11 +1974,26 @@ def codex_entry_page(slug):
     related_products.sort(key=lambda p: (not p.get('in_stock'), -(p.get('order_weight') or 0)))
     related_products = related_products[:12]
 
+    # 相關文章: blog posts tagged with this codex subject (or naming its zh-TW
+    # title). Render-time, so a new post shows up here the moment it's published.
+    zh_name = (entry.get('title_zhtw') or '').strip()
+
+    def _related_article(p):
+        tags = {str(t).strip().lower() for t in (p.get('tags') or [])}
+        if terms & tags:
+            return True
+        title = p.get('title') or ''
+        return ((len(name_term) >= 4 and name_term in title.lower())
+                or (zh_name and zh_name in title))
+
+    related_articles = [p for p in get_blog_posts() if _related_article(p)][:4]
+
     # Get all entries for navigation
     all_entries = get_codex_entries()
 
     return render_template('public/codex-entry.html', entry=entry,
-                           all_entries=all_entries, related_products=related_products)
+                           all_entries=all_entries, related_products=related_products,
+                           related_articles=related_articles)
 
 @public_route('/cart')
 def cart_page():

@@ -82,6 +82,23 @@
                 </section>
                 {% endif %}
 
+                {% if related_articles %}
+                <section class="codex-related">
+                    <h2 class="section-title">相關文章</h2>
+                    <div class="related-posts-grid">
+                        {% for rp in related_articles %}
+                        <a class="related-post-card" href="{{ url_prefix }}/blog/{{ rp.slug }}">
+                            {% if rp.cover %}
+                            <img src="{{ rp.cover }}" alt="{{ rp.title }}" loading="lazy">
+                            {% endif %}
+                            <span class="related-post-title">{{ rp.title }}</span>
+                            <span class="related-post-date">{{ rp.date }}</span>
+                        </a>
+                        {% endfor %}
+                    </div>
+                </section>
+                {% endif %}
+
                 <footer class="entry-footer">
                     <a href="{{ url_prefix }}/codex" class="btn btn-secondary">{{ t.back_to_codex }}</a>
                 </footer>
