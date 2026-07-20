@@ -101,20 +101,24 @@ def member_price_of(row):
 
 def _availability(row, inv, waiting, today):
     """Availability state per the shop's fulfillment rules (priority order):
-      in_stock  現貨            tw - waiting > 0 (preorder flag ignored)
+      in_stock  現貨            tw - waiting_tw > 0 (preorder flag ignored)
       incoming  約2週內到貨      tw + in_transit + china - waiting > 0
       preorder  預購            is_preorder, no stock (date is display-only)
       orderable 可訂購 約2-3週   not deprecated -> can order from JoyToy
       inquiry   絕版詢價         deprecated, not preorder -> price on inquiry
+    `waiting` is (all, taiwan_fillable): China-modded 待配貨 items (goods
+    with a service child) can never take a Taiwan shelf unit, so only
+    taiwan_fillable demand hides 現貨; all demand gates incoming.
     A passed preorder_date does NOT release the product (vendors slip
     dates) — it stays 預購 until stock actually arrives, which flips it
     to incoming/in_stock through the normal inventory flow. The date only
     drives the arrival-month display and is hidden once stale."""
+    waiting_all, waiting_tw = waiting
     tw = inv.get("taiwan", 0)
     total = tw + inv.get("in_transit", 0) + inv.get("china", 0)
-    if tw - waiting > 0:
+    if tw - waiting_tw > 0:
         return "in_stock"
-    if total - waiting > 0:
+    if total - waiting_all > 0:
         return "incoming"
     if row["is_preorder"]:
         return "preorder"
@@ -150,14 +154,23 @@ def _load_products():
     """):
         inv.setdefault(r["product_id"], {})[r["location"]] = r["qty"] or 0
 
-    waiting = {}  # product_id -> qty in 待配貨 on live orders
+    # product_id -> (all 待配貨 qty, taiwan-fillable qty) on live orders.
+    # Items with a service child are China-modded — they never consume the
+    # Taiwan shelf, so they don't count toward the tw side (mirror of the
+    # POS app/services/availability.py; keep in sync).
+    waiting = {}
     for r in cur.execute("""
-        SELECT oi.product_id, SUM(oi.quantity) AS qty
+        SELECT oi.product_id, SUM(oi.quantity) AS qty,
+               SUM(CASE WHEN EXISTS (SELECT 1 FROM order_items c
+                        JOIN products cp ON cp.id = c.product_id
+                        WHERE c.parent_item_id = oi.id
+                          AND cp.product_type = 'service')
+                   THEN 0 ELSE oi.quantity END) AS qty_tw
         FROM order_items oi JOIN orders o ON o.id = oi.order_id
         WHERE oi.status = '待配貨' AND (o.is_deleted = 0 OR o.is_deleted IS NULL)
         GROUP BY oi.product_id
     """):
-        waiting[r["product_id"]] = r["qty"] or 0
+        waiting[r["product_id"]] = (r["qty"] or 0, r["qty_tw"] or 0)
 
     from datetime import date, datetime as _dt, timedelta
     today = date.today().isoformat()
@@ -183,7 +196,7 @@ def _load_products():
         except Exception:
             tags = []
         avail = _availability(row, inv.get(row["id"], {}),
-                              waiting.get(row["id"], 0), today)
+                              waiting.get(row["id"], (0, 0)), today)
         products.append({
             "slug": row["slug"],
             "category": row["category_slug"],
