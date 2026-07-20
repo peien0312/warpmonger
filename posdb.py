@@ -156,8 +156,10 @@ def _load_products():
 
     # product_id -> (all 待配貨 qty, taiwan-fillable qty) on live orders.
     # Items with a service child are China-modded — they never consume the
-    # Taiwan shelf, so they don't count toward the tw side (mirror of the
-    # POS app/services/availability.py; keep in sync).
+    # Taiwan shelf, so they don't count toward the tw side, UNLESS their
+    # bound batch line is fully received (the modded unit is in Taiwan
+    # stock, so the demand reserves the shelf like a plain item). Mirror of
+    # the POS app/services/availability.py; keep in sync.
     waiting = {}
     for r in cur.execute("""
         SELECT oi.product_id, SUM(oi.quantity) AS qty,
@@ -165,6 +167,9 @@ def _load_products():
                         JOIN products cp ON cp.id = c.product_id
                         WHERE c.parent_item_id = oi.id
                           AND cp.product_type = 'service')
+                    AND NOT EXISTS (SELECT 1 FROM batch_items b
+                        WHERE b.order_item_id = oi.id AND b.quantity > 0
+                          AND b.received_qty >= b.quantity)
                    THEN 0 ELSE oi.quantity END) AS qty_tw
         FROM order_items oi JOIN orders o ON o.id = oi.order_id
         WHERE oi.status = '待配貨' AND (o.is_deleted = 0 OR o.is_deleted IS NULL)
