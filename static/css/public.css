@@ -1722,6 +1722,12 @@ section h2::after {
     letter-spacing: 1px;
 }
 
+.preorder-note {
+    margin: 6px 0 0;
+    color: #666;
+    line-height: 1.5;
+}
+
 /* Filters */
 .filters {
     margin-top: 15px;

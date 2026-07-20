@@ -24,7 +24,7 @@
                     <div class="group-items"></div>
                 </div>
                 <div id="group-preorder" class="checkout-group" style="display:none">
-                    <h3>預購 <small>不需預付，到貨通知後付款出貨</small></h3>
+                    <h3>預購 <small>不需預付，到貨通知後付款出貨｜價格鎖定下單當日，到貨不加價</small></h3>
                     <div class="group-items"></div>
                 </div>
                 <div id="group-inquiry" class="checkout-group" style="display:none">
@@ -112,6 +112,7 @@
                 <p class="text-muted"><a href="/login?next=/checkout">登入會員</a>即可使用優惠券。</p>
                 {% endif %}
 
+                <div id="payment-section">
                 <h3>付款方式 <small style="font-weight:400"><a href="/guide#pay" target="_blank">付款/運送說明</a></small></h3>
                 <div class="option-row option-col">
                     <label><input type="radio" name="payment_method" value="payuni" checked>
@@ -122,6 +123,11 @@
                         取貨付款（超商取貨時付款）</label>
                 </div>
                 <p class="text-muted" id="pay-preorder-note" style="display:none"><small>預購商品不需預付——本次僅就現貨／調貨商品與運費收款，預購商品到貨後才會通知付款。</small></p>
+                </div>
+                <div id="payment-none" style="display:none">
+                    <h3>付款方式</h3>
+                    <p class="text-muted"><small>本次<b>不需付款</b>——訂單全為預購／詢價商品，到貨（或報價確認）後才會通知您付款出貨。</small></p>
+                </div>
 
                 <label>備註<textarea name="note" rows="2" maxlength="500"></textarea></label>
 
@@ -204,7 +210,6 @@ async function loadCheckout() {
     checkoutPreTotal = preTotal;
     updateFee();
     document.getElementById('inquiry-hint').style.display = hasInq ? '' : 'none';
-    document.getElementById('pay-preorder-note').style.display = hasPre ? '' : 'none';
     document.getElementById('batch-choice').style.display = (hasPre && hasNow) ? '' : 'none';
     document.getElementById('checkout-body').style.display = '';
 
@@ -281,6 +286,15 @@ function updateFee() {
         document.getElementById('paynow-amt').textContent = 'NT$' + Math.round(payNow).toLocaleString();
         document.getElementById('preorder-later-amt').textContent = 'NT$' + Math.round(preTotal).toLocaleString();
     }
+    // Payment selector only when money actually changes hands now. A pure
+    // 預購／詢價 order charges nothing at checkout, so we never show LINE Pay /
+    // 線上付款 next to it — LINE Pay only ever processes an in-hand-goods sale.
+    const chargesNow = nowTotal > 0;
+    document.getElementById('payment-section').style.display = chargesNow ? '' : 'none';
+    document.getElementById('payment-none').style.display = chargesNow ? 'none' : '';
+    // the "本次僅就現貨收款" note is only meaningful on a mixed 現貨+預購 cart
+    document.getElementById('pay-preorder-note').style.display =
+        (chargesNow && preTotal > 0) ? '' : 'none';
 }
 
 // ----- 優惠券 -----

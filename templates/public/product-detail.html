@@ -271,6 +271,9 @@
                     ｜預計 {{ product.available_display }}到貨
                     {% endif %}
                 </p>
+                {% if is_zhtw %}
+                <p class="preorder-note"><small>預購不需預付，<b>到貨後才通知付款</b>；價格<b>鎖定下單當日</b>，到貨不加價。</small></p>
+                {% endif %}
                 {% elif product.availability == 'orderable' %}
                 <p class="stock in-stock">可訂購｜下單後約2-3週到貨</p>
                 {% else %}
