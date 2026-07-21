@@ -4321,6 +4321,28 @@ def api_payuni_refund():
                     'error': None if res['ok'] else (res.get('message') or res['status'])})
 
 
+@app.route('/api/internal/linepay-refund', methods=['POST'])
+def api_linepay_refund():
+    """POS -> refund a LINE Pay charge (straight back to the card). Auth: storefront key."""
+    if not _valid_storefront_key(request.headers.get('X-Storefront-Key')):
+        return jsonify({'error': 'bad key'}), 401
+    import linepay
+    if not linepay.enabled():
+        return jsonify({'success': False, 'error': 'LINE Pay 未設定'}), 503
+    data = request.get_json(silent=True) or {}
+    txn = (data.get('transaction_id') or '').strip()
+    amount = int(data.get('amount') or 0)
+    if not txn or amount <= 0:
+        return jsonify({'success': False, 'error': '缺少交易序號或金額'}), 400
+    try:
+        refund_txn = linepay.refund_payment(txn, amount)
+    except Exception as e:
+        print(f"[linepay refund] txn={txn} amt={amount} -> {e}")
+        return jsonify({'success': False, 'error': str(e)}), 400
+    print(f"[linepay refund] txn={txn} amt={amount} -> ok {refund_txn}")
+    return jsonify({'success': True, 'refund_transaction_id': refund_txn})
+
+
 @app.route('/line/webhook', methods=['POST'])
 def line_webhook():
     """LINE 官方帳號 webhook: binds members via their binding code."""

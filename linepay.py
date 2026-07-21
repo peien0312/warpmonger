@@ -88,3 +88,16 @@ def confirm_payment(transaction_id, amount):
         raise RuntimeError(f"LINE Pay confirm failed: "
                            f"{result.get('returnCode')} {result.get('returnMessage')}")
     return True
+
+
+def refund_payment(transaction_id, amount=None):
+    """Refund a completed payment (full if amount is None, else a partial
+    refund of that amount). LINE Pay is credit-card only, so the refund goes
+    straight back to the card. Returns the refundTransactionId on success;
+    raises RuntimeError with the LINE Pay error message on failure."""
+    body = {} if amount is None else {"refundAmount": int(round(amount))}
+    result = _call(f"/v3/payments/{transaction_id}/refund", body)
+    if result.get("returnCode") != "0000":
+        raise RuntimeError(f"LINE Pay refund failed: "
+                           f"{result.get('returnCode')} {result.get('returnMessage')}")
+    return (result.get("info") or {}).get("refundTransactionId")
