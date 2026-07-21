@@ -55,12 +55,14 @@
                 <label>收件人電話<input type="tel" id="na-phone" maxlength="20" value="{{ member.phone or '' }}"></label>
                 <label>取貨方式
                     <select id="na-delivery" onchange="naDeliveryChanged()">
-                        <option value="711">7-11</option>
+                        <option value="711">7-11 店到店</option>
+                        <option value="fami">全家 店到店</option>
+                        <option value="post">宅配到府</option>
                     </select>
                 </label>
             </div>
             <div id="na-store">
-                <input type="text" id="na-store-q" placeholder="搜尋門市（門市名／路名／地區）" autocomplete="off" oninput="naSearchStores()">
+                <input type="text" id="na-store-q" placeholder="搜尋門市（門市名／店號／路名／地區）" autocomplete="off" oninput="naSearchStores()">
                 <div id="na-store-results"></div>
                 <p class="store-picked" id="na-store-picked"></p>
             </div>
@@ -361,7 +363,7 @@ function naSearchStores() {
         const data = await res.json();
         document.getElementById('na-store-results').innerHTML = data.stores.map(s =>
             `<div class="store-hit" onclick='naPickStore(${JSON.stringify(s)})'>
-                <strong>${s.name}</strong> <small>${s.address}</small></div>`).join('');
+                <strong>${s.name}</strong> <small>（${s.code}）${s.address}</small></div>`).join('');
     }, 300);
 }
 function naPickStore(s) {

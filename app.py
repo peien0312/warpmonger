@@ -2878,7 +2878,7 @@ def api_stores():
         return jsonify({'stores': []})
     hits = []
     for s in _load_stores(carrier):
-        if q in s.get('name', '') or q in s.get('address', '') \
+        if q in s.get('code', '') or q in s.get('name', '') or q in s.get('address', '') \
            or q in s.get('town', '') or q in s.get('city', ''):
             hits.append({'code': s['code'], 'name': s['name'], 'address': s['address']})
             if len(hits) >= 20:

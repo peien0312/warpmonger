@@ -53,9 +53,16 @@
                 <h3>聯絡資料</h3>
                 <label>姓名 *<input type="text" name="name" required maxlength="50" value="{{ member.name if member else '' }}"></label>
                 <label>電話 *<input type="tel" name="phone" required maxlength="20" pattern="[0-9+\-() ]{8,}" value="{{ member.phone if member and member.phone else '' }}"></label>
-                <label>Email{% if not member %} *{% endif %}<input type="email" name="email" maxlength="100" value="{{ member.email if member else '' }}" {% if not member %}required{% endif %}></label>
-                {% if not member %}<small class="text-muted">未登入時請留 email 以接收訂單通知；<a href="/login?next=/checkout">登入會員</a>可查詢訂單並儲存收件資料。</small>{% endif %}
+                {% if member %}
+                {# member email / LINE come from the profile — carried silently, edit in 會員中心 #}
+                <input type="hidden" name="email" value="{{ member.email or '' }}">
+                <input type="hidden" name="line_id" value="{{ member.line_id or '' }}">
+                <small class="text-muted">訂單通知會寄到 {{ member.email }}{% if member.line_id %}／LINE {{ member.line_id }}{% endif %}，可到<a href="/account">會員中心</a>修改。</small>
+                {% else %}
+                <label>Email *<input type="email" name="email" maxlength="100" required></label>
+                <small class="text-muted">未登入時請留 email 以接收訂單通知；<a href="/login?next=/checkout">登入會員</a>可查詢訂單並儲存收件資料。</small>
                 <label>LINE ID<input type="text" name="line_id" maxlength="50"></label>
+                {% endif %}
 
                 <h3>收件資料</h3>
                 {% if addresses %}
@@ -78,14 +85,16 @@
                 {% endif %}
                 <div id="manual-recipient" {% if addresses %}style="display:none"{% endif %}>
                 <div class="option-row">
-                    <label>收件人姓名<input type="text" name="recipient_name" maxlength="50" style="width:130px"></label>
-                    <label>收件人電話<input type="tel" name="recipient_phone" maxlength="20" style="width:140px"></label>
+                    <label>收件人姓名 *<input type="text" name="recipient_name" maxlength="50" style="width:130px" value="{{ member.name if member else '' }}"></label>
+                    <label>收件人電話 *<input type="tel" name="recipient_phone" maxlength="20" style="width:140px" value="{{ member.phone if member and member.phone else '' }}"></label>
                 </div>
-                <div class="option-row">
+                <div class="option-row option-col">
                     <label><input type="radio" name="delivery_method" value="711" checked> 7-11 店到店取貨</label>
+                    <label><input type="radio" name="delivery_method" value="fami"> 全家 店到店取貨</label>
+                    <label><input type="radio" name="delivery_method" value="post"> 宅配到府</label>
                 </div>
                 <div id="store-picker">
-                    <input type="text" id="store-q" placeholder="輸入門市名／路名／地區搜尋門市"
+                    <input type="text" id="store-q" placeholder="輸入門市名／店號／路名／地區搜尋門市"
                            autocomplete="off" oninput="searchStores()">
                     <div id="store-results"></div>
                     <p id="store-picked" class="store-picked"></p>
@@ -239,7 +248,7 @@ function searchStores() {
         const data = await res.json();
         document.getElementById('store-results').innerHTML = data.stores.map(s =>
             `<div class="store-hit" onclick='pickStore(${JSON.stringify(s)})'>
-                <strong>${s.name}</strong> <small>${s.address}</small></div>`).join('')
+                <strong>${s.name}</strong> <small>（${s.code}）${s.address}</small></div>`).join('')
             || '<div class="store-hit">找不到門市，換個關鍵字試試</div>';
     }, 300);
 }
@@ -370,9 +379,17 @@ async function submitOrder(ev) {
     const err = document.getElementById('submit-error');
     err.textContent = '';
     const delivery = savedAddr ? savedAddr.delivery : f.delivery_method.value;
-    if (!savedAddr && (delivery === '711' || delivery === 'fami') && !pickedStore) {
-        err.textContent = '請先搜尋並選擇取貨門市';
-        return false;
+    if (!savedAddr) {
+        if (!f.recipient_name.value.trim()) { err.textContent = '請填寫收件人姓名'; return false; }
+        if (!f.recipient_phone.value.trim()) { err.textContent = '請填寫收件人電話'; return false; }
+        if ((delivery === '711' || delivery === 'fami') && !pickedStore) {
+            err.textContent = '請先搜尋並選擇取貨門市';
+            return false;
+        }
+        if (delivery === 'post' && (!f.address || !f.address.value.trim())) {
+            err.textContent = '請填寫寄送地址';
+            return false;
+        }
     }
     const btn = document.getElementById('submit-btn');
     btn.disabled = true;
