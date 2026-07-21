@@ -74,6 +74,11 @@
         </details>
     </div>
 
+    {% set FS_CLASS = {
+        '備貨中': 'badge-fs-prep', '備貨完成，待出貨': 'badge-fs-ready',
+        '運送中': 'badge-fs-transit', '準備出貨': 'badge-fs-dispatch',
+        '已出貨': 'badge-fs-shipped', '已完成': 'badge-fs-done',
+        '已退貨': 'badge-fs-returned'} %}
     <h2 class="section-title">我的訂單</h2>
     {% if not orders %}
     <p class="text-muted">還沒有訂單。{% if not member.phone %}<small>（下單時填的電話或 email 與登入帳號相同，訂單就會出現在這裡）</small>{% endif %}</p>
@@ -84,7 +89,7 @@
             <strong>{{ o.order_no }}</strong>
             <span class="badge {{ 'badge-instock' if o.status == '已轉單' else 'badge-inquiry' if o.status == '已取消' else 'badge-incoming' }}">{{ o.status }}</span>
             <span class="badge {{ 'badge-instock' if o.payment_status == '已付款' else 'badge-orderable' }}">{{ o.payment_status }}</span>
-            {% for st in o.fulfillment %}<span class="badge badge-preorder">{{ st }}</span>{% endfor %}
+            {% for st in o.fulfillment %}<span class="badge {{ FS_CLASS.get(st, 'badge-fs-prep') }}">{{ st }}</span>{% endfor %}
             <small class="account-date">{{ o.created_at|twtime }}</small>
         </div>
         <ul class="account-order-items">
@@ -156,7 +161,7 @@
     <div class="account-order">
         <div class="account-order-head">
             <strong>#{{ o.id }}</strong>
-            <span class="badge badge-preorder">{{ o.status_label }}</span>
+            {% for st in o.status_labels %}<span class="badge {{ FS_CLASS.get(st, 'badge-fs-prep') }}">{{ st }}</span>{% endfor %}
             <small class="account-date">{{ o.order_date|twtime }}</small>
         </div>
         <ul class="account-order-items">

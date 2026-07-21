@@ -3821,6 +3821,15 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
 .badge-orderable { background: #3E4A5C; color: #E6DAC4; }          /* slate glass: can order */
 .badge-inquiry   { background: #241A12; color: #D9A441; border: 1px solid #6E4B2A; }  /* lead + amber: ask 阿北 */
 
+/* Order fulfillment status — one color per step of the journey */
+.badge-fs-prep     { background: #4A3A24; color: #E6DAC4; border-color: #6E4B2A; }  /* amber: 備貨中, still sourcing */
+.badge-fs-ready    { background: #2E5049; color: #E6DAC4; border-color: #3E7A6C; }  /* teal: 備貨完成，待出貨 — in hand */
+.badge-fs-transit  { background: #35506E; color: #E6DAC4; border-color: #4A6E94; }  /* blue: 運送中 */
+.badge-fs-dispatch { background: #6E4B2A; color: #E6DAC4; border-color: #D9A441; }  /* oak+amber: 準備出貨 */
+.badge-fs-shipped  { background: #4A5638; color: #E6DAC4; border-color: #6E8048; }  /* moss: 已出貨 */
+.badge-fs-done     { background: #2A2620; color: #B8AC95; border-color: #4A4034; }  /* muted: 已完成 */
+.badge-fs-returned { background: #5A342C; color: #E6DAC4; border-color: #8A4A3C; }  /* rust red: 已退貨 */
+
 .availability-note {
     color: #B3A48D;
     font-size: 0.85rem;

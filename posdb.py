@@ -504,13 +504,86 @@ def get_auto_grant_coupon(kind):
 
 # ----- member order history (web orders live in the POS DB, read-only) -----
 
-# raw internal Order.status -> customer-friendly label; missing keys
-# (棄單/呆帳/待補件) are hidden from customers entirely.
+# raw internal Order/OrderItem.status -> customer-friendly label; missing
+# keys (棄單/呆帳/待補件) are hidden from customers entirely.
+# NOTE 待配貨 is split at display time by _item_friendly: an item a Taiwan
+# shelf unit can fill right now shows 備貨完成，待出貨; one still being sourced
+# shows the plain 備貨中 below.
 _FRIENDLY_STATUS = {
     "待配貨": "備貨中", "中國待發": "備貨中", "集運中": "運送中",
-    "台灣庫存": "備貨完成，待出貨", "已出貨": "已出貨",
+    "台灣庫存": "準備出貨", "已出貨": "已出貨",
     "已結帳": "已完成", "已退貨": "已退貨",
 }
+_WAITING_READY = "備貨完成，待出貨"  # 待配貨 that current TW stock can fill
+
+
+def _fillable_waiting_items(conn, product_ids):
+    """Set of 待配貨 order_item ids that current Taiwan shelf stock can fill,
+    allocated earliest-order-first (mirrors pick-and-ship priority). Ranks
+    ALL live 待配貨 demand for each product against its free TW units, so a
+    2nd person waiting on a 1-unit product stays 備貨中. China-modded items
+    (a goods line with a service child, not yet batch-received) never take a
+    shelf unit — same rule as _availability's taiwan-fillable demand."""
+    product_ids = {p for p in product_ids if p}
+    if not product_ids:
+        return set()
+    ph = ",".join("?" * len(product_ids))
+    pids = list(product_ids)
+    remaining = {}
+    for r in conn.execute(
+        f"SELECT product_id, SUM(quantity) q FROM inventory "
+        f"WHERE location = 'taiwan' AND product_id IN ({ph}) "
+        f"GROUP BY product_id", pids):
+        remaining[r["product_id"]] = r["q"] or 0
+    fillable = set()
+    for r in conn.execute(f"""
+        SELECT oi.id, oi.product_id, oi.quantity
+        FROM order_items oi JOIN orders o ON o.id = oi.order_id
+        WHERE oi.status = '待配貨' AND oi.product_id IN ({ph})
+          AND (o.is_deleted IS NULL OR o.is_deleted = 0)
+          AND NOT (
+            EXISTS (SELECT 1 FROM order_items c JOIN products cp ON cp.id = c.product_id
+                    WHERE c.parent_item_id = oi.id AND cp.product_type = 'service')
+            AND NOT EXISTS (SELECT 1 FROM batch_items b
+                    WHERE b.order_item_id = oi.id AND b.quantity > 0
+                      AND b.received_qty >= b.quantity))
+        ORDER BY o.order_date, o.id, oi.id
+    """, pids):
+        q = r["quantity"] or 0
+        if q > 0 and remaining.get(r["product_id"], 0) >= q:
+            remaining[r["product_id"]] -= q
+            fillable.add(r["id"])
+    return fillable
+
+
+def _item_friendly(status, item_id, fillable):
+    """Customer-facing label for one order item; None if hidden."""
+    if status == "待配貨":
+        return _WAITING_READY if item_id in fillable else _FRIENDLY_STATUS["待配貨"]
+    return _FRIENDLY_STATUS.get(status)
+
+
+def _internal_order_labels(conn, order_ids):
+    """internal order_id -> ordered-unique customer-facing status labels,
+    with 待配貨 items split into 備貨完成，待出貨 vs 備貨中 by live TW stock."""
+    order_ids = [o for o in order_ids if o]
+    if not order_ids:
+        return {}
+    ph = ",".join("?" * len(order_ids))
+    rows = [dict(r) for r in conn.execute(
+        f"SELECT id, order_id, product_id, status FROM order_items "
+        f"WHERE order_id IN ({ph})", order_ids)]
+    fillable = _fillable_waiting_items(
+        conn, {r["product_id"] for r in rows if r["status"] == "待配貨"})
+    out = {}
+    for r in rows:
+        lbl = _item_friendly(r["status"], r["id"], fillable)
+        if not lbl:
+            continue
+        lst = out.setdefault(r["order_id"], [])
+        if lbl not in lst:
+            lst.append(lbl)
+    return out
 
 
 def _enrich_orders(conn, orders):
@@ -543,10 +616,12 @@ def _enrich_orders(conn, orders):
                     r = conn.execute("SELECT * FROM orders WHERE id = ?", (o[key],)).fetchone()
                     if r:
                         related.append(dict(r))
+        # stock-aware labels for all related internal orders in one pass
+        rel_labels = _internal_order_labels(conn, [row.get("id") for row in related])
         for row in related:   # robust to schema differences (shipping_carrier vs _type)
-            label = _FRIENDLY_STATUS.get(row.get("status"))
-            if label and label not in o["fulfillment"]:
-                o["fulfillment"].append(label)
+            for label in rel_labels.get(row.get("id"), []):
+                if label not in o["fulfillment"]:
+                    o["fulfillment"].append(label)
             if row.get("shipping_code"):
                 o["shipping_codes"].append(
                     {"code": row["shipping_code"],
@@ -654,12 +729,14 @@ def get_member_legacy_orders(phone):
             f"  UNION SELECT order_id_later FROM web_orders WHERE order_id_later IS NOT NULL) "
             f"AND (is_deleted IS NULL OR is_deleted = 0) "
             f"ORDER BY id DESC LIMIT 50", cust_ids)]
+        # keep customer-facing orders only (skip 棄單/呆帳/待補件), then label
+        # from item statuses so 待配貨 items with shelf stock read 備貨完成
+        rows = [o for o in rows if o.get("status") in _FRIENDLY_STATUS]
+        labels = _internal_order_labels(conn, [o["id"] for o in rows])
         out = []
         for o in rows:
-            friendly = _FRIENDLY_STATUS.get(o.get("status"))
-            if not friendly:
-                continue  # 棄單/呆帳/待補件 etc — hidden from customers
-            o["status_label"] = friendly
+            o["status_labels"] = labels.get(o["id"]) or [
+                _FRIENDLY_STATUS.get(o.get("status"))]
             o["items"] = [dict(r) for r in conn.execute("""
                 SELECT oi.quantity, oi.unit_price, p.zhtw_name, p.en_name,
                        p.sku, p.slug, p.category_slug
