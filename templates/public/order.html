@@ -62,7 +62,9 @@
         </div>
         {% endif %}
         {% if order.status == '新單' and order.payment_status in ('待付款', '貨到付款', '到貨後付款') %}
-        <button class="btn btn-sm btn-outline" onclick="cancelOrder('{{ order.order_no }}')">取消訂單</button>
+        <button class="btn btn-sm btn-outline" onclick="cancelOrder('{{ order.order_no }}', false)">取消訂單</button>
+        {% elif order.status == '新單' and order.payment_status == '已付款' and order.payment_method in ('linepay', 'payuni') %}
+        <button class="btn btn-sm btn-outline" onclick="cancelOrder('{{ order.order_no }}', true)">取消並退款</button>
         {% endif %}
         {% set ns = namespace(active=false) %}
         {% for r in order.returns %}
@@ -113,15 +115,20 @@
 <script>
 const ORDER_TOKEN = {{ token|tojson }};
 
-async function cancelOrder(orderNo) {
-    if (!confirm(`確定要取消訂單 ${orderNo}？`)) return;
+async function cancelOrder(orderNo, paid) {
+    const ask = paid
+        ? `確定要取消訂單 ${orderNo}？已付款金額會退回原付款方式。`
+        : `確定要取消訂單 ${orderNo}？`;
+    if (!confirm(ask)) return;
     const res = await fetch('/api/account/cancel-order', {
         method: 'POST', headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({order_no: orderNo, token: ORDER_TOKEN}),
     });
     const data = await res.json();
-    if (data.success) location.reload();
-    else alert(data.error || '取消失敗，請稍後再試');
+    if (data.success) {
+        if (data.refunded_twd) alert(`訂單已取消，已退款 NT$${data.refunded_twd}。`);
+        location.reload();
+    } else alert(data.error || '取消失敗，請稍後再試');
 }
 
 async function payLinePay(orderNo) {
