@@ -3843,6 +3843,7 @@ def account_page():
         return redirect('/login?next=/account')
     import posdb as _posdb
     orders = _posdb.get_member_orders(member.get('email'), member.get('phone'))
+    legacy_orders = _posdb.get_member_legacy_orders(member.get('phone'))
     wish_skus = memberdb.wishlist_skus(member['id'])
     wish_products = []
     for prod in _posdb.get_products():
@@ -3850,7 +3851,8 @@ def account_page():
             wish_products.append(prod)
     notify = set(memberdb.notify_skus(member['id']))
     return render_template('public/account.html', member=member,
-                           orders=orders, wish_products=wish_products,
+                           orders=orders, legacy_orders=legacy_orders,
+                           wish_products=wish_products,
                            notify_skus=notify, bank_info=BANK_TRANSFER_INFO,
                            coupons=_account_coupons(member['id']),
                            addresses=memberdb.list_addresses(member['id']),

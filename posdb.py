@@ -622,6 +622,56 @@ def get_member_orders(email, phone):
     return orders
 
 
+def get_member_legacy_orders(phone):
+    """Pre-website internal POS orders for this member, matched to a POS
+    Customer by phone. These predate the site checkout (web_order_id IS NULL),
+    so they never appear in web_orders / get_member_orders. Read-only history:
+    items + customer-friendly status + order total, newest first.
+
+    Orders whose status is not customer-facing (棄單/呆帳/待補件 -> not in
+    _FRIENDLY_STATUS) are skipped, same as the web-order fulfillment view.
+    Phone is the only join key (no customer_id is stored on the member), so
+    the member's account phone must equal their POS Customer.phone.
+    """
+    if not phone:
+        return []
+    conn = _conn()
+    try:
+        cust_ids = [r["id"] for r in conn.execute(
+            "SELECT id FROM customers WHERE phone = ?", (phone,))]
+        if not cust_ids:
+            return []
+        # Exclude any order tied to a web order so it never double-shows
+        # alongside get_member_orders: the modern link (Order.web_order_id,
+        # set at conversion) AND the legacy two-column link
+        # (web_orders.order_id_now/_later) used before web_order_id existed.
+        ph = ",".join("?" * len(cust_ids))
+        rows = [dict(r) for r in conn.execute(
+            f"SELECT id, status, order_date, total_amount FROM orders "
+            f"WHERE customer_id IN ({ph}) AND web_order_id IS NULL "
+            f"AND id NOT IN ("
+            f"  SELECT order_id_now FROM web_orders WHERE order_id_now IS NOT NULL "
+            f"  UNION SELECT order_id_later FROM web_orders WHERE order_id_later IS NOT NULL) "
+            f"AND (is_deleted IS NULL OR is_deleted = 0) "
+            f"ORDER BY id DESC LIMIT 50", cust_ids)]
+        out = []
+        for o in rows:
+            friendly = _FRIENDLY_STATUS.get(o.get("status"))
+            if not friendly:
+                continue  # 棄單/呆帳/待補件 etc — hidden from customers
+            o["status_label"] = friendly
+            o["items"] = [dict(r) for r in conn.execute("""
+                SELECT oi.quantity, oi.unit_price, p.zhtw_name, p.en_name,
+                       p.sku, p.slug, p.category_slug
+                FROM order_items oi JOIN products p ON p.id = oi.product_id
+                WHERE oi.order_id = ? ORDER BY oi.id
+            """, (o["id"],))]
+            out.append(o)
+        return out
+    finally:
+        conn.close()
+
+
 def get_web_order(order_no):
     """A single web order by its order_no — for guest access via magic link
     or the 訂單查詢 lookup. Returns a dict (same shape as get_member_orders
