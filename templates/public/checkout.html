@@ -153,6 +153,7 @@ let resolved = [];
 let pickedStore = null;
 let appliedCoupon = null;   // coupon code applied to this order (or null)
 let couponDiscount = 0;     // authoritative discount from the server
+let availabilityConfirmed = false;  // set once the customer OKs a stock downgrade at submit
 
 const GROUPS = {
     now: ['in_stock', 'incoming', 'orderable'],
@@ -409,6 +410,9 @@ async function submitOrder(ev) {
         ship_together: shipEl ? shipEl.value === '1' : true,
         note: f.note.value.trim(),
         coupon_code: appliedCoupon || null,
+        // what the customer saw, so the server can flag a stock downgrade at submit
+        expected_avail: Object.fromEntries(resolved.map(l => [l.sku, l.availability])),
+        confirm_availability: availabilityConfirmed,
     };
     // GA4: shipping + payment info added (both chosen by submit time)
     if (typeof gtag === 'function' && checkoutTotal > 0) {
@@ -421,6 +425,19 @@ async function submitOrder(ev) {
         body: JSON.stringify(payload),
     });
     const data = await res.json();
+    if (data.needs_confirm) {
+        // stock changed since the customer loaded the cart — confirm before ordering
+        btn.disabled = false;
+        btn.textContent = '送出訂單';
+        const msg = '部分商品的庫存狀態剛剛變動：\n\n'
+            + data.changes.map(c => `・${c.title}：${c.message}`).join('\n')
+            + '\n\n是否仍要下單？';
+        if (confirm(msg)) {
+            availabilityConfirmed = true;
+            return submitOrder(ev);
+        }
+        return false;
+    }
     if (!data.success) {
         err.textContent = data.error || '送出失敗，請稍後再試';
         btn.disabled = false;

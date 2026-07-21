@@ -3077,6 +3077,21 @@ def checkout_resolve():
     return jsonify(resp)
 
 
+# availability tiers for detecting a downgrade between when the customer
+# saw the cart and when they hit 送出 (e.g. we allocated the last unit).
+# Higher = better/sooner. A drop in rank warrants a confirm.
+_AVAIL_RANK = {'in_stock': 4, 'incoming': 3, 'preorder': 2, 'orderable': 2, 'inquiry': 1}
+
+
+def _avail_change_msg(now):
+    return {
+        'incoming': '已無現貨，改為約 2 週內到貨',
+        'orderable': '已無現貨，改為調貨（約 2-3 週到貨）',
+        'preorder': '改為預購（到貨後通知付款）',
+        'inquiry': '已售完／絕版，將改為詢價（阿北另行報價，不立即收款）',
+    }.get(now, '庫存狀態已變動')
+
+
 @app.route('/api/checkout/submit', methods=['POST'])
 def checkout_submit():
     import urllib.request
@@ -3087,6 +3102,24 @@ def checkout_submit():
         return jsonify({'success': False, 'error': '、'.join(errors)}), 400
     if not lines:
         return jsonify({'success': False, 'error': '清單是空的'}), 400
+
+    # Re-check availability at submit: if any item dropped a tier since the
+    # customer last saw it (last unit just allocated → 現貨 becomes 調貨, or a
+    # deprecated item became 缺貨/詢價), ask them to confirm before creating the
+    # order. Skipped once they confirm (confirm_availability). Absent
+    # expected_avail (old cached client) → no gate, proceeds as before.
+    if not data.get('confirm_availability'):
+        expected = data.get('expected_avail') or {}
+        changes = []
+        for ln in lines:
+            was = expected.get(str(ln['sku']))
+            now = ln['availability']
+            if was and now != was and _AVAIL_RANK.get(now, 2) < _AVAIL_RANK.get(was, 2):
+                changes.append({'title': ln['title'], 'from': was, 'to': now,
+                                'sold_out': now == 'inquiry',
+                                'message': _avail_change_msg(now)})
+        if changes:
+            return jsonify({'success': False, 'needs_confirm': True, 'changes': changes})
 
     member = current_member()
     if member:
