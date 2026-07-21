@@ -123,11 +123,6 @@
             <button class="btn btn-sm btn-primary" onclick="payLinePay('{{ o.order_no }}')">用 LINE Pay 付款</button>
             <small class="linepay-msg"></small>
         </div>
-        {% elif o.payment_method == 'payuni' and o.payment_status == '待付款' %}
-        <div style="margin:6px 0">
-            {% if o.payment_note %}<p style="margin:4px 0"><small>付款資訊：{{ o.payment_note }}</small></p>{% endif %}
-            <a class="btn btn-sm btn-primary" href="/payuni/pay/{{ o.order_no }}">前往付款</a>
-        </div>
         {% endif %}
         {% if o.status == '新單' and o.payment_status in ('待付款', '貨到付款', '到貨後付款') %}
         <button class="btn btn-sm btn-outline" onclick="cancelOrder('{{ o.order_no }}', false)">取消訂單</button>
