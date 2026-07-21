@@ -3270,7 +3270,8 @@ def linepay_confirm():
         charge = info.get('charge_twd') or 0
         linepay.confirm_payment(txn, charge)
         _pos_api('POST', f'/api/storefront/orders/{order_no}/payment',
-                 {'payment_status': '已付款', 'payment_note': f'LINE Pay {txn}'})
+                 {'payment_status': '已付款', 'payment_note': f'LINE Pay {txn}',
+                  'gateway_txn_id': str(txn), 'gateway_amount': int(charge)})
         params = f'no={order_no}&pm=linepay&paid=1&total={int(charge)}&t={_order_token(order_no)}'
     except Exception as e:
         print(f"linepay confirm failed: {e}")
@@ -3363,7 +3364,10 @@ def _payuni_apply(info, source):
         if ts == '1':          # paid
             _pos_api('POST', f'/api/storefront/orders/{order_no}/payment',
                      {'payment_status': '已付款',
-                      'payment_note': f"PayUni {info.get('TradeNo', '')} PT{info.get('PaymentType', '')}"})
+                      'payment_note': f"PayUni {info.get('TradeNo', '')} PT{info.get('PaymentType', '')}",
+                      'gateway_txn_id': str(info.get('TradeNo', '')),
+                      'gateway_payment_type': str(info.get('PaymentType', '')),
+                      'gateway_amount': int(info.get('TradeAmt') or 0)})
             print(f"[payuni {source}] {order_no} -> 已付款")
         elif ts == '0':        # ATM/CVS code issued, awaiting payment
             _pos_api('POST', f'/api/storefront/orders/{order_no}/payment',
