@@ -79,12 +79,16 @@
         '運送中': 'badge-fs-transit', '準備出貨': 'badge-fs-dispatch',
         '已出貨': 'badge-fs-shipped', '已完成': 'badge-fs-done',
         '已退貨': 'badge-fs-returned'} %}
-    <h2 class="section-title">我的訂單</h2>
-    {% if not orders %}
-    <p class="text-muted">還沒有訂單。{% if not member.phone %}<small>（下單時填的電話或 email 與登入帳號相同，訂單就會出現在這裡）</small>{% endif %}</p>
+    <div class="order-filter" id="order-filter" style="display:none"></div>
+    <div class="order-section">
+    {% if orders %}
+    <h2 class="section-title order-section-head">我的訂單</h2>
+    {% elif not legacy_orders %}
+    <p class="text-muted order-section-head">還沒有訂單。{% if not member.phone %}<small>（下單時填的電話或 email 與登入帳號相同，訂單就會出現在這裡）</small>{% endif %}</p>
     {% endif %}
     {% for o in orders %}
-    <div class="account-order">
+    {% set fstats = ['已取消'] if o.status == '已取消' else (o.fulfillment or ['處理中']) %}
+    <div class="account-order" data-statuses="{{ fstats|join(' ') }}">
         <div class="account-order-head">
             <strong>{{ o.order_no }}</strong>
             <span class="badge {{ 'badge-instock' if o.status == '已轉單' else 'badge-inquiry' if o.status == '已取消' else 'badge-incoming' }}">{{ o.status }}</span>
@@ -153,12 +157,14 @@
         {% endif %}
     </div>
     {% endfor %}
+    </div>
 
     {% if legacy_orders %}
-    <h2 class="section-title">歷史訂單</h2>
-    <p class="text-muted"><small>這些是網站上線前的訂單記錄（透過蝦皮／LINE 等），僅供查詢。</small></p>
+    <div class="order-section">
+    <h2 class="section-title order-section-head">歷史訂單</h2>
+    <p class="text-muted order-section-head"><small>這些是網站上線前的訂單記錄（透過蝦皮／LINE 等），僅供查詢。</small></p>
     {% for o in legacy_orders %}
-    <div class="account-order">
+    <div class="account-order" data-statuses="{{ o.status_labels|join(' ') }}">
         <div class="account-order-head">
             <strong>#{{ o.id }}</strong>
             {% for st in o.status_labels %}<span class="badge {{ FS_CLASS.get(st, 'badge-fs-prep') }}">{{ st }}</span>{% endfor %}
@@ -178,6 +184,7 @@
         {% endif %}
     </div>
     {% endfor %}
+    </div>
     {% endif %}
 
     <!-- 退貨/退款 申請 modal -->
@@ -448,5 +455,61 @@ async function toggleWish(sku, btn) {
     });
     if (res.ok) btn.closest('.product-card').remove();
 }
+
+// ----- order-history status filter chips -----
+(function () {
+    const bar = document.getElementById('order-filter');
+    if (!bar) return;
+    const cards = [...document.querySelectorAll('.account-order')];
+    // token -> badge colour class (mirror of the template FS_CLASS, plus
+    // 處理中 for not-yet-fulfilled web orders and 已取消)
+    const FS = {
+        '處理中': 'badge-fs-prep', '備貨中': 'badge-fs-prep',
+        '備貨完成，待出貨': 'badge-fs-ready', '運送中': 'badge-fs-transit',
+        '準備出貨': 'badge-fs-dispatch', '已出貨': 'badge-fs-shipped',
+        '已退貨': 'badge-fs-returned', '已取消': 'badge-fs-done',
+    };
+    const SEQ = ['處理中', '備貨中', '備貨完成，待出貨', '運送中', '準備出貨',
+                 '已出貨', '已退貨', '已取消'];
+    const statusesOf = c => (c.dataset.statuses || '').split(' ').filter(Boolean);
+
+    const present = new Set();
+    cards.forEach(c => statusesOf(c).forEach(s => present.add(s)));
+    if (present.size < 2) return;  // nothing worth filtering
+
+    const chip = (label, cls, val) => {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'fchip badge ' + cls;
+        b.textContent = label;
+        b.dataset.val = val;
+        bar.appendChild(b);
+        return b;
+    };
+    chip('全部', 'fchip-all', '');
+    SEQ.filter(s => present.has(s)).forEach(s => chip(s, FS[s] || 'badge-fs-prep', s));
+    bar.style.display = '';
+
+    const sections = [...document.querySelectorAll('.order-section')];
+    function apply(val) {
+        cards.forEach(c => {
+            c.style.display = (!val || statusesOf(c).includes(val)) ? '' : 'none';
+        });
+        sections.forEach(sec => {
+            const anyVisible = [...sec.querySelectorAll('.account-order')]
+                .some(c => c.style.display !== 'none');
+            const show = (val === '') || anyVisible;
+            sec.querySelectorAll('.order-section-head')
+               .forEach(h => h.style.display = show ? '' : 'none');
+        });
+        bar.querySelectorAll('.fchip')
+           .forEach(b => b.classList.toggle('fchip-active', b.dataset.val === val));
+    }
+    bar.addEventListener('click', e => {
+        const b = e.target.closest('.fchip');
+        if (b) apply(b.dataset.val);
+    });
+    apply('');
+})();
 </script>
 {% endblock %}
