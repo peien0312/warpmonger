@@ -509,10 +509,12 @@ def get_auto_grant_coupon(kind):
 # NOTE 待配貨 is split at display time by _item_friendly: an item a Taiwan
 # shelf unit can fill right now shows 備貨完成，待出貨; one still being sourced
 # shows the plain 備貨中 below.
+# 已結帳 (settled) is an internal accounting state — to the customer it is
+# the same as 已出貨, so both surface as 已出貨.
 _FRIENDLY_STATUS = {
     "待配貨": "備貨中", "中國待發": "備貨中", "集運中": "運送中",
     "台灣庫存": "準備出貨", "已出貨": "已出貨",
-    "已結帳": "已完成", "已退貨": "已退貨",
+    "已結帳": "已出貨", "已退貨": "已退貨",
 }
 _WAITING_READY = "備貨完成，待出貨"  # 待配貨 that current TW stock can fill
 
