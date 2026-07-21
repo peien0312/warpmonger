@@ -50,14 +50,21 @@
             </div>
 
             <form class="checkout-form" id="checkout-form" onsubmit="return submitOrder(event)">
-                <h3>聯絡資料</h3>
-                <label>姓名 *<input type="text" name="name" required maxlength="50" value="{{ member.name if member else '' }}"></label>
-                <label>電話 *<input type="tel" name="phone" required maxlength="20" pattern="[0-9+\-() ]{8,}" value="{{ member.phone if member and member.phone else '' }}"></label>
                 {% if member %}
-                {# member email comes from the profile — carried silently, edit in 會員中心 #}
+                {# logged-in: orderer identity comes from the profile, no need to
+                   re-ask name/email. Ask phone only if the profile has none. #}
+                <input type="hidden" name="name" value="{{ member.name }}">
                 <input type="hidden" name="email" value="{{ member.email or '' }}">
-                <small class="text-muted">訂單通知會寄到 {{ member.email }}（綁定 LINE 者也會收到 LINE 通知），可到<a href="/account">會員中心</a>修改。</small>
+                {% if member.phone %}
+                <input type="hidden" name="phone" value="{{ member.phone }}">
                 {% else %}
+                <h3>聯絡資料</h3>
+                <label>聯絡電話 *<input type="tel" name="phone" required maxlength="20" pattern="[0-9+\-() ]{8,}" placeholder="您的聯絡電話"></label>
+                {% endif %}
+                {% else %}
+                <h3>聯絡資料</h3>
+                <label>姓名 *<input type="text" name="name" required maxlength="50"></label>
+                <label>電話 *<input type="tel" name="phone" required maxlength="20" pattern="[0-9+\-() ]{8,}"></label>
                 <label>Email *<input type="email" name="email" maxlength="100" required></label>
                 <small class="text-muted">未登入時請留 email 以接收訂單通知；<a href="/login?next=/checkout">登入會員</a>可查詢訂單並儲存收件資料，並用 LINE 接收通知。</small>
                 {% endif %}
@@ -70,8 +77,8 @@
                         <input type="radio" name="saved_address" value="{{ a.id }}"
                                data-addr='{{ {"recipient_name": a.recipient_name, "recipient_phone": a.recipient_phone, "delivery": a.delivery, "store_code": a.store_code, "store_name": a.store_name, "address": a.address}|tojson }}'
                                {{ 'checked' if a.is_default else '' }} onchange="useSavedAddress(this)">
-                        <span><strong>收件人：{{ a.recipient_name or (member.name if member else '') }}</strong>{% if a.recipient_phone %} {{ a.recipient_phone }}{% endif %}<br>
-                            <small class="text-muted">{{ {'711': '7-11', 'fami': '全家', 'post': '宅配', 'meet': '面交'}.get(a.delivery, a.delivery) }}{% if a.store_name %} {{ a.store_name }}{% if a.store_code %}（{{ a.store_code }}）{% endif %}{% endif %}{% if a.address %} {{ a.address }}{% endif %}</small></span>
+                        <span>收件人：{{ a.recipient_name or (member.name if member else '') }}　聯絡電話：{{ a.recipient_phone or '—' }}<br>
+                            <small class="text-muted">配送方式：{{ {'711': '7-11 店到店', 'fami': '全家 店到店', 'post': '宅配到府', 'meet': '面交'}.get(a.delivery, a.delivery) }}{% if a.store_name %}　門市：{{ a.store_name }}{% if a.store_code %}（{{ a.store_code }}）{% endif %}{% endif %}{% if a.address %}　地址：{{ a.address }}{% endif %}</small></span>
                     </label>
                     {% endfor %}
                     <label class="saved-addr">
