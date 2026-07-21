@@ -490,6 +490,12 @@ async function toggleWish(sku, btn) {
     SEQ.filter(s => present.has(s)).forEach(s => chip(s, FS[s] || 'badge-fs-prep', s));
     bar.style.display = '';
 
+    // sit the sticky bar right under the (sticky) site header
+    const header = document.querySelector('.site-header');
+    const setTop = () => { bar.style.top = (header ? header.offsetHeight : 0) + 'px'; };
+    setTop();
+    window.addEventListener('resize', setTop);
+
     const sections = [...document.querySelectorAll('.order-section')];
     function apply(val) {
         cards.forEach(c => {

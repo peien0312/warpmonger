@@ -3831,8 +3831,15 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
 .badge-fs-done     { background: #2A2620; color: #B8AC95; border-color: #4A4034; }  /* muted: 已完成 (merged into 已出貨; kept for reuse) */
 .badge-fs-returned { background: #5A342C; color: #E6DAC4; border-color: #8A4A3C; }  /* rust red: 已退貨 */
 
-/* Order-history status filter chips */
-.order-filter { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 18px; }
+/* Order-history status filter chips — sticky under the site header */
+.order-filter {
+    display: flex; flex-wrap: wrap; gap: 8px;
+    position: sticky; z-index: 50; top: 0;   /* top offset set from JS = header height */
+    margin: 0 0 18px; padding: 12px 0;
+    background: #17100B;                       /* page ground: cards scroll under cleanly */
+    border-bottom: 1px solid #3B2F24;
+    box-shadow: 0 6px 12px -6px rgba(0, 0, 0, 0.7);
+}
 .fchip { cursor: pointer; font-family: inherit; opacity: 0.5; transition: opacity .12s ease, box-shadow .12s ease; }
 .fchip:hover { opacity: 0.85; }
 .fchip-active { opacity: 1; box-shadow: 0 0 0 2px #17100B, 0 0 0 3px #E6DAC4; }
