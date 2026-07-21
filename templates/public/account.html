@@ -368,6 +368,12 @@ async function saveProfile(ev) {
     });
     const data = await res.json();
     msg.textContent = data.success ? '已儲存 ✓' : (data.error || '儲存失敗');
+    // Order history (incl. 歷史訂單) is matched by phone server-side at page
+    // render, so a changed phone needs a reload to pull the now-matching
+    // orders. defaultValue = the phone the page was rendered with.
+    if (data.success && f.phone.value !== f.phone.defaultValue) {
+        setTimeout(() => location.reload(), 600);
+    }
     return false;
 }
 
