@@ -3816,15 +3816,21 @@ def auth_line_callback():
         return "LINE 登入失敗，請重試", 502
     current = current_member()
     if session.pop('link_mode', False) and current:
+        was_bound = current.get('line_user_id') == prof['userId']
         result = memberdb.link_identity(
             current['id'], 'line', prof['userId'],
             None, prof.get('displayName'), prof.get('pictureUrl'))
         memberdb.set_line_user(current['id'], prof['userId'])
+        if not was_bound:
+            _notify_line_bound(current['id'], prof['userId'])
         return redirect(f'/account?link={result}')
     member = memberdb.find_or_create_by_identity(
         'line', prof['userId'], None, prof.get('displayName'), prof.get('pictureUrl'))
     # LINE login binds notifications automatically
+    was_bound = member.get('line_user_id') == prof['userId']
     memberdb.set_line_user(member['id'], prof['userId'])
+    if not was_bound:
+        _notify_line_bound(member['id'], prof['userId'])
     session.permanent = True
     session['member_id'] = member['id']
     if member.get('_is_new'):
@@ -4386,6 +4392,155 @@ def api_linepay_refund():
     return jsonify({'success': True, 'refund_transaction_id': refund_txn})
 
 
+# ----- LINE OA bot: menu binding, coupon, product search -----
+
+_AVAIL_LABELS = {'in_stock': '✅ 現貨', 'preorder': '🔜 預購',
+                 'orderable': '🛒 可訂購', 'inquiry': '💬 詢價'}
+
+
+def _grant_line_bind_coupon(member_id):
+    """Best-effort 綁定禮 coupon (POS coupon with auto_grant=line_bind).
+    Returns {title, amount_twd} when newly granted, else None; idempotent
+    via the wallet UNIQUE constraint."""
+    try:
+        import posdb as _posdb
+        c = _posdb.get_auto_grant_coupon('line_bind')
+        if c and c.get('code') and memberdb.grant_coupon(
+                member_id, c['code'], 'line_bind', ''):
+            return {'title': c.get('title') or c['code'],
+                    'amount_twd': int(c.get('amount_twd') or 0)}
+    except Exception as e:
+        print(f"line bind coupon grant failed: {e}")
+    return None
+
+
+def _on_line_bound(member_id, line_user_id):
+    """After a member↔LINE bind: switch the user to the member rich menu and
+    grant the 綁定禮 coupon. Returns the coupon dict when newly granted."""
+    import linepush
+    try:
+        linepush.richmenu_link_user(line_user_id)
+    except Exception as e:
+        print(f"richmenu switch on bind failed: {e}")
+    return _grant_line_bind_coupon(member_id)
+
+
+def _notify_line_bound(member_id, line_user_id):
+    """LINE-Login bind path: run the bind hooks and, if a 綁定禮 was newly
+    granted, push a note (rare event; one push per member ever)."""
+    import linepush
+    try:
+        coupon = _on_line_bound(member_id, line_user_id)
+        if coupon and linepush.enabled():
+            linepush.push_text(line_user_id,
+                f"LINE 綁定完成 🎉 綁定禮已入帳：{coupon['title']}"
+                f"（折 NT${coupon['amount_twd']}），結帳時即可使用！\n"
+                f"{SITE_URL}/account")
+    except Exception as e:
+        print(f"line bound notify failed: {e}")
+
+
+def _product_bubble(p):
+    """Flex bubble for one posdb product dict (search result card)."""
+    url = f"{SITE_URL}/products/{p['category']}/{p['slug']}"
+    title = p.get('zhtw_name') or p.get('title') or p.get('sku') or '商品'
+    if p.get('final_price'):
+        price = f"NT${int(p['final_price']):,}"
+        if p.get('member_price') and p['member_price'] < p['final_price']:
+            price += f"｜會員 NT${int(p['member_price']):,}"
+    else:
+        price = '詢價商品'
+    body = [
+        {'type': 'text', 'text': title[:80], 'weight': 'bold',
+         'size': 'sm', 'wrap': True},
+        {'type': 'text', 'text': price, 'size': 'sm', 'color': '#B71C1C'},
+        {'type': 'text',
+         'text': (_AVAIL_LABELS.get(p.get('availability'), '') +
+                  (f"（{p['available_display']}）" if p.get('available_display') else '')) or '—',
+         'size': 'xs', 'color': '#888888'},
+    ]
+    bubble = {
+        'type': 'bubble', 'size': 'kilo',
+        'body': {'type': 'box', 'layout': 'vertical', 'spacing': 'sm',
+                 'contents': body},
+        'footer': {'type': 'box', 'layout': 'vertical', 'contents': [
+            {'type': 'button', 'style': 'primary', 'height': 'sm',
+             'color': '#8B4513',
+             'action': {'type': 'uri', 'label': '查看商品', 'uri': url}}]},
+    }
+    if p.get('images'):
+        img = (f"{SITE_URL}/static/images/products/{p['category']}/"
+               f"{p['slug']}/{p['images'][0]}")
+        bubble['hero'] = {'type': 'image', 'url': img, 'size': 'full',
+                          'aspectRatio': '1:1', 'aspectMode': 'cover',
+                          'action': {'type': 'uri', 'uri': url}}
+    return bubble
+
+
+def _more_results_bubble(keyword, extra):
+    from urllib.parse import quote
+    return {
+        'type': 'bubble', 'size': 'kilo',
+        'body': {'type': 'box', 'layout': 'vertical', 'spacing': 'sm',
+                 'justifyContent': 'center', 'contents': [
+            {'type': 'text', 'text': f'還有 {extra} 項結果', 'weight': 'bold',
+             'size': 'sm', 'align': 'center'},
+            {'type': 'text', 'text': '到網站看完整搜尋結果', 'size': 'xs',
+             'color': '#888888', 'align': 'center'}]},
+        'footer': {'type': 'box', 'layout': 'vertical', 'contents': [
+            {'type': 'button', 'style': 'secondary', 'height': 'sm',
+             'action': {'type': 'uri', 'label': '看全部',
+                        'uri': f"{SITE_URL}/products?search={quote(keyword)}"}}]},
+    }
+
+
+def _parse_search_keyword(text):
+    """'找 暗源' / '查暗源' / '搜尋 暗源' -> '暗源'; None if not a search."""
+    t = (text or '').strip()
+    for prefix in ('搜尋', '搜索', '找', '查'):
+        if t.startswith(prefix) and len(t) > len(prefix):
+            kw = t[len(prefix):].strip(' 　:：')
+            return kw or None
+    return None
+
+
+def _handle_line_text(uid, text, reply_token):
+    """Bot behavior for one inbound text message. Returns True when the bot
+    replied (binding codes are handled separately in the webhook)."""
+    import linepush
+    t = (text or '').strip()
+    if t == '商品查詢':
+        linepush.reply_text(reply_token,
+            '想找什麼商品呢？輸入「找 商品名稱」幫您查詢，例如：\n\n找 暗源\n找 劍聖\n\n'
+            f'也可以直接逛網站：{SITE_URL}/products', line_user_id=uid)
+        return True
+    if t == '我想詢問':
+        linepush.reply_text(reply_token,
+            '請直接留言，老闆看到會盡快回覆您 🙏', line_user_id=uid)
+        return True
+    kw = _parse_search_keyword(t)
+    if not kw:
+        return False
+    if kw in ('訂單', '我的訂單'):
+        linepush.reply_text(reply_token,
+            f'訂單記錄請到會員中心查看：{SITE_URL}/account', line_user_id=uid)
+        return True
+    hits = get_products(search=kw)
+    if not hits:
+        from urllib.parse import quote
+        linepush.reply_text(reply_token,
+            f'找不到「{kw}」相關的商品 😢\n換個關鍵字試試，或到網站逛逛：\n'
+            f'{SITE_URL}/products?search={quote(kw)}', line_user_id=uid)
+        return True
+    bubbles = [_product_bubble(p) for p in hits[:6]]
+    if len(hits) > 6:
+        bubbles.append(_more_results_bubble(kw, len(hits) - 6))
+    linepush.reply_flex(reply_token,
+                        f'「{kw}」搜尋結果：{len(hits)} 項商品',
+                        bubbles, line_user_id=uid)
+    return True
+
+
 # LINE profile display names, cached per process (profile rarely changes;
 # one API call per new chatter instead of one per message).
 _line_profiles = {}
@@ -4456,13 +4611,20 @@ def line_webhook():
                 if code.startswith('AB') and len(code) == 8:
                     member = memberdb.bind_line_user(code, uid)
                     if member:
+                        coupon = _on_line_bound(member['id'], uid)
+                        extra = (f"\n\n綁定禮已入帳：{coupon['title']}"
+                                 f"（折 NT${coupon['amount_twd']}），結帳時即可使用 🎁"
+                                 if coupon else '')
                         linepush.reply_text(ev['replyToken'],
                             f"綁定成功！{member.get('name') or ''} 您好，"
-                            '之後到貨與訂單通知都會傳到這裡。', line_user_id=uid)
+                            f'之後到貨與訂單通知都會傳到這裡。{extra}',
+                            line_user_id=uid)
                     else:
                         linepush.reply_text(ev['replyToken'],
                             f'找不到這個綁定碼，請到會員中心確認：{SITE_URL}/account',
                             line_user_id=uid)
+                else:
+                    _handle_line_text(uid, msg.get('text'), ev['replyToken'])
             _mirror_line_message(uid, msg, ev.get('timestamp'))
         except Exception as e:
             print(f'line webhook event failed: {e}')

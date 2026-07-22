@@ -95,9 +95,94 @@ def reply_text(reply_token, text, line_user_id=None):
     return r
 
 
+def reply_flex(reply_token, alt_text, bubbles, line_user_id=None):
+    """Reply with a Flex carousel (list of bubble dicts). alt_text shows in
+    push previews and is what lands in the POS chat log."""
+    r = _api("/v2/bot/message/reply", {
+        "replyToken": reply_token,
+        "messages": [{"type": "flex", "altText": alt_text[:390],
+                      "contents": {"type": "carousel",
+                                   "contents": bubbles[:12]}}],
+    })
+    if line_user_id:
+        log_to_pos({"line_user_id": line_user_id, "direction": "out",
+                    "msg_type": "text", "text": alt_text[:390]})
+    return r
+
+
 def valid_signature(body_bytes, signature):
     """Verify X-Line-Signature on a webhook request."""
     if not CHANNEL_SECRET or not signature:
         return False
     mac = hmac.new(CHANNEL_SECRET.encode(), body_bytes, hashlib.sha256)
     return hmac.compare_digest(base64.b64encode(mac.digest()).decode(), signature)
+
+
+# ----- rich menu (圖文選單) -----
+# Menus are created/replaced by setup_richmenu.py and resolved at runtime
+# by name, so no IDs need storing: abbeys-guest (the default for everyone)
+# and abbeys-member (linked per-user once they bind).
+
+MENU_GUEST = "abbeys-guest"
+MENU_MEMBER = "abbeys-member"
+
+_menu_ids = {}  # name -> richMenuId, cached per process
+
+
+def richmenu_list():
+    with _get("https://api.line.me/v2/bot/richmenu/list") as resp:
+        return json.loads(resp.read()).get("richmenus", [])
+
+
+def richmenu_create(spec):
+    """spec: size/selected/name/chatBarText/areas — returns richMenuId."""
+    return _api("/v2/bot/richmenu", spec)["richMenuId"]
+
+
+def richmenu_upload_image(rich_menu_id, png_bytes):
+    req = urllib.request.Request(
+        f"https://api-data.line.me/v2/bot/richmenu/{rich_menu_id}/content",
+        data=png_bytes,
+        headers={"Content-Type": "image/png",
+                 "Authorization": "Bearer " + ACCESS_TOKEN},
+        method="POST")
+    with urllib.request.urlopen(req, timeout=60) as resp:
+        resp.read()
+
+
+def richmenu_delete(rich_menu_id):
+    req = urllib.request.Request(
+        f"https://api.line.me/v2/bot/richmenu/{rich_menu_id}",
+        headers={"Authorization": "Bearer " + ACCESS_TOKEN},
+        method="DELETE")
+    with urllib.request.urlopen(req, timeout=15) as resp:
+        resp.read()
+
+
+def richmenu_set_default(rich_menu_id):
+    return _api(f"/v2/bot/user/all/richmenu/{rich_menu_id}", {})
+
+
+def richmenu_id_by_name(name):
+    """richMenuId for a menu created by setup_richmenu.py, or None."""
+    if name not in _menu_ids:
+        try:
+            for m in richmenu_list():
+                _menu_ids[m.get("name")] = m.get("richMenuId")
+        except Exception as e:
+            print(f"richmenu list failed: {e}")
+            return None
+    return _menu_ids.get(name)
+
+
+def richmenu_link_user(line_user_id, name=MENU_MEMBER):
+    """Best-effort: switch this user's menu (e.g. to the member menu on bind)."""
+    rid = richmenu_id_by_name(name)
+    if not rid:
+        return False
+    try:
+        _api(f"/v2/bot/user/{line_user_id}/richmenu/{rid}", {})
+        return True
+    except Exception as e:
+        print(f"richmenu link failed: {e}")
+        return False

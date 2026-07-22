@@ -410,6 +410,15 @@ def member_by_line_user(line_user_id):
     return dict(row) if row else None
 
 
+def all_line_user_ids():
+    """line_user_id of every bound member (rich-menu backfill)."""
+    conn = _conn()
+    rows = conn.execute(
+        "SELECT line_user_id FROM members WHERE line_user_id IS NOT NULL").fetchall()
+    conn.close()
+    return [r["line_user_id"] for r in rows]
+
+
 def unbind_line(member_id):
     conn = _conn()
     conn.execute("UPDATE members SET line_user_id = NULL WHERE id = ?", (member_id,))

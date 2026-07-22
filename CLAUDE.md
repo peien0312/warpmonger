@@ -88,9 +88,25 @@ code kept for rollback (name-rebound to `posdb.*` at the bottom of app.py).
 - Chat-log mirror: the webhook forwards every inbound OA message (text +
   images fetched from LINE's content API) to the POS at
   `POST /api/storefront/line-messages` (key-authed, best-effort);
-  `linepush.push_text/reply_text` log outbound pushes the same way. The
-  POS shows the log at its LINE 訊息 page. Manual replies typed in LINE
-  OA Manager never reach the webhook and are NOT logged.
+  `linepush.push_text/reply_text/reply_flex` log outbound pushes the same
+  way. The POS shows the log at its LINE 訊息 page. Manual replies typed
+  in LINE OA Manager never reach the webhook and are NOT logged.
+- OA rich menus (圖文選單): two menus created by `setup_richmenu.py`
+  (re-run it after replacing the placeholder images in
+  `static/richmenu/*.png`; keep the 3x2 cell layout). `abbeys-guest` is
+  the all-users default; `abbeys-member` is linked per-user on bind
+  (`_on_line_bound`), resolved by menu NAME at runtime — no IDs stored.
+  `--link-existing` backfills already-bound members.
+- OA bot (`_handle_line_text`): 「商品查詢」→ usage hint; 「找/查/搜尋 +
+  關鍵字」→ Flex carousel of up to 6 posdb search hits (photo, 售價/會員價,
+  availability, product link) + a 看全部 bubble; 「我想詢問」→ canned ack.
+  Replies consume no push quota. Non-command text gets no bot reply (it
+  goes to the chat log for the human).
+- 綁定禮: POS coupon with `auto_grant=line_bind` is granted once on first
+  LINE bind (both the binding-code and LINE-Login paths call
+  `_on_line_bound`, which also switches the rich menu). The webhook path
+  mentions the coupon in its reply; the login path push-notifies only
+  when newly granted.
 - Guest checkout is allowed but **email is required when not logged in**;
   history appears retroactively if they later sign up with the same
   email/phone.
