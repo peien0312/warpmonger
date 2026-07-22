@@ -1,4 +1,5 @@
 import os
+import base64
 import json
 import re
 import time
@@ -4385,9 +4386,54 @@ def api_linepay_refund():
     return jsonify({'success': True, 'refund_transaction_id': refund_txn})
 
 
+# LINE profile display names, cached per process (profile rarely changes;
+# one API call per new chatter instead of one per message).
+_line_profiles = {}
+
+
+def _mirror_line_message(uid, msg, ts_ms):
+    """Forward one inbound webhook message to the POS chat log (best-effort).
+    Images are downloaded from LINE's content API and sent base64-inline."""
+    import linepush
+    mtype = msg.get('type') or 'other'
+    payload = {'line_user_id': uid, 'direction': 'in', 'msg_type': mtype,
+               'line_message_id': str(msg.get('id') or ''),
+               'timestamp_ms': ts_ms}
+    if mtype == 'text':
+        payload['text'] = msg.get('text')
+    elif mtype == 'image':
+        try:
+            raw, ctype = linepush.get_content(msg['id'])
+            payload['image_b64'] = base64.b64encode(raw).decode()
+            payload['image_mime'] = ctype
+        except Exception as e:
+            print(f'line image fetch failed: {e}')
+            payload['text'] = '（圖片下載失敗）'
+    elif mtype == 'sticker':
+        kw = ', '.join((msg.get('keywords') or [])[:5])
+        payload['text'] = f'（貼圖{"：" + kw if kw else ""}）'
+    elif mtype == 'location':
+        payload['text'] = f"（位置：{msg.get('address') or ''}）"
+    else:
+        payload['text'] = f'（{mtype}訊息）'
+
+    if uid not in _line_profiles:
+        _line_profiles[uid] = (linepush.get_profile(uid) or {}).get('displayName')
+    payload['display_name'] = _line_profiles[uid]
+    try:
+        member = memberdb.member_by_line_user(uid)
+        if member:
+            payload['member_name'] = member.get('name')
+            payload['member_phone'] = member.get('phone')
+    except Exception as e:
+        print(f'line member lookup failed: {e}')
+    linepush.log_to_pos(payload)
+
+
 @app.route('/line/webhook', methods=['POST'])
 def line_webhook():
-    """LINE 官方帳號 webhook: binds members via their binding code."""
+    """LINE 官方帳號 webhook: binds members via their binding code, and
+    mirrors every inbound message (text + images) into the POS chat log."""
     import linepush
     body = request.get_data()
     if not linepush.valid_signature(body, request.headers.get('X-Line-Signature', '')):
@@ -4395,21 +4441,29 @@ def line_webhook():
     events = (request.get_json(silent=True) or {}).get('events', [])
     for ev in events:
         try:
+            uid = (ev.get('source') or {}).get('userId')
             if ev.get('type') == 'follow':
                 linepush.reply_text(ev['replyToken'],
                     '歡迎加入阿北玩具堂！\n\n如果您是網站會員，到會員中心取得「綁定碼」並傳給我，'
-                    f'之後到貨通知、訂單通知都會從這裡傳給您。\n\n{SITE_URL}/account')
-            elif ev.get('type') == 'message' and ev.get('message', {}).get('type') == 'text':
-                text = ev['message']['text'].strip().upper()
-                if text.startswith('AB') and len(text) == 8:
-                    member = memberdb.bind_line_user(text, ev['source']['userId'])
+                    f'之後到貨通知、訂單通知都會從這裡傳給您。\n\n{SITE_URL}/account',
+                    line_user_id=uid)
+                continue
+            if ev.get('type') != 'message' or not uid:
+                continue
+            msg = ev.get('message', {})
+            if msg.get('type') == 'text':
+                code = (msg.get('text') or '').strip().upper()
+                if code.startswith('AB') and len(code) == 8:
+                    member = memberdb.bind_line_user(code, uid)
                     if member:
                         linepush.reply_text(ev['replyToken'],
                             f"綁定成功！{member.get('name') or ''} 您好，"
-                            '之後到貨與訂單通知都會傳到這裡。')
+                            '之後到貨與訂單通知都會傳到這裡。', line_user_id=uid)
                     else:
                         linepush.reply_text(ev['replyToken'],
-                            f'找不到這個綁定碼，請到會員中心確認：{SITE_URL}/account')
+                            f'找不到這個綁定碼，請到會員中心確認：{SITE_URL}/account',
+                            line_user_id=uid)
+            _mirror_line_message(uid, msg, ev.get('timestamp'))
         except Exception as e:
             print(f'line webhook event failed: {e}')
     return 'OK'

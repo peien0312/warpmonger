@@ -85,6 +85,12 @@ code kept for rollback (name-rebound to `posdb.*` at the bottom of app.py).
 - LINE notification binding: LINE Login binds automatically; Google-only
   members send their 綁定碼 (shown on /account) to the OA — handled by
   `/line/webhook` (signature-verified with LINE_CHANNEL_SECRET).
+- Chat-log mirror: the webhook forwards every inbound OA message (text +
+  images fetched from LINE's content API) to the POS at
+  `POST /api/storefront/line-messages` (key-authed, best-effort);
+  `linepush.push_text/reply_text` log outbound pushes the same way. The
+  POS shows the log at its LINE 訊息 page. Manual replies typed in LINE
+  OA Manager never reach the webhook and are NOT logged.
 - Guest checkout is allowed but **email is required when not logged in**;
   history appears retroactively if they later sign up with the same
   email/phone.

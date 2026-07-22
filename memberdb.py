@@ -401,6 +401,15 @@ def bind_line_user(code, line_user_id):
     return dict(member)
 
 
+def member_by_line_user(line_user_id):
+    """Member dict for a bound LINE user, or None."""
+    conn = _conn()
+    row = conn.execute("SELECT * FROM members WHERE line_user_id = ?",
+                       (line_user_id,)).fetchone()
+    conn.close()
+    return dict(row) if row else None
+
+
 def unbind_line(member_id):
     conn = _conn()
     conn.execute("UPDATE members SET line_user_id = NULL WHERE id = ?", (member_id,))
