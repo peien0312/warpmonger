@@ -52,7 +52,7 @@ def test_handle_line_text_search(app, monkeypatch):
 
     sent.clear()
     assert site._handle_line_text('U1', '查 訂單', 'tok') is True
-    assert '/account' in sent['text']
+    assert '/line/entry' in sent['text']
 
     # ordinary chat -> bot stays silent (goes to the human/chat log)
     sent.clear()
@@ -110,7 +110,7 @@ def _capture(monkeypatch):
 def test_orders_and_coupons_need_binding(app, monkeypatch):
     sent = _capture(monkeypatch)
     assert site._handle_line_text('Unobody', '查訂單', 'tok') is True
-    assert '綁定' in sent['text'] and '/account' in sent['text']
+    assert '綁定' in sent['text'] and '/line/entry' in sent['text']
     sent.clear()
     assert site._handle_line_text('Unobody', '我的優惠券', 'tok') is True
     assert '綁定' in sent['text']
@@ -130,16 +130,27 @@ def test_orders_carousel(app, monkeypatch):
     sent = _capture(monkeypatch)
     assert site._handle_line_text('Uorders', '查訂單', 'tok') is True
     alt, bubbles = sent['flex']
-    assert '訂單查詢' in alt
-    # order card + trailing 會員中心 card
-    assert len(bubbles) == 2
-    body_text = str(bubbles[0])
-    assert 'AB260722-001' in body_text
-    assert '現貨測試品' in body_text          # item list inside the card
-    assert 'NT$3,060' in body_text            # 1500*2 + 60 運費
-    uri = bubbles[0]['footer']['contents'][0]['action']['uri']
+    assert '訂單查詢：2 筆' in alt
+    # web order card + POS (LINE-chat) order card + trailing 會員中心 card
+    assert len(bubbles) == 3
+    all_text = str(bubbles)
+    assert 'AB260722-001' in all_text
+    assert '現貨測試品' in all_text           # item list inside the card
+    assert 'NT$3,060' in all_text             # web: 1500*2 + 60 運費
+    assert 'LINE 訂單' in all_text            # POS-direct order labeled by source
+    assert '預購測試品' in all_text           # its item list
+    assert 'NT$3,000' in all_text             # its total
+    web_bubble = next(b for b in bubbles if 'AB260722-001' in str(b))
+    uri = web_bubble['footer']['contents'][0]['action']['uri']
     assert '/order/AB260722-001?t=' in uri    # magic-link, no login needed
-    assert '/account' in str(bubbles[-1])
+    assert '/line/entry' in str(bubbles[-1])  # auto-login account link
+
+
+def test_line_entry_redirects_to_login(client):
+    resp = client.get('/line/entry')
+    assert resp.status_code == 302
+    assert '/auth/line' in resp.headers['Location']
+    assert 'account' in resp.headers['Location']
 
 
 def test_coupons_carousel(app, monkeypatch):
@@ -158,7 +169,7 @@ def test_coupons_carousel(app, monkeypatch):
     alt, bubbles = sent['flex']
     assert '可用優惠券：1 張' in alt
     assert 'NT$50' in str(bubbles[0])
-    assert '/account' in str(bubbles[-1])
+    assert '/line/entry' in str(bubbles[-1])
 
 
 def test_new_arrivals_cards(app, monkeypatch):

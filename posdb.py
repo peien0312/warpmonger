@@ -724,7 +724,7 @@ def get_member_legacy_orders(phone):
         # (web_orders.order_id_now/_later) used before web_order_id existed.
         ph = ",".join("?" * len(cust_ids))
         rows = [dict(r) for r in conn.execute(
-            f"SELECT id, status, order_date, total_amount FROM orders "
+            f"SELECT id, status, order_date, total_amount, source FROM orders "
             f"WHERE customer_id IN ({ph}) AND web_order_id IS NULL "
             f"AND id NOT IN ("
             f"  SELECT order_id_now FROM web_orders WHERE order_id_now IS NOT NULL "

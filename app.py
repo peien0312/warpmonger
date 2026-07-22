@@ -3750,6 +3750,19 @@ def login_page():
     return render_template('public/login.html', **_login_ctx())
 
 
+@app.route('/line/entry')
+def line_entry():
+    """Rich-menu / bot links land here: already signed in -> straight to the
+    target; otherwise into LINE Login, which auto-logs-in inside LINE's
+    in-app browser (no typing) and auto-binds notifications. LIFF-grade UX
+    without a LIFF app."""
+    target = _safe_next(request.args.get('next') or '/account')
+    if current_member():
+        return redirect(target)
+    from urllib.parse import quote
+    return redirect(f'/auth/line?next={quote(target)}')
+
+
 @app.route('/auth/line')
 def auth_line():
     import secrets
@@ -4556,9 +4569,55 @@ def _require_bound_member(uid, reply_token, what):
         return member
     linepush.reply_text(reply_token,
         f'要{what}需要先綁定會員（首次綁定送折價券 🎁）\n\n'
-        f'用 LINE 登入網站即可自動綁定：\n{SITE_URL}/account',
+        f'點這裡自動登入並綁定：\n{SITE_URL}/line/entry',
         line_user_id=uid)
     return None
+
+
+_LEGACY_SOURCE_LABELS = {'shopee': '蝦皮訂單', 'line': 'LINE 訂單'}
+
+
+def _legacy_order_bubble(o):
+    """Card for a POS-direct order (Shopee / LINE-chat deals entered in the
+    POS): no order_no, no payment fields, no per-order page — read-only."""
+    from datetime import datetime, timedelta
+    try:
+        day = (datetime.fromisoformat(str(o.get('order_date'))[:19])
+               + timedelta(hours=8)).strftime('%Y-%m-%d')
+    except Exception:
+        day = str(o.get('order_date') or '')[:10]
+    label = _LEGACY_SOURCE_LABELS.get(o.get('source'), '門市訂單')
+    contents = [
+        {'type': 'text', 'text': f"{label} #{o.get('id')}",
+         'weight': 'bold', 'size': 'sm'},
+        {'type': 'text',
+         'text': f"{day}｜{'、'.join(o.get('status_labels') or []) or '處理中'}",
+         'size': 'xs', 'color': '#888888', 'wrap': True},
+        {'type': 'separator', 'margin': 'sm'},
+    ]
+    items = o.get('items') or []
+    for it in items[:3]:
+        name = it.get('zhtw_name') or it.get('en_name') or it.get('sku') or '商品'
+        contents.append({'type': 'text',
+                         'text': f"{name[:30]} ×{it.get('quantity') or 1}",
+                         'size': 'xs', 'wrap': True, 'margin': 'sm'})
+    if len(items) > 3:
+        contents.append({'type': 'text', 'text': f'…共 {len(items)} 項商品',
+                         'size': 'xs', 'color': '#888888'})
+    if o.get('total_amount'):
+        contents.append({'type': 'separator', 'margin': 'sm'})
+        contents.append({'type': 'text',
+                         'text': f"NT${int(o['total_amount']):,}",
+                         'weight': 'bold', 'size': 'sm', 'margin': 'sm'})
+    return {
+        'type': 'bubble', 'size': 'kilo',
+        'body': {'type': 'box', 'layout': 'vertical', 'spacing': 'xs',
+                 'contents': contents},
+        'footer': {'type': 'box', 'layout': 'vertical', 'contents': [
+            {'type': 'button', 'style': 'secondary', 'height': 'sm',
+             'action': {'type': 'uri', 'label': '會員中心',
+                        'uri': f'{SITE_URL}/line/entry'}}]},
+    }
 
 
 def _order_bubble(o):
@@ -4624,23 +4683,30 @@ def _order_bubble(o):
 
 
 def _reply_orders(uid, reply_token):
-    """查訂單 tap -> the member's recent web orders as cards."""
+    """查訂單 tap -> the member's recent orders as cards: web orders AND
+    POS-direct orders (Shopee / LINE-chat deals), merged newest-first."""
     import linepush
     import posdb as _posdb
     member = _require_bound_member(uid, reply_token, '查詢訂單')
     if not member:
         return True
-    orders = _posdb.get_member_orders(member.get('email'), member.get('phone'))
-    live = [o for o in orders if o.get('status') != '已取消'] or orders
-    if not live:
+    web = [o for o in _posdb.get_member_orders(member.get('email'),
+                                               member.get('phone'))
+           if o.get('status') != '已取消']
+    legacy = _posdb.get_member_legacy_orders(member.get('phone'))
+    merged = ([('web', o, str(o.get('created_at') or '')) for o in web] +
+              [('pos', o, str(o.get('order_date') or '')) for o in legacy])
+    merged.sort(key=lambda t: t[2], reverse=True)
+    if not merged:
         linepush.reply_text(reply_token,
             f'目前沒有訂單記錄，去網站逛逛吧：{SITE_URL}/products',
             line_user_id=uid)
         return True
-    bubbles = [_order_bubble(o) for o in live[:5]]
+    bubbles = [_order_bubble(o) if kind == 'web' else _legacy_order_bubble(o)
+               for kind, o, _at in merged[:5]]
     bubbles.append(_link_bubble('完整訂單記錄', '含更早的訂單與退貨',
-                                '前往會員中心', f'{SITE_URL}/account'))
-    linepush.reply_flex(reply_token, f'訂單查詢：{len(live)} 筆',
+                                '前往會員中心', f'{SITE_URL}/line/entry'))
+    linepush.reply_flex(reply_token, f'訂單查詢：{len(merged)} 筆',
                         bubbles, line_user_id=uid)
     return True
 
@@ -4680,12 +4746,12 @@ def _reply_coupons(uid, reply_token):
               if c.get('disp_status') == 'granted']
     if not usable:
         linepush.reply_text(reply_token,
-            f'目前沒有可用的優惠券。完整記錄請看會員中心：{SITE_URL}/account',
+            f'目前沒有可用的優惠券。完整記錄請看會員中心：{SITE_URL}/line/entry',
             line_user_id=uid)
         return True
     bubbles = [_coupon_bubble(c) for c in usable[:6]]
     bubbles.append(_link_bubble('優惠券記錄', '含已使用與過期的', '前往會員中心',
-                                f'{SITE_URL}/account'))
+                                f'{SITE_URL}/line/entry'))
     linepush.reply_flex(reply_token,
                         f'可用優惠券：{len(usable)} 張（結帳時選用）',
                         bubbles, line_user_id=uid)

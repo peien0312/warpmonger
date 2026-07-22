@@ -36,7 +36,7 @@ GUEST_CELLS = [
     ("商品查詢", "輸入名稱找商品",
      {"type": "message", "text": "商品查詢"}),
     ("綁定會員", "領取綁定禮折價券",
-     {"type": "uri", "uri": f"{SITE}/account"}),
+     {"type": "uri", "uri": f"{SITE}/line/entry"}),
     ("查訂單", "訂單記錄與狀態",
      {"type": "message", "text": "查訂單"}),
     ("聯絡老闆", "直接留言詢問",

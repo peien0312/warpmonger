@@ -81,6 +81,19 @@ async def main():
                                    product_id=prods["JT0001"].id,
                                    quantity=2, unit_price_twd=1500,
                                    availability="in_stock"))
+        # POS-direct order (LINE-chat deal) for the same phone — the bot's
+        # 查訂單 must surface these next to web orders
+        cust = models.Customer(name="測試客戶", phone="0912345678")
+        db.add(cust)
+        await db.flush()
+        po = models.Order(customer_id=cust.id, source="line",
+                          total_amount=3000, exchange_rate=4.45)
+        db.add(po)
+        await db.flush()
+        db.add(models.OrderItem(order_id=po.id,
+                                product_id=prods["JT0005"].id,
+                                quantity=1, unit_price=3000, cost_cny=300,
+                                cost_twd=1335))
         await db.commit()
 
 asyncio.run(main())
