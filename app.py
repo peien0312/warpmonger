@@ -1426,6 +1426,9 @@ def products_page():
     deprecated_arg = request.args.get('deprecated')
     show_deprecated = (deprecated_arg == 'true') if deprecated_arg is not None else bool(search)
     sort_by = request.args.get('sort', 'default')  # default, price_asc, price_desc
+    # 新品上架 page defaults to newest-created-first (explicit ?sort= still wins)
+    if show_new_arrival and sort_by == 'default':
+        sort_by = 'newest'
 
     # Check HTML cache for simple category pages (no search/tag/filters)
     from flask import g
