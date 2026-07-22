@@ -127,6 +127,30 @@ code kept for rollback (name-rebound to `posdb.*` at the bottom of app.py).
   and auto-binds — LIFF-grade UX with no LIFF app. All bot/menu links to
   the account go through it. NOT for the 綁定碼 flow (Google-only members
   must not LINE-login, it would mint a second account).
+- Bot extras: quick-reply chips (`_search_chips` — faction tags with
+  zh-TW glossary labels as one-tap postback searches) on search/new-
+  arrival replies; product cards carry a ♡ 收藏 postback (wishlist_toggle,
+  feeds the existing restock-notify loop); 「改造/客製」 keyword replies
+  showcase cards (posdb.get_showcase_entries) or the pitch; postbacks
+  are mirrored to the POS chat log as （點選：…）.
+- POS-facing internal APIs: `/api/internal/line-push` {line_user_id,
+  text} (POS chat reply box) and `/api/internal/narrowcast` {skus,
+  segment interested|all_bound, note, dry_run, cap} — interested =
+  wishlist members + same-series buyers (posdb.series_buyer_phones),
+  capped (default 50) as a quota guard; one push per recipient
+  (pretext + flex in a single push call). Coupon grant endpoint accepts
+  source/source_ref for dedupe (showcase uses item id).
+- `line_daily.py` (VM crontab 11:00): review-request pushes (web orders
+  shipped 7–30d ago, member bound, no review yet; mentions the 評價禮
+  coupon; once per order via memberdb.line_nudges) + coupon-expiry
+  reminders (granted coupons expiring ≤3d, once per member+code). Hard
+  caps per run (20/10) — OA plan unknown, so conservative.
+- 玩家分享 showcase: `/showcase` page + product-page section render
+  showcase-type storefront posts (extra JSON: images under
+  POS media/blog/, product_skus, is_mod, credit) via
+  posdb.get_showcase_entries — content is created in the POS
+  /showcase-queue review flow. 詢問改造 CTAs link the OA
+  (https://lin.ee/OTxThMe).
 - 綁定禮: POS coupon with `auto_grant=line_bind` is granted once on first
   LINE bind (both the binding-code and LINE-Login paths call
   `_on_line_bound`, which also switches the rich menu). The webhook path

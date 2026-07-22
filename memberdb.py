@@ -148,6 +148,12 @@ def init():
             line_user_id TEXT PRIMARY KEY,
             search_until REAL   -- epoch; OA bot 商品查詢 one-shot search mode
         );
+        CREATE TABLE IF NOT EXISTS line_nudges (
+            kind TEXT NOT NULL,       -- review | coupon_exp | ...
+            ref TEXT NOT NULL,        -- order_no / member:code — dedupe key
+            sent_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            UNIQUE(kind, ref)
+        );
     """)
     # backfill identities from the legacy google_sub column
     # ("line:<uid>" rows were LINE logins, everything else Google)
@@ -421,6 +427,46 @@ def all_line_user_ids():
         "SELECT line_user_id FROM members WHERE line_user_id IS NOT NULL").fetchall()
     conn.close()
     return [r["line_user_id"] for r in rows]
+
+
+def find_by_phone(phone):
+    """The single member with this phone, or None (ambiguous/absent)."""
+    if not phone:
+        return None
+    conn = _conn()
+    rows = conn.execute("SELECT * FROM members WHERE phone = ?",
+                        (phone.strip(),)).fetchall()
+    conn.close()
+    return dict(rows[0]) if len(rows) == 1 else None
+
+
+def wishlist_line_user_ids(skus):
+    """line_user_id of bound members who wishlisted any of these SKUs."""
+    if not skus:
+        return []
+    conn = _conn()
+    ph = ",".join("?" * len(skus))
+    rows = conn.execute(f"""
+        SELECT DISTINCT m.line_user_id FROM wishlist w
+        JOIN members m ON m.id = w.member_id
+        WHERE w.sku IN ({ph}) AND m.line_user_id IS NOT NULL
+    """, list(skus)).fetchall()
+    conn.close()
+    return [r["line_user_id"] for r in rows]
+
+
+def try_nudge(kind, ref):
+    """Claim a one-time nudge slot. True the first time, False after."""
+    conn = _conn()
+    try:
+        conn.execute("INSERT INTO line_nudges (kind, ref) VALUES (?, ?)",
+                     (kind, str(ref)))
+        conn.commit()
+        return True
+    except Exception:
+        return False
+    finally:
+        conn.close()
 
 
 def set_line_search_mode(line_user_id, ttl_seconds=300):

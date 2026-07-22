@@ -29,10 +29,10 @@ def test_product_bubble_structure(app):
 def test_handle_line_text_search(app, monkeypatch):
     sent = {}
 
-    def fake_flex(token, alt, bubbles, line_user_id=None):
+    def fake_flex(token, alt, bubbles, line_user_id=None, chips=None):
         sent['flex'] = (alt, bubbles)
 
-    def fake_text(token, text, line_user_id=None):
+    def fake_text(token, text, line_user_id=None, chips=None):
         sent['text'] = text
 
     import linepush
@@ -64,9 +64,9 @@ def test_search_mode_after_button(app, monkeypatch):
     sent = {}
     import linepush
     monkeypatch.setattr(linepush, 'reply_flex',
-                        lambda tok, alt, b, line_user_id=None: sent.__setitem__('flex', (alt, b)))
+                        lambda tok, alt, b, line_user_id=None, chips=None: sent.__setitem__('flex', (alt, b)))
     monkeypatch.setattr(linepush, 'reply_text',
-                        lambda tok, text, line_user_id=None: sent.__setitem__('text', text))
+                        lambda tok, text, line_user_id=None, chips=None: sent.__setitem__('text', text))
 
     # 商品查詢 arms search mode -> next bare message is the keyword
     assert site._handle_line_text('U2', '商品查詢', 'tok') is True
@@ -101,9 +101,9 @@ def _capture(monkeypatch):
     sent = {}
     import linepush
     monkeypatch.setattr(linepush, 'reply_flex',
-                        lambda tok, alt, b, line_user_id=None: sent.__setitem__('flex', (alt, b)))
+                        lambda tok, alt, b, line_user_id=None, chips=None: sent.__setitem__('flex', (alt, b)))
     monkeypatch.setattr(linepush, 'reply_text',
-                        lambda tok, text, line_user_id=None: sent.__setitem__('text', text))
+                        lambda tok, text, line_user_id=None, chips=None: sent.__setitem__('text', text))
     return sent
 
 
@@ -176,9 +176,9 @@ def test_new_arrivals_cards(app, monkeypatch):
     sent = {}
     import linepush
     monkeypatch.setattr(linepush, 'reply_flex',
-                        lambda tok, alt, b, line_user_id=None: sent.__setitem__('flex', (alt, b)))
+                        lambda tok, alt, b, line_user_id=None, chips=None: sent.__setitem__('flex', (alt, b)))
     monkeypatch.setattr(linepush, 'reply_text',
-                        lambda tok, text, line_user_id=None: sent.__setitem__('text', text))
+                        lambda tok, text, line_user_id=None, chips=None: sent.__setitem__('text', text))
     assert site._handle_line_text('U3', '新品到貨', 'tok') is True
     # fixture products are freshly created -> all count as 新品
     assert 'flex' in sent
@@ -196,3 +196,56 @@ def test_richmenu_spec_areas():
                    for a in spec['areas']) == rm.W * rm.H
         for a in spec['areas']:
             assert a['action']['type'] in ('uri', 'message')
+
+
+def test_wishlist_postback(app, monkeypatch):
+    import memberdb
+    m = memberdb.find_or_create_by_identity(
+        'google', 'wish-test-sub', 'wish@test.dev', '收藏測試員', None)
+    memberdb.set_line_user(m['id'], 'Uwish1')
+    sent = _capture(monkeypatch)
+
+    assert site._handle_line_postback('Uwish1', 'wish:JT0001', 'tok') is True
+    assert '已加入收藏' in sent['text']
+    assert 'JT0001' in memberdb.wishlist_skus(m['id'])
+
+    sent.clear()
+    assert site._handle_line_postback('Uwish1', 'wish:JT0001', 'tok') is True
+    assert '移除' in sent['text']
+
+    # unbound user -> bind prompt
+    sent.clear()
+    assert site._handle_line_postback('Unobody9', 'wish:JT0001', 'tok') is True
+    assert '綁定' in sent['text']
+
+
+def test_tagsearch_postback(app, monkeypatch):
+    sent = _capture(monkeypatch)
+    assert site._handle_line_postback('U1', 'tagsearch:ultramarines', 'tok') is True
+    alt, bubbles = sent['flex']
+    assert '極限戰士' in alt and bubbles
+
+
+def test_search_chips_have_tags(app):
+    chips = site._search_chips()
+    labels = [c['label'] for c in chips]
+    assert '極限戰士' in labels     # faction tag with zh glossary label
+    assert '新品到貨' in labels
+
+
+def test_narrowcast_segments(app):
+    import memberdb
+    import posdb
+    m = memberdb.find_or_create_by_identity(
+        'google', 'seg-test-sub', 'seg@test.dev', '分眾測試員', None)
+    memberdb.set_line_user(m['id'], 'Useg1')
+    memberdb.wishlist_toggle(m['id'], 'JT0002')
+    assert 'Useg1' in memberdb.wishlist_line_user_ids(['JT0002'])
+    # series buyers: fixture POS order is by 0912345678 (series unset -> empty ok)
+    assert isinstance(posdb.series_buyer_phones(['JT0001']), list)
+
+
+def test_showcase_page_renders(client):
+    resp = client.get('/showcase')
+    assert resp.status_code == 200
+    assert '玩家分享'.encode() in resp.data

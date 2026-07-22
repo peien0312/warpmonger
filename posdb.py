@@ -751,6 +751,70 @@ def get_member_legacy_orders(phone):
         conn.close()
 
 
+def get_showcase_entries(limit=24, sku=None):
+    """Published 玩家分享 posts (type='showcase'), newest first. Extra JSON
+    carries images (filenames under media/blog/), product_skus, is_mod,
+    credit. sku filters to entries featuring that product."""
+    conn = _conn()
+    try:
+        rows = conn.execute("""
+            SELECT * FROM storefront_posts WHERE type = 'showcase'
+              AND is_published = 1
+            ORDER BY COALESCE(published_at, created_at) DESC LIMIT 200
+        """).fetchall()
+    finally:
+        conn.close()
+    entries = []
+    for r in rows:
+        try:
+            extra = json.loads(r["extra"] or "{}")
+        except Exception:
+            extra = {}
+        e = {
+            "slug": r["slug"],
+            "title": r["title_zhtw"] or r["title"],
+            "body": r["body"] or "",
+            "images": extra.get("images") or [],
+            "product_skus": extra.get("product_skus") or [],
+            "is_mod": bool(extra.get("is_mod")),
+            "credit": extra.get("credit") or "",
+            "published_at": str(r["published_at"] or r["created_at"] or "")[:10],
+        }
+        if sku and sku not in e["product_skus"]:
+            continue
+        entries.append(e)
+        if len(entries) >= limit:
+            break
+    return entries
+
+
+def series_buyer_phones(skus):
+    """Phones of POS customers who ever bought a product in the same series
+    as any of these SKUs (LINE 廣播 'interested' segment)."""
+    if not skus:
+        return []
+    conn = _conn()
+    try:
+        ph = ",".join("?" * len(skus))
+        series = [r["series"] for r in conn.execute(
+            f"SELECT DISTINCT series FROM products WHERE sku IN ({ph}) "
+            f"AND series IS NOT NULL AND series != ''", list(skus))]
+        if not series:
+            return []
+        sph = ",".join("?" * len(series))
+        rows = conn.execute(f"""
+            SELECT DISTINCT c.phone FROM customers c
+            JOIN orders o ON o.customer_id = c.id
+            JOIN order_items oi ON oi.order_id = o.id
+            JOIN products p ON p.id = oi.product_id
+            WHERE p.series IN ({sph}) AND c.phone IS NOT NULL AND c.phone != ''
+              AND (o.is_deleted IS NULL OR o.is_deleted = 0)
+        """, series).fetchall()
+        return [r["phone"] for r in rows]
+    finally:
+        conn.close()
+
+
 def get_web_order(order_no):
     """A single web order by its order_no — for guest access via magic link
     or the 訂單查詢 lookup. Returns a dict (same shape as get_member_orders

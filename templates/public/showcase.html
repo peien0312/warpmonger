@@ -1,0 +1,68 @@
+{% extends "public/base.html" %}
+
+{% block title %}玩家分享｜ABBEY'S TOYS 阿北玩具堂 – JOYTOY 戰鎚40K 專賣{% endblock %}
+
+{% block meta_description %}玩家收藏與開箱照分享，以及阿北的客製改件、客製塗裝作品。傳照片到官方 LINE，刊登送折價券！{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="showcase-page">
+        <h1>玩家分享</h1>
+        <p class="showcase-intro">
+            玩家的收藏、開箱照，還有阿北的客製改件與塗裝作品。<br>
+            想被刊登嗎？把照片傳到
+            <a href="https://lin.ee/OTxThMe" target="_blank" rel="noopener">官方 LINE</a>
+            ，刊登就送折價券 🎁
+        </p>
+
+        {% if not entries %}
+        <p class="showcase-empty">第一批分享即將登場，敬請期待！</p>
+        {% endif %}
+
+        <div class="showcase-grid">
+            {% for e in entries %}
+            <div class="showcase-card">
+                {% if e.images %}
+                <img src="/static/images/blog/{{ e.images[0] }}" alt="{{ e.title }}" loading="lazy">
+                {% endif %}
+                <div class="showcase-card-body">
+                    <div class="showcase-card-head">
+                        <strong>{{ e.title }}</strong>
+                        {% if e.is_mod %}<span class="tag">客製改件</span>{% endif %}
+                        <span class="showcase-date">{{ e.published_at }}</span>
+                    </div>
+                    {% if e.body %}<p>{{ e.body }}</p>{% endif %}
+                    {% if e.products %}
+                    <div class="showcase-products">
+                        {% for p in e.products %}
+                        <a class="tag tag-link" href="{{ url_prefix }}/products/{{ p.category }}/{{ p.slug }}">
+                            {{ p.zhtw_name or p.title }}</a>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                    {% if e.is_mod %}
+                    <a class="btn-inquiry" href="https://lin.ee/OTxThMe" target="_blank" rel="noopener">
+                        詢問改造 →</a>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<style>
+.showcase-page h1 { margin-bottom: .4rem; }
+.showcase-intro { color: var(--text-muted, #8a8073); margin-bottom: 1.5rem; }
+.showcase-empty { color: var(--text-muted, #8a8073); padding: 3rem 0; text-align: center; }
+.showcase-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.2rem; }
+.showcase-card { border: 1px solid rgba(128,110,80,.25); border-radius: 8px; overflow: hidden; }
+.showcase-card img { width: 100%; aspect-ratio: 1/1; object-fit: cover; display: block; }
+.showcase-card-body { padding: .8rem .9rem 1rem; }
+.showcase-card-head { display: flex; align-items: baseline; gap: .5rem; flex-wrap: wrap; margin-bottom: .3rem; }
+.showcase-date { margin-left: auto; font-size: .78rem; color: var(--text-muted, #8a8073); }
+.showcase-card-body p { font-size: .9rem; margin: .3rem 0 .5rem; }
+.showcase-products { display: flex; flex-wrap: wrap; gap: .35rem; margin-bottom: .5rem; }
+.btn-inquiry { display: inline-block; font-size: .85rem; font-weight: 600; }
+</style>
+{% endblock %}

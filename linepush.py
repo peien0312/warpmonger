@@ -74,6 +74,22 @@ def log_to_pos(payload):
         print(f"line log_to_pos failed: {e}")
 
 
+def _quick_reply(chips):
+    """chips: [{'label', 'text'}] (message action) or [{'label', 'data',
+    'display'}] (postback action) -> LINE quickReply payload."""
+    items = []
+    for c in chips[:13]:
+        if c.get("data"):
+            action = {"type": "postback", "label": c["label"][:20],
+                      "data": c["data"][:300],
+                      "displayText": (c.get("display") or c["label"])[:300]}
+        else:
+            action = {"type": "message", "label": c["label"][:20],
+                      "text": c.get("text") or c["label"]}
+        items.append({"type": "action", "action": action})
+    return {"items": items}
+
+
 def push_text(line_user_id, text):
     r = _api("/v2/bot/message/push", {
         "to": line_user_id,
@@ -84,10 +100,30 @@ def push_text(line_user_id, text):
     return r
 
 
-def reply_text(reply_token, text, line_user_id=None):
+def push_flex(line_user_id, alt_text, bubbles, pretext=None):
+    """One push call (= one quota unit) carrying an optional text line plus
+    the flex carousel."""
+    messages = []
+    if pretext:
+        messages.append({"type": "text", "text": pretext[:4900]})
+    messages.append({"type": "flex", "altText": alt_text[:390],
+                     "contents": {"type": "carousel",
+                                  "contents": bubbles[:12]}})
+    r = _api("/v2/bot/message/push", {
+        "to": line_user_id, "messages": messages,
+    })
+    log_to_pos({"line_user_id": line_user_id, "direction": "out",
+                "msg_type": "text",
+                "text": ((pretext + "\n") if pretext else "") + alt_text[:390]})
+    return r
+
+
+def reply_text(reply_token, text, line_user_id=None, chips=None):
+    msg = {"type": "text", "text": text[:4900]}
+    if chips:
+        msg["quickReply"] = _quick_reply(chips)
     r = _api("/v2/bot/message/reply", {
-        "replyToken": reply_token,
-        "messages": [{"type": "text", "text": text[:4900]}],
+        "replyToken": reply_token, "messages": [msg],
     })
     if line_user_id:
         log_to_pos({"line_user_id": line_user_id, "direction": "out",
@@ -95,14 +131,15 @@ def reply_text(reply_token, text, line_user_id=None):
     return r
 
 
-def reply_flex(reply_token, alt_text, bubbles, line_user_id=None):
+def reply_flex(reply_token, alt_text, bubbles, line_user_id=None, chips=None):
     """Reply with a Flex carousel (list of bubble dicts). alt_text shows in
     push previews and is what lands in the POS chat log."""
+    msg = {"type": "flex", "altText": alt_text[:390],
+           "contents": {"type": "carousel", "contents": bubbles[:12]}}
+    if chips:
+        msg["quickReply"] = _quick_reply(chips)
     r = _api("/v2/bot/message/reply", {
-        "replyToken": reply_token,
-        "messages": [{"type": "flex", "altText": alt_text[:390],
-                      "contents": {"type": "carousel",
-                                   "contents": bubbles[:12]}}],
+        "replyToken": reply_token, "messages": [msg],
     })
     if line_user_id:
         log_to_pos({"line_user_id": line_user_id, "direction": "out",

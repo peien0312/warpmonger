@@ -434,6 +434,41 @@
     </section>
     {% endif %}
 
+    {# 玩家分享 — showcase entries featuring this product #}
+    {% if showcase_entries %}
+    <section class="product-showcase">
+        <h2 class="section-title">玩家分享</h2>
+        <div class="product-showcase-grid">
+            {% for e in showcase_entries %}
+            <div class="product-showcase-card">
+                {% if e.images %}
+                <a href="{{ url_prefix }}/showcase">
+                    <img src="/static/images/blog/{{ e.images[0] }}" alt="{{ e.title }}" loading="lazy">
+                </a>
+                {% endif %}
+                <div class="product-showcase-meta">
+                    <strong>{{ e.title }}</strong>
+                    {% if e.is_mod %}<span class="tag">客製改件</span>{% endif %}
+                    {% if e.body %}<p>{{ e.body }}</p>{% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        <p class="product-showcase-cta">
+            也想分享你的收藏？傳照片到
+            <a href="https://lin.ee/OTxThMe" target="_blank" rel="noopener">官方 LINE</a>，刊登送折價券 🎁
+        </p>
+    </section>
+    <style>
+    .product-showcase { margin: 2rem 0; }
+    .product-showcase-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem; }
+    .product-showcase-card img { width: 100%; aspect-ratio: 1/1; object-fit: cover; border-radius: 6px; }
+    .product-showcase-meta { font-size: .85rem; margin-top: .35rem; }
+    .product-showcase-meta p { margin: .2rem 0 0; color: var(--text-muted, #8a8073); }
+    .product-showcase-cta { margin-top: 1rem; font-size: .9rem; color: var(--text-muted, #8a8073); }
+    </style>
+    {% endif %}
+
     {# Related Products Carousel - 4 items per row, max 4 rows, arrows navigate 4 at a time #}
     {% if related %}
     <section class="related-products-carousel">

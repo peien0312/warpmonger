@@ -1606,6 +1606,12 @@ def product_detail(category, slug):
     _m = current_member()
     my_review = memberdb.get_review(_m['id'], review_sku) if (_m and review_sku) else None
 
+    import posdb as _posdb
+    try:
+        showcase_entries = _posdb.get_showcase_entries(limit=6, sku=review_sku)
+    except Exception:
+        showcase_entries = []
+
     return render_template('public/product-detail.html',
                          product=product,
                          category_name=category_name,
@@ -1614,7 +1620,19 @@ def product_detail(category, slug):
                          review_stats=review_stats,
                          review_sku=review_sku,
                          my_review=my_review,
-                         review_photo_url=_review_photo_url)
+                         review_photo_url=_review_photo_url,
+                         showcase_entries=showcase_entries)
+
+@public_route('/showcase')
+def showcase_page():
+    """玩家分享 — curated customer photos + our mod work, product-tagged."""
+    import posdb as _posdb
+    entries = _posdb.get_showcase_entries(limit=48)
+    by_id = {p['id']: p for p in get_products() if p.get('id')}
+    for e in entries:
+        e['products'] = [by_id[s] for s in e['product_skus'] if s in by_id]
+    return render_template('public/showcase.html', entries=entries)
+
 
 @public_route('/blog')
 def blog_page():
@@ -4208,10 +4226,86 @@ def api_internal_coupon_grant():
     conn.close()
     if not row:
         return jsonify({'success': False, 'error': '找不到會員'}), 404
-    gid = memberdb.grant_coupon(row['id'], code, 'manual', '')
+    source = (data.get('source') or 'manual').strip()[:20]
+    source_ref = str(data.get('source_ref') or '')[:40]
+    gid = memberdb.grant_coupon(row['id'], code, source, source_ref)
     if not gid:
         return jsonify({'success': False, 'error': '已發放過此優惠券'}), 409
-    return jsonify({'success': True})
+    return jsonify({'success': True, 'member_id': row['id']})
+
+
+@app.route('/api/internal/line-push', methods=['POST'])
+def api_internal_line_push():
+    """POS -> push a text straight to a LINE user (the POS chat-log reply
+    box). The push is auto-mirrored back into the POS chat log."""
+    if not _valid_storefront_key(request.headers.get('X-Storefront-Key')):
+        return jsonify({'error': 'bad key'}), 401
+    import linepush
+    data = request.get_json(silent=True) or {}
+    uid = (data.get('line_user_id') or '').strip()
+    text = (data.get('text') or '').strip()
+    if not uid or not text:
+        return jsonify({'success': False, 'error': 'need line_user_id and text'}), 400
+    if not linepush.enabled():
+        return jsonify({'success': False, 'error': 'LINE 未設定'}), 503
+    try:
+        linepush.push_text(uid, text)
+        return jsonify({'success': True})
+    except Exception as e:
+        print(f"internal line push failed: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 502
+
+
+@app.route('/api/internal/narrowcast', methods=['POST'])
+def api_internal_narrowcast():
+    """POS -> segmented product push (LINE 廣播). Segment 'interested' =
+    bound members who wishlisted the SKUs or previously bought the same
+    series; 'all_bound' = every bound member. dry_run returns the count
+    without sending. Recipients capped (quota guard)."""
+    if not _valid_storefront_key(request.headers.get('X-Storefront-Key')):
+        return jsonify({'error': 'bad key'}), 401
+    import linepush
+    import posdb as _posdb
+    data = request.get_json(silent=True) or {}
+    skus = [s.strip().upper() for s in (data.get('skus') or []) if s.strip()]
+    segment = data.get('segment') or 'interested'
+    note = (data.get('note') or '').strip()
+    dry_run = bool(data.get('dry_run'))
+    cap = min(int(data.get('cap') or 50), 200)
+    if not skus:
+        return jsonify({'success': False, 'error': 'need skus'}), 400
+
+    products = [p for p in get_products() if p.get('_pos_sku') in skus
+                or p.get('id') in skus]
+    if not products:
+        return jsonify({'success': False, 'error': '找不到商品（需已上架）'}), 404
+
+    if segment == 'all_bound':
+        uids = memberdb.all_line_user_ids()
+    else:
+        uids = set(memberdb.wishlist_line_user_ids(skus))
+        phones = _posdb.series_buyer_phones(skus)
+        for ph in phones:
+            m = memberdb.find_by_phone(ph)
+            if m and m.get('line_user_id'):
+                uids.add(m['line_user_id'])
+        uids = sorted(uids)
+    total = len(uids)
+    uids = uids[:cap]
+    if dry_run:
+        return jsonify({'success': True, 'count': total, 'will_send': len(uids),
+                        'cap': cap})
+
+    bubbles = [_product_bubble(p) for p in products[:6]]
+    alt = note or f"新品到貨：{products[0].get('zhtw_name') or products[0]['title']}"
+    sent = 0
+    for uid in uids:
+        try:
+            linepush.push_flex(uid, alt, bubbles, pretext=note or None)
+            sent += 1
+        except Exception as e:
+            print(f"narrowcast push failed ({uid}): {e}")
+    return jsonify({'success': True, 'count': total, 'sent': sent})
 
 
 @app.route('/api/internal/notify', methods=['POST'])
@@ -4494,6 +4588,24 @@ def _notify_line_bound(member_id, line_user_id):
         print(f"line bound notify failed: {e}")
 
 
+def _search_chips():
+    """Quick-reply chips: one-tap 陣營 (faction/codex tag) searches, shown
+    with their zh-TW glossary labels, plus the common bot commands."""
+    import posdb as _posdb
+    chips = []
+    try:
+        glossary = _posdb.get_tag_glossary()
+        for tag in _posdb.get_faction_tags()[:8]:
+            chips.append({'label': glossary.get(tag, tag)[:20],
+                          'data': f'tagsearch:{tag}',
+                          'display': f'找 {glossary.get(tag, tag)}'})
+    except Exception as e:
+        print(f'search chips failed: {e}')
+    chips.append({'label': '新品到貨', 'text': '新品到貨'})
+    chips.append({'label': '查訂單', 'text': '查訂單'})
+    return chips
+
+
 def _product_bubble(p):
     """Flex bubble for one posdb product dict (search result card)."""
     url = f"{SITE_URL}/products/{p['category']}/{p['slug']}"
@@ -4513,14 +4625,20 @@ def _product_bubble(p):
                   (f"（{p['available_display']}）" if p.get('available_display') else '')) or '—',
          'size': 'xs', 'color': '#888888'},
     ]
+    title_short = (p.get('zhtw_name') or p.get('title') or '')[:20]
     bubble = {
         'type': 'bubble', 'size': 'kilo',
         'body': {'type': 'box', 'layout': 'vertical', 'spacing': 'sm',
                  'contents': body},
-        'footer': {'type': 'box', 'layout': 'vertical', 'contents': [
-            {'type': 'button', 'style': 'primary', 'height': 'sm',
+        'footer': {'type': 'box', 'layout': 'horizontal', 'spacing': 'sm',
+                   'contents': [
+            {'type': 'button', 'style': 'primary', 'height': 'sm', 'flex': 3,
              'color': '#8B4513',
-             'action': {'type': 'uri', 'label': '查看商品', 'uri': url}}]},
+             'action': {'type': 'uri', 'label': '查看商品', 'uri': url}},
+            {'type': 'button', 'style': 'secondary', 'height': 'sm', 'flex': 2,
+             'action': {'type': 'postback', 'label': '♡ 收藏',
+                        'data': f"wish:{p.get('id') or ''}",
+                        'displayText': f'收藏 {title_short}'}}]},
     }
     if p.get('images'):
         img = (f"{SITE_URL}/static/images/products/{p['category']}/"
@@ -4569,7 +4687,8 @@ def _reply_search(uid, kw, reply_token, rearm=False):
         linepush.reply_text(reply_token,
             f'找不到「{kw}」相關的商品 😢\n'
             f'{"直接再輸入一次關鍵字，或" if rearm else "換個關鍵字試試，或"}到網站逛逛：\n'
-            f'{SITE_URL}/products?search={quote(kw)}', line_user_id=uid)
+            f'{SITE_URL}/products?search={quote(kw)}', line_user_id=uid,
+            chips=_search_chips())
         return True
     bubbles = [_product_bubble(p) for p in hits[:6]]
     if len(hits) > 6:
@@ -4578,7 +4697,7 @@ def _reply_search(uid, kw, reply_token, rearm=False):
             f"{SITE_URL}/products?search={quote(kw)}"))
     linepush.reply_flex(reply_token,
                         f'「{kw}」搜尋結果：{len(hits)} 項商品',
-                        bubbles, line_user_id=uid)
+                        bubbles, line_user_id=uid, chips=_search_chips())
     return True
 
 
@@ -4597,7 +4716,7 @@ def _reply_new_arrivals(uid, reply_token):
         bubbles.append(_link_bubble(
             f'還有 {len(items) - 6} 項新品', '到網站看全部新品', '看全部', url))
     linepush.reply_flex(reply_token, f'新品到貨：{len(items)} 項商品',
-                        bubbles, line_user_id=uid)
+                        bubbles, line_user_id=uid, chips=_search_chips())
     return True
 
 
@@ -4799,6 +4918,93 @@ def _reply_coupons(uid, reply_token):
     return True
 
 
+def _reply_tag_search(uid, tag, reply_token):
+    """Quick-reply chip tap -> products carrying this (faction/codex) tag."""
+    import linepush
+    import posdb as _posdb
+    zh = _posdb.get_tag_glossary().get(tag, tag)
+    hits = [p for p in get_products() if tag in (p.get('tags') or [])]
+    if not hits:
+        linepush.reply_text(reply_token,
+            f'目前沒有「{zh}」的商品，逛逛其他的吧：{SITE_URL}/products',
+            line_user_id=uid, chips=_search_chips())
+        return True
+    bubbles = [_product_bubble(p) for p in hits[:6]]
+    if len(hits) > 6:
+        bubbles.append(_link_bubble(
+            f'還有 {len(hits) - 6} 項', f'網站看全部「{zh}」商品', '看全部',
+            f"{SITE_URL}/products?tag={tag}"))
+    linepush.reply_flex(reply_token, f'「{zh}」：{len(hits)} 項商品',
+                        bubbles, line_user_id=uid, chips=_search_chips())
+    return True
+
+
+def _handle_line_postback(uid, data, reply_token):
+    """Postback taps from cards / quick-reply chips."""
+    import linepush
+    if data.startswith('tagsearch:'):
+        return _reply_tag_search(uid, data.split(':', 1)[1], reply_token)
+    if data.startswith('wish:'):
+        sku = data.split(':', 1)[1].strip()
+        if not sku:
+            return False
+        member = _require_bound_member(uid, reply_token, '收藏商品')
+        if not member:
+            return True
+        added = memberdb.wishlist_toggle(member['id'], sku)
+        if added:
+            linepush.reply_text(reply_token,
+                '已加入收藏 ❤️ 到貨或補貨時會通知您！', line_user_id=uid)
+        else:
+            linepush.reply_text(reply_token,
+                '已從收藏移除。', line_user_id=uid)
+        return True
+    return False
+
+
+def _reply_mod_intro(uid, reply_token):
+    """改造 keyword -> showcase cards when entries exist, else the pitch."""
+    import linepush
+    import posdb as _posdb
+    entries = []
+    try:
+        entries = _posdb.get_showcase_entries(limit=5)
+    except Exception:
+        pass
+    cta = ('想改造自己的模型嗎？直接把照片傳到這裡，老闆會跟您討論做法與報價 🛠️\n'
+           f'作品集：{SITE_URL}/showcase')
+    if not entries:
+        linepush.reply_text(reply_token,
+            '我們提供 JOYTOY 模型的客製改件與塗裝服務（3D 列印配件、舊化、客製塗裝）。\n\n' + cta,
+            line_user_id=uid)
+        return True
+    bubbles = []
+    for e in entries:
+        b = {
+            'type': 'bubble', 'size': 'kilo',
+            'body': {'type': 'box', 'layout': 'vertical', 'spacing': 'sm',
+                     'contents': [
+                {'type': 'text', 'text': e.get('title') or '玩家分享',
+                 'weight': 'bold', 'size': 'sm', 'wrap': True}]},
+            'footer': {'type': 'box', 'layout': 'vertical', 'contents': [
+                {'type': 'button', 'style': 'primary', 'height': 'sm',
+                 'color': '#8B4513',
+                 'action': {'type': 'uri', 'label': '看作品',
+                            'uri': f"{SITE_URL}/showcase"}}]},
+        }
+        if e.get('images'):
+            b['hero'] = {'type': 'image',
+                         'url': f"{SITE_URL}/static/images/blog/{e['images'][0]}",
+                         'size': 'full', 'aspectRatio': '1:1',
+                         'aspectMode': 'cover'}
+        bubbles.append(b)
+    bubbles.append(_link_bubble('想改造自己的？', '傳照片給老闆討論做法與報價',
+                                '看全部作品', f'{SITE_URL}/showcase'))
+    linepush.reply_flex(reply_token, '玩家分享／改造作品', bubbles,
+                        line_user_id=uid)
+    return True
+
+
 def _handle_line_text(uid, text, reply_token):
     """Bot behavior for one inbound text message. Returns True when the bot
     replied (binding codes are handled separately in the webhook)."""
@@ -4808,11 +5014,14 @@ def _handle_line_text(uid, text, reply_token):
         return _reply_orders(uid, reply_token)
     if t in ('我的優惠券', '優惠券', '折價券'):
         return _reply_coupons(uid, reply_token)
+    if t in ('改造', '客製', '改件', '客製改件'):
+        return _reply_mod_intro(uid, reply_token)
     if t == '商品查詢':
         memberdb.set_line_search_mode(uid)
         linepush.reply_text(reply_token,
             '想找什麼商品呢？直接輸入商品名稱幫您查詢，例如：暗源\n\n'
-            '（也可以隨時輸入「找 商品名稱」查詢）', line_user_id=uid)
+            '（也可以隨時輸入「找 商品名稱」查詢，或點下面的陣營直接看）',
+            line_user_id=uid, chips=_search_chips())
         return True
     if t == '我想詢問':
         linepush.reply_text(reply_token,
@@ -4894,6 +5103,14 @@ def line_webhook():
                     '歡迎加入阿北玩具堂！\n\n如果您是網站會員，到會員中心取得「綁定碼」並傳給我，'
                     f'之後到貨通知、訂單通知都會從這裡傳給您。\n\n{SITE_URL}/account',
                     line_user_id=uid)
+                continue
+            if ev.get('type') == 'postback' and uid:
+                data = (ev.get('postback') or {}).get('data') or ''
+                _handle_line_postback(uid, data, ev['replyToken'])
+                import linepush as _lp
+                _lp.log_to_pos({'line_user_id': uid, 'direction': 'in',
+                                'msg_type': 'text', 'text': f'（點選：{data}）',
+                                'timestamp_ms': ev.get('timestamp')})
                 continue
             if ev.get('type') != 'message' or not uid:
                 continue
