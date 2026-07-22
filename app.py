@@ -3710,6 +3710,46 @@ def auth_google_callback():
 
 LINE_LOGIN_CHANNEL_ID = os.environ.get('LINE_LOGIN_CHANNEL_ID', '')
 LINE_LOGIN_CHANNEL_SECRET = os.environ.get('LINE_LOGIN_CHANNEL_SECRET', '')
+# Request the email scope only after the LINE Login channel has been granted
+# the "Email address permission" in the LINE Developers console — requesting
+# it without the grant 400s the whole authorize redirect.
+LINE_LOGIN_EMAIL_SCOPE = os.environ.get('LINE_LOGIN_EMAIL_SCOPE') == '1'
+
+
+def _line_id_token_email(id_token):
+    """Email claim from a LINE Login id_token. LINE signs it HS256 with the
+    channel secret, so we can verify locally. None when absent/invalid."""
+    try:
+        import hmac as _hmac
+        import hashlib as _hashlib
+        h, p, s = id_token.split('.')
+
+        def _un(x):
+            return base64.urlsafe_b64decode(x + '=' * (-len(x) % 4))
+
+        mac = _hmac.new(LINE_LOGIN_CHANNEL_SECRET.encode(),
+                        f'{h}.{p}'.encode(), _hashlib.sha256).digest()
+        if not _hmac.compare_digest(mac, _un(s)):
+            return None
+        return (json.loads(_un(p)) or {}).get('email')
+    except Exception:
+        return None
+
+
+def _resolve_line_member(user_id, email, name, picture):
+    """Fresh-LINE-login membership with auto-merge. An unseen LINE identity
+    first tries to attach to (a) the member already 綁定碼-bound to this
+    LINE user, else (b) the single member with the same LINE-verified email
+    — instead of minting a duplicate account. Falls back to normal
+    find-or-create (identity already known, or no match)."""
+    if not memberdb.member_by_identity('line', user_id):
+        target = (memberdb.member_by_line_user(user_id)
+                  or memberdb.find_by_email(email))
+        if target:
+            memberdb.link_identity(target['id'], 'line', user_id,
+                                   email, name, picture)
+    return memberdb.find_or_create_by_identity('line', user_id,
+                                               email, name, picture)
 
 
 def _in_line_browser():
@@ -3778,7 +3818,7 @@ def auth_line():
         'client_id': LINE_LOGIN_CHANNEL_ID,
         'redirect_uri': request.url_root.rstrip('/') + '/auth/line/callback',
         'state': state,
-        'scope': 'profile openid',
+        'scope': 'profile openid email' if LINE_LOGIN_EMAIL_SCOPE else 'profile openid',
         'bot_prompt': 'aggressive',   # prompt adding the 官方帳號 as friend
     }
     if request.args.get('noauto'):
@@ -3827,18 +3867,19 @@ def auth_line_callback():
     except Exception as e:
         print(f"line login failed: {e}")
         return "LINE 登入失敗，請重試", 502
+    line_email = _line_id_token_email(tokens.get('id_token') or '')
     current = current_member()
     if session.pop('link_mode', False) and current:
         was_bound = current.get('line_user_id') == prof['userId']
         result = memberdb.link_identity(
             current['id'], 'line', prof['userId'],
-            None, prof.get('displayName'), prof.get('pictureUrl'))
+            line_email, prof.get('displayName'), prof.get('pictureUrl'))
         memberdb.set_line_user(current['id'], prof['userId'])
         if not was_bound:
             _notify_line_bound(current['id'], prof['userId'])
         return redirect(f'/account?link={result}')
-    member = memberdb.find_or_create_by_identity(
-        'line', prof['userId'], None, prof.get('displayName'), prof.get('pictureUrl'))
+    member = _resolve_line_member(
+        prof['userId'], line_email, prof.get('displayName'), prof.get('pictureUrl'))
     # LINE login binds notifications automatically
     was_bound = member.get('line_user_id') == prof['userId']
     memberdb.set_line_user(member['id'], prof['userId'])

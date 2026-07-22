@@ -522,6 +522,31 @@ def find_or_create_by_identity(provider, subject, email, name, picture):
     return m
 
 
+def member_by_identity(provider, subject):
+    """Lookup-only twin of find_or_create_by_identity (no side effects)."""
+    conn = _conn()
+    row = conn.execute("""
+        SELECT m.* FROM members m
+        JOIN member_identities i ON i.member_id = m.id
+        WHERE i.provider = ? AND i.subject = ?
+    """, (provider, subject)).fetchone()
+    conn.close()
+    return dict(row) if row else None
+
+
+def find_by_email(email):
+    """The single member with this email, or None (ambiguous/absent).
+    Used for login auto-merge, so it refuses to guess between duplicates."""
+    if not email:
+        return None
+    conn = _conn()
+    rows = conn.execute(
+        "SELECT * FROM members WHERE LOWER(email) = LOWER(?)",
+        (email.strip(),)).fetchall()
+    conn.close()
+    return dict(rows[0]) if len(rows) == 1 else None
+
+
 def identities_for(member_id):
     conn = _conn()
     rows = conn.execute(

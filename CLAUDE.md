@@ -85,6 +85,15 @@ code kept for rollback (name-rebound to `posdb.*` at the bottom of app.py).
 - LINE notification binding: LINE Login binds automatically; Google-only
   members send their 綁定碼 (shown on /account) to the OA — handled by
   `/line/webhook` (signature-verified with LINE_CHANNEL_SECRET).
+- LINE-login auto-merge (`_resolve_line_member`): a fresh LINE login whose
+  identity is unseen attaches to the member already 綁定碼-bound to that
+  LINE user, else to the SINGLE member with the same LINE-verified email
+  (id_token HS256-verified locally; ambiguous email -> no merge), instead
+  of creating a duplicate account. Email arrives only when
+  `LINE_LOGIN_EMAIL_SCOPE=1` AND the LINE Login channel has the console
+  "Email address permission" — setting the env without the grant 400s the
+  authorize redirect. 綁定碼 stays as the fallback for
+  different-email/no-email cases.
 - Chat-log mirror: the webhook forwards every inbound OA message (text +
   images fetched from LINE's content API) to the POS at
   `POST /api/storefront/line-messages` (key-authed, best-effort);
