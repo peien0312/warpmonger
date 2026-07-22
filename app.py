@@ -4477,20 +4477,19 @@ def _product_bubble(p):
     return bubble
 
 
-def _more_results_bubble(keyword, extra):
-    from urllib.parse import quote
+def _link_bubble(title, sub, label, uri):
+    """Trailing 看全部-style card at the end of a carousel."""
     return {
         'type': 'bubble', 'size': 'kilo',
         'body': {'type': 'box', 'layout': 'vertical', 'spacing': 'sm',
                  'justifyContent': 'center', 'contents': [
-            {'type': 'text', 'text': f'還有 {extra} 項結果', 'weight': 'bold',
-             'size': 'sm', 'align': 'center'},
-            {'type': 'text', 'text': '到網站看完整搜尋結果', 'size': 'xs',
+            {'type': 'text', 'text': title, 'weight': 'bold',
+             'size': 'sm', 'align': 'center', 'wrap': True},
+            {'type': 'text', 'text': sub, 'size': 'xs',
              'color': '#888888', 'align': 'center'}]},
         'footer': {'type': 'box', 'layout': 'vertical', 'contents': [
             {'type': 'button', 'style': 'secondary', 'height': 'sm',
-             'action': {'type': 'uri', 'label': '看全部',
-                        'uri': f"{SITE_URL}/products?search={quote(keyword)}"}}]},
+             'action': {'type': 'uri', 'label': label, 'uri': uri}}]},
     }
 
 
@@ -4504,41 +4503,80 @@ def _parse_search_keyword(text):
     return None
 
 
+def _reply_search(uid, kw, reply_token, rearm=False):
+    """Search products and reply a card carousel. rearm: keep search mode
+    armed on a miss so the user can just type another keyword."""
+    import linepush
+    from urllib.parse import quote
+    hits = get_products(search=kw)
+    if not hits:
+        if rearm:
+            memberdb.set_line_search_mode(uid)
+        linepush.reply_text(reply_token,
+            f'找不到「{kw}」相關的商品 😢\n'
+            f'{"直接再輸入一次關鍵字，或" if rearm else "換個關鍵字試試，或"}到網站逛逛：\n'
+            f'{SITE_URL}/products?search={quote(kw)}', line_user_id=uid)
+        return True
+    bubbles = [_product_bubble(p) for p in hits[:6]]
+    if len(hits) > 6:
+        bubbles.append(_link_bubble(
+            f'還有 {len(hits) - 6} 項結果', '到網站看完整搜尋結果', '看全部',
+            f"{SITE_URL}/products?search={quote(kw)}"))
+    linepush.reply_flex(reply_token,
+                        f'「{kw}」搜尋結果：{len(hits)} 項商品',
+                        bubbles, line_user_id=uid)
+    return True
+
+
+def _reply_new_arrivals(uid, reply_token):
+    """新品到貨 menu tap -> newest arrivals as cards, right in the chat."""
+    import linepush
+    url = f"{SITE_URL}/products?new_arrival=true"
+    items = [p for p in get_products() if p.get('is_new_arrival')]
+    items.sort(key=lambda p: str(p.get('created_at') or ''), reverse=True)
+    if not items:
+        linepush.reply_text(reply_token,
+            f'最近沒有新品上架，先到網站逛逛吧：{url}', line_user_id=uid)
+        return True
+    bubbles = [_product_bubble(p) for p in items[:6]]
+    if len(items) > 6:
+        bubbles.append(_link_bubble(
+            f'還有 {len(items) - 6} 項新品', '到網站看全部新品', '看全部', url))
+    linepush.reply_flex(reply_token, f'新品到貨：{len(items)} 項商品',
+                        bubbles, line_user_id=uid)
+    return True
+
+
 def _handle_line_text(uid, text, reply_token):
     """Bot behavior for one inbound text message. Returns True when the bot
     replied (binding codes are handled separately in the webhook)."""
     import linepush
     t = (text or '').strip()
     if t == '商品查詢':
+        memberdb.set_line_search_mode(uid)
         linepush.reply_text(reply_token,
-            '想找什麼商品呢？輸入「找 商品名稱」幫您查詢，例如：\n\n找 暗源\n找 劍聖\n\n'
-            f'也可以直接逛網站：{SITE_URL}/products', line_user_id=uid)
+            '想找什麼商品呢？直接輸入商品名稱幫您查詢，例如：暗源\n\n'
+            '（也可以隨時輸入「找 商品名稱」查詢）', line_user_id=uid)
         return True
     if t == '我想詢問':
         linepush.reply_text(reply_token,
             '請直接留言，老闆看到會盡快回覆您 🙏', line_user_id=uid)
         return True
+    if t in ('新品到貨', '逛新品', '新品'):
+        return _reply_new_arrivals(uid, reply_token)
     kw = _parse_search_keyword(t)
-    if not kw:
-        return False
-    if kw in ('訂單', '我的訂單'):
-        linepush.reply_text(reply_token,
-            f'訂單記錄請到會員中心查看：{SITE_URL}/account', line_user_id=uid)
-        return True
-    hits = get_products(search=kw)
-    if not hits:
-        from urllib.parse import quote
-        linepush.reply_text(reply_token,
-            f'找不到「{kw}」相關的商品 😢\n換個關鍵字試試，或到網站逛逛：\n'
-            f'{SITE_URL}/products?search={quote(kw)}', line_user_id=uid)
-        return True
-    bubbles = [_product_bubble(p) for p in hits[:6]]
-    if len(hits) > 6:
-        bubbles.append(_more_results_bubble(kw, len(hits) - 6))
-    linepush.reply_flex(reply_token,
-                        f'「{kw}」搜尋結果：{len(hits)} 項商品',
-                        bubbles, line_user_id=uid)
-    return True
+    if kw:
+        if kw in ('訂單', '我的訂單'):
+            linepush.reply_text(reply_token,
+                f'訂單記錄請到會員中心查看：{SITE_URL}/account', line_user_id=uid)
+            return True
+        return _reply_search(uid, kw, reply_token)
+    # one-shot search mode from the 商品查詢 button: the next short message
+    # is the keyword; long texts read as chat for the human and end the mode
+    if memberdb.pop_line_search_mode(uid):
+        if len(t) <= 20:
+            return _reply_search(uid, t, reply_token, rearm=True)
+    return False
 
 
 # LINE profile display names, cached per process (profile rarely changes;

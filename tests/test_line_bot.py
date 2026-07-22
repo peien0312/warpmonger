@@ -51,10 +51,6 @@ def test_handle_line_text_search(app, monkeypatch):
     assert '找不到' in sent['text']
 
     sent.clear()
-    assert site._handle_line_text('U1', '商品查詢', 'tok') is True
-    assert '找 ' in sent['text']
-
-    sent.clear()
     assert site._handle_line_text('U1', '查 訂單', 'tok') is True
     assert '/account' in sent['text']
 
@@ -62,6 +58,57 @@ def test_handle_line_text_search(app, monkeypatch):
     sent.clear()
     assert site._handle_line_text('U1', '老闆您好請問改造', 'tok') is False
     assert not sent
+
+
+def test_search_mode_after_button(app, monkeypatch):
+    sent = {}
+    import linepush
+    monkeypatch.setattr(linepush, 'reply_flex',
+                        lambda tok, alt, b, line_user_id=None: sent.__setitem__('flex', (alt, b)))
+    monkeypatch.setattr(linepush, 'reply_text',
+                        lambda tok, text, line_user_id=None: sent.__setitem__('text', text))
+
+    # 商品查詢 arms search mode -> next bare message is the keyword
+    assert site._handle_line_text('U2', '商品查詢', 'tok') is True
+    assert '輸入商品名稱' in sent['text']
+    kw = (site.get_products()[0].get('zhtw_name') or site.get_products()[0]['title'])[:3]
+    sent.clear()
+    assert site._handle_line_text('U2', kw, 'tok') is True
+    assert 'flex' in sent
+
+    # mode is one-shot: same message again is plain chat now
+    sent.clear()
+    assert site._handle_line_text('U2', kw, 'tok') is False
+
+    # a miss re-arms the mode so the next keyword still searches
+    site._handle_line_text('U2', '商品查詢', 'tok')
+    sent.clear()
+    assert site._handle_line_text('U2', 'zzz沒有這個zzz', 'tok') is True
+    assert '找不到' in sent['text']
+    sent.clear()
+    assert site._handle_line_text('U2', kw, 'tok') is True
+    assert 'flex' in sent
+
+    # long text while armed -> chat for the human, mode consumed
+    site._handle_line_text('U2', '商品查詢', 'tok')
+    sent.clear()
+    assert site._handle_line_text(
+        'U2', '老闆您好我想問上次那個改造的進度大概什麼時候好', 'tok') is False
+    assert not sent
+
+
+def test_new_arrivals_cards(app, monkeypatch):
+    sent = {}
+    import linepush
+    monkeypatch.setattr(linepush, 'reply_flex',
+                        lambda tok, alt, b, line_user_id=None: sent.__setitem__('flex', (alt, b)))
+    monkeypatch.setattr(linepush, 'reply_text',
+                        lambda tok, text, line_user_id=None: sent.__setitem__('text', text))
+    assert site._handle_line_text('U3', '新品到貨', 'tok') is True
+    # fixture products are freshly created -> all count as 新品
+    assert 'flex' in sent
+    alt, bubbles = sent['flex']
+    assert '新品' in alt and bubbles
 
 
 def test_richmenu_spec_areas():

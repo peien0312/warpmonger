@@ -97,11 +97,15 @@ code kept for rollback (name-rebound to `posdb.*` at the bottom of app.py).
   the all-users default; `abbeys-member` is linked per-user on bind
   (`_on_line_bound`), resolved by menu NAME at runtime — no IDs stored.
   `--link-existing` backfills already-bound members.
-- OA bot (`_handle_line_text`): 「商品查詢」→ usage hint; 「找/查/搜尋 +
-  關鍵字」→ Flex carousel of up to 6 posdb search hits (photo, 售價/會員價,
-  availability, product link) + a 看全部 bubble; 「我想詢問」→ canned ack.
-  Replies consume no push quota. Non-command text gets no bot reply (it
-  goes to the chat log for the human).
+- OA bot (`_handle_line_text`): 「商品查詢」 arms a one-shot 5-min search
+  mode (`memberdb.line_state`) — the next message ≤20 chars is the keyword
+  (a miss re-arms; longer text falls through to chat and ends the mode);
+  「找/查/搜尋 + 關鍵字」 searches any time. Results reply a Flex carousel
+  of up to 6 posdb hits (photo, 售價/會員價, availability, product link)
+  + a 看全部 bubble. 「新品到貨」(the 新品 menu cells send this) → same
+  card carousel of is_new_arrival products, newest first. 「我想詢問」→
+  canned ack. Replies consume no push quota; other text gets no bot reply
+  (it goes to the chat log for the human).
 - 綁定禮: POS coupon with `auto_grant=line_bind` is granted once on first
   LINE bind (both the binding-code and LINE-Login paths call
   `_on_line_bound`, which also switches the rich menu). The webhook path

@@ -144,6 +144,10 @@ def init():
             ON blog_views(post_slug, created_at);
         CREATE INDEX IF NOT EXISTS idx_blog_views_created
             ON blog_views(created_at);
+        CREATE TABLE IF NOT EXISTS line_state (
+            line_user_id TEXT PRIMARY KEY,
+            search_until REAL   -- epoch; OA bot 商品查詢 one-shot search mode
+        );
     """)
     # backfill identities from the legacy google_sub column
     # ("line:<uid>" rows were LINE logins, everything else Google)
@@ -417,6 +421,33 @@ def all_line_user_ids():
         "SELECT line_user_id FROM members WHERE line_user_id IS NOT NULL").fetchall()
     conn.close()
     return [r["line_user_id"] for r in rows]
+
+
+def set_line_search_mode(line_user_id, ttl_seconds=300):
+    """Arm the OA bot's search mode: this user's next short message is
+    treated as a product-search keyword (works for non-members too)."""
+    import time
+    conn = _conn()
+    conn.execute(
+        "INSERT INTO line_state (line_user_id, search_until) VALUES (?, ?) "
+        "ON CONFLICT(line_user_id) DO UPDATE SET search_until = excluded.search_until",
+        (line_user_id, time.time() + ttl_seconds))
+    conn.commit()
+    conn.close()
+
+
+def pop_line_search_mode(line_user_id):
+    """Consume search mode; True when it was armed and not expired."""
+    import time
+    conn = _conn()
+    row = conn.execute("SELECT search_until FROM line_state WHERE line_user_id = ?",
+                       (line_user_id,)).fetchone()
+    if row:
+        conn.execute("DELETE FROM line_state WHERE line_user_id = ?",
+                     (line_user_id,))
+        conn.commit()
+    conn.close()
+    return bool(row and (row["search_until"] or 0) >= time.time())
 
 
 def unbind_line(member_id):
