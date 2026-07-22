@@ -69,6 +69,18 @@ async def main():
                                      body="lore", is_published=True))
         db.add(models.Coupon(code="TESTC", kind="fixed", amount_twd=50,
                              active=True))
+        # web order for the LINE-bot 查訂單 flow (member matched by phone)
+        wo = models.WebOrder(order_no="AB260722-001", name="測試客戶",
+                             phone="0912345678", email="member@test.dev",
+                             delivery_method="711", payment_method="cod",
+                             status="新單", payment_status="待付款",
+                             shipping_fee_twd=60)
+        db.add(wo)
+        await db.flush()
+        db.add(models.WebOrderItem(web_order_id=wo.id,
+                                   product_id=prods["JT0001"].id,
+                                   quantity=2, unit_price_twd=1500,
+                                   availability="in_stock"))
         await db.commit()
 
 asyncio.run(main())

@@ -4547,11 +4547,160 @@ def _reply_new_arrivals(uid, reply_token):
     return True
 
 
+def _require_bound_member(uid, reply_token, what):
+    """Member dict for a bound LINE user, else reply a bind prompt (the
+    funnel: mention the 綁定禮) and return None."""
+    import linepush
+    member = memberdb.member_by_line_user(uid)
+    if member:
+        return member
+    linepush.reply_text(reply_token,
+        f'要{what}需要先綁定會員（首次綁定送折價券 🎁）\n\n'
+        f'用 LINE 登入網站即可自動綁定：\n{SITE_URL}/account',
+        line_user_id=uid)
+    return None
+
+
+def _order_bubble(o):
+    """Flex bubble for one web order (posdb.get_member_orders dict)."""
+    from datetime import datetime, timedelta
+    try:
+        day = (datetime.fromisoformat(str(o.get('created_at'))[:19])
+               + timedelta(hours=8)).strftime('%Y-%m-%d')
+    except Exception:
+        day = str(o.get('created_at') or '')[:10]
+
+    grand = max(0, sum((it.get('unit_price_twd') or 0) * (it.get('quantity') or 0)
+                       for it in o.get('items') or [])
+                + (o.get('shipping_fee_twd') or 0)
+                - (o.get('discount_twd') or 0)
+                - (o.get('coupon_discount_twd') or 0))
+
+    pay = o.get('payment_status') or ''
+    pay_color = {'已付款': '#2D6A4F', '貨到付款': '#2D6A4F'}.get(pay, '#B71C1C')
+    status_bits = [b for b in ([o.get('status')] + (o.get('fulfillment') or []))
+                   if b and b != '已轉單']
+    contents = [
+        {'type': 'text', 'text': o.get('order_no') or '訂單',
+         'weight': 'bold', 'size': 'sm'},
+        {'type': 'text', 'text': f"{day}｜{'、'.join(status_bits) or '處理中'}",
+         'size': 'xs', 'color': '#888888', 'wrap': True},
+        {'type': 'separator', 'margin': 'sm'},
+    ]
+    items = o.get('items') or []
+    for it in items[:3]:
+        name = it.get('zhtw_name') or it.get('en_name') or it.get('sku') or '商品'
+        contents.append({'type': 'text',
+                         'text': f"{name[:30]} ×{it.get('quantity') or 1}",
+                         'size': 'xs', 'wrap': True, 'margin': 'sm'})
+    if len(items) > 3:
+        contents.append({'type': 'text', 'text': f'…共 {len(items)} 項商品',
+                         'size': 'xs', 'color': '#888888'})
+    contents.append({'type': 'separator', 'margin': 'sm'})
+    contents.append({'type': 'box', 'layout': 'baseline', 'margin': 'sm',
+                     'contents': [
+        {'type': 'text', 'text': f'NT${int(grand):,}', 'weight': 'bold',
+         'size': 'sm', 'flex': 0},
+        {'type': 'text',
+         'text': pay + (f'（尚需 NT${int(o["amount_due"]):,}）'
+                        if o.get('amount_due') else ''),
+         'size': 'xs', 'color': pay_color, 'align': 'end'}]})
+    for sc in (o.get('shipping_codes') or [])[:2]:
+        contents.append({'type': 'text',
+                         'text': f"取貨代碼：{sc.get('code')}"
+                                 + (f"（{sc.get('type')}）" if sc.get('type') else ''),
+                         'size': 'xs', 'color': '#2D6A4F', 'wrap': True})
+    return {
+        'type': 'bubble', 'size': 'kilo',
+        'body': {'type': 'box', 'layout': 'vertical', 'spacing': 'xs',
+                 'contents': contents},
+        'footer': {'type': 'box', 'layout': 'vertical', 'contents': [
+            {'type': 'button', 'style': 'primary', 'height': 'sm',
+             'color': '#8B4513',
+             'action': {'type': 'uri', 'label': '查看訂單',
+                        'uri': f"{SITE_URL}/order/{o.get('order_no')}"
+                               f"?t={_order_token(o.get('order_no'))}"}}]},
+    }
+
+
+def _reply_orders(uid, reply_token):
+    """查訂單 tap -> the member's recent web orders as cards."""
+    import linepush
+    import posdb as _posdb
+    member = _require_bound_member(uid, reply_token, '查詢訂單')
+    if not member:
+        return True
+    orders = _posdb.get_member_orders(member.get('email'), member.get('phone'))
+    live = [o for o in orders if o.get('status') != '已取消'] or orders
+    if not live:
+        linepush.reply_text(reply_token,
+            f'目前沒有訂單記錄，去網站逛逛吧：{SITE_URL}/products',
+            line_user_id=uid)
+        return True
+    bubbles = [_order_bubble(o) for o in live[:5]]
+    bubbles.append(_link_bubble('完整訂單記錄', '含更早的訂單與退貨',
+                                '前往會員中心', f'{SITE_URL}/account'))
+    linepush.reply_flex(reply_token, f'訂單查詢：{len(live)} 筆',
+                        bubbles, line_user_id=uid)
+    return True
+
+
+def _coupon_bubble(c):
+    return {
+        'type': 'bubble', 'size': 'kilo',
+        'body': {'type': 'box', 'layout': 'vertical', 'spacing': 'xs',
+                 'contents': [
+            {'type': 'text', 'text': c.get('title') or c.get('code') or '優惠券',
+             'weight': 'bold', 'size': 'sm', 'wrap': True},
+            {'type': 'text', 'text': f"折 NT${int(c.get('discount_twd') or 0):,}",
+             'weight': 'bold', 'size': 'xl', 'color': '#B71C1C'},
+            {'type': 'text',
+             'text': (f"低消 NT${int(c['min_spend_twd']):,}"
+                      if c.get('min_spend_twd') else '無低消'),
+             'size': 'xs', 'color': '#888888'},
+            {'type': 'text',
+             'text': (f"效期至 {c['valid_until']}" if c.get('valid_until')
+                      else '無使用期限'),
+             'size': 'xs', 'color': '#888888'}]},
+        'footer': {'type': 'box', 'layout': 'vertical', 'contents': [
+            {'type': 'button', 'style': 'primary', 'height': 'sm',
+             'color': '#8B4513',
+             'action': {'type': 'uri', 'label': '去逛逛',
+                        'uri': f'{SITE_URL}/products'}}]},
+    }
+
+
+def _reply_coupons(uid, reply_token):
+    """我的優惠券 tap -> usable coupons as cards (結帳時自動帶入)."""
+    import linepush
+    member = _require_bound_member(uid, reply_token, '查詢優惠券')
+    if not member:
+        return True
+    usable = [c for c in _account_coupons(member['id'])
+              if c.get('disp_status') == 'granted']
+    if not usable:
+        linepush.reply_text(reply_token,
+            f'目前沒有可用的優惠券。完整記錄請看會員中心：{SITE_URL}/account',
+            line_user_id=uid)
+        return True
+    bubbles = [_coupon_bubble(c) for c in usable[:6]]
+    bubbles.append(_link_bubble('優惠券記錄', '含已使用與過期的', '前往會員中心',
+                                f'{SITE_URL}/account'))
+    linepush.reply_flex(reply_token,
+                        f'可用優惠券：{len(usable)} 張（結帳時選用）',
+                        bubbles, line_user_id=uid)
+    return True
+
+
 def _handle_line_text(uid, text, reply_token):
     """Bot behavior for one inbound text message. Returns True when the bot
     replied (binding codes are handled separately in the webhook)."""
     import linepush
     t = (text or '').strip()
+    if t in ('查訂單', '訂單查詢', '我的訂單', '訂單'):
+        return _reply_orders(uid, reply_token)
+    if t in ('我的優惠券', '優惠券', '折價券'):
+        return _reply_coupons(uid, reply_token)
     if t == '商品查詢':
         memberdb.set_line_search_mode(uid)
         linepush.reply_text(reply_token,
@@ -4567,9 +4716,7 @@ def _handle_line_text(uid, text, reply_token):
     kw = _parse_search_keyword(t)
     if kw:
         if kw in ('訂單', '我的訂單'):
-            linepush.reply_text(reply_token,
-                f'訂單記錄請到會員中心查看：{SITE_URL}/account', line_user_id=uid)
-            return True
+            return _reply_orders(uid, reply_token)
         return _reply_search(uid, kw, reply_token)
     # one-shot search mode from the 商品查詢 button: the next short message
     # is the keyword; long texts read as chat for the human and end the mode

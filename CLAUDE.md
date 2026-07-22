@@ -103,9 +103,14 @@ code kept for rollback (name-rebound to `posdb.*` at the bottom of app.py).
   「找/查/搜尋 + 關鍵字」 searches any time. Results reply a Flex carousel
   of up to 6 posdb hits (photo, 售價/會員價, availability, product link)
   + a 看全部 bubble. 「新品到貨」(the 新品 menu cells send this) → same
-  card carousel of is_new_arrival products, newest first. 「我想詢問」→
-  canned ack. Replies consume no push quota; other text gets no bot reply
-  (it goes to the chat log for the human).
+  card carousel of is_new_arrival products, newest first. 「查訂單」→ the
+  bound member's web orders as cards (items, total, payment/fulfillment,
+  取貨代碼, magic-link 查看訂單 button) via posdb.get_member_orders;
+  「我的優惠券」→ usable coupons as cards (_account_coupons, disp_status
+  granted). Both prompt unbound users to bind (綁定禮 funnel) and end with
+  a 前往會員中心 card. 「我想詢問」→ canned ack. Replies consume no push
+  quota; other text gets no bot reply (it goes to the chat log for the
+  human).
 - 綁定禮: POS coupon with `auto_grant=line_bind` is granted once on first
   LINE bind (both the binding-code and LINE-Login paths call
   `_on_line_bound`, which also switches the rich menu). The webhook path

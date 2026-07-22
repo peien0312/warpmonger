@@ -97,6 +97,70 @@ def test_search_mode_after_button(app, monkeypatch):
     assert not sent
 
 
+def _capture(monkeypatch):
+    sent = {}
+    import linepush
+    monkeypatch.setattr(linepush, 'reply_flex',
+                        lambda tok, alt, b, line_user_id=None: sent.__setitem__('flex', (alt, b)))
+    monkeypatch.setattr(linepush, 'reply_text',
+                        lambda tok, text, line_user_id=None: sent.__setitem__('text', text))
+    return sent
+
+
+def test_orders_and_coupons_need_binding(app, monkeypatch):
+    sent = _capture(monkeypatch)
+    assert site._handle_line_text('Unobody', '查訂單', 'tok') is True
+    assert '綁定' in sent['text'] and '/account' in sent['text']
+    sent.clear()
+    assert site._handle_line_text('Unobody', '我的優惠券', 'tok') is True
+    assert '綁定' in sent['text']
+
+
+def test_orders_carousel(app, monkeypatch):
+    import memberdb
+    m = memberdb.find_or_create_by_identity(
+        'google', 'order-test-sub', 'member@test.dev', '訂單測試員', None)
+    memberdb.set_line_user(m['id'], 'Uorders')
+    conn = memberdb._conn()
+    conn.execute("UPDATE members SET phone = ? WHERE id = ?",
+                 ('0912345678', m['id']))
+    conn.commit()
+    conn.close()
+
+    sent = _capture(monkeypatch)
+    assert site._handle_line_text('Uorders', '查訂單', 'tok') is True
+    alt, bubbles = sent['flex']
+    assert '訂單查詢' in alt
+    # order card + trailing 會員中心 card
+    assert len(bubbles) == 2
+    body_text = str(bubbles[0])
+    assert 'AB260722-001' in body_text
+    assert '現貨測試品' in body_text          # item list inside the card
+    assert 'NT$3,060' in body_text            # 1500*2 + 60 運費
+    uri = bubbles[0]['footer']['contents'][0]['action']['uri']
+    assert '/order/AB260722-001?t=' in uri    # magic-link, no login needed
+    assert '/account' in str(bubbles[-1])
+
+
+def test_coupons_carousel(app, monkeypatch):
+    import memberdb
+    m = memberdb.find_or_create_by_identity(
+        'google', 'coupon-test-sub', 'coupon@test.dev', '優惠券測試員', None)
+    memberdb.set_line_user(m['id'], 'Ucoupons')
+
+    sent = _capture(monkeypatch)
+    assert site._handle_line_text('Ucoupons', '我的優惠券', 'tok') is True
+    assert '沒有可用的優惠券' in sent['text']
+
+    memberdb.grant_coupon(m['id'], 'TESTC', 'manual', '')
+    sent.clear()
+    assert site._handle_line_text('Ucoupons', '我的優惠券', 'tok') is True
+    alt, bubbles = sent['flex']
+    assert '可用優惠券：1 張' in alt
+    assert 'NT$50' in str(bubbles[0])
+    assert '/account' in str(bubbles[-1])
+
+
 def test_new_arrivals_cards(app, monkeypatch):
     sent = {}
     import linepush
