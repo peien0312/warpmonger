@@ -249,3 +249,16 @@ def test_showcase_page_renders(client):
     resp = client.get('/showcase')
     assert resp.status_code == 200
     assert '玩家分享'.encode() in resp.data
+
+
+def test_tagsearch_spaced_tag_uri_encoded(app, monkeypatch):
+    """'Blood Angels' has a space — the 看全部 card URI must be encoded or
+    LINE rejects the entire reply (the bug that ate the chip taps)."""
+    sent = _capture(monkeypatch)
+    fake = [dict(site.get_products()[0], tags=['Blood Angels']) for _ in range(8)]
+    monkeypatch.setattr(site, 'get_products', lambda *a, **k: fake)
+    assert site._handle_line_postback('U1', 'tagsearch:Blood Angels', 'tok') is True
+    alt, bubbles = sent['flex']
+    link_uri = bubbles[-1]['footer']['contents'][0]['action']['uri']
+    assert ' ' not in link_uri
+    assert 'Blood%20Angels' in link_uri

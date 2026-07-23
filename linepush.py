@@ -9,6 +9,7 @@ import hashlib
 import hmac
 import json
 import os
+import urllib.error
 import urllib.request
 
 ACCESS_TOKEN = os.environ.get("LINE_CHANNEL_ACCESS_TOKEN", "")
@@ -32,8 +33,16 @@ def _api(path, body):
                  "Authorization": "Bearer " + ACCESS_TOKEN},
         method="POST",
     )
-    with urllib.request.urlopen(req, timeout=15) as resp:
-        return json.loads(resp.read() or b"{}")
+    try:
+        with urllib.request.urlopen(req, timeout=15) as resp:
+            return json.loads(resp.read() or b"{}")
+    except urllib.error.HTTPError as e:
+        # surface LINE's error detail (which field it rejected), not just 400
+        try:
+            detail = e.read().decode()[:300]
+        except Exception:
+            detail = ""
+        raise RuntimeError(f"LINE API {e.code} {path}: {detail}") from None
 
 
 def _get(url):

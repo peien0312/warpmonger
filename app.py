@@ -4922,6 +4922,7 @@ def _reply_tag_search(uid, tag, reply_token):
     """Quick-reply chip tap -> products carrying this (faction/codex) tag."""
     import linepush
     import posdb as _posdb
+    from urllib.parse import quote
     zh = _posdb.get_tag_glossary().get(tag, tag)
     hits = [p for p in get_products() if tag in (p.get('tags') or [])]
     if not hits:
@@ -4931,9 +4932,11 @@ def _reply_tag_search(uid, tag, reply_token):
         return True
     bubbles = [_product_bubble(p) for p in hits[:6]]
     if len(hits) > 6:
+        # tags can contain spaces ("Blood Angels") — a raw space in an
+        # action URI makes LINE reject the whole message
         bubbles.append(_link_bubble(
             f'還有 {len(hits) - 6} 項', f'網站看全部「{zh}」商品', '看全部',
-            f"{SITE_URL}/products?tag={tag}"))
+            f"{SITE_URL}/products?tag={quote(tag)}"))
     linepush.reply_flex(reply_token, f'「{zh}」：{len(hits)} 項商品',
                         bubbles, line_user_id=uid, chips=_search_chips())
     return True
@@ -5106,15 +5109,18 @@ def line_webhook():
                 continue
             if ev.get('type') == 'postback' and uid:
                 data = (ev.get('postback') or {}).get('data') or ''
+                # mirror BEFORE handling so the log keeps the event even
+                # when the bot reply blows up
+                linepush.log_to_pos({'line_user_id': uid, 'direction': 'in',
+                                     'msg_type': 'text',
+                                     'text': f'（點選：{data}）',
+                                     'timestamp_ms': ev.get('timestamp')})
                 _handle_line_postback(uid, data, ev['replyToken'])
-                import linepush as _lp
-                _lp.log_to_pos({'line_user_id': uid, 'direction': 'in',
-                                'msg_type': 'text', 'text': f'（點選：{data}）',
-                                'timestamp_ms': ev.get('timestamp')})
                 continue
             if ev.get('type') != 'message' or not uid:
                 continue
             msg = ev.get('message', {})
+            _mirror_line_message(uid, msg, ev.get('timestamp'))
             if msg.get('type') == 'text':
                 code = (msg.get('text') or '').strip().upper()
                 if code.startswith('AB') and len(code) == 8:
@@ -5134,9 +5140,8 @@ def line_webhook():
                             line_user_id=uid)
                 else:
                     _handle_line_text(uid, msg.get('text'), ev['replyToken'])
-            _mirror_line_message(uid, msg, ev.get('timestamp'))
         except Exception as e:
-            print(f'line webhook event failed: {e}')
+            print(f'line webhook event failed: {e}', flush=True)
     return 'OK'
 
 
