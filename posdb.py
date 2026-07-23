@@ -788,6 +788,25 @@ def get_showcase_entries(limit=24, sku=None):
     return entries
 
 
+def recently_stocked_skus(days=14):
+    """{sku: last_taiwan_arrival_iso} for products that received Taiwan
+    stock (positive taiwan inventory-log) within the last N days — batch
+    receives, manual adds. Powers the OA's hidden 新貨 command."""
+    conn = _conn()
+    try:
+        rows = conn.execute("""
+            SELECT p.sku, MAX(il.created_at) AS arrived
+            FROM inventory_logs il JOIN products p ON p.id = il.product_id
+            WHERE il.location = 'taiwan' AND il.change > 0
+              AND il.created_at >= datetime('now', ?)
+              AND p.sku IS NOT NULL
+            GROUP BY p.sku
+        """, (f"-{int(days)} days",)).fetchall()
+        return {r["sku"]: str(r["arrived"]) for r in rows}
+    finally:
+        conn.close()
+
+
 def series_buyer_phones(skus):
     """Phones of POS customers who ever bought a product in the same series
     as any of these SKUs (LINE 廣播 'interested' segment)."""

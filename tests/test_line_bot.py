@@ -272,3 +272,14 @@ def test_blog_posts_cards(app, monkeypatch):
     assert 'Hello' in str(bubbles[0])            # fixture blog post title
     assert '/blog/hello' in str(bubbles[0])
     assert '/blog' in str(bubbles[-1])           # 看全部 card
+
+
+def test_recent_stock_hidden_command(app, monkeypatch):
+    sent = _capture(monkeypatch)
+    assert site._handle_line_text('U1', '新貨', 'tok') is True
+    alt, bubbles = sent['flex']
+    assert '近期到貨' in alt
+    # JT0001 has a recent taiwan inventory-log AND shelf stock -> included
+    assert '現貨測試品' in str(bubbles)
+    # hidden: not advertised in the quick chips
+    assert all(c.get('text') != '新貨' for c in site._search_chips())

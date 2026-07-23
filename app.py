@@ -5050,11 +5050,37 @@ def _reply_blog_posts(uid, reply_token):
     return True
 
 
+def _reply_recent_stock(uid, reply_token):
+    """Hidden 新貨 command: products whose Taiwan stock arrived within the
+    last 14 days and are sellable now, newest arrival first."""
+    import linepush
+    import posdb as _posdb
+    arrivals = _posdb.recently_stocked_skus(days=14)
+    hits = [p for p in get_products()
+            if p.get('id') in arrivals and p.get('in_stock')]
+    hits.sort(key=lambda p: arrivals[p['id']], reverse=True)
+    if not hits:
+        linepush.reply_text(reply_token,
+            f'最近兩週沒有新到貨，逛逛現貨吧：{SITE_URL}/products?in_stock=true',
+            line_user_id=uid)
+        return True
+    bubbles = [_product_bubble(p) for p in hits[:6]]
+    if len(hits) > 6:
+        bubbles.append(_link_bubble(
+            f'還有 {len(hits) - 6} 項', '兩週內到貨、現在買得到', '看全部現貨',
+            f'{SITE_URL}/products?in_stock=true'))
+    linepush.reply_flex(reply_token, f'近期到貨：{len(hits)} 項現貨',
+                        bubbles, line_user_id=uid)
+    return True
+
+
 def _handle_line_text(uid, text, reply_token):
     """Bot behavior for one inbound text message. Returns True when the bot
     replied (binding codes are handled separately in the webhook)."""
     import linepush
     t = (text or '').strip()
+    if t in ('新貨', '最近到貨'):
+        return _reply_recent_stock(uid, reply_token)
     if t in ('最新文章', '部落格', '阿北開講', 'blog', 'Blog'):
         return _reply_blog_posts(uid, reply_token)
     if t in ('查訂單', '訂單查詢', '我的訂單', '訂單'):

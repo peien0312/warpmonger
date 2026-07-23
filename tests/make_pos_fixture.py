@@ -94,6 +94,11 @@ async def main():
                                 product_id=prods["JT0005"].id,
                                 quantity=1, unit_price=3000, cost_cny=300,
                                 cost_twd=1335))
+        # recent Taiwan receive -> powers the OA hidden 新貨 command
+        db.add(models.InventoryLog(product_id=prods["JT0001"].id,
+                                   location="taiwan", change=5,
+                                   reason="Batch scanned receipt from batch 1",
+                                   reference_type="shipping"))
         await db.commit()
 
 asyncio.run(main())
