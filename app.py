@@ -4601,7 +4601,7 @@ def _search_chips():
                           'display': f'找 {glossary.get(tag, tag)}'})
     except Exception as e:
         print(f'search chips failed: {e}')
-    chips.append({'label': '新品到貨', 'text': '新品到貨'})
+    chips.append({'label': '最新上架', 'text': '最新上架'})
     chips.append({'label': '查訂單', 'text': '查訂單'})
     return chips
 
@@ -4702,7 +4702,8 @@ def _reply_search(uid, kw, reply_token, rearm=False):
 
 
 def _reply_new_arrivals(uid, reply_token):
-    """新品到貨 menu tap -> newest arrivals as cards, right in the chat."""
+    """最新上架 menu tap -> newest listings as cards (mostly 預購 — the
+    availability badge on each card tells 現貨 from 預購)."""
     import linepush
     url = f"{SITE_URL}/products?new_arrival=true"
     items = [p for p in get_products() if p.get('is_new_arrival')]
@@ -4714,8 +4715,9 @@ def _reply_new_arrivals(uid, reply_token):
     bubbles = [_product_bubble(p) for p in items[:6]]
     if len(items) > 6:
         bubbles.append(_link_bubble(
-            f'還有 {len(items) - 6} 項新品', '到網站看全部新品', '看全部', url))
-    linepush.reply_flex(reply_token, f'新品到貨：{len(items)} 項商品',
+            f'還有 {len(items) - 6} 項新品', '到網站看全部最新上架', '看全部', url))
+    linepush.reply_flex(reply_token,
+                        f'最新上架：{len(items)} 項商品（含預購）',
                         bubbles, line_user_id=uid, chips=_search_chips())
     return True
 
@@ -5101,7 +5103,7 @@ def _handle_line_text(uid, text, reply_token):
         linepush.reply_text(reply_token,
             '請直接留言，老闆看到會盡快回覆您 🙏', line_user_id=uid)
         return True
-    if t in ('新品到貨', '逛新品', '新品'):
+    if t in ('最新上架', '新品到貨', '逛新品', '新品'):
         return _reply_new_arrivals(uid, reply_token)
     kw = _parse_search_keyword(t)
     if kw:

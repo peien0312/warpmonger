@@ -31,8 +31,8 @@ IMG_DIR = os.path.join(os.path.dirname(__file__), "static", "richmenu")
 # (label, sublabel, action) per cell, left→right then top→bottom.
 # Keep cell POSITIONS in sync with the menu images.
 GUEST_CELLS = [
-    ("逛新品", "最新到貨商品",
-     {"type": "message", "text": "新品到貨"}),
+    ("逛新品", "最新上架．含預購",
+     {"type": "message", "text": "最新上架"}),
     ("商品查詢", "輸入名稱找商品",
      {"type": "message", "text": "商品查詢"}),
     ("綁定會員", "領取綁定禮折價券",
@@ -50,8 +50,8 @@ MEMBER_CELLS = [
      {"type": "message", "text": "查訂單"}),
     ("商品查詢", "輸入名稱找商品",
      {"type": "message", "text": "商品查詢"}),
-    ("新品到貨", "最新到貨商品",
-     {"type": "message", "text": "新品到貨"}),
+    ("最新上架", "新品與預購資訊",
+     {"type": "message", "text": "最新上架"}),
     ("我的優惠券", "可用折價券",
      {"type": "message", "text": "我的優惠券"}),
     ("阿北開講", "最新文章與開箱",

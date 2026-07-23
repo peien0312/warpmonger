@@ -183,7 +183,7 @@ def test_new_arrivals_cards(app, monkeypatch):
     # fixture products are freshly created -> all count as 新品
     assert 'flex' in sent
     alt, bubbles = sent['flex']
-    assert '新品' in alt and bubbles
+    assert '最新上架' in alt and bubbles
 
 
 def test_richmenu_spec_areas():
@@ -230,7 +230,7 @@ def test_search_chips_have_tags(app):
     chips = site._search_chips()
     labels = [c['label'] for c in chips]
     assert '極限戰士' in labels     # faction tag with zh glossary label
-    assert '新品到貨' in labels
+    assert '最新上架' in labels
 
 
 def test_narrowcast_segments(app):
