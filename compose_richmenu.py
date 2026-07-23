@@ -92,7 +92,9 @@ def compose(layout, accent, out_path):
     for i, (label, sub, icon) in enumerate(layout):
         x, y, w, h = _cell_rect(i)
         art = Image.open(os.path.join(ICON_DIR, icon + ".png"))
-        canvas.paste(_cover(art, w, h), (x, y))
+        # fit the art to the area ABOVE the label band, so the band never
+        # crops the icon (icons carry enough margin to survive the crop)
+        canvas.paste(_cover(art, w, h - BAND_H), (x, y))
         overlay = Image.new("RGBA", (w, h), (0, 0, 0, 0))
         od = ImageDraw.Draw(overlay)
         od.rectangle([0, h - BAND_H, w, h], fill=accent + (225,))
