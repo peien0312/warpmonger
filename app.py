@@ -1687,6 +1687,38 @@ def blog_page():
 _SPOILER_MD_BLOCK = re.compile(r'^:::spoiler[ \t]*([^\n]*)\n(.*?)^:::[ \t]*$',
                                re.M | re.S)
 _SPOILER_INLINE = re.compile(r'\|\|(.+?)\|\|')
+_LIST_AFTER_PARA = re.compile(
+    r'^(?!\s*$)(?!(?:[*+-]|\d+\.)\s)(?!>)([^\n]+)\n(?=(?:[*+-]|\d+\.)\s)',
+    re.M)
+_LEADING_BLOCKQUOTE = re.compile(r'\s*((?:>[^\n]*\n?)+)')
+
+
+def promote_opening_quote(text):
+    """Blog articles open with a quote blockquote (EN line / zh-TW line /
+    `—— 出處` line). Lift it out of the markdown into a styled cold-open
+    epigraph followed by the ornament rule, so it reads as a standalone
+    element instead of italic body text. Returns (html, remaining_markdown);
+    html is '' when the post doesn't start with that pattern."""
+    text = text.replace('\r\n', '\n').replace('\r', '\n')
+    m = _LEADING_BLOCKQUOTE.match(text)
+    if not m:
+        return '', text
+    qlines = [l.lstrip('> ').strip() for l in m.group(1).splitlines()]
+    qlines = [l for l in qlines if l]
+    if len(qlines) < 2 or not qlines[-1].startswith(('——', '—', '--')):
+        return '', text
+
+    def _inline(s):
+        return re.sub(r'^<p>|</p>$', '', markdown.markdown(s).strip())
+
+    attr = qlines[-1].lstrip('—-').strip()
+    zh = ' '.join(qlines[1:-1])
+    html = ('<div class="post-opening-quote">'
+            f'<p class="oq-en">{_inline(qlines[0])}</p>'
+            + (f'<p class="oq-zh">{_inline(zh)}</p>' if zh else '')
+            + f'<p class="oq-attr">—— {_inline(attr)}</p>'
+            '</div>\n<hr class="oq-rule">\n')
+    return html, text[m.end():]
 
 
 def markdown_with_spoilers(text):
@@ -1708,6 +1740,11 @@ def markdown_with_spoilers(text):
     # POS editor textareas and the AI writer emit CRLF; the \r breaks the
     # ^:::$ line anchors and the block falls through as literal text.
     text = text.replace('\r\n', '\n').replace('\r', '\n')
+    # python-markdown only recognises a list separated from the preceding
+    # paragraph by a blank line; the AI writer emits `**參考資料**` directly
+    # above its `*` items, which then render as one paragraph of literal
+    # asterisks.
+    text = _LIST_AFTER_PARA.sub(r'\1\n\n', text)
     html = markdown.markdown(_SPOILER_MD_BLOCK.sub(_block, text))
     html = _SPOILER_INLINE.sub(
         r'<span class="spoiler-inline" role="button" tabindex="0"'
@@ -1898,8 +1935,10 @@ def blog_post_page(slug):
         return "Post not found", 404
     _record_blog_view(slug)
 
-    # Convert markdown to HTML
-    post['content_html'] = enrich_post_images(markdown_with_spoilers(post['content']))
+    # Convert markdown to HTML (opening quote lifted into its own block)
+    quote_html, body_md = promote_opening_quote(post['content'])
+    post['content_html'] = quote_html + enrich_post_images(
+        markdown_with_spoilers(body_md))
     # Spoiler-free plain text for meta description / schema.org articleBody
     post['content_plain'] = spoiler_free_text(post['content'])
     # Post tags that are also product tags → 相關商品 links

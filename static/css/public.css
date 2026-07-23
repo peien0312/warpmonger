@@ -1344,6 +1344,54 @@ section h2::after {
 .post-content hr::after { background: #1E1712; } /* walnut page bg */
 .entry-body hr::after   { background: #292019; } /* codex card bg */
 
+/* ---- Blog opening quote: the article's cold open, lifted out of the
+   markdown by app.promote_opening_quote (EN line / zh-TW line / 出處).
+   Oversized ghosted quotation mark + serif type set it apart from the
+   sans body; the standard hr ornament closes it off. ---- */
+.post-opening-quote {
+    position: relative;
+    margin: 10px 0 0;
+    padding: 10px 0 0 30px;
+}
+.post-opening-quote::before {
+    content: "\201C";
+    position: absolute;
+    left: -8px;
+    top: -16px;
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: 4.2rem;
+    line-height: 1;
+    color: #D9A441;
+    opacity: 0.45;
+}
+.post-opening-quote p { margin: 0; }
+.post-opening-quote .oq-en {
+    font-family: Georgia, 'Times New Roman', 'Noto Serif TC', serif;
+    font-style: italic;
+    font-size: 1.35rem;
+    line-height: 1.55;
+    color: #E6DAC4;
+}
+.post-opening-quote .oq-zh {
+    font-family: 'Noto Serif TC', Georgia, serif;
+    font-weight: 600;
+    margin-top: 12px;
+    font-size: 1.05rem;
+    line-height: 1.75;
+    color: #B3A48D;
+}
+.post-opening-quote .oq-attr {
+    margin-top: 14px;
+    font-size: 0.85rem;
+    letter-spacing: 1.5px;
+    color: #D9A441;
+}
+.post-content hr.oq-rule { margin: 30px 0 38px; }
+@media (max-width: 600px) {
+    .post-opening-quote { padding-left: 22px; }
+    .post-opening-quote .oq-en { font-size: 1.15rem; }
+}
+
 .post-footer {
     padding-top: 30px;
     border-top: 1px solid #342A21;
