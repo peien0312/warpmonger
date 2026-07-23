@@ -262,3 +262,13 @@ def test_tagsearch_spaced_tag_uri_encoded(app, monkeypatch):
     link_uri = bubbles[-1]['footer']['contents'][0]['action']['uri']
     assert ' ' not in link_uri
     assert 'Blood%20Angels' in link_uri
+
+
+def test_blog_posts_cards(app, monkeypatch):
+    sent = _capture(monkeypatch)
+    assert site._handle_line_text('U1', '最新文章', 'tok') is True
+    alt, bubbles = sent['flex']
+    assert '阿北開講' in alt
+    assert 'Hello' in str(bubbles[0])            # fixture blog post title
+    assert '/blog/hello' in str(bubbles[0])
+    assert '/blog' in str(bubbles[-1])           # 看全部 card

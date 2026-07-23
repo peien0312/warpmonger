@@ -5008,11 +5008,55 @@ def _reply_mod_intro(uid, reply_token):
     return True
 
 
+def _reply_blog_posts(uid, reply_token):
+    """阿北開講 menu tap -> latest blog posts as cards in the chat."""
+    import linepush
+    posts = get_blog_posts()[:5]
+    if not posts:
+        linepush.reply_text(reply_token,
+            f'文章即將上線，先逛逛商品吧：{SITE_URL}/products', line_user_id=uid)
+        return True
+    bubbles = []
+    for p in posts:
+        url = f"{SITE_URL}/blog/{p['slug']}"
+        excerpt = ' '.join((p.get('excerpt') or '').split())[:60]
+        b = {
+            'type': 'bubble', 'size': 'kilo',
+            'body': {'type': 'box', 'layout': 'vertical', 'spacing': 'sm',
+                     'contents': [
+                {'type': 'text', 'text': (p.get('title') or '文章')[:80],
+                 'weight': 'bold', 'size': 'sm', 'wrap': True},
+                {'type': 'text', 'text': p.get('date') or '',
+                 'size': 'xs', 'color': '#888888'},
+            ] + ([{'type': 'text', 'text': excerpt, 'size': 'xs',
+                   'color': '#666666', 'wrap': True}] if excerpt else [])},
+            'footer': {'type': 'box', 'layout': 'vertical', 'contents': [
+                {'type': 'button', 'style': 'primary', 'height': 'sm',
+                 'color': '#8B4513',
+                 'action': {'type': 'uri', 'label': '閱讀全文', 'uri': url}}]},
+        }
+        cover = p.get('cover') or ''
+        if cover:
+            if not cover.startswith('http'):
+                cover = SITE_URL + cover
+            b['hero'] = {'type': 'image', 'url': cover, 'size': 'full',
+                         'aspectRatio': '16:9', 'aspectMode': 'cover',
+                         'action': {'type': 'uri', 'uri': url}}
+        bubbles.append(b)
+    bubbles.append(_link_bubble('更多文章', '阿北開講：新品情報、開箱、宇宙故事',
+                                '看全部', f'{SITE_URL}/blog'))
+    linepush.reply_flex(reply_token, '阿北開講：最新文章', bubbles,
+                        line_user_id=uid)
+    return True
+
+
 def _handle_line_text(uid, text, reply_token):
     """Bot behavior for one inbound text message. Returns True when the bot
     replied (binding codes are handled separately in the webhook)."""
     import linepush
     t = (text or '').strip()
+    if t in ('最新文章', '部落格', '阿北開講', 'blog', 'Blog'):
+        return _reply_blog_posts(uid, reply_token)
     if t in ('查訂單', '訂單查詢', '我的訂單', '訂單'):
         return _reply_orders(uid, reply_token)
     if t in ('我的優惠券', '優惠券', '折價券'):

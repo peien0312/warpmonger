@@ -39,8 +39,8 @@ GUEST_CELLS = [
      {"type": "uri", "uri": f"{SITE}/line/entry"}),
     ("查訂單", "訂單記錄與狀態",
      {"type": "message", "text": "查訂單"}),
-    ("聯絡老闆", "直接留言詢問",
-     {"type": "message", "text": "我想詢問"}),
+    ("阿北開講", "最新文章與開箱",
+     {"type": "message", "text": "最新文章"}),
     ("前往官網", "阿北玩具堂",
      {"type": "uri", "uri": SITE}),
 ]
@@ -54,8 +54,8 @@ MEMBER_CELLS = [
      {"type": "message", "text": "新品到貨"}),
     ("我的優惠券", "可用折價券",
      {"type": "message", "text": "我的優惠券"}),
-    ("聯絡老闆", "直接留言詢問",
-     {"type": "message", "text": "我想詢問"}),
+    ("阿北開講", "最新文章與開箱",
+     {"type": "message", "text": "最新文章"}),
     ("前往官網", "阿北玩具堂",
      {"type": "uri", "uri": SITE}),
 ]
