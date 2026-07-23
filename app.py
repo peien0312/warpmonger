@@ -5022,7 +5022,8 @@ def _handle_line_text(uid, text, reply_token):
     if t == '商品查詢':
         memberdb.set_line_search_mode(uid)
         linepush.reply_text(reply_token,
-            '想找什麼商品呢？直接輸入商品名稱幫您查詢，例如：暗源\n\n'
+            '想找什麼商品呢？直接輸入商品名稱幫您查詢——中文、英文或商品編號都可以，'
+            '例如：暗源、Dante、JT8575\n\n'
             '（也可以隨時輸入「找 商品名稱」查詢，或點下面的陣營直接看）',
             line_user_id=uid, chips=_search_chips())
         return True
