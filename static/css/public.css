@@ -1328,6 +1328,9 @@ section h2::after {
     margin: 44px 0;
     position: relative;
     overflow: visible;
+    /* BFC: beside a floated .post-cover the rule shrinks to the text
+       column instead of running underneath the image */
+    display: flow-root;
 }
 .post-content hr::after,
 .entry-body hr::after {
