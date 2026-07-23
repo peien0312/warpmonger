@@ -202,6 +202,7 @@ TRANSLATIONS = {
         'filters': 'Filters',
         'sort_default': 'Default',
         'sort_newest': 'Newest',
+        'sort_arrival': 'Just Arrived',
         'sort_price_asc': 'Price ↑',
         'sort_price_desc': 'Price ↓',
         'series': 'Series',
@@ -305,6 +306,7 @@ TRANSLATIONS = {
         'filters': '篩選',
         'sort_default': '預設',
         'sort_newest': '最新上架',
+        'sort_arrival': '最近到貨',
         'sort_price_asc': '價格 ↑',
         'sort_price_desc': '價格 ↓',
         'series': '系列',
@@ -1504,6 +1506,13 @@ def products_page():
         # 最新上架: newest created_at first; ties broken by curation weight.
         # Missing dates sort last (reverse puts '' at the end).
         products.sort(key=lambda p: (p.get('created_at') or '',
+                                     p.get('order_weight', 0)), reverse=True)
+    elif sort_by == 'arrival':
+        # 最近到貨: latest Taiwan stock-in first (inventory-log based, 60d
+        # window); products without a recent arrival sort last.
+        import posdb as _posdb
+        arrivals = _posdb.recently_stocked_skus(days=60)
+        products.sort(key=lambda p: (arrivals.get(p.get('id'), ''),
                                      p.get('order_weight', 0)), reverse=True)
     else:
         # Default: Sort by group for visual clustering (grouped products together, then by order_weight and title)
@@ -5063,14 +5072,15 @@ def _reply_recent_stock(uid, reply_token):
     hits.sort(key=lambda p: arrivals[p['id']], reverse=True)
     if not hits:
         linepush.reply_text(reply_token,
-            f'最近兩週沒有新到貨，逛逛現貨吧：{SITE_URL}/products?in_stock=true',
+            f'最近兩週沒有新到貨，逛逛現貨吧：'
+            f'{SITE_URL}/products?in_stock=true&sort=arrival',
             line_user_id=uid)
         return True
     bubbles = [_product_bubble(p) for p in hits[:6]]
     if len(hits) > 6:
         bubbles.append(_link_bubble(
             f'還有 {len(hits) - 6} 項', '兩週內到貨、現在買得到', '看全部現貨',
-            f'{SITE_URL}/products?in_stock=true'))
+            f'{SITE_URL}/products?in_stock=true&sort=arrival'))
     linepush.reply_flex(reply_token, f'近期到貨：{len(hits)} 項現貨',
                         bubbles, line_user_id=uid)
     return True

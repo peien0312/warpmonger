@@ -283,3 +283,11 @@ def test_recent_stock_hidden_command(app, monkeypatch):
     assert '現貨測試品' in str(bubbles)
     # hidden: not advertised in the quick chips
     assert all(c.get('text') != '新貨' for c in site._search_chips())
+
+
+def test_products_arrival_sort(client):
+    resp = client.get('/products?in_stock=true&sort=arrival')
+    assert resp.status_code == 200
+    # JT0001 has a recent taiwan inventory-log + stock -> should be present
+    assert '現貨測試品'.encode() in resp.data
+    assert '最近到貨'.encode() in resp.data   # the new sort button
