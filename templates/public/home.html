@@ -157,7 +157,7 @@
 <section class="featured-products">
     <div class="container">
         <h2 class="section-title">{{ t.featured }}</h2>
-        <div class="products-grid" data-ga-list="home:featured" data-ga-impressions>
+        <div class="products-grid" data-ga-list="home:recent-arrivals" data-ga-impressions>
             {% for product in products %}
             <div class="product-card">
                 <a href="{{ url_prefix }}/products/{{ product.category }}/{{ product.slug }}">
@@ -213,6 +213,9 @@
             <p>{{ t.no_products_yet }}</p>
             {% endif %}
         </div>
+        {% if products %}
+        <a href="{{ url_prefix }}/products?in_stock=true&sort=arrival" class="btn btn-secondary">{{ t.view_all_recent }}</a>
+        {% endif %}
     </div>
 </section>
 

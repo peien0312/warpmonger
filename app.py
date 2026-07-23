@@ -177,7 +177,8 @@ TRANSLATIONS = {
         'shop_now': 'Shop Now',
         'new_arrivals': 'New Arrivals',
         'on_sale': 'On Sale Now',
-        'featured': 'Featured Products',
+        'featured': 'Recent Arrivals',
+        'view_all_recent': 'View All In-Stock Items',
         'view_all': 'View All',
         'view_all_new': 'View All New Arrivals',
         'view_all_sale': 'View All Sale Items',
@@ -281,7 +282,8 @@ TRANSLATIONS = {
         'shop_now': '立即選購',
         'new_arrivals': '新品上架',
         'on_sale': '特價商品',
-        'featured': '精選商品',
+        'featured': '近期到貨',
+        'view_all_recent': '查看所有現貨',
         'view_all': '查看全部',
         'view_all_new': '查看所有新品',
         'view_all_sale': '查看所有特價商品',
@@ -1388,10 +1390,19 @@ def home():
         })
     category_cards.sort(key=lambda c: (-c['weight'], -c['count']))
 
-    # Get featured products (manually selected) or fallback to first 8
-    featured = get_featured_products_for_homepage()
-    if not featured:
-        featured = all_products[:8]
+    # 近期到貨: Taiwan stock arrived within the last 14 days and sellable
+    # now, newest arrival first (same logic as the OA's 新貨 command).
+    # Falls back to the 60-day window if the last two weeks were quiet.
+    import posdb as _posdb
+    arrivals = _posdb.recently_stocked_skus(days=14)
+    recent = [p for p in all_products
+              if p.get('id') in arrivals and p.get('in_stock')]
+    if not recent:
+        arrivals = _posdb.recently_stocked_skus(days=60)
+        recent = [p for p in all_products
+                  if p.get('id') in arrivals and p.get('in_stock')]
+    recent.sort(key=lambda p: arrivals[p['id']], reverse=True)
+    featured = recent[:8]
 
     # Get special sections
     new_arrivals = sorted(
