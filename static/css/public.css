@@ -294,6 +294,20 @@ html {
     box-shadow: 0 0 15px rgba(217, 164, 65, 0.3);
 }
 
+/* used all over (登入後撰寫評價, account 取消訂單/退貨, wish/notify) but was
+   never defined — those rendered as default blue links. Kept early in the
+   file so .wish-btn/.notify-btn below still override it. */
+.btn-outline {
+    background: transparent;
+    color: #D9A441;
+    border-color: #6E4B2A;
+}
+
+.btn-outline:hover {
+    border-color: #D9A441;
+    background: rgba(217, 164, 65, 0.08);
+}
+
 .btn-lg {
     padding: 15px 40px;
     font-size: 1rem;
@@ -2119,7 +2133,10 @@ section h2::after {
     }
 
     .product-detail {
-        grid-template-columns: 1fr;
+        /* minmax(0,…): a bare 1fr's min is the content minimum, so the
+           thumbnail strip blew the track (and the whole page) past the
+           viewport — every text line got clipped at the right edge */
+        grid-template-columns: minmax(0, 1fr);
         gap: 30px;
     }
 
@@ -4900,4 +4917,17 @@ details.spoiler-block .spoiler-body { padding: 4px 16px 12px; }
     .post-cover img { max-height: 240px; }
     /* tag chips are CTAs now (🛒 direct product links) — finger-sized */
     .post-tags .tag, .post-shop-tags .tag { padding: 8px 14px; margin-bottom: 6px; }
+}
+
+/* =====================================================================
+   Mobile pass 3 (product detail page review)
+   ===================================================================== */
+/* belt-and-braces against grid track blowout at any width */
+.product-detail > * { min-width: 0; }
+@media (max-width: 768px) {
+    /* 120px of vertical padding around a single 登入後撰寫評價 link */
+    .review-write { padding: 24px 0; }
+    /* one giant card per row was a full screen per product — go 2-up
+       (the carousel JS still pages 4 at a time, now as a 2×2 window) */
+    .related-grid { grid-template-columns: repeat(2, 1fr); }
 }
