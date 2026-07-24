@@ -4751,6 +4751,16 @@ details.spoiler-block .spoiler-body { padding: 4px 16px 12px; }
         padding: 0 10px 10px;
         font-size: 1.05rem;
     }
+    /* long English sub-names ran 3-4 lines in the narrow 2-up cards —
+       the zh name and price carry the card; clamp the rest */
+    .products-page .product-card .card-sub-text,
+    .new-arrivals .product-card .card-sub-text,
+    .featured-products .product-card .card-sub-text {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
 
     /* 2b. Collapsible filter/category sidebar behind a 篩選 toggle */
     .filter-toggle {
