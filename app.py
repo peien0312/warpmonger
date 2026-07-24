@@ -4409,6 +4409,8 @@ def api_internal_notify():
     email_subject = '[阿北玩具堂] 訂單通知'
     email_html = None
     email_text = None
+    # optional rich LINE variant (message stays the text/email fallback)
+    line_flex = None  # {'alt': str, 'bubbles': [...]}
 
     # optional server-side templates (site owns e.g. bank info)
     tmpl = data.get('template')
@@ -4464,6 +4466,61 @@ def api_internal_notify():
         email_subject = f"[阿北玩具堂] 報價回覆 {inquiry_no}"
         email_html = mailer.render_quote_html(inquiry_no, q_items, expires)
         email_text = mailer.render_quote_text(inquiry_no, q_items, expires)
+
+        # LINE gets a card with 接受報價/想調整 buttons (accept auto-converts
+        # the inquiry to an order via the POS; see _handle_line_postback)
+        iid = d.get('inquiry_id')
+        if iid:
+            rows = []
+            quoted_total = 0
+            for it in q_items:
+                qty = it.get('qty', 1)
+                if it.get('status') == '無法供貨':
+                    val, color = '無法供貨', '#999999'
+                elif it.get('price'):
+                    val, color = f"NT${int(it['price']):,}", '#B08D57'
+                    quoted_total += int(it['price']) * qty
+                else:
+                    val, color = '—', '#999999'
+                rows.append({'type': 'box', 'layout': 'horizontal', 'contents': [
+                    {'type': 'text', 'text': f"{it.get('name', '商品')} x{qty}",
+                     'size': 'sm', 'wrap': True, 'flex': 3},
+                    {'type': 'text', 'text': val, 'size': 'sm', 'align': 'end',
+                     'flex': 2, 'color': color}]})
+            body = [
+                {'type': 'text', 'text': f'報價回覆（{inquiry_no}）',
+                 'weight': 'bold', 'size': 'md'},
+                {'type': 'separator'},
+                *rows,
+                {'type': 'separator'},
+                {'type': 'box', 'layout': 'horizontal', 'contents': [
+                    {'type': 'text', 'text': '合計', 'size': 'sm', 'weight': 'bold', 'flex': 3},
+                    {'type': 'text', 'text': f'NT${quoted_total:,}', 'size': 'sm',
+                     'weight': 'bold', 'align': 'end', 'flex': 2}]},
+            ]
+            if expires:
+                body.append({'type': 'text', 'text': f'報價有效至 {expires}',
+                             'size': 'xs', 'color': '#888888'})
+            body.append({'type': 'text', 'wrap': True, 'size': 'xs',
+                         'color': '#888888',
+                         'text': '按「接受報價」直接為您安排；想調整就留言跟阿北說。'})
+            line_flex = {'alt': f'報價回覆 {inquiry_no}｜合計 NT${quoted_total:,}',
+                         'bubbles': [{
+                'type': 'bubble',
+                'body': {'type': 'box', 'layout': 'vertical', 'spacing': 'sm',
+                         'contents': body},
+                'footer': {'type': 'box', 'layout': 'vertical', 'spacing': 'sm',
+                           'contents': [
+                    {'type': 'button', 'style': 'primary', 'height': 'sm',
+                     'color': '#8B4513',
+                     'action': {'type': 'postback', 'label': '✅ 接受報價',
+                                'data': f'quoteacc:{iid}',
+                                'displayText': '接受報價'}},
+                    {'type': 'button', 'style': 'secondary', 'height': 'sm',
+                     'action': {'type': 'postback', 'label': '💬 想調整・詢問',
+                                'data': f'quotechat:{iid}',
+                                'displayText': '我想調整報價內容'}}]},
+            }]}
     elif tmpl == 'return_update':
         import mailer
         d = data.get('data') or {}
@@ -4554,7 +4611,11 @@ def api_internal_notify():
         try:
             import linepush
             if linepush.enabled():
-                linepush.push_text(line_user_id, message)
+                if line_flex:
+                    linepush.push_flex(line_user_id, line_flex['alt'],
+                                       line_flex['bubbles'])
+                else:
+                    linepush.push_text(line_user_id, message)
                 sent.append('line')
         except Exception as e:
             print(f"notify line push failed: {e}")
@@ -5048,6 +5109,40 @@ def _handle_line_postback(uid, data, reply_token):
         else:
             linepush.reply_text(reply_token,
                 '已從收藏移除。', line_user_id=uid)
+        return True
+    if data.startswith('quotechat:'):
+        linepush.reply_text(reply_token,
+            '沒問題！想調整品項、數量或有任何問題，直接在這裡留言，'
+            '阿北會親自回覆您 🙌', line_user_id=uid)
+        return True
+    if data.startswith('quoteacc:'):
+        try:
+            inquiry_id = int(data.split(':', 1)[1])
+        except ValueError:
+            return False
+        member = memberdb.member_by_line_user(uid) or {}
+        res = {}
+        try:
+            res = _pos_api('POST',
+                           f'/api/storefront/inquiries/{inquiry_id}/accept',
+                           {'phone': member.get('phone') or '',
+                            'email': member.get('email') or ''})
+        except Exception as e:
+            print(f'quote accept failed (Q{inquiry_id}): {e}')
+        code = res.get('code')
+        if code == 'ok':
+            n = len(res.get('items') or [])
+            total = res.get('total_twd') or 0
+            reply = (f'收到您的確認 🙏 已為您建立訂單（{n} 項，'
+                     f'合計 NT${total:,}）。\n'
+                     '阿北會盡快與您確認取貨方式與付款，謝謝！')
+        elif code == 'already':
+            reply = '已收到您的確認囉，阿北處理中 🙏'
+        elif code == 'expired':
+            reply = '這份報價已超過有效期限，阿北重新確認價格後馬上回覆您 🙏'
+        else:
+            reply = '目前無法直接完成確認，請直接留言告訴阿北，馬上為您處理 🙏'
+        linepush.reply_text(reply_token, reply, line_user_id=uid)
         return True
     return False
 
