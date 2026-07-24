@@ -1632,19 +1632,14 @@ def product_detail(category, slug):
     except Exception:
         showcase_entries = []
 
-    # 相關文章: blog posts that hand-picked this product in the POS editor
-    # (pinned first), then tag matches — computed at render time, so a new
-    # post shows up here the moment it's published
+    # 相關文章: blog posts that hand-picked this product in the POS editor's
+    # 相關商品 field (extra.related_products) — manual only, tag matching was
+    # too noisy. Render-time, so an edit shows up immediately.
     _ref = f"{category}/{slug}"
-    _arts = []
-    for bp in get_blog_posts():
-        if _ref in (bp.get('related_products') or []):
-            _arts.append((0, bp))
-        elif current_tags and current_tags & set(bp.get('tags') or []):
-            _arts.append((1, bp))
-    _arts.sort(key=lambda t: t[1]['date'], reverse=True)
-    _arts.sort(key=lambda t: t[0])
-    related_articles = [bp for _, bp in _arts][:4]
+    related_articles = [bp for bp in get_blog_posts()
+                        if _ref in (bp.get('related_products') or [])]
+    related_articles.sort(key=lambda p: p['date'], reverse=True)
+    related_articles = related_articles[:4]
 
     return render_template('public/product-detail.html',
                          product=product,
