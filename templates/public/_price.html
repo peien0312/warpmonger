@@ -1,0 +1,27 @@
+{# Shared product-card price display (Option A, 2026-07-24):
+   member -> slashed 定價 + their 會員價 — the strikethrough is the message,
+             no per-card 會員價 chip (every item has one; a universal label
+             carries no information)
+   guest  -> 定價 big (guest checkout charges 定價 — no checkout surprise)
+             + amber 登入享會員價 line as the signup hook (plain text: cards
+             sit inside the product <a>, so no nested links)
+   預購價 chip stays in both views — it is per-item information. #}
+{# login_hint=false suppresses the guest 登入享會員價 line for callers that
+   render their own linked login prompt (the product page's availability-note) #}
+{% macro card_price(product, member, login_hint=true) -%}
+{% if product.final_price %}
+<p class="price">
+    {%- if product.member_price and product.member_price < product.final_price -%}
+        {%- if member -%}
+        <span class="list-price">NT${{ product.final_price|ntd }}</span>
+        NT${{ product.member_price|ntd }}{% if product.is_pre_order %} <span class="preorder-tag">預購價</span>{% endif %}
+        {%- else -%}
+        NT${{ product.final_price|ntd }}{% if product.is_pre_order %} <span class="preorder-tag">預購價</span>{% endif %}
+        {%- if login_hint %} <span class="member-price-line">登入享會員價 NT${{ product.member_price|ntd }}</span>{% endif %}
+        {%- endif -%}
+    {%- else -%}
+        NT${{ product.final_price|ntd }}{% if product.is_pre_order %} <span class="preorder-tag">預購價</span>{% endif %}
+    {%- endif -%}
+</p>
+{% endif %}
+{%- endmacro %}

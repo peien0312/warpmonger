@@ -4112,6 +4112,16 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
 }
 
 .member-tag { white-space: nowrap; }
+/* guest view: 定價 is the big number (what guest checkout charges); this
+   amber line under it is the signup hook (Option A pricing display) */
+.member-price-line {
+    display: block;
+    font-size: 0.68em;
+    font-weight: 500;
+    color: #D9A441;
+    letter-spacing: 0.03em;
+    margin-top: 3px;
+}
 .preorder-tag {
     color: #2A2A2A; background: #D9A441; border-radius: 3px;
     font-size: 0.62em; padding: 1px 6px; vertical-align: middle;
