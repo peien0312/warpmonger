@@ -2000,10 +2000,18 @@ def blog_post_page(slug):
                 cover_caption = "🛒 " + (cover_product.get('zhtw_name')
                                         or cover_product.get('title') or '圖中商品')
 
+    # 上一篇/下一篇 — chronological neighbours (published posts, newest first)
+    _all = sorted(get_blog_posts(), key=lambda p: p['date'], reverse=True)
+    _idx = next((i for i, p in enumerate(_all) if p['slug'] == slug), None)
+    newer_post = _all[_idx - 1] if _idx not in (None, 0) else None
+    older_post = (_all[_idx + 1] if _idx is not None and _idx + 1 < len(_all)
+                  else None)
+
     comments = memberdb.blog_comments_for(slug)
     return render_template('public/blog-post.html', post=post,
                            cover_link=cover_link, cover_caption=cover_caption,
                            related_posts=_related_posts(post),
+                           older_post=older_post, newer_post=newer_post,
                            comments=comments, member=current_member())
 
 @public_route('/promotions')

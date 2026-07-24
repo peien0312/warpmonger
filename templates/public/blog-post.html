@@ -163,6 +163,42 @@
             {% endif %}
         </section>
 
+        {% if older_post or newer_post %}
+        <nav class="post-prevnext" aria-label="文章導覽">
+            {% if older_post %}
+            <a class="post-prevnext-link prev" href="{{ url_prefix }}/blog/{{ older_post.slug }}">
+                <span class="post-prevnext-label">← 上一篇</span>
+                <span class="post-prevnext-title">{{ older_post.title }}</span>
+            </a>
+            {% else %}<span class="post-prevnext-spacer"></span>{% endif %}
+            {% if newer_post %}
+            <a class="post-prevnext-link next" href="{{ url_prefix }}/blog/{{ newer_post.slug }}">
+                <span class="post-prevnext-label">下一篇 →</span>
+                <span class="post-prevnext-title">{{ newer_post.title }}</span>
+            </a>
+            {% else %}<span class="post-prevnext-spacer"></span>{% endif %}
+        </nav>
+        <style>
+        .post-prevnext { display: flex; gap: 12px; margin: 28px 0 8px; }
+        .post-prevnext-link, .post-prevnext-spacer { flex: 1 1 0; min-width: 0; }
+        .post-prevnext-link { display: block; padding: 12px 16px; border-radius: 8px;
+            text-decoration: none; color: inherit;
+            border: 1px solid #17100B; background: #342A21;
+            box-shadow: 0 0 0 1px rgba(110, 75, 42, 0.45); }
+        .post-prevnext-link.next { text-align: right; }
+        .post-prevnext-label { display: block; font-size: 0.78rem; letter-spacing: 0.06em;
+            color: #D9A441; margin-bottom: 4px; }
+        .post-prevnext-title { display: block; font-weight: 600; line-height: 1.4;
+            overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .post-prevnext-link:hover { border-color: #D9A441; }
+        .post-prevnext-link:hover .post-prevnext-title { color: #D9A441; }
+        @media (max-width: 640px) {
+            .post-prevnext { flex-direction: column; }
+            .post-prevnext-spacer { display: none; }
+        }
+        </style>
+        {% endif %}
+
         <footer class="post-footer">
             <a href="{{ url_prefix }}/blog" class="btn btn-secondary">{{ t.back_to_blog }}</a>
         </footer>
