@@ -4937,3 +4937,10 @@ details.spoiler-block .spoiler-body { padding: 4px 16px 12px; }
     .product-reviews { padding-bottom: 16px; margin-bottom: 16px; }
     .review-write { margin-top: 8px; }
 }
+
+@media (max-width: 768px) {
+    /* iOS zooms the viewport when a focused input is under 16px — the
+       0.9rem search input beat the generic 16px form-control rule (class
+       vs element selector), so tapping 🔍 zoom-locked the page */
+    .search-input { font-size: 16px; }
+}
