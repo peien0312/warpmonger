@@ -325,6 +325,10 @@
 
     <script src="/static/js/search.js"></script>
     <script src="/static/js/cart.js"></script>
+    {# codex hover/tap tooltips — .codex-term anchors appear in blog, codex,
+       product and doc-page bodies, so this loads site-wide (delegated
+       listeners; no-op on pages without terms) #}
+    <script src="/static/js/codex.js" defer></script>
 
     <!-- Mobile Menu -->
     <script>
