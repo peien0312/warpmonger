@@ -2849,6 +2849,17 @@ def api_get_codex_entry(slug):
     if not entry:
         return jsonify({'error': 'Entry not found'}), 404
 
+    # Tooltip-ready fields: display title 中文（English） like the entry h1,
+    # and plain text with [[crosslinks]] and markdown markers stripped —
+    # the tooltip renders raw text, not markdown.
+    _zh = (entry.get('title_zhtw') or '').strip()
+    entry['tooltip_title'] = f"{_zh}（{entry['title']}）" if _zh else entry['title']
+    _txt = re.sub(r'\[\[([^\]|]+)(?:\|([^\]]+))?\]\]',
+                  lambda m: m.group(2) or m.group(1), entry.get('content') or '')
+    _txt = re.sub(r'\[([^\]]+)\]\([^)]*\)', r'\1', _txt)   # [text](url) -> text
+    _txt = re.sub(r'[*_`#>]+', '', _txt)                   # md emphasis/heading marks
+    entry['tooltip_text'] = " ".join(_txt.split())
+
     # If requested from admin, include products that reference this codex
     if request.args.get('include_products') == 'true':
         products = get_products()

@@ -62,8 +62,8 @@
         tooltip.className = 'codex-tooltip';
         tooltip.innerHTML = `
             <button class="codex-tooltip-close" aria-label="Close">&times;</button>
-            <div class="codex-tooltip-title">${entry.title}</div>
-            <div class="codex-tooltip-content">${truncateText(entry.content, 200)}</div>
+            <div class="codex-tooltip-title">${entry.tooltip_title || entry.title}</div>
+            <div class="codex-tooltip-content">${truncateText(entry.tooltip_text || entry.content, 200)}</div>
             <a href="/codex/${entry.slug}" class="codex-tooltip-link">Read more &rarr;</a>
         `;
 
