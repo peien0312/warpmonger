@@ -406,21 +406,7 @@
         {% endif %}
     </section>
 
-    {% if product.detail_images %}
-    <section class="product-editor-images">
-        <h2 class="section-title">商品詳情</h2>
-        <div class="editor-images-clip" id="editor-images-clip">
-            {% for image in product.detail_images %}
-            <img src="/static/images/products/{{ product.category }}/{{ product.slug }}/{{ image }}"
-                 alt="{{ product.zhtw_name or product.title }} - 商品詳情 {{ loop.index }}" loading="lazy">
-            {% endfor %}
-        </div>
-        <button type="button" class="editor-images-toggle" id="editor-images-toggle"
-                onclick="toggleDetailImages()">展開商品詳情 ▾</button>
-    </section>
-    {% endif %}
-
-    {# Write / edit your review — kept below the details #}
+    {# Write / edit your review — right under the reviews list #}
     {% if review_sku %}
     <section class="review-write" id="write-review">
         {% if member %}
@@ -465,6 +451,20 @@
             <a href="/login?next={{ (url_prefix ~ '/products/' ~ product.category ~ '/' ~ product.slug)|urlencode }}#write-review" class="btn btn-outline">登入後撰寫評價</a>
         </div>
         {% endif %}
+    </section>
+    {% endif %}
+
+    {% if product.detail_images %}
+    <section class="product-editor-images">
+        <h2 class="section-title">商品詳情</h2>
+        <div class="editor-images-clip" id="editor-images-clip">
+            {% for image in product.detail_images %}
+            <img src="/static/images/products/{{ product.category }}/{{ product.slug }}/{{ image }}"
+                 alt="{{ product.zhtw_name or product.title }} - 商品詳情 {{ loop.index }}" loading="lazy">
+            {% endfor %}
+        </div>
+        <button type="button" class="editor-images-toggle" id="editor-images-toggle"
+                onclick="toggleDetailImages()">展開商品詳情 ▾</button>
     </section>
     {% endif %}
 
