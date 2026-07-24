@@ -328,6 +328,40 @@
         </div>
     </div>
 
+    {# 相關文章 — blog posts that hand-picked this product in the POS editor;
+       slim rows above the reviews so readers spot the deep-dive first #}
+    {% if related_articles %}
+    <section class="product-articles">
+        {% for a in related_articles %}
+        <a class="product-article-row" href="{{ url_prefix }}/blog/{{ a.slug }}">
+            <span class="product-article-icon">📖</span>
+            <span class="product-article-text">
+                <span class="product-article-label">深度解析</span>
+                <span class="product-article-title">{{ a.title }}</span>
+            </span>
+            <span class="product-article-arrow">→</span>
+        </a>
+        {% endfor %}
+    </section>
+    <style>
+    .product-articles { margin: 1.5rem 0; }
+    .product-article-row { display: flex; align-items: center; gap: .75rem;
+        padding: .6rem .9rem; margin-bottom: .5rem; border-radius: 8px;
+        text-decoration: none; color: inherit;
+        border: 1px solid var(--lead, #17100B);
+        background: var(--card, #342A21); }
+    .product-article-icon { flex: none; }
+    .product-article-text { flex: 1; min-width: 0; display: flex;
+        align-items: baseline; gap: .6rem; flex-wrap: wrap; }
+    .product-article-label { flex: none; font-size: .72rem; letter-spacing: .08em;
+        color: var(--candle-amber, #D9A441); text-transform: uppercase; }
+    .product-article-title { font-weight: 600; line-height: 1.35; }
+    .product-article-arrow { flex: none; color: var(--text-muted, #8a8073); }
+    .product-article-row:hover { border-color: var(--candle-amber, #D9A441); }
+    .product-article-row:hover .product-article-title { color: var(--candle-amber, #D9A441); }
+    </style>
+    {% endif %}
+
     {# 商品評價 — summary + reviews list first (social proof before the marketing images) #}
     <section class="product-reviews" id="reviews">
         <div class="reviews-head">
@@ -466,36 +500,6 @@
     .product-showcase-meta { font-size: .85rem; margin-top: .35rem; }
     .product-showcase-meta p { margin: .2rem 0 0; color: var(--text-muted, #8a8073); }
     .product-showcase-cta { margin-top: 1rem; font-size: .9rem; color: var(--text-muted, #8a8073); }
-    </style>
-    {% endif %}
-
-    {# 相關文章 — blog posts that hand-picked this product in the POS editor #}
-    {% if related_articles %}
-    <section class="product-articles">
-        <h2 class="section-title">相關文章</h2>
-        <div class="product-articles-grid">
-            {% for a in related_articles %}
-            <a class="product-article-card" href="{{ url_prefix }}/blog/{{ a.slug }}">
-                {% if a.cover %}<img src="{{ a.cover }}" alt="{{ a.title }}" loading="lazy">{% endif %}
-                <div class="product-article-meta">
-                    <strong>{{ a.title }}</strong>
-                    <p>{{ a.excerpt | striptags | truncate(60) }}</p>
-                    <span class="product-article-date">{{ a.date }}{% if a.author %} · {{ a.author }}{% endif %}</span>
-                </div>
-            </a>
-            {% endfor %}
-        </div>
-    </section>
-    <style>
-    .product-articles { margin: 2rem 0; }
-    .product-articles-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1rem; }
-    .product-article-card { display: block; text-decoration: none; color: inherit; }
-    .product-article-card img { width: 100%; aspect-ratio: 16/9; object-fit: cover; border-radius: 6px; }
-    .product-article-meta { font-size: .85rem; margin-top: .4rem; }
-    .product-article-meta strong { display: block; line-height: 1.35; }
-    .product-article-meta p { margin: .2rem 0 .1rem; color: var(--text-muted, #8a8073); }
-    .product-article-date { color: var(--text-muted, #8a8073); font-size: .78rem; }
-    .product-article-card:hover strong { color: var(--candle-amber, #D9A441); }
     </style>
     {% endif %}
 
