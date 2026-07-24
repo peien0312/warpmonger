@@ -4931,3 +4931,9 @@ details.spoiler-block .spoiler-body { padding: 4px 16px 12px; }
        (the carousel JS still pages 4 at a time, now as a 2×2 window) */
     .related-grid { grid-template-columns: repeat(2, 1fr); }
 }
+@media (max-width: 768px) {
+    /* stacked section spacing (60+48 below reviews, 32+24 above the write
+       form) left ~160px of dead air between the two on a phone */
+    .product-reviews { padding-bottom: 16px; margin-bottom: 16px; }
+    .review-write { margin-top: 8px; }
+}
