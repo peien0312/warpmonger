@@ -11,7 +11,7 @@ from datetime import datetime
 from functools import wraps
 from werkzeug.utils import secure_filename
 from werkzeug.security import generate_password_hash, check_password_hash
-from PIL import Image
+from PIL import Image, ImageOps, ImageStat
 import markdown
 from flask import Flask, render_template, request, jsonify, session, redirect, url_for, send_from_directory
 from dotenv import load_dotenv
@@ -557,6 +557,38 @@ def create_thumbnail(image_path, thumbnail_path, size=(300, 300)):
         return True
     except Exception as e:
         print(f"Error creating thumbnail: {e}")
+        return False
+
+def create_merchant_image(image_path, out_path):
+    """Google-Merchant-safe cover variant (gmc_*): JoyToy official covers
+    carry a JOYTOY×WARHAMMER banner strip on top and an OFFICIALLY LICENSED
+    watermark bottom-right, which Merchant Center rejects as promotional
+    overlay. Crop the top strip; erase the watermark by mirroring the
+    (empty) bottom-left corner over it — but only when the corner stats say
+    it's a studio render with the watermark present (bright text over a calm
+    background), so busy backdrops and box photos are left untouched."""
+    try:
+        with Image.open(image_path) as img:
+            img = img.convert('RGB')
+            w, h = img.size
+            img = img.crop((0, int(h * 0.12), w, h))
+            w, h = img.size
+            cw, ch = int(w * 0.22), int(h * 0.16)
+            left = img.crop((0, h - ch, cw, h))
+            right = img.crop((w - cw, h - ch, w, h))
+            lstat = ImageStat.Stat(left.convert('L'))
+            left_std, left_mean = lstat.stddev[0], lstat.mean[0]
+            hist = right.convert('L').histogram()
+            bright = sum(hist[191:]) / float(cw * ch)   # white text on dark bg
+            dark = sum(hist[:65]) / float(cw * ch)      # dark text on white bg
+            wm = ((left_mean < 150 and 0.01 < bright < 0.25) or
+                  (left_mean > 230 and 0.005 < dark < 0.25))
+            if wm and left_std < 25:
+                img.paste(ImageOps.mirror(left), (w - cw, h - ch))
+            img.save(out_path, quality=88, optimize=True)
+        return True
+    except Exception as e:
+        print(f"Error creating merchant image: {e}")
         return False
 
 def slugify(text):
@@ -2491,7 +2523,10 @@ def merchant_feed():
         desc_bits = [name] + [b for b in (p.get('series'), p.get('scale')) if b]
         desc = '｜'.join(desc_bits) + ' JOYTOY 可動模型。台灣現貨／預購，阿北玩具堂。'
         link = f"{root}products/{p['category']}/{p['slug']}"
-        img_link = f"{root}static/images/products/{p['category']}/{p['slug']}/{img}"
+        # gmc_ = overlay-free variant (banner/watermark removed) so Merchant
+        # Center doesn't reject the offer for promotional overlay
+        img_link = (f"{root}static/images/products/{p['category']}/{p['slug']}"
+                    f"/gmc_{img.rsplit('.', 1)[0]}.jpg")
         barcode = (p.get('sku') or '').strip()   # posdb 'sku' = barcode number
         gtin = barcode if barcode.isdigit() and len(barcode) in (8, 12, 13, 14) else ''
         mpn = (p.get('id') or '').strip()        # JT SKU
@@ -2870,6 +2905,13 @@ def serve_product_image(category, slug, filename):
             for f in os.listdir(media_dir):
                 if f.rsplit('.', 1)[0] == stem and not f.startswith('thumb_'):
                     create_thumbnail(os.path.join(media_dir, f), path)
+                    break
+        if not os.path.exists(path) and filename.startswith('gmc_'):
+            stem = filename[len('gmc_'):].rsplit('.', 1)[0]
+            for f in os.listdir(media_dir):
+                if f.rsplit('.', 1)[0] == stem and not f.startswith(('thumb_', 'gmc_')):
+                    if not create_merchant_image(os.path.join(media_dir, f), path):
+                        return send_from_directory(media_dir, f)
                     break
         if os.path.exists(path):
             return send_from_directory(media_dir, filename)
