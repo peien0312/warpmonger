@@ -4944,3 +4944,15 @@ details.spoiler-block .spoiler-body { padding: 4px 16px 12px; }
        vs element selector), so tapping 🔍 zoom-locked the page */
     .search-input { font-size: 16px; }
 }
+
+/* Hard guard: no layout overflow may ever pan the page sideways (iOS
+   Safari edge cases with fixed bars / vw units that desktop engines
+   don't reproduce). clip ≠ hidden: it doesn't create a scroll container.
+   Wide content stays usable via its own overflow-x:auto wrappers. */
+html, body { overflow-x: hidden; overflow-x: clip; }
+@media (max-width: 768px) {
+    /* thin margin at 390px once prices get long — never let the fixed
+       bar's nowrap price push past the viewport */
+    .sticky-buy-bar { overflow: hidden; }
+    .sticky-buy-price { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+}
