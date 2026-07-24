@@ -256,9 +256,27 @@
     }
 
     /**
+     * Tag plain /codex/<slug> links as codex terms. Blog bodies link to the
+     * codex with ordinary markdown links (no [[crosslink]] processing), so
+     * they arrive without the codex-term class/data — normalize them here so
+     * the whole tooltip system (and styling) applies uniformly.
+     */
+    function tagCodexLinks() {
+        document.querySelectorAll('a[href^="/codex/"]:not(.codex-term)').forEach((a) => {
+            const m = a.getAttribute('href').match(/^\/codex\/([^\/?#]+)$/);
+            if (m) {
+                a.classList.add('codex-term');
+                a.dataset.codex = decodeURIComponent(m[1]);
+            }
+        });
+    }
+
+    /**
      * Initialize codex tooltip system
      */
     function init() {
+        tagCodexLinks();
+
         // Event delegation for codex terms
         document.addEventListener('mouseenter', (e) => {
             if (e.target.classList && e.target.classList.contains('codex-term')) {
