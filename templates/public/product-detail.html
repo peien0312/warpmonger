@@ -985,13 +985,19 @@ function toggleDetailImages() {
     const clip = document.getElementById('editor-images-clip');
     const btn = document.getElementById('editor-images-toggle');
     if (!clip || !btn) return;
-    // If the strip already fits, no need to collapse — show it all, drop the button.
+    // If the strip already fits, no need to collapse — show it all, drop the
+    // button. Judge only once every image has real dimensions: a lazy image
+    // still outside the viewport reports zero height, which fakes a "fits"
+    // and would hide the toggle on a strip that is actually long.
+    const imgs = Array.from(clip.querySelectorAll('img'));
     const check = function () {
+        if (!imgs.every(im => im.complete && im.naturalHeight)) return;
         if (clip.scrollHeight <= clip.clientHeight + 8) {
             clip.classList.add('open');
             btn.style.display = 'none';
         }
     };
+    imgs.forEach(im => im.addEventListener('load', check));
     window.addEventListener('load', check);
     setTimeout(check, 1000);
 })();
