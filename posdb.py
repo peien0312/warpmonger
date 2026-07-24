@@ -383,6 +383,9 @@ def get_blog_posts():
             "author": extra.get("author") or "",
             "excerpt": extra.get("excerpt") or body[:200],
             "content": body, "tags": extra.get("tags") or [],
+            # hand-picked "category/slug" refs (POS post editor 相關商品) —
+            # pinned to the top of those products' 相關文章 section
+            "related_products": extra.get("related_products") or [],
             "cover": extra.get("cover") or "",
             "cover_caption": extra.get("cover_caption") or "",
             "cover_link": extra.get("cover_link") or "",

@@ -103,9 +103,12 @@
             {{ post.content_html|safe }}
         </div>
 
-        {% if post.shop_tags %}
+        {% if post.shop_products or post.shop_tags %}
         <div class="post-shop-tags">
             <span class="post-shop-tags-label">🛒 想收這個派系？</span>
+            {% for sp in post.shop_products %}
+            <a href="{{ url_prefix }}/products/{{ sp.ref }}" class="tag tag-link">{{ sp.name }}</a>
+            {% endfor %}
             {% for tag in post.shop_tags %}
             <a href="{{ url_prefix }}/products?tag={{ tag|urlencode }}" class="tag tag-link">{{ tag|tag_label }}</a>
             {% endfor %}

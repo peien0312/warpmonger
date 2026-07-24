@@ -1632,6 +1632,20 @@ def product_detail(category, slug):
     except Exception:
         showcase_entries = []
 
+    # 相關文章: blog posts that hand-picked this product in the POS editor
+    # (pinned first), then tag matches — computed at render time, so a new
+    # post shows up here the moment it's published
+    _ref = f"{category}/{slug}"
+    _arts = []
+    for bp in get_blog_posts():
+        if _ref in (bp.get('related_products') or []):
+            _arts.append((0, bp))
+        elif current_tags and current_tags & set(bp.get('tags') or []):
+            _arts.append((1, bp))
+    _arts.sort(key=lambda t: t[1]['date'], reverse=True)
+    _arts.sort(key=lambda t: t[0])
+    related_articles = [bp for _, bp in _arts][:4]
+
     return render_template('public/product-detail.html',
                          product=product,
                          category_name=category_name,
@@ -1641,7 +1655,8 @@ def product_detail(category, slug):
                          review_sku=review_sku,
                          my_review=my_review,
                          review_photo_url=_review_photo_url,
-                         showcase_entries=showcase_entries)
+                         showcase_entries=showcase_entries,
+                         related_articles=related_articles)
 
 @public_route('/showcase')
 def showcase_page():
@@ -1956,6 +1971,14 @@ def blog_post_page(slug):
     product_tags = {t['name'] for t in get_all_tags()}
     post['shop_tags'] = [t for t in (post.get('tags') or [])
                          if t in product_tags]
+    # hand-picked 相關商品 refs → direct product links ahead of the tag links
+    post['shop_products'] = []
+    for _ref in (post.get('related_products') or []):
+        _m = re.match(r'^([^/]+)/([^/]+)$', _ref)
+        _p = _m and get_product(_m.group(1), _m.group(2))
+        if _p:
+            post['shop_products'].append(
+                {'ref': _ref, 'name': _p.get('zhtw_name') or _p.get('title')})
 
     # the cover links to a product page: an explicit 封面連結 wins (needed for
     # custom-uploaded covers), else it's derived from a product-image cover

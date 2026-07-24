@@ -469,6 +469,36 @@
     </style>
     {% endif %}
 
+    {# 相關文章 — blog posts featuring this product (hand-picked first, then tag matches) #}
+    {% if related_articles %}
+    <section class="product-articles">
+        <h2 class="section-title">相關文章</h2>
+        <div class="product-articles-grid">
+            {% for a in related_articles %}
+            <a class="product-article-card" href="{{ url_prefix }}/blog/{{ a.slug }}">
+                {% if a.cover %}<img src="{{ a.cover }}" alt="{{ a.title }}" loading="lazy">{% endif %}
+                <div class="product-article-meta">
+                    <strong>{{ a.title }}</strong>
+                    <p>{{ a.excerpt | striptags | truncate(60) }}</p>
+                    <span class="product-article-date">{{ a.date }}{% if a.author %} · {{ a.author }}{% endif %}</span>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+    </section>
+    <style>
+    .product-articles { margin: 2rem 0; }
+    .product-articles-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1rem; }
+    .product-article-card { display: block; text-decoration: none; color: inherit; }
+    .product-article-card img { width: 100%; aspect-ratio: 16/9; object-fit: cover; border-radius: 6px; }
+    .product-article-meta { font-size: .85rem; margin-top: .4rem; }
+    .product-article-meta strong { display: block; line-height: 1.35; }
+    .product-article-meta p { margin: .2rem 0 .1rem; color: var(--text-muted, #8a8073); }
+    .product-article-date { color: var(--text-muted, #8a8073); font-size: .78rem; }
+    .product-article-card:hover strong { color: var(--candle-amber, #D9A441); }
+    </style>
+    {% endif %}
+
     {# Related Products Carousel - 4 items per row, max 4 rows, arrows navigate 4 at a time #}
     {% if related %}
     <section class="related-products-carousel">
