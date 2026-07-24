@@ -4956,3 +4956,26 @@ html, body { overflow-x: hidden; overflow-x: clip; }
     .sticky-buy-bar { overflow: hidden; }
     .sticky-buy-price { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
 }
+
+/* =====================================================================
+   Mobile header slimming — the header's min-content width computed to
+   ~390px (hamburger + logo/wordmark with 0.18em zhtw letter-spacing +
+   search + member chip + cart + gaps), i.e. exactly an iPhone's width:
+   any font-width difference tipped the whole page into horizontal
+   overflow. Give it real headroom down to 320px viewports.
+   ===================================================================== */
+@media (max-width: 768px) {
+    .header-content { gap: 8px; }
+    .site-logo a { gap: 8px; }
+    .hamburger-btn { width: 40px; padding: 8px 6px; }
+    body[data-locale="zhtw"] .logo-wordmark {
+        font-size: 1rem;
+        letter-spacing: 0.08em;
+    }
+    .site-logo .logo-tagline { letter-spacing: 1.5px; }
+    .member-chip .login-link { padding: 4px 8px; font-size: 0.8rem; }
+}
+@media (max-width: 360px) {
+    /* SE-class widths and Display Zoom: the logo mark alone is the brand */
+    .site-logo .logo-text-stack { display: none; }
+}
