@@ -43,6 +43,9 @@ async def main():
             # (90d back so arrival month = release+1 is fully in the past)
             ("JT0006", "逾期預購測試品", 3200, dict(slug="stale-preorder-item", is_preorder=True,
                                               preorder_date=datetime.now() - timedelta(days=90))),
+            # real import artifacts: stray space / embedded newlines in names
+            ("JT0007", "千子 MK III型戰術軍團士兵", 1200, dict(slug="tsons-mkiii")),
+            ("JT0008", "千子\nMKIV軍團戰術小隊\n軍團士兵 1", 1200, dict(slug="tsons-mkiv-l1")),
         ]:
             p = models.Product(sku=sku, zhtw_name=name, en_name=name,
                                cost_cny=100, selling_price_twd=price,

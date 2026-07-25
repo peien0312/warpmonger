@@ -40,7 +40,7 @@ def test_handle_line_text_search(app, monkeypatch):
     monkeypatch.setattr(linepush, 'reply_text', fake_text)
 
     products = site.get_products()
-    kw = (products[0].get('zhtw_name') or products[0]['title'])[:3]
+    kw = (products[0].get('zhtw_name') or products[0]['title'])[:3].strip()
     assert site._handle_line_text('U1', f'找 {kw}', 'tok') is True
     assert 'flex' in sent
     alt, bubbles = sent['flex']

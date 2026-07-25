@@ -12,8 +12,10 @@ whenever the DB file's mtime changes (any POS write bumps it).
 
 import json
 import os
+import re
 import sqlite3
 import threading
+import unicodedata
 
 _CANDIDATE_DBS = [
     os.environ.get("POS_DB", ""),
@@ -275,14 +277,32 @@ def _load_products():
     products.sort(key=lambda p: (-p["order_weight"],
                                  _avail_rank.get(p["availability"], 0),
                                  p["title"].lower()))
+    for p in products:
+        p["_search_hay"] = _search_hay(p)
     cache["products"] = products
     return products
 
 
+_SEARCH_FIELDS = ("title", "cn_name", "zhtw_name", "id", "sku", "series")
+
+
+def _search_norm(s):
+    # NFKC folds full-width chars (ＭＫ→MK, Ⅲ→III) typed by Chinese IMEs
+    return unicodedata.normalize("NFKC", s).lower()
+
+
+def _search_hay(p):
+    hay = _search_norm(" ".join(str(p.get(k) or "") for k in _SEARCH_FIELDS))
+    return hay, re.sub(r"\s+", "", hay)
+
+
 def _search_match(p, q):
-    q = q.lower()
-    return any(q in str(p.get(k) or "").lower()
-               for k in ("title", "cn_name", "zhtw_name", "id", "sku"))
+    # Every query token must appear somewhere across the fields. Names in the
+    # DB carry stray spaces/newlines (Excel import), so each token also gets a
+    # whitespace-squashed pass — "千子MK" matches "千子 MK III型...".
+    hay, squashed = p.get("_search_hay") or _search_hay(p)
+    return all(tok in hay or tok in squashed
+               for tok in _search_norm(q).split())
 
 
 def get_products(category=None, search=None):
