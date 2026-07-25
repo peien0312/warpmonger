@@ -212,6 +212,20 @@ def _load_products():
         except ValueError:
             return False
 
+    # search haystack extras: tag zh labels + category names, so customers
+    # can search 派系/分類 words (極限戰士, 荷魯斯之亂) that aren't in the
+    # product name itself
+    try:
+        _grow = cur.execute(
+            "SELECT value FROM settings WHERE key = 'tag_glossary'").fetchone()
+        glossary = json.loads(_grow["value"]) if _grow else {}
+        if not isinstance(glossary, dict):
+            glossary = {}
+    except Exception:
+        glossary = {}
+    catnames = {r["slug"]: r["name"] or ""
+                for r in cur.execute("SELECT slug, name FROM storefront_categories")}
+
     products = []
     for row in cur.execute("""
         SELECT * FROM products
@@ -278,7 +292,11 @@ def _load_products():
                                  _avail_rank.get(p["availability"], 0),
                                  p["title"].lower()))
     for p in products:
-        p["_search_hay"] = _search_hay(p)
+        extra = " ".join(
+            p["tags"]
+            + [str(glossary.get(t) or "") for t in p["tags"]]
+            + [catnames.get(p["category"]) or "", p["category"]])
+        p["_search_hay"] = _search_hay(p, extra)
     cache["products"] = products
     return products
 
@@ -291,18 +309,42 @@ def _search_norm(s):
     return unicodedata.normalize("NFKC", s).lower()
 
 
-def _search_hay(p):
-    hay = _search_norm(" ".join(str(p.get(k) or "") for k in _SEARCH_FIELDS))
+def _search_hay(p, extra=""):
+    hay = _search_norm(" ".join(
+        [str(p.get(k) or "") for k in _SEARCH_FIELDS] + [extra]))
     return hay, re.sub(r"\s+", "", hay)
 
 
-def _search_match(p, q):
+def get_search_aliases():
+    """settings.search_aliases: {別名: 展開詞}, admin-edited in the POS
+    (/storefront/searches). Normalized once per DB change."""
+    cache = _fresh()
+    if "search_aliases" not in cache:
+        raw = _setting_json("search_aliases", {})
+        aliases = {}
+        if isinstance(raw, dict):
+            for k, v in raw.items():
+                k, v = _search_norm(str(k)).strip(), _search_norm(str(v)).strip()
+                if k and v:
+                    aliases[k] = (v, re.sub(r"\s+", "", v))
+        cache["search_aliases"] = aliases
+    return cache["search_aliases"]
+
+
+def _search_match(p, q, aliases=None):
     # Every query token must appear somewhere across the fields. Names in the
     # DB carry stray spaces/newlines (Excel import), so each token also gets a
-    # whitespace-squashed pass — "千子MK" matches "千子 MK III型...".
+    # whitespace-squashed pass — "千子MK" matches "千子 MK III型...". A token
+    # that is a known alias also matches through its expansion.
     hay, squashed = p.get("_search_hay") or _search_hay(p)
-    return all(tok in hay or tok in squashed
-               for tok in _search_norm(q).split())
+
+    def _tok_ok(tok):
+        if tok in hay or tok in squashed:
+            return True
+        exp = (aliases or {}).get(tok)
+        return bool(exp) and (exp[0] in hay or exp[1] in squashed)
+
+    return all(_tok_ok(tok) for tok in _search_norm(q).split())
 
 
 def get_products(category=None, search=None):
@@ -310,7 +352,19 @@ def get_products(category=None, search=None):
     if category:
         products = [p for p in products if p["category"] == category]
     if search and search.strip():
-        products = [p for p in products if _search_match(p, search.strip())]
+        q = search.strip()
+        aliases = get_search_aliases()
+        products = [p for p in products if _search_match(p, q, aliases)]
+        # name-prefix matches ahead of the curated order (stable within
+        # each half), so a short query like 千子 leads with exact starts
+        qs = re.sub(r"\s+", "", _search_norm(q))
+        if qs:
+            def _prefix_rank(p):
+                return 0 if any(
+                    re.sub(r"\s+", "", _search_norm(str(p.get(k) or "")))
+                    .startswith(qs)
+                    for k in ("title", "cn_name", "zhtw_name")) else 1
+            products.sort(key=_prefix_rank)
     return products
 
 

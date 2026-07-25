@@ -15,7 +15,7 @@ from PIL import Image, ImageOps, ImageStat
 import markdown
 from flask import Flask, render_template, request, jsonify, session, redirect, url_for, send_from_directory
 from dotenv import load_dotenv
-from threading import Lock
+from threading import Lock, Thread
 
 load_dotenv()
 
@@ -1494,6 +1494,10 @@ def products_page():
 
     # Get products with search filter
     products = get_products(category, search if search else None)
+    if search:
+        ua = (request.headers.get('User-Agent') or '').lower()
+        if not any(b in ua for b in ('bot', 'crawl', 'spider')):
+            _log_search(search, len(products))
 
     # Faction sub-nav: which curated faction tags appear in THIS category
     # (computed category-wide, independent of the active tag, so you can switch
@@ -3451,6 +3455,21 @@ def _pos_api(method, path, body=None):
         return json.loads(resp.read())
 
 
+def _log_search(query, hits, source='site'):
+    """Fire-and-forget mirror of one search into the POS search log
+    (zero-hit queries = demand signal, reviewed at /storefront/searches).
+    Page + LINE bot searches only — autocomplete keystrokes would be noise."""
+    if not STOREFRONT_API_KEY or not query:
+        return
+    def _go():
+        try:
+            _pos_api('POST', '/api/storefront/search-log',
+                     {'query': query, 'hits': hits, 'source': source})
+        except Exception:
+            pass
+    Thread(target=_go, daemon=True).start()
+
+
 @app.route('/linepay/confirm')
 def linepay_confirm():
     import linepay
@@ -4962,6 +4981,7 @@ def _reply_search(uid, kw, reply_token, rearm=False):
     import linepush
     from urllib.parse import quote
     hits = get_products(search=kw)
+    _log_search(kw, len(hits), source='line')
     if not hits:
         if rearm:
             memberdb.set_line_search_mode(uid)

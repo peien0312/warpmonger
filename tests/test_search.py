@@ -35,3 +35,28 @@ def test_tokens_are_anded():
 
 def test_sku_search_still_works():
     assert "JT0007" in _skus("jt0007")
+
+
+def test_tag_zh_label_matches():
+    # every fixture product is tagged ultramarines; glossary maps it to 極限戰士
+    assert "JT0001" in _skus("極限戰士")
+    assert "JT0001" in _skus("ultramarines")
+
+
+def test_category_name_matches():
+    assert "JT0001" in _skus("戰鎚 40K")
+
+
+def test_alias_expansion(monkeypatch):
+    import posdb
+    posdb._fresh()  # ensure cache dict exists for this stamp
+    assert _skus("紅魔") == set()          # no such name in fixture
+    monkeypatch.setitem(posdb._cache, "search_aliases",
+                        {"紅魔": ("千子", "千子")})
+    assert "JT0007" in _skus("紅魔 士兵")
+
+
+def test_prefix_matches_rank_first():
+    import posdb
+    hits = posdb.get_products(search="千子")
+    assert hits and all(h["zhtw_name"].startswith("千子") for h in hits[:2])
