@@ -28,6 +28,22 @@ POS_MEDIA = os.path.abspath(POS_MEDIA)
 POS_PUBLIC_BASE = os.environ.get(
     "POS_PUBLIC_BASE", "https://warpmonger.johnactionfigure.com").rstrip("/")
 
+
+def _public_img(url):
+    """Absolutize a product_images.url for direct <img> use, or None."""
+    url = url or ""
+    if url.startswith("/media/"):
+        url = POS_PUBLIC_BASE + url
+    return url if url.startswith("http") else None
+
+
+# first-gallery-image subquery reused by inquiry / legacy-order item lookups
+_COVER_SQL = """(SELECT pi.url FROM product_images pi
+                  WHERE pi.product_id = p.id
+                    AND pi.kind IN ('gallery', 'cover')
+                    AND COALESCE(pi.url, '') != ''
+                  ORDER BY pi.sort_order LIMIT 1)"""
+
 _lock = threading.Lock()
 _cache = {"stamp": None}
 
@@ -740,20 +756,19 @@ def get_member_inquiries(email, phone, line_user_id=None):
         for r in conn.execute(f"""
             SELECT ii.inquiry_id, ii.quantity, ii.price_twd, ii.status,
                    COALESCE(p.zhtw_name, p.en_name, p.sku, '商品') AS name,
-                   (SELECT pi.url FROM product_images pi
-                     WHERE pi.product_id = ii.product_id
-                       AND pi.kind IN ('gallery', 'cover')
-                       AND COALESCE(pi.url, '') != ''
-                     ORDER BY pi.sort_order LIMIT 1) AS image
+                   p.slug, p.category_slug, p.is_published,
+                   {_COVER_SQL} AS image
             FROM inquiry_items ii
             LEFT JOIN products p ON p.id = ii.product_id
             WHERE ii.inquiry_id IN ({ph}) ORDER BY ii.id""",
                 [i["id"] for i in inqs]):
             row = dict(r)
-            img = row.pop("image") or ""
-            if img.startswith("/media/"):
-                img = POS_PUBLIC_BASE + img
-            row["image"] = img if img.startswith("http") else None
+            row["image"] = _public_img(row.pop("image"))
+            # product-page link only when the product is actually on the site
+            # (改造 parts etc. stay unlinked — the image lightbox covers them)
+            row["url"] = (f"/products/{row['category_slug']}/{row['slug']}"
+                          if row.pop("is_published") and row.get("slug")
+                          and row.get("category_slug") else None)
             items.setdefault(row.pop("inquiry_id"), []).append(row)
         from datetime import datetime as _dt
         now = _dt.now().isoformat(" ")
@@ -769,23 +784,28 @@ def get_member_inquiries(email, phone, line_user_id=None):
         conn.close()
 
 
-def get_member_legacy_orders(phone):
-    """Pre-website internal POS orders for this member, matched to a POS
-    Customer by phone. These predate the site checkout (web_order_id IS NULL),
-    so they never appear in web_orders / get_member_orders. Read-only history:
-    items + customer-friendly status + order total, newest first.
+def get_member_legacy_orders(phone, line_user_id=None):
+    """Internal POS orders for this member (Shopee / LINE-chat deals and
+    LINE-accepted quotes), matched to a POS Customer by LINE userId (durable
+    link) or phone. web_order_id IS NULL, so they never appear in
+    web_orders / get_member_orders. Read-only history: items +
+    customer-friendly status + order total, newest first.
 
     Orders whose status is not customer-facing (棄單/呆帳/待補件 -> not in
     _FRIENDLY_STATUS) are skipped, same as the web-order fulfillment view.
-    Phone is the only join key (no customer_id is stored on the member), so
-    the member's account phone must equal their POS Customer.phone.
     """
-    if not phone:
+    if not (phone or line_user_id):
         return []
     conn = _conn()
     try:
-        cust_ids = [r["id"] for r in conn.execute(
-            "SELECT id FROM customers WHERE phone = ?", (phone,))]
+        cust_ids = set()
+        if line_user_id:
+            cust_ids |= {r["id"] for r in conn.execute(
+                "SELECT id FROM customers WHERE line_user_id = ?", (line_user_id,))}
+        if phone:
+            cust_ids |= {r["id"] for r in conn.execute(
+                "SELECT id FROM customers WHERE phone = ?", (phone,))}
+        cust_ids = list(cust_ids)
         if not cust_ids:
             return []
         # Exclude any order tied to a web order so it never double-shows
@@ -809,12 +829,20 @@ def get_member_legacy_orders(phone):
         for o in rows:
             o["status_labels"] = labels.get(o["id"]) or [
                 _FRIENDLY_STATUS.get(o.get("status"))]
-            o["items"] = [dict(r) for r in conn.execute("""
+            o["items"] = []
+            for r in conn.execute(f"""
                 SELECT oi.quantity, oi.unit_price, p.zhtw_name, p.en_name,
-                       p.sku, p.slug, p.category_slug
+                       p.sku, p.slug, p.category_slug, p.is_published,
+                       {_COVER_SQL} AS image
                 FROM order_items oi JOIN products p ON p.id = oi.product_id
                 WHERE oi.order_id = ? ORDER BY oi.id
-            """, (o["id"],))]
+            """, (o["id"],)):
+                it = dict(r)
+                it["image"] = _public_img(it.pop("image"))
+                it["url"] = (f"/products/{it['category_slug']}/{it['slug']}"
+                             if it.pop("is_published") and it.get("slug")
+                             and it.get("category_slug") else None)
+                o["items"].append(it)
             out.append(o)
         return out
     finally:

@@ -4063,7 +4063,8 @@ def account_page():
         return redirect('/login?next=/account')
     import posdb as _posdb
     orders = _posdb.get_member_orders(member.get('email'), member.get('phone'))
-    legacy_orders = _posdb.get_member_legacy_orders(member.get('phone'))
+    legacy_orders = _posdb.get_member_legacy_orders(
+        member.get('phone'), member.get('line_user_id'))
     inquiries = _posdb.get_member_inquiries(
         member.get('email'), member.get('phone'), member.get('line_user_id'))
     wish_skus = memberdb.wishlist_skus(member['id'])
@@ -4626,7 +4627,8 @@ def api_internal_notify():
             body.append({'type': 'text', 'wrap': True, 'size': 'xs',
                          'color': '#888888',
                          'text': '按「接受報價」直接為您安排；想調整就留言跟阿北說。'})
-            bubbles.append({
+            # summary card leads the carousel; item photo cards follow
+            bubbles.insert(0, {
                 'type': 'bubble',
                 'body': {'type': 'box', 'layout': 'vertical', 'spacing': 'sm',
                          'contents': body},
@@ -5134,7 +5136,7 @@ def _reply_orders(uid, reply_token):
     web = [o for o in _posdb.get_member_orders(member.get('email'),
                                                member.get('phone'))
            if o.get('status') != '已取消']
-    legacy = _posdb.get_member_legacy_orders(member.get('phone'))
+    legacy = _posdb.get_member_legacy_orders(member.get('phone'), uid)
     merged = ([('web', o, str(o.get('created_at') or '')) for o in web] +
               [('pos', o, str(o.get('order_date') or '')) for o in legacy])
     merged.sort(key=lambda t: t[2], reverse=True)
