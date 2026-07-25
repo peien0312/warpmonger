@@ -48,19 +48,19 @@
     <link rel="canonical" href="{{ canonical_url }}">
 
     <!-- Single-locale site (zh-TW). Self-referencing hreflang only. -->
-    <link rel="alternate" hreflang="zh-Hant-TW" href="{{ request.url }}">
-    <link rel="alternate" hreflang="x-default" href="{{ request.url }}">
+    <link rel="alternate" hreflang="zh-Hant-TW" href="{{ canonical_url }}">
+    <link rel="alternate" hreflang="x-default" href="{{ canonical_url }}">
 
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="{% block og_type %}website{% endblock %}">
-    <meta property="og:url" content="{{ request.url }}">
+    <meta property="og:url" content="{{ canonical_url }}">
     <meta property="og:title" content="{% block og_title %}{{ self.title() }}{% endblock %}">
     <meta property="og:description" content="{% block og_description %}{{ self.meta_description() }}{% endblock %}">
     <meta property="og:image" content="{% block og_image %}{{ request.url_root }}static/images/abbeys_logo_round.png{% endblock %}">
 
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image">
-    <meta property="twitter:url" content="{{ request.url }}">
+    <meta property="twitter:url" content="{{ canonical_url }}">
     <meta property="twitter:title" content="{% block twitter_title %}{{ self.og_title() }}{% endblock %}">
     <meta property="twitter:description" content="{% block twitter_description %}{{ self.og_description() }}{% endblock %}">
     <meta property="twitter:image" content="{% block twitter_image %}{{ self.og_image() }}{% endblock %}">

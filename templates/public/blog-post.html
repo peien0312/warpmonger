@@ -10,6 +10,10 @@
 {% block og_image %}{% if post.cover %}{% if post.cover.startswith('http') %}{{ post.cover }}{% else %}{{ request.url_root.rstrip('/') }}{{ post.cover }}{% endif %}{% else %}{{ request.url_root }}static/images/abbeys_logo_round.png{% endif %}{% endblock %}
 
 {% block structured_data %}
+<!-- first-publication attribution: helps search engines credit the origin
+     when the text gets scraped/AI-rewritten elsewhere -->
+<meta property="article:published_time" content="{{ post.date }}">
+{% if post.updated %}<meta property="article:modified_time" content="{{ post.updated }}">{% endif %}
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -19,6 +23,9 @@
   "image": {{ (post.cover if post.cover.startswith('http') else request.url_root.rstrip('/') ~ post.cover)|tojson }},
   {% endif %}
   "datePublished": "{{ post.date }}",
+  {% if post.updated %}
+  "dateModified": "{{ post.updated }}",
+  {% endif %}
   "description": {{ (post.excerpt or post.content_plain)|truncate(200, True, '…')|tojson }},
   {% if post.author %}
   "author": {
@@ -36,7 +43,7 @@
   },
   "mainEntityOfPage": {
     "@type": "WebPage",
-    "@id": "{{ request.url }}"
+    "@id": "{{ canonical_url }}"
   },
   "articleBody": {{ post.content_plain|tojson }}
 }

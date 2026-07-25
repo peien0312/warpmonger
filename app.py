@@ -2681,12 +2681,43 @@ def apple_touch_icon_root():
 
 @app.route('/robots.txt')
 def robots():
-    """Generate robots.txt"""
+    """robots.txt: normal search crawlers welcome; AI *training* crawlers
+    disallowed. AI answer/search fetchers (OAI-SearchBot, ChatGPT-User,
+    PerplexityBot, Claude-SearchBot/-User...) are deliberately NOT blocked —
+    being cited in AI answers is discovery traffic; we only opt out of model
+    training. This is the polite layer; crawlers that ignore robots.txt
+    (Bytespider et al.) are 403'd at Caddy by User-Agent."""
     from flask import Response
+
+    # Training crawlers + robots-token-only opt-outs (Google-Extended /
+    # Applebot-Extended never crawl themselves — they only exist as tokens
+    # here, which is why they are not in the Caddy UA blocklist).
+    training_bots = [
+        'Google-Extended',    # Gemini training (Googlebot/Search unaffected)
+        'Applebot-Extended',  # Apple foundation-model training
+        'GPTBot',             # OpenAI training
+        'ClaudeBot',          # Anthropic training
+        'anthropic-ai',
+        'CCBot',              # Common Crawl (feeds most open training sets)
+        'Bytespider',         # ByteDance
+        'meta-externalagent', # Meta training
+        'Amazonbot',
+        'cohere-ai',
+        'cohere-training-data-crawler',
+        'AI2Bot',
+        'Diffbot',
+        'omgilibot',
+        'Timpibot',
+        'PanguBot',
+        'img2dataset',
+        'ImagesiftBot',
+    ]
+    blocks = '\n'.join(f'User-agent: {ua}\nDisallow: /\n' for ua in training_bots)
 
     txt = f"""User-agent: *
 Allow: /
 
+{blocks}
 Sitemap: {request.url_root}sitemap.xml
 Sitemap: {request.url_root}sitemap-images.xml
 """

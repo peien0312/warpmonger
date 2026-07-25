@@ -474,6 +474,7 @@ def get_blog_posts():
         posts.append({
             "slug": r["slug"], "title": r["title"],
             "date": str(r["published_at"] or "")[:10],
+            "updated": str(r.get("updated_at") or "")[:10],
             "author": extra.get("author") or "",
             "excerpt": extra.get("excerpt") or body[:200],
             "content": body, "tags": extra.get("tags") or [],
@@ -500,6 +501,8 @@ def get_codex_entries():
         title_zhtw = (r["title_zhtw"] if "title_zhtw" in r.keys() else "") or ""
         entries.append({
             "slug": r["slug"], "title": r["title"],
+            "date": str(r["published_at"] or "")[:10],
+            "updated": str(r.get("updated_at") or "")[:10],
             "title_zhtw": title_zhtw,      # zh-TW display name (crosslinks: 中文（English）)
             "aliases": extra.get("aliases") or [],
             "content": body,               # zh-TW body (displayed by default)

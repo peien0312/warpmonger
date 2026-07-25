@@ -4,7 +4,32 @@
 
 {% block meta_description %}{% if entry.title_zhtw %}{{ entry.title_zhtw }}（{{ entry.title }}）{% else %}{{ entry.title }}{% endif %}的背景故事、設定與相關模型。{{ (entry.content_plain or entry.content)[:110] }}{% endblock %}
 
+{% block og_type %}article{% endblock %}
+
 {% block structured_data %}
+{% if entry.date %}<meta property="article:published_time" content="{{ entry.date }}">{% endif %}
+{% if entry.updated %}<meta property="article:modified_time" content="{{ entry.updated }}">{% endif %}
+<!-- Article markup = first-publication attribution for the codex lore pages -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": {{ ((entry.title_zhtw ~ '（' ~ entry.title ~ '）') if entry.title_zhtw else entry.title)|tojson }},
+  {% if entry.date %}
+  "datePublished": "{{ entry.date }}",
+  {% endif %}
+  {% if entry.updated %}
+  "dateModified": "{{ entry.updated }}",
+  {% endif %}
+  "inLanguage": "zh-Hant-TW",
+  "publisher": { "@id": "{{ request.url_root }}#organization" },
+  "author": { "@id": "{{ request.url_root }}#organization" },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "{{ canonical_url }}"
+  }
+}
+</script>
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
