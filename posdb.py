@@ -23,6 +23,10 @@ _CANDIDATE_DBS = [
 POS_DB = next((p for p in _CANDIDATE_DBS if p and os.path.exists(p)), _CANDIDATE_DBS[1])
 POS_MEDIA = os.environ.get("POS_MEDIA") or os.path.join(os.path.dirname(POS_DB), "..", "media")
 POS_MEDIA = os.path.abspath(POS_MEDIA)
+# public host serving POS media/ — used when an image can't be served via a
+# category/slug route (e.g. unpublished 改造 products on inquiries)
+POS_PUBLIC_BASE = os.environ.get(
+    "POS_PUBLIC_BASE", "https://warpmonger.johnactionfigure.com").rstrip("/")
 
 _lock = threading.Lock()
 _cache = {"stamp": None}
@@ -700,6 +704,69 @@ def get_member_orders(email, phone):
     _enrich_orders(conn, orders)
     conn.close()
     return orders
+
+
+def get_member_inquiries(email, phone, line_user_id=None):
+    """詢價/報價 records for this member, newest first: POS customer matched
+    by LINE userId (durable link) or phone, plus inquiries carrying the
+    member's email. Items include name/qty/price/status and a cover-image
+    URL on the POS public host (works for unpublished 改造 products too)."""
+    conn = _conn()
+    try:
+        cust_ids = set()
+        if line_user_id:
+            cust_ids |= {r["id"] for r in conn.execute(
+                "SELECT id FROM customers WHERE line_user_id = ?", (line_user_id,))}
+        if phone:
+            cust_ids |= {r["id"] for r in conn.execute(
+                "SELECT id FROM customers WHERE phone = ?", (phone,))}
+        clauses, params = [], []
+        if cust_ids:
+            clauses.append(f"customer_id IN ({','.join('?' * len(cust_ids))})")
+            params += list(cust_ids)
+        if email:
+            clauses.append("LOWER(COALESCE(email, '')) = ?")
+            params.append(email.lower())
+        if not clauses:
+            return []
+        inqs = [dict(r) for r in conn.execute(
+            "SELECT id, status, quoted_at, expires_at, created_at, order_id "
+            f"FROM inquiries WHERE ({' OR '.join(clauses)}) "
+            "AND status != '已取消' ORDER BY id DESC LIMIT 20", params)]
+        if not inqs:
+            return []
+        ph = ",".join("?" * len(inqs))
+        items = {}
+        for r in conn.execute(f"""
+            SELECT ii.inquiry_id, ii.quantity, ii.price_twd, ii.status,
+                   COALESCE(p.zhtw_name, p.en_name, p.sku, '商品') AS name,
+                   (SELECT pi.url FROM product_images pi
+                     WHERE pi.product_id = ii.product_id
+                       AND pi.kind IN ('gallery', 'cover')
+                       AND COALESCE(pi.url, '') != ''
+                     ORDER BY pi.sort_order LIMIT 1) AS image
+            FROM inquiry_items ii
+            LEFT JOIN products p ON p.id = ii.product_id
+            WHERE ii.inquiry_id IN ({ph}) ORDER BY ii.id""",
+                [i["id"] for i in inqs]):
+            row = dict(r)
+            img = row.pop("image") or ""
+            if img.startswith("/media/"):
+                img = POS_PUBLIC_BASE + img
+            row["image"] = img if img.startswith("http") else None
+            items.setdefault(row.pop("inquiry_id"), []).append(row)
+        from datetime import datetime as _dt
+        now = _dt.now().isoformat(" ")
+        for i in inqs:
+            i["items"] = items.get(i["id"], [])
+            i["total_twd"] = sum(
+                int(it["price_twd"] or 0) * (it["quantity"] or 1)
+                for it in i["items"] if it["status"] in ("已報價", "接受"))
+            # soft expiry (sqlite datetimes are ISO strings; lexicographic works)
+            i["expired"] = bool(i["expires_at"] and str(i["expires_at"]) < now)
+        return inqs
+    finally:
+        conn.close()
 
 
 def get_member_legacy_orders(phone):

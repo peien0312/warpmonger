@@ -187,6 +187,73 @@
     </div>
     {% endif %}
 
+    {% if inquiries %}
+    <div class="order-section" id="inquiries">
+    <h2 class="section-title order-section-head">我的詢價</h2>
+    <p class="text-muted order-section-head"><small>透過 LINE 或網站詢價的報價記錄。接受報價後，阿北會建立訂單並與您確認付款與取貨。</small></p>
+    {% for q in inquiries %}
+    <div class="account-order">
+        <div class="account-order-head">
+            <strong>Q{{ q.id }}</strong>
+            {% if q.order_id %}<span class="badge badge-fs-done">已成立訂單</span>
+            {% elif q.status == '已報價' and q.expired %}<span class="badge badge-fs-prep">報價已過期</span>
+            {% elif q.status == '已報價' %}<span class="badge badge-fs-ready">已報價</span>
+            {% elif q.status == '已確認' %}<span class="badge badge-fs-done">已確認</span>
+            {% else %}<span class="badge badge-fs-prep">報價中</span>{% endif %}
+            <small class="account-date">{{ (q.quoted_at or q.created_at)|twtime }}</small>
+        </div>
+        <ul class="account-order-items">
+            {% for it in q["items"] %}
+            <li style="display:flex; align-items:center; gap:8px;">
+                {% if it.image %}<img src="{{ it.image }}" alt="" loading="lazy" style="width:44px; height:44px; object-fit:cover; border-radius:4px; flex:none;">{% endif %}
+                <span>{{ it.name }} x{{ it.quantity }}
+                {% if it.status == '無法供貨' %}— <span style="color:#948669">無法供貨</span>
+                {% elif it.price_twd %}— NT${{ (it.price_twd * it.quantity)|ntd }}{% else %}— 報價中{% endif %}</span>
+            </li>
+            {% endfor %}
+        </ul>
+        <div style="font-size:0.85rem; color:#948669;">合計：<span style="color:#E6DAC4">NT${{ q.total_twd|ntd }}</span>
+            {% if q.expires_at and not q.order_id and q.status == '已報價' and not q.expired %}
+            <span style="margin-left:10px;">報價有效至 {{ (q.expires_at|string)[:10] }}</span>
+            {% endif %}
+        </div>
+        {% if q.status == '已報價' and not q.order_id and not q.expired %}
+        <div style="margin-top:8px;">
+            <button class="btn btn-primary btn-sm" onclick="acceptInquiry({{ q.id }}, this)">✅ 接受報價</button>
+            <small id="inq-msg-{{ q.id }}" style="margin-left:8px; color:#948669;"></small>
+        </div>
+        {% endif %}
+    </div>
+    {% endfor %}
+    </div>
+    <script>
+    async function acceptInquiry(id, btn) {
+        if (!confirm('確認接受這份報價？阿北會為您建立訂單。')) return;
+        btn.disabled = true;
+        const msg = document.getElementById('inq-msg-' + id);
+        try {
+            const r = await fetch('/api/inquiry-accept', {
+                method: 'POST', headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({inquiry_id: id})});
+            const res = await r.json();
+            if (res.code === 'ok' || res.code === 'already') {
+                msg.textContent = '已收到您的確認，阿北處理中 🙏';
+                setTimeout(() => location.reload(), 1200);
+            } else if (res.code === 'expired') {
+                msg.textContent = '報價已過期，阿北重新確認後回覆您';
+                btn.disabled = false;
+            } else {
+                msg.textContent = '目前無法完成，請直接用 LINE 告訴阿北';
+                btn.disabled = false;
+            }
+        } catch (e) {
+            msg.textContent = '連線失敗，請稍後再試';
+            btn.disabled = false;
+        }
+    }
+    </script>
+    {% endif %}
+
     <!-- 退貨/退款 申請 modal -->
     <div id="return-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:1000; align-items:center; justify-content:center; padding:16px;">
         <div style="background:#fff; color:#292019; max-width:460px; width:100%; border-radius:12px; padding:20px 22px; max-height:85vh; overflow:auto;">

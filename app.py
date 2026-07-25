@@ -4064,6 +4064,8 @@ def account_page():
     import posdb as _posdb
     orders = _posdb.get_member_orders(member.get('email'), member.get('phone'))
     legacy_orders = _posdb.get_member_legacy_orders(member.get('phone'))
+    inquiries = _posdb.get_member_inquiries(
+        member.get('email'), member.get('phone'), member.get('line_user_id'))
     wish_skus = memberdb.wishlist_skus(member['id'])
     wish_products = []
     for prod in _posdb.get_products():
@@ -4072,12 +4074,40 @@ def account_page():
     notify = set(memberdb.notify_skus(member['id']))
     return render_template('public/account.html', member=member,
                            orders=orders, legacy_orders=legacy_orders,
+                           inquiries=inquiries,
                            wish_products=wish_products,
                            notify_skus=notify, bank_info=BANK_TRANSFER_INFO,
                            coupons=_account_coupons(member['id']),
                            addresses=memberdb.list_addresses(member['id']),
                            identities=memberdb.identities_for(member['id']),
                            line_bind_code=memberdb.get_bind_code(member['id']))
+
+
+@app.route('/api/inquiry-accept', methods=['POST'])
+def api_inquiry_accept():
+    """Logged-in member accepts a quote from /account — same conversion as
+    the LINE card's 接受報價 button (POS auto-converts to an order)."""
+    member = current_member()
+    if not member:
+        return jsonify({'error': 'login', 'login_url': '/login'}), 401
+    try:
+        iid = int((request.get_json(silent=True) or {}).get('inquiry_id'))
+    except (TypeError, ValueError):
+        return jsonify({'error': 'bad id'}), 400
+    import posdb as _posdb
+    mine = _posdb.get_member_inquiries(
+        member.get('email'), member.get('phone'), member.get('line_user_id'))
+    if iid not in [i['id'] for i in mine]:
+        return jsonify({'error': 'not yours'}), 403
+    try:
+        res = _pos_api('POST', f'/api/storefront/inquiries/{iid}/accept',
+                       {'phone': member.get('phone') or '',
+                        'email': member.get('email') or '',
+                        'line_user_id': member.get('line_user_id') or ''})
+    except Exception as e:
+        print(f'account quote accept failed (Q{iid}): {e}')
+        return jsonify({'code': 'error'}), 502
+    return jsonify(res)
 
 
 @app.route('/api/wishlist', methods=['POST'])
@@ -4523,55 +4553,80 @@ def api_internal_notify():
         email_html = mailer.render_quote_html(inquiry_no, q_items, expires)
         email_text = mailer.render_quote_text(inquiry_no, q_items, expires)
 
-        # LINE gets a card with 接受報價/想調整 buttons (accept auto-converts
-        # the inquiry to an order via the POS; see _handle_line_postback)
+        # LINE gets a carousel: one photo card per imaged item (big hero
+        # image), then a summary bubble with total + 接受報價/想調整 buttons
+        # and a 網站查看 link (accept auto-converts the inquiry to an order
+        # via the POS; see _handle_line_postback). Items without an image —
+        # or past the bubble cap — stay as text rows in the summary bubble.
         iid = d.get('inquiry_id')
         if iid:
-            rows = []
-            quoted_total = 0
-            for it in q_items:
-                qty = it.get('qty', 1)
+            def _price_of(it):
                 if it.get('status') == '無法供貨':
-                    val, color = '無法供貨', '#999999'
-                elif it.get('price'):
-                    val, color = f"NT${int(it['price']):,}", '#B08D57'
-                    quoted_total += int(it['price']) * qty
-                else:
-                    val, color = '—', '#999999'
-                cells = []
-                img = (it.get('image') or '').strip()
-                if img.startswith('https://'):  # LINE only fetches https
-                    cells.append({'type': 'image', 'url': img, 'flex': 1,
-                                  'size': 'full', 'aspectRatio': '1:1',
-                                  'aspectMode': 'cover'})
-                cells.append({'type': 'text',
-                              'text': f"{it.get('name', '商品')} x{qty}",
-                              'size': 'sm', 'wrap': True, 'flex': 3,
-                              'gravity': 'center'})
-                cells.append({'type': 'text', 'text': val, 'size': 'sm',
-                              'align': 'end', 'flex': 2, 'color': color,
-                              'gravity': 'center'})
-                rows.append({'type': 'box', 'layout': 'horizontal',
-                             'spacing': 'sm', 'contents': cells})
+                    return '無法供貨', '#999999'
+                if it.get('price'):
+                    return f"NT${int(it['price']):,}", '#B08D57'
+                return '—', '#999999'
+
+            quoted_total = sum(
+                int(it['price']) * it.get('qty', 1) for it in q_items
+                if it.get('status') != '無法供貨' and it.get('price'))
+
+            MAX_ITEM_BUBBLES = 10  # + summary bubble = 11 (LINE caps at 12)
+            card_idx = [i for i, it in enumerate(q_items)
+                        if (it.get('image') or '').startswith('https://')
+                        ][:MAX_ITEM_BUBBLES]
+            card_items = [q_items[i] for i in card_idx]
+            rest = [it for i, it in enumerate(q_items) if i not in card_idx]
+
+            bubbles = []
+            for it in card_items:
+                qty = it.get('qty', 1)
+                val, color = _price_of(it)
+                bubbles.append({
+                    'type': 'bubble',
+                    'hero': {'type': 'image', 'url': it['image'],
+                             'size': 'full', 'aspectRatio': '1:1',
+                             'aspectMode': 'cover'},
+                    'body': {'type': 'box', 'layout': 'vertical',
+                             'spacing': 'sm', 'contents': [
+                        {'type': 'text', 'text': it.get('name', '商品'),
+                         'size': 'sm', 'weight': 'bold', 'wrap': True},
+                        {'type': 'box', 'layout': 'horizontal', 'contents': [
+                            {'type': 'text', 'text': f'x{qty}', 'size': 'sm',
+                             'color': '#888888', 'flex': 1, 'gravity': 'center'},
+                            {'type': 'text', 'text': val, 'size': 'lg',
+                             'weight': 'bold', 'align': 'end', 'flex': 4,
+                             'color': color}]},
+                    ]},
+                })
+
             body = [
                 {'type': 'text', 'text': f'報價回覆（{inquiry_no}）',
                  'weight': 'bold', 'size': 'md'},
                 {'type': 'separator'},
-                *rows,
-                {'type': 'separator'},
-                {'type': 'box', 'layout': 'horizontal', 'contents': [
-                    {'type': 'text', 'text': '合計', 'size': 'sm', 'weight': 'bold', 'flex': 3},
-                    {'type': 'text', 'text': f'NT${quoted_total:,}', 'size': 'sm',
-                     'weight': 'bold', 'align': 'end', 'flex': 2}]},
             ]
+            for it in rest:
+                qty = it.get('qty', 1)
+                val, color = _price_of(it)
+                body.append({'type': 'box', 'layout': 'horizontal', 'contents': [
+                    {'type': 'text', 'text': f"{it.get('name', '商品')} x{qty}",
+                     'size': 'sm', 'wrap': True, 'flex': 3},
+                    {'type': 'text', 'text': val, 'size': 'sm', 'align': 'end',
+                     'flex': 2, 'color': color}]})
+            if rest:
+                body.append({'type': 'separator'})
+            body.append({'type': 'box', 'layout': 'horizontal', 'contents': [
+                {'type': 'text', 'text': f'合計（{len(q_items)} 項）',
+                 'size': 'sm', 'weight': 'bold', 'flex': 3},
+                {'type': 'text', 'text': f'NT${quoted_total:,}', 'size': 'sm',
+                 'weight': 'bold', 'align': 'end', 'flex': 2}]})
             if expires:
                 body.append({'type': 'text', 'text': f'報價有效至 {expires}',
                              'size': 'xs', 'color': '#888888'})
             body.append({'type': 'text', 'wrap': True, 'size': 'xs',
                          'color': '#888888',
                          'text': '按「接受報價」直接為您安排；想調整就留言跟阿北說。'})
-            line_flex = {'alt': f'報價回覆 {inquiry_no}｜合計 NT${quoted_total:,}',
-                         'bubbles': [{
+            bubbles.append({
                 'type': 'bubble',
                 'body': {'type': 'box', 'layout': 'vertical', 'spacing': 'sm',
                          'contents': body},
@@ -4585,8 +4640,13 @@ def api_internal_notify():
                     {'type': 'button', 'style': 'secondary', 'height': 'sm',
                      'action': {'type': 'postback', 'label': '💬 想調整・詢問',
                                 'data': f'quotechat:{iid}',
-                                'displayText': '我想調整報價內容'}}]},
-            }]}
+                                'displayText': '我想調整報價內容'}},
+                    {'type': 'button', 'style': 'link', 'height': 'sm',
+                     'action': {'type': 'uri', 'label': '🌐 在網站查看報價',
+                                'uri': f'{SITE_URL}/account#inquiries'}}]},
+            })
+            line_flex = {'alt': f'報價回覆 {inquiry_no}｜合計 NT${quoted_total:,}',
+                         'bubbles': bubbles}
     elif tmpl == 'return_update':
         import mailer
         d = data.get('data') or {}
@@ -5199,7 +5259,8 @@ def _handle_line_postback(uid, data, reply_token):
             res = _pos_api('POST',
                            f'/api/storefront/inquiries/{inquiry_id}/accept',
                            {'phone': member.get('phone') or '',
-                            'email': member.get('email') or ''})
+                            'email': member.get('email') or '',
+                            'line_user_id': uid})
         except Exception as e:
             print(f'quote accept failed (Q{inquiry_id}): {e}')
         code = res.get('code')
