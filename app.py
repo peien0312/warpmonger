@@ -4456,6 +4456,9 @@ def api_internal_notify():
     data = request.get_json(silent=True) or {}
     phone = (data.get('phone') or '').strip()
     email = (data.get('email') or '').strip()
+    # explicit LINE userId from the POS (customers.line_user_id) — skips
+    # the phone/email member lookup, so phone-less members still get pushes
+    line_user_id = (data.get('line_user_id') or '').strip() or None
     message = (data.get('message') or '').strip()
 
     # email variants (LINE stays plain text; email gets branded HTML)
@@ -4640,23 +4643,30 @@ def api_internal_notify():
         email_html = mailer.render_status_html(headline, paras)
         email_text = mailer.render_status_text(headline, paras)
 
-    if not message or not (phone or email):
-        return jsonify({'success': False, 'error': 'need message and phone/email'}), 400
+    if not message or not (phone or email or line_user_id):
+        return jsonify({'success': False, 'error': 'need message and phone/email/line_user_id'}), 400
 
-    # find a bound member by phone or email
-    line_user_id = None
+    # find a bound member by phone or email (rows with a LINE binding win
+    # when duplicate phones exist); an explicit line_user_id takes priority
     member_email = None
     import sqlite3 as _sq
     conn = _sq.connect(memberdb.DB_PATH)
     conn.row_factory = _sq.Row
     row = None
     if phone:
-        row = conn.execute("SELECT * FROM members WHERE phone = ?", (phone,)).fetchone()
+        row = conn.execute(
+            "SELECT * FROM members WHERE phone = ? "
+            "ORDER BY (COALESCE(line_user_id, '') = ''), id",
+            (phone,)).fetchone()
     if not row and email:
-        row = conn.execute("SELECT * FROM members WHERE email = ?", (email,)).fetchone()
+        row = conn.execute(
+            "SELECT * FROM members WHERE email = ? "
+            "ORDER BY (COALESCE(line_user_id, '') = ''), id",
+            (email,)).fetchone()
     conn.close()
     if row:
-        line_user_id = row['line_user_id']
+        if not line_user_id:
+            line_user_id = row['line_user_id']
         member_email = row['email']
 
     sent = []
