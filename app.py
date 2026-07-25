@@ -4538,11 +4538,21 @@ def api_internal_notify():
                     quoted_total += int(it['price']) * qty
                 else:
                     val, color = '—', '#999999'
-                rows.append({'type': 'box', 'layout': 'horizontal', 'contents': [
-                    {'type': 'text', 'text': f"{it.get('name', '商品')} x{qty}",
-                     'size': 'sm', 'wrap': True, 'flex': 3},
-                    {'type': 'text', 'text': val, 'size': 'sm', 'align': 'end',
-                     'flex': 2, 'color': color}]})
+                cells = []
+                img = (it.get('image') or '').strip()
+                if img.startswith('https://'):  # LINE only fetches https
+                    cells.append({'type': 'image', 'url': img, 'flex': 1,
+                                  'size': 'full', 'aspectRatio': '1:1',
+                                  'aspectMode': 'cover'})
+                cells.append({'type': 'text',
+                              'text': f"{it.get('name', '商品')} x{qty}",
+                              'size': 'sm', 'wrap': True, 'flex': 3,
+                              'gravity': 'center'})
+                cells.append({'type': 'text', 'text': val, 'size': 'sm',
+                              'align': 'end', 'flex': 2, 'color': color,
+                              'gravity': 'center'})
+                rows.append({'type': 'box', 'layout': 'horizontal',
+                             'spacing': 'sm', 'contents': cells})
             body = [
                 {'type': 'text', 'text': f'報價回覆（{inquiry_no}）',
                  'weight': 'bold', 'size': 'md'},
