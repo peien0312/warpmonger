@@ -861,6 +861,37 @@ def get_member_inquiries(email, phone, line_user_id=None):
         conn.close()
 
 
+def get_account_comments(web_order_ids=(), inquiry_ids=()):
+    """訂單留言 threads for the account page, oldest first, keyed
+    ('order', web_order_id) / ('inq', inquiry_id). Append-only rows written
+    by the POS (customer comments arrive there via the storefront API).
+    Tolerates the table not existing yet (site deployed before POS)."""
+    if not (web_order_ids or inquiry_ids):
+        return {}
+    conn = _conn()
+    out = {}
+    try:
+        if web_order_ids:
+            ph = ",".join("?" * len(web_order_ids))
+            for r in conn.execute(
+                    "SELECT web_order_id, author, body, created_at "
+                    f"FROM order_comments WHERE web_order_id IN ({ph}) "
+                    "ORDER BY id", list(web_order_ids)):
+                out.setdefault(("order", r["web_order_id"]), []).append(dict(r))
+        if inquiry_ids:
+            ph = ",".join("?" * len(inquiry_ids))
+            for r in conn.execute(
+                    "SELECT inquiry_id, author, body, created_at "
+                    f"FROM order_comments WHERE inquiry_id IN ({ph}) "
+                    "ORDER BY id", list(inquiry_ids)):
+                out.setdefault(("inq", r["inquiry_id"]), []).append(dict(r))
+    except Exception as e:
+        print(f"load order comments failed: {e}")
+    finally:
+        conn.close()
+    return out
+
+
 def get_member_legacy_orders(phone, line_user_id=None):
     """Internal POS orders for this member (Shopee / LINE-chat deals and
     LINE-accepted quotes), matched to a POS Customer by LINE userId (durable

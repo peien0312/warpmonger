@@ -4123,9 +4123,12 @@ def account_page():
         if prod['id'] in wish_skus:
             wish_products.append(prod)
     notify = set(memberdb.notify_skus(member['id']))
+    comments = _posdb.get_account_comments(
+        web_order_ids=[o['id'] for o in orders],
+        inquiry_ids=[q['id'] for q in inquiries])
     return render_template('public/account.html', member=member,
                            orders=orders, legacy_orders=legacy_orders,
-                           inquiries=inquiries,
+                           inquiries=inquiries, comments=comments,
                            wish_products=wish_products,
                            notify_skus=notify, bank_info=BANK_TRANSFER_INFO,
                            coupons=_account_coupons(member['id']),
@@ -5672,6 +5675,48 @@ def _authorized_for_order(order_no, token=None):
         return any(o['order_no'] == order_no for o in
                    _posdb.get_member_orders(member.get('email'), member.get('phone')))
     return False
+
+
+@app.route('/api/account/order-comment', methods=['POST'])
+def api_order_comment():
+    """Append a comment to an order / inquiry thread (訂單留言). Append-only:
+    the POS has no edit or delete endpoints, so the thread is a log of what
+    was agreed — say so in the UI before posting."""
+    import urllib.error
+    data = request.get_json(silent=True) or {}
+    body = (data.get('body') or '').strip()
+    if not body:
+        return jsonify({'success': False, 'error': '請輸入留言內容'}), 400
+    order_no = (data.get('order_no') or '').strip()
+    inquiry_id = data.get('inquiry_id')
+    if order_no:
+        if not _authorized_for_order(order_no, data.get('token')):
+            return jsonify({'success': False, 'error': '找不到這筆訂單'}), 403
+        payload = {'order_no': order_no, 'body': body}
+    elif inquiry_id:
+        member = current_member()
+        if not member:
+            return jsonify({'success': False, 'error': '請先登入'}), 403
+        import posdb as _posdb
+        mine = _posdb.get_member_inquiries(
+            member.get('email'), member.get('phone'), member.get('line_user_id'))
+        if int(inquiry_id) not in {q['id'] for q in mine}:
+            return jsonify({'success': False, 'error': '找不到這筆詢價'}), 403
+        payload = {'inquiry_id': int(inquiry_id), 'body': body}
+    else:
+        return jsonify({'success': False, 'error': '缺少訂單編號'}), 400
+    try:
+        resp = _pos_api('POST', '/api/storefront/order-comments', payload)
+    except urllib.error.HTTPError as e:
+        try:
+            detail = json.loads(e.read()).get('detail', '留言失敗')
+        except Exception:
+            detail = '留言失敗'
+        return jsonify({'success': False, 'error': detail}), 400
+    except Exception as e:
+        print(f"order comment failed: {e}")
+        return jsonify({'success': False, 'error': '系統忙碌中，請稍後再試'}), 502
+    return jsonify(resp)
 
 
 @app.route('/api/account/report-transfer', methods=['POST'])

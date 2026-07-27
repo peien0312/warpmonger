@@ -4038,6 +4038,20 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
 .digits-input { width: 110px; padding: 5px 8px; background: #241C15; border: 1px solid #3B2F24; border-radius: 4px; color: #E6DAC4; }
 .account-wishlist .product-card { padding-bottom: 8px; }
 
+/* 訂單留言 — append-only thread on order/inquiry cards */
+.oc-box { margin-top: 10px; border-top: 1px dashed #3B2F24; padding-top: 8px; font-size: 0.9rem; }
+.oc-box summary { cursor: pointer; color: #948669; user-select: none; }
+.oc-box[open] summary { margin-bottom: 6px; }
+.oc-row { margin: 6px 0; max-width: 88%; }
+.oc-row small { display: block; color: #948669; margin-bottom: 2px; }
+.oc-body { background: #241C15; border: 1px solid #3B2F24; border-radius: 8px; padding: 6px 10px; color: #E6DAC4; white-space: pre-wrap; }
+.oc-shop { margin-left: auto; text-align: right; }
+.oc-shop .oc-body { background: #33270F; border-color: #D9A441; text-align: left; }
+.oc-form { margin-top: 8px; }
+.oc-form textarea { width: 100%; padding: 6px 10px; background: #241C15; border: 1px solid #3B2F24; border-radius: 6px; color: #E6DAC4; resize: vertical; }
+.oc-actions { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 4px; }
+.oc-actions small, .oc-msg { color: #948669; }
+
 /* Profile form */
 .profile-form { border: 1px solid #3B2F24; border-radius: 5px; background: #292019; padding: 14px 16px; margin-bottom: 26px; }
 .profile-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px 16px; margin-bottom: 10px; }

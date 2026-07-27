@@ -79,6 +79,32 @@
         '運送中': 'badge-fs-transit', '準備出貨': 'badge-fs-dispatch',
         '已出貨': 'badge-fs-shipped', '已完成': 'badge-fs-done',
         '已退貨': 'badge-fs-returned'} %}
+
+    {# 訂單留言 — append-only thread, mirrored to the POS. anchor is
+       {'order_no': ...} or {'inquiry_id': ...} #}
+    {% macro comment_thread(thread, anchor, allow_post=True) %}
+    <details class="oc-box" {% if thread %}open{% endif %}>
+        <summary>💬 訂單留言{% if thread %}（{{ thread|length }}）{% endif %}</summary>
+        <div class="oc-thread">
+        {% for c in thread %}
+            <div class="oc-row {{ 'oc-shop' if c.author == 'shop' else 'oc-mine' }}">
+                <small>{{ '阿北' if c.author == 'shop' else '您' }} · {{ c.created_at|twtime }}</small>
+                <div class="oc-body">{{ c.body }}</div>
+            </div>
+        {% endfor %}
+        </div>
+        {% if allow_post %}
+        <div class="oc-form" data-anchor='{{ anchor|tojson }}'>
+            <textarea maxlength="500" rows="2" placeholder="改造細節、顏色、尺寸…想到什麼直接留言"></textarea>
+            <div class="oc-actions">
+                <small>留言送出後無法修改，阿北會盡快回覆</small>
+                <button class="btn btn-sm btn-outline" onclick="postComment(this)">送出留言</button>
+            </div>
+            <small class="oc-msg"></small>
+        </div>
+        {% endif %}
+    </details>
+    {% endmacro %}
     <div class="order-filter" id="order-filter" style="display:none"></div>
     <div class="order-section">
     {% if orders %}
@@ -155,6 +181,9 @@
         {% if o.status == '已轉單' and o.payment_status in ('已付款', '貨到付款') and not ns.active %}
         <button class="btn btn-sm btn-outline" onclick="openReturn('{{ o.order_no }}')">申請退貨／退款</button>
         {% endif %}
+        {{ comment_thread(comments.get(('order', o.id), []),
+                          {'order_no': o.order_no},
+                          allow_post=(o.status != '已取消')) }}
     </div>
     {% endfor %}
     </div>
@@ -232,6 +261,7 @@
             <small id="inq-msg-{{ q.id }}" style="margin-left:8px; color:#948669;"></small>
         </div>
         {% endif %}
+        {{ comment_thread(comments.get(('inq', q.id), []), {'inquiry_id': q.id}) }}
     </div>
     {% endfor %}
     </div>
@@ -388,6 +418,44 @@ async function payLinePay(orderNo) {
     const data = await res.json();
     if (data.success && data.payment_url) location.href = data.payment_url;
     else if (msg) msg.textContent = data.error || 'LINE Pay 啟動失敗';
+}
+
+// ----- 訂單留言（append-only：送出後不能改，舊留言保留成記錄）-----
+async function postComment(btn) {
+    const box = btn.closest('.oc-form');
+    const ta = box.querySelector('textarea');
+    const msg = box.querySelector('.oc-msg');
+    const body = ta.value.trim();
+    if (!body) { msg.textContent = '請輸入留言內容'; return; }
+    btn.disabled = true;
+    msg.textContent = '';
+    try {
+        const payload = Object.assign({body: body}, JSON.parse(box.dataset.anchor));
+        const res = await fetch('/api/account/order-comment', {
+            method: 'POST', headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(payload),
+        });
+        const data = await res.json();
+        if (data.success) {
+            const thread = box.closest('.oc-box').querySelector('.oc-thread');
+            const row = document.createElement('div');
+            row.className = 'oc-row oc-mine';
+            const meta = document.createElement('small');
+            meta.textContent = '您 · 剛剛';
+            const bodyDiv = document.createElement('div');
+            bodyDiv.className = 'oc-body';
+            bodyDiv.textContent = body;
+            row.appendChild(meta); row.appendChild(bodyDiv);
+            thread.appendChild(row);
+            ta.value = '';
+            msg.textContent = '已送出，阿北會盡快回覆 🙏';
+        } else {
+            msg.textContent = data.error || '留言失敗，請稍後再試';
+        }
+    } catch (e) {
+        msg.textContent = '連線失敗，請稍後再試';
+    }
+    btn.disabled = false;
 }
 
 async function reportTransfer(btn) {
