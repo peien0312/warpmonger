@@ -54,6 +54,29 @@ def test_account_renders_comment_thread(client):
     assert '留言送出後無法修改' in html
 
 
+def test_converted_order_card_shows_inquiry_thread(client):
+    """A quote-accepted internal order (其他訂單) shares its source
+    inquiry's thread — the same log renders on the order card too."""
+    m = _member_matching_fixture_order()
+    conn = sqlite3.connect(os.environ['POS_DB'])
+    order_id, cust_id = conn.execute(
+        "SELECT id, customer_id FROM orders WHERE source = 'line' LIMIT 1"
+    ).fetchone()
+    cur = conn.execute(
+        "INSERT INTO inquiries (customer_id, order_id, status) "
+        "VALUES (?, ?, '已確認')", (cust_id, order_id))
+    inq_id = cur.lastrowid
+    conn.commit()
+    conn.close()
+    _add_pos_comment(inquiry_id=inq_id, author='customer', body='桂冠改金色')
+
+    _login(client, m['id'])
+    html = client.get('/account').get_data(as_text=True)
+    assert '其他訂單' in html
+    assert '網站上線前' not in html
+    assert '桂冠改金色' in html
+
+
 def test_comment_post_requires_auth(client):
     # anonymous, no token -> not authorized for the order
     r = client.post('/api/account/order-comment',

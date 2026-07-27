@@ -190,8 +190,8 @@
 
     {% if legacy_orders %}
     <div class="order-section">
-    <h2 class="section-title order-section-head">歷史訂單</h2>
-    <p class="text-muted order-section-head"><small>這些是網站上線前的訂單記錄（透過蝦皮／LINE 等），僅供查詢。</small></p>
+    <h2 class="section-title order-section-head">其他訂單</h2>
+    <p class="text-muted order-section-head"><small>透過蝦皮／LINE 成交，以及接受報價後成立的訂單。</small></p>
     {% for o in legacy_orders %}
     <div class="account-order" data-statuses="{{ o.status_labels|join(' ') }}">
         <div class="account-order-head">
@@ -215,6 +215,12 @@
         </ul>
         {% if o.total_amount %}
         <div style="font-size:0.85rem; color:#948669;">訂單金額：<span style="color:#E6DAC4">NT${{ o.total_amount|ntd }}</span></div>
+        {% endif %}
+        {# quote-accepted orders share their 詢價 comment thread — same log,
+           shown on both cards #}
+        {% if o.inquiry_id %}
+        {{ comment_thread(comments.get(('inq', o.inquiry_id), []),
+                          {'inquiry_id': o.inquiry_id}) }}
         {% endif %}
     </div>
     {% endfor %}

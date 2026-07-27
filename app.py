@@ -4125,7 +4125,8 @@ def account_page():
     notify = set(memberdb.notify_skus(member['id']))
     comments = _posdb.get_account_comments(
         web_order_ids=[o['id'] for o in orders],
-        inquiry_ids=[q['id'] for q in inquiries])
+        inquiry_ids={q['id'] for q in inquiries} |
+                    {o['inquiry_id'] for o in legacy_orders if o.get('inquiry_id')})
     return render_template('public/account.html', member=member,
                            orders=orders, legacy_orders=legacy_orders,
                            inquiries=inquiries, comments=comments,

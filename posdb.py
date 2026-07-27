@@ -933,8 +933,17 @@ def get_member_legacy_orders(phone, line_user_id=None):
         # from item statuses so 待配貨 items with shelf stock read 備貨完成
         rows = [o for o in rows if o.get("status") in _FRIENDLY_STATUS]
         labels = _internal_order_labels(conn, [o["id"] for o in rows])
+        # source inquiry (quote-accepted orders) — lets the account page show
+        # the inquiry's 訂單留言 thread on the order card too
+        inq_of = {}
+        if rows:
+            oph = ",".join("?" * len(rows))
+            inq_of = {r["order_id"]: r["id"] for r in conn.execute(
+                f"SELECT id, order_id FROM inquiries "
+                f"WHERE order_id IN ({oph})", [o["id"] for o in rows])}
         out = []
         for o in rows:
+            o["inquiry_id"] = inq_of.get(o["id"])
             o["status_labels"] = labels.get(o["id"]) or [
                 _FRIENDLY_STATUS.get(o.get("status"))]
             o["items"] = []
