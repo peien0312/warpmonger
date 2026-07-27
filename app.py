@@ -4680,7 +4680,7 @@ def api_internal_notify():
                              'size': 'xs', 'color': '#888888'})
             body.append({'type': 'text', 'wrap': True, 'size': 'xs',
                          'color': '#888888',
-                         'text': '按「接受報價」直接為您安排；想調整就留言跟阿北說。'})
+                         'text': '按「接受報價」直接為您安排；想調整請到網站「訂單留言」留言（會保留成記錄）。'})
             # summary card leads the carousel; item photo cards follow
             bubbles.insert(0, {
                 'type': 'bubble',
@@ -5302,8 +5302,10 @@ def _handle_line_postback(uid, data, reply_token):
         return True
     if data.startswith('quotechat:'):
         linepush.reply_text(reply_token,
-            '沒問題！想調整品項、數量或有任何問題，直接在這裡留言，'
-            '阿北會親自回覆您 🙌', line_user_id=uid)
+            '沒問題！想調整品項、數量、顏色或改造細節，'
+            '請到網站的「訂單留言」留言，內容會保留成記錄，不怕聊一聊漏掉 👇\n'
+            f'{SITE_URL}/account#inquiries\n\n'
+            '急事也可以直接在這裡跟阿北說 🙌', line_user_id=uid)
         return True
     if data.startswith('quoteacc:'):
         try:
@@ -5326,7 +5328,9 @@ def _handle_line_postback(uid, data, reply_token):
             total = res.get('total_twd') or 0
             reply = (f'收到您的確認 🙏 已為您建立訂單（{n} 項，'
                      f'合計 NT${total:,}）。\n'
-                     '阿北會盡快與您確認取貨方式與付款，謝謝！')
+                     '阿北會盡快與您確認取貨方式與付款，謝謝！\n\n'
+                     '改造細節（顏色、尺寸等）歡迎到「訂單留言」補充，'
+                     f'會保留成記錄：\n{SITE_URL}/account#inquiries')
         elif code == 'already':
             reply = '已收到您的確認囉，阿北處理中 🙏'
         elif code == 'expired':
