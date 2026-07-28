@@ -87,7 +87,7 @@ def default_level():
         "ramp": {"length": 3.5, "rise": 2.2, "gap": 1.0, "curve": 0.45},
         "backboard": {"height": 4, "thickness": 0.25, "tilt": 0.62},
         "ball": {"radius": 0.4, "mass": 2.5, "friction": 0.9, "restitution": 0.22,
-                 "minSpeed": 13, "maxSpeed": 24, "upBase": 0.06, "upScale": 0.1},
+                 "minSpeed": 14, "maxSpeed": 26, "upBase": 0.04, "upScale": 0.05},
         "aim": {"maxAngle": 0.14, "oscSpeed": 1.6},
         "textures": {"ballUrl": "/static/game/tex/wh_ball.jpg",
                      "laneUrl": "/static/game/tex/wh_lane.jpg",

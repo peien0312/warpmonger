@@ -28,6 +28,7 @@ export default function PlayBall({
   ballCfg = DEFAULT_LEVEL.ball,
   startPosition,
   missBounds,
+  posRef,
 }) {
   const body = useRef()
   const done = useRef(false)
@@ -56,6 +57,7 @@ export default function PlayBall({
 
     if (done.current) return
     const { x, y, z } = api.translation()
+    if (posRef) posRef.current = { x, y, z }
     const b = missBounds
     const outOfBounds = b && (y < b.minY || z > b.maxZ || z < b.minZ || Math.abs(x) > b.maxAbsX)
     const timedOut = clock.elapsedTime - bornAt.current > MAX_FLIGHT_TIME

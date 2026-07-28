@@ -6,6 +6,9 @@ import { DEFAULT_LEVEL } from './levelConfig.js'
 
 export const POCKET_DEPTH = 1.2
 export const RAMP_SEGMENTS = 14
+// Well above earth-normal: at toy scale (12m lane) real gravity reads as
+// floaty slow-motion. Canvas and tune-sim both use this.
+export const GRAVITY_Y = -22
 
 /**
  * Split the ramp into N box segments following a power-curve profile:

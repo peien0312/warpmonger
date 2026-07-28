@@ -4,7 +4,7 @@
 // Run: node scripts/tune-sim.mjs [aimRadians]
 import RAPIER from '@dimforge/rapier3d-compat'
 import { DEFAULT_LEVEL } from '../src/config/levelConfig.js'
-import { computeBackstopSegments, computeGeometry, computeRampSegments } from '../src/config/geometry.js'
+import { computeBackstopSegments, computeGeometry, computeRampSegments, GRAVITY_Y } from '../src/config/geometry.js'
 
 await RAPIER.init()
 
@@ -14,7 +14,7 @@ const { lane, ramp, backboard, ball } = level
 const tilt = geom.tilt
 const PIVOT = { y: ramp.rise, z: geom.backboardZ }
 const POCKET_DEPTH = 1.2
-const GRAVITY = -16
+const GRAVITY = GRAVITY_Y
 const AIM = Number(process.argv[2] ?? 0)
 
 // --- quaternion helpers (x-axis tilt composed with local z rotations) ---

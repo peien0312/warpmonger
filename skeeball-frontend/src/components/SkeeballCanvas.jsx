@@ -4,6 +4,7 @@ import { Html, Stars } from '@react-three/drei'
 import { Physics } from '@react-three/rapier'
 import * as THREE from 'three'
 import SkeeballWorld, { computeGeometry, PreviewBall, SceneBackground } from './SkeeballWorld.jsx'
+import { GRAVITY_Y } from '../config/geometry.js'
 import AimArrow from './AimArrow.jsx'
 import PlayBall from './PlayBall.jsx'
 import { ConfettiRain, ScoreBurst, ScorePop } from './Effects.jsx'
@@ -23,13 +24,20 @@ function loadBest() {
   }
 }
 
+const HOME_CAM = new THREE.Vector3(0, 5.5, -11)
+
 /**
- * Camera rig: hold A / D to rotate around the lane, or drag (mouse/touch)
- * anywhere on the canvas — the container feeds pixel deltas through dragRef.
- * Dragging also tilts the camera height a little for a free look.
+ * Camera rig with three behaviors:
+ * - follow: while a ball is rolling, chase it from behind-above and look at
+ *   it (speed reads faster and the deck action plays out up close);
+ * - return: after the ball ends, glide back to the home framing;
+ * - free: hold A/D to rotate, or drag (mouse/touch) — the container feeds
+ *   pixel deltas through dragRef; dragging also tilts the camera height.
  */
-function CameraRig({ target = [0, 1.5, 4], speed = 1.6, dragRef }) {
+function CameraRig({ target = [0, 1.5, 4], speed = 1.6, dragRef, ballRef, following }) {
   const keys = useRef({ a: false, d: false })
+  const returning = useRef(false)
+  const wasFollowing = useRef(false)
 
   useEffect(() => {
     const set = (key, value) => {
@@ -52,10 +60,35 @@ function CameraRig({ target = [0, 1.5, 4], speed = 1.6, dragRef }) {
 
   useFrame(({ camera }, dt) => {
     const t = new THREE.Vector3(...target)
-    const dir = (keys.current.a ? 1 : 0) - (keys.current.d ? 1 : 0)
     const drag = dragRef?.current
+
+    if (following && ballRef?.current) {
+      wasFollowing.current = true
+      const b = ballRef.current
+      const desired = new THREE.Vector3(b.x * 0.5, b.y + 2.2, b.z - 4.5)
+      camera.position.lerp(desired, 1 - Math.exp(-dt * 4.5))
+      camera.lookAt(b.x, b.y + 0.3, b.z)
+      if (drag) { drag.dx = 0; drag.dy = 0 }
+      return
+    }
+    if (wasFollowing.current) {
+      wasFollowing.current = false
+      returning.current = true
+    }
+
+    const dir = (keys.current.a ? 1 : 0) - (keys.current.d ? 1 : 0)
+    const dragged = drag && (drag.dx || drag.dy)
+    if (dir || dragged) returning.current = false
+
+    if (returning.current) {
+      camera.position.lerp(HOME_CAM, 1 - Math.exp(-dt * 3.5))
+      camera.lookAt(t)
+      if (camera.position.distanceTo(HOME_CAM) < 0.15) returning.current = false
+      return
+    }
+
     let angle = dir * speed * Math.min(dt, 0.05)
-    if (drag && (drag.dx || drag.dy)) {
+    if (dragged) {
       angle += drag.dx * 0.006 // drag right → scene turns with the pointer
       camera.position.y = Math.min(10, Math.max(2, camera.position.y - drag.dy * 0.03))
       drag.dx = 0
@@ -166,6 +199,7 @@ export default function SkeeballCanvas({ level = DEFAULT_LEVEL, freePlay = false
   const pointerRef = useRef(null) // { lastX, lastY, startX, startY }
   const dragDeltaRef = useRef({ dx: 0, dy: 0 })
   const wasDragRef = useRef(false)
+  const ballPosRef = useRef(null) // live ball position for the chase camera
 
   const onPointerDown = useCallback((e) => {
     if (e.pointerType === 'mouse' && e.button !== 0) return
@@ -358,12 +392,15 @@ export default function SkeeballCanvas({ level = DEFAULT_LEVEL, freePlay = false
     if (stepRef.current !== 'power' || wasDragRef.current) return
     scoredRef.current = false
     ballDoneRef.current = false
+    ballPosRef.current = {
+      x: geom.BALL_START[0], y: geom.BALL_START[1], z: geom.BALL_START[2],
+    }
     sfx.click()
     sfx.launch(powerRef.current)
     setLaunch({ angle: aimRef.current, power: powerRef.current, key: Date.now() })
     setLastHit(null)
     setStep('rolling')
-  }, [])
+  }, [geom])
 
   const aiming = step === 'aim' || step === 'power'
 
@@ -405,9 +442,8 @@ export default function SkeeballCanvas({ level = DEFAULT_LEVEL, freePlay = false
             />
             <directionalLight position={[-5, 6, 4]} intensity={0.3} />
 
-            {/* key on level: fixed physics bodies are recreated so editor edits apply live.
-                Gravity above earth-normal kills the floaty feel at this scale. */}
-            <Physics key={JSON.stringify(level)} gravity={[0, -16, 0]}>
+            {/* key on level: fixed physics bodies are recreated so editor edits apply live. */}
+            <Physics key={JSON.stringify(level)} gravity={[0, GRAVITY_Y, 0]}>
               <SkeeballWorld level={level} onScore={handleScore} />
               {(aiming || step === 'idle') && (
                 <>
@@ -436,6 +472,7 @@ export default function SkeeballCanvas({ level = DEFAULT_LEVEL, freePlay = false
                   startPosition={geom.BALL_START}
                   missBounds={geom.missBounds}
                   onMiss={handleMiss}
+                  posRef={ballPosRef}
                 />
               )}
             </Physics>
@@ -448,7 +485,12 @@ export default function SkeeballCanvas({ level = DEFAULT_LEVEL, freePlay = false
               )
             )}
 
-            <CameraRig target={[0, 1.5, 4]} dragRef={dragDeltaRef} />
+            <CameraRig
+              target={[0, 1.5, 4]}
+              dragRef={dragDeltaRef}
+              ballRef={ballPosRef}
+              following={step === 'rolling'}
+            />
           </Suspense>
         </Canvas>
       </div>

@@ -327,16 +327,19 @@ function ScoreHole({ hole, geom, onScore }) {
           color={COLORS.apex}
         />
       )}
+      {/* Big point value INSIDE the ring, facing the player (rotation flips
+          the text plane toward -z — without it the glyphs render mirrored). */}
       <Text
-        position={[hole.x, isApex ? hole.y - hole.r - 0.35 : hole.y + hole.r + 0.3, boardFaceZ - 0.05]}
-        fontSize={isApex ? 0.16 : 0.22}
-        color={isApex ? COLORS.apex : '#f8fafc'}
+        position={[hole.x, hole.y, boardFaceZ - 0.06]}
+        rotation={[0, Math.PI, 0]}
+        fontSize={hole.r * 0.8}
+        color={isApex ? '#fde047' : '#f1f5f9'}
         anchorX="center"
         anchorY="middle"
-        outlineWidth={0.012}
+        outlineWidth={hole.r * 0.07}
         outlineColor="#0f172a"
       >
-        {isApex ? `${hole.points} 頭獎` : `${hole.points}`}
+        {String(hole.points)}
       </Text>
       {isApex && <ApexBackstop hole={hole} geom={geom} />}
       <RimColliders hole={hole} geom={geom} />
