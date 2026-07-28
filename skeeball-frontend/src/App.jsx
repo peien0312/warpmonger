@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import SkeeballCanvas from './components/SkeeballCanvas.jsx'
 import LevelEditor from './components/LevelEditor.jsx'
 import { putLevel } from './api/skeeballApi.js'
+import { isMuted, setMuted } from './audio/sfx.js'
 import { DEFAULT_LEVEL, loadLevelLocal, sanitizeLevel, saveLevelLocal } from './config/levelConfig.js'
 
 /** Password prompt shown before the level editor opens (?admin in the URL). */
@@ -87,6 +88,12 @@ export default function App() {
   const [showKeyPrompt, setShowKeyPrompt] = useState(false)
   const [editorOpen, setEditorOpen] = useState(false)
   const [saveStatus, setSaveStatus] = useState('')
+  const [muted, setMutedState] = useState(isMuted)
+
+  const toggleMute = () => {
+    setMuted(!muted)
+    setMutedState(!muted)
+  }
 
   const isAdmin = new URLSearchParams(window.location.search).has('admin')
 
@@ -169,6 +176,14 @@ export default function App() {
           </a>
         </div>
         <div className="flex items-center gap-3 text-sm">
+          <button
+            type="button"
+            onClick={toggleMute}
+            title={muted ? '開啟音效' : '關閉音效'}
+            className="rounded-full bg-slate-800 px-3 py-1.5 hover:bg-slate-700"
+          >
+            {muted ? '🔇' : '🔊'}
+          </button>
           {balance ? (
             <span className="rounded-full bg-slate-800 px-4 py-1.5">
               遊戲次數：<span className="font-semibold text-sky-300">{balance.tokenBalance}</span>

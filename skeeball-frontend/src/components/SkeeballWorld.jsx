@@ -1,5 +1,6 @@
-import { Suspense, useMemo } from 'react'
-import { Text, useTexture } from '@react-three/drei'
+import { Suspense, useMemo, useRef } from 'react'
+import { useFrame } from '@react-three/fiber'
+import { Sparkles, Text, useTexture } from '@react-three/drei'
 import { BallCollider, CuboidCollider, RigidBody } from '@react-three/rapier'
 import * as THREE from 'three'
 import { DEFAULT_LEVEL } from '../config/levelConfig.js'
@@ -302,11 +303,34 @@ function CapturePocket({ hole, geom, onScore }) {
           position={[hole.x, hole.y, z1 - 0.25]}
           sensor
           onIntersectionEnter={({ other }) => {
-            if (other.rigidBody?.userData?.isSkeeball) onScore(hole.points)
+            if (other.rigidBody?.userData?.isSkeeball) onScore(hole)
           }}
         />
       </RigidBody>
     </group>
+  )
+}
+
+/** Apex rim: emissive intensity breathes so the jackpot holes feel alive. */
+function ApexRim({ hole, boardFaceZ }) {
+  const mat = useRef()
+  useFrame(({ clock }) => {
+    if (mat.current) {
+      mat.current.emissiveIntensity = 0.9 + Math.sin(clock.elapsedTime * 3.2) * 0.5
+    }
+  })
+  return (
+    <mesh position={[hole.x, hole.y, boardFaceZ - 0.02]}>
+      <torusGeometry args={[hole.r, 0.06, 20, 48]} />
+      <meshStandardMaterial
+        ref={mat}
+        color={hole.color}
+        emissive={hole.color}
+        emissiveIntensity={0.9}
+        roughness={0.3}
+        metalness={0.4}
+      />
+    </mesh>
   )
 }
 
@@ -321,15 +345,29 @@ function ScoreHole({ hole, geom, onScore }) {
         <meshStandardMaterial color="#020617" roughness={1} />
       </mesh>
       {/* Visible rim ring */}
-      <mesh position={[hole.x, hole.y, boardFaceZ - 0.02]}>
-        <torusGeometry args={[hole.r, 0.06, 20, 48]} />
-        <meshStandardMaterial
-          color={hole.color}
-          emissive={hole.color}
-          emissiveIntensity={isApex ? 0.8 : 0.35}
-          roughness={0.4}
+      {isApex ? (
+        <ApexRim hole={hole} boardFaceZ={boardFaceZ} />
+      ) : (
+        <mesh position={[hole.x, hole.y, boardFaceZ - 0.02]}>
+          <torusGeometry args={[hole.r, 0.06, 20, 48]} />
+          <meshStandardMaterial
+            color={hole.color}
+            emissive={hole.color}
+            emissiveIntensity={0.35}
+            roughness={0.4}
+          />
+        </mesh>
+      )}
+      {isApex && (
+        <Sparkles
+          count={18}
+          position={[hole.x, hole.y, boardFaceZ - 0.25]}
+          scale={[hole.r * 3, hole.r * 3, 0.5]}
+          size={3}
+          speed={0.5}
+          color={COLORS.apex}
         />
-      </mesh>
+      )}
       <Text
         position={[hole.x, isApex ? hole.y - hole.r - 0.35 : hole.y + hole.r + 0.3, boardFaceZ - 0.05]}
         fontSize={isApex ? 0.16 : 0.22}
@@ -339,7 +377,7 @@ function ScoreHole({ hole, geom, onScore }) {
         outlineWidth={0.012}
         outlineColor="#0f172a"
       >
-        {isApex ? `${hole.points} Golden Ticket` : `${hole.points}`}
+        {isApex ? `${hole.points} 頭獎` : `${hole.points}`}
       </Text>
       <RimColliders hole={hole} geom={geom} />
       <CapturePocket hole={hole} geom={geom} onScore={onScore} />

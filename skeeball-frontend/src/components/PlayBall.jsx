@@ -1,10 +1,14 @@
 import { useMemo, useRef } from 'react'
 import { useFrame } from '@react-three/fiber'
+import { Trail } from '@react-three/drei'
 import { RigidBody } from '@react-three/rapier'
 import { BallSurface } from './SkeeballWorld.jsx'
 import { DEFAULT_LEVEL } from '../config/levelConfig.js'
 
 const MAX_FLIGHT_TIME = 8 // seconds before a stray ball is retired
+const STALL_SPEED = 0.55 // m/s — below this the ball is "going nowhere"
+const STALL_TIME = 1.2 // seconds of going-nowhere before retiring
+const BACKWARD_TIME = 1.1 // seconds of rolling back toward the player
 
 /**
  * Dynamic physics ball. Launch velocity is set through the RigidBody's
@@ -28,6 +32,8 @@ export default function PlayBall({
   const body = useRef()
   const done = useRef(false)
   const bornAt = useRef(null)
+  const stallSince = useRef(null)
+  const backwardSince = useRef(null)
 
   const launchVelocity = useMemo(() => {
     const speed = ballCfg.minSpeed + power * (ballCfg.maxSpeed - ballCfg.minSpeed)
@@ -53,7 +59,31 @@ export default function PlayBall({
     const b = missBounds
     const outOfBounds = b && (y < b.minY || z > b.maxZ || z < b.minZ || Math.abs(x) > b.maxAbsX)
     const timedOut = clock.elapsedTime - bornAt.current > MAX_FLIGHT_TIME
-    if (outOfBounds || timedOut) {
+
+    // A ball that stalls, or rolls backward down the lane, can never score —
+    // retire it early instead of making the player watch it creep out of
+    // bounds. Grace period ~0.5s so the launch itself never trips these.
+    const now = clock.elapsedTime
+    const alive = now - bornAt.current
+    let deadEnd = false
+    if (alive > 0.5) {
+      const v = api.linvel()
+      const speed = Math.hypot(v.x, v.y, v.z)
+      if (speed < STALL_SPEED) {
+        stallSince.current ??= now
+        deadEnd = now - stallSince.current > STALL_TIME
+      } else {
+        stallSince.current = null
+      }
+      if (v.z < -0.4) {
+        backwardSince.current ??= now
+        deadEnd ||= now - backwardSince.current > BACKWARD_TIME
+      } else {
+        backwardSince.current = null
+      }
+    }
+
+    if (outOfBounds || timedOut || deadEnd) {
       done.current = true
       onMiss()
     }
@@ -73,10 +103,12 @@ export default function PlayBall({
       linearVelocity={launchVelocity}
       userData={{ isSkeeball: true }}
     >
-      <mesh castShadow>
-        <sphereGeometry args={[ballCfg.radius, 48, 48]} />
-        <BallSurface textureUrl={textureUrl} />
-      </mesh>
+      <Trail width={1.6} length={5} color="#fbbf24" attenuation={(t) => t * t}>
+        <mesh castShadow>
+          <sphereGeometry args={[ballCfg.radius, 48, 48]} />
+          <BallSurface textureUrl={textureUrl} />
+        </mesh>
+      </Trail>
     </RigidBody>
   )
 }

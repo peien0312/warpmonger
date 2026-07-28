@@ -1,16 +1,27 @@
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Canvas, useFrame } from '@react-three/fiber'
-import { Html } from '@react-three/drei'
+import { Html, Stars } from '@react-three/drei'
 import { Physics } from '@react-three/rapier'
 import * as THREE from 'three'
 import SkeeballWorld, { computeGeometry, PreviewBall, SceneBackground } from './SkeeballWorld.jsx'
 import AimArrow from './AimArrow.jsx'
 import PlayBall from './PlayBall.jsx'
+import { ConfettiRain, ScoreBurst, ScorePop } from './Effects.jsx'
+import * as sfx from '../audio/sfx.js'
 import { completeSession, postRoll, startSession } from '../api/skeeballApi.js'
 import { DEFAULT_LEVEL } from '../config/levelConfig.js'
 import TextureErrorBoundary from './TextureErrorBoundary.jsx'
 
 const LOCAL_BALLS_PER_SESSION = 3
+const BEST_KEY = 'horusball-best'
+
+function loadBest() {
+  try {
+    return parseInt(localStorage.getItem(BEST_KEY), 10) || 0
+  } catch {
+    return 0
+  }
+}
 
 /** Camera orbit via keyboard: hold A / D to rotate around the lane. */
 function KeyboardOrbit({ target = [0, 1.5, 4], speed = 1.6 }) {
@@ -122,6 +133,9 @@ export default function SkeeballCanvas({ level = DEFAULT_LEVEL, onGameComplete }
   const [starting, setStarting] = useState(false)
   const [offlineReason, setOfflineReason] = useState(null) // null when synced
   const [completeResult, setCompleteResult] = useState(null) // { totalScore, golden, prize }
+  const [fx, setFx] = useState([]) // live burst/pop effects
+  const [best, setBest] = useState(loadBest)
+  const [newBest, setNewBest] = useState(false)
 
   const aimRef = useRef(0)
   const powerRef = useRef(0)
@@ -130,12 +144,26 @@ export default function SkeeballCanvas({ level = DEFAULT_LEVEL, onGameComplete }
   const sessionRef = useRef(null) // { sessionId, nonce } when synced
   const rollIndexRef = useRef(0)
   const scoredRef = useRef(false) // one score per launched ball
+  const ballDoneRef = useRef(false) // one END (score OR miss/skip) per ball
   const syncedRef = useRef(false)
+  const fxIdRef = useRef(0)
+
+  const removeFx = useCallback((id) => {
+    setFx((list) => list.filter((f) => f.id !== id))
+  }, [])
+
+  const spawnFx = useCallback((items) => {
+    setFx((list) => [
+      ...list,
+      ...items.map((item) => ({ ...item, id: ++fxIdRef.current })),
+    ])
+  }, [])
 
   const handleStartGame = async () => {
     if (starting) return
     setStarting(true)
     setCompleteResult(null)
+    setNewBest(false)
     setOfflineReason(null)
     sessionRef.current = null
     syncedRef.current = false
@@ -202,23 +230,60 @@ export default function SkeeballCanvas({ level = DEFAULT_LEVEL, onGameComplete }
   )
 
   const handleScore = useCallback(
-    (points) => {
+    (hole) => {
       if (stepRef.current !== 'rolling') return
-      if (scoredRef.current) return // one score per ball
+      if (ballDoneRef.current) return // one END per ball
+      ballDoneRef.current = true
       scoredRef.current = true
+      const points = hole.points
+      const golden = points >= 300
       setScore((s) => s + points)
       setLastHit(points)
+      sfx.score(points)
+      const at = [hole.x, hole.y, geom.boardFaceZ - 0.2]
+      spawnFx([
+        { kind: 'burst', position: at, color: hole.color, big: golden },
+        { kind: 'pop', position: at, text: `+${points}`, big: golden,
+          color: golden ? '#fde68a' : '#fef3c7' },
+      ])
       // Let the ball visibly settle into the pocket before unmounting it.
       setTimeout(() => endBall(points), 300)
     },
-    [endBall]
+    [endBall, geom, spawnFx]
   )
 
   const handleMiss = useCallback(() => {
     if (stepRef.current !== 'rolling') return
+    if (ballDoneRef.current) return
+    ballDoneRef.current = true
     setLastHit(0)
+    sfx.miss()
     endBall(0)
   }, [endBall])
+
+  // [R] forfeits a hopeless ball (stuck, rolled backward) — counts as a miss.
+  useEffect(() => {
+    const onKey = (e) => {
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return
+      if (e.key.toLowerCase() === 'r') handleMiss()
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [handleMiss])
+
+  // Personal best (client-side, per browser) — update the moment a game ends.
+  useEffect(() => {
+    if (step !== 'over') return
+    setNewBest(score > best && score > 0)
+    if (score > best) {
+      setBest(score)
+      try {
+        localStorage.setItem(BEST_KEY, String(score))
+      } catch {
+        // Storage unavailable — best just won't persist.
+      }
+    }
+  }, [step]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Server recomputes the score from stored rolls — never send client totals.
   useEffect(() => {
@@ -228,6 +293,7 @@ export default function SkeeballCanvas({ level = DEFAULT_LEVEL, onGameComplete }
       .then((data) => {
         if (cancelled) return
         setCompleteResult(data)
+        sfx.gameOver(Boolean(data?.prize))
         onGameComplete?.(data)
       })
       .catch(() => {
@@ -240,12 +306,16 @@ export default function SkeeballCanvas({ level = DEFAULT_LEVEL, onGameComplete }
 
   const handleLockAngle = () => {
     if (step !== 'aim') return
+    sfx.click()
     setStep('power')
   }
 
   const handleLockPower = useCallback(() => {
     if (stepRef.current !== 'power') return
     scoredRef.current = false
+    ballDoneRef.current = false
+    sfx.click()
+    sfx.launch(powerRef.current)
     setLaunch({ angle: aimRef.current, power: powerRef.current, key: Date.now() })
     setLastHit(null)
     setStep('rolling')
@@ -264,12 +334,14 @@ export default function SkeeballCanvas({ level = DEFAULT_LEVEL, onGameComplete }
         >
           <Suspense fallback={<LoadingFallback />}>
             <color attach="background" args={['#0b1120']} />
-            {bgUrl && (
+            {bgUrl ? (
               <TextureErrorBoundary resetKey={bgUrl} fallback={null}>
                 <Suspense fallback={null}>
                   <SceneBackground url={bgUrl} />
                 </Suspense>
               </TextureErrorBoundary>
+            ) : (
+              <Stars radius={70} depth={40} count={2500} factor={4} fade speed={0.6} />
             )}
 
             <ambientLight intensity={0.55} />
@@ -316,6 +388,14 @@ export default function SkeeballCanvas({ level = DEFAULT_LEVEL, onGameComplete }
               )}
             </Physics>
 
+            {fx.map((f) =>
+              f.kind === 'burst' ? (
+                <ScoreBurst key={f.id} {...f} onEnd={removeFx} />
+              ) : (
+                <ScorePop key={f.id} {...f} onEnd={removeFx} />
+              )
+            )}
+
             <KeyboardOrbit target={[0, 1.5, 4]} />
           </Suspense>
         </Canvas>
@@ -323,7 +403,10 @@ export default function SkeeballCanvas({ level = DEFAULT_LEVEL, onGameComplete }
 
       {/* HUD */}
       <div className="pointer-events-none absolute left-3 top-3 rounded-xl bg-slate-950/70 px-4 py-2 text-sm text-slate-100">
-        分數：<span className="font-bold text-amber-300">{score}</span>
+        分數：<span key={score} className="score-bump font-bold text-amber-300">{score}</span>
+        {best > 0 && (
+          <span className="ml-3 text-xs text-slate-400">最佳 {best}</span>
+        )}
       </div>
       <div className="pointer-events-none absolute right-3 top-3 rounded-xl bg-slate-950/70 px-4 py-2 text-sm text-slate-100">
         剩餘球數：<span className="font-bold text-sky-300">{ballsLeft}</span>
@@ -374,10 +457,16 @@ export default function SkeeballCanvas({ level = DEFAULT_LEVEL, onGameComplete }
       {/* Game over — prize reveal */}
       {step === 'over' && (
         <div className="absolute inset-0 flex items-center justify-center bg-slate-950/70">
+          {completeResult?.prize && (
+            <ConfettiRain gold={Boolean(completeResult.golden)} />
+          )}
           <div className="flex max-w-sm flex-col items-center gap-4 rounded-2xl border border-slate-700 bg-slate-900 px-10 py-8 text-center shadow-2xl">
             <p className="text-xl font-bold text-slate-100 md:text-2xl">
               遊戲結束 — 總分 <span className="text-amber-300">{score}</span>
             </p>
+            {newBest && (
+              <p className="text-sm font-bold text-sky-300">🏆 新紀錄！</p>
+            )}
             {completeResult?.golden && completeResult?.prize && (
               <p className="text-lg font-bold text-amber-300">⭐ 命中金色頂孔！</p>
             )}
@@ -422,6 +511,11 @@ export default function SkeeballCanvas({ level = DEFAULT_LEVEL, onGameComplete }
         </span>
         <span className="text-slate-600">|</span>
         <span>滑鼠點擊：鎖定角度 → 鎖定力度</span>
+        <span className="text-slate-600">|</span>
+        <span>
+          <kbd className="rounded border border-slate-600 bg-slate-800 px-1.5 py-0.5 font-bold text-slate-100">R</kbd>
+          {' 跳過卡住的球'}
+        </span>
       </div>
     </div>
   )

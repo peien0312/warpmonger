@@ -3,3 +3,42 @@
 body {
   margin: 0;
 }
+
+/* Falling confetti pieces for the prize modal (see Effects.jsx). */
+.confetti-piece {
+  position: absolute;
+  top: -12px;
+  border-radius: 1px;
+  animation-name: confetti-fall;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
+@keyframes confetti-fall {
+  0% {
+    transform: translateY(-5vh) rotate(0deg) rotateY(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(105vh) rotate(calc(var(--spin-dir, 1) * 720deg)) rotateY(360deg);
+    opacity: 0.7;
+  }
+}
+
+/* HUD score bump — retriggered by keying the element on the score value. */
+.score-bump {
+  display: inline-block;
+  animation: score-bump 0.45s cubic-bezier(0.2, 2.2, 0.4, 1);
+}
+
+@keyframes score-bump {
+  0% {
+    transform: scale(1);
+  }
+  35% {
+    transform: scale(1.6);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
