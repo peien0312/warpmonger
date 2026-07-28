@@ -6,9 +6,13 @@ import { isMuted, setMuted } from './audio/sfx.js'
 import { DEFAULT_LEVEL, loadLevelLocal, sanitizeLevel, saveLevelLocal } from './config/levelConfig.js'
 import { LEVEL_PRESETS } from './config/presets.js'
 
-// ?level=<key> previews a bundled level preset (client-side only — the
-// served default level is untouched; sessions still score normally).
-const PREVIEW = LEVEL_PRESETS[new URLSearchParams(window.location.search).get('level')] ?? null
+// ?level=<key> deep-links a level; the in-page picker keeps it in sync.
+// Presets apply client-side only — the served default level is untouched;
+// sessions still score normally.
+const INITIAL_KEY = (() => {
+  const k = new URLSearchParams(window.location.search).get('level')
+  return LEVEL_PRESETS[k] ? k : 'classic'
+})()
 
 /** Password prompt shown before the level editor opens (?admin in the URL). */
 function AdminKeyModal({ onSubmit, onCancel }) {
@@ -88,8 +92,24 @@ export default function App() {
   const [config, setConfig] = useState(null)
   const [balance, setBalance] = useState(null)
   const [apiError, setApiError] = useState(false)
+  const [presetKey, setPresetKey] = useState(INITIAL_KEY)
+  const [serverLevel, setServerLevel] = useState(null)
   const [level, setLevel] = useState(() =>
-    PREVIEW ? sanitizeLevel(PREVIEW.level) : (loadLevelLocal() ?? DEFAULT_LEVEL))
+    INITIAL_KEY !== 'classic'
+      ? sanitizeLevel(LEVEL_PRESETS[INITIAL_KEY].level)
+      : (loadLevelLocal() ?? DEFAULT_LEVEL))
+
+  const choosePreset = (key) => {
+    if (key === presetKey) return
+    setPresetKey(key)
+    setLevel(key === 'classic'
+      ? (serverLevel ?? loadLevelLocal() ?? DEFAULT_LEVEL)
+      : sanitizeLevel(LEVEL_PRESETS[key].level))
+    const url = new URL(window.location)
+    if (key === 'classic') url.searchParams.delete('level')
+    else url.searchParams.set('level', key)
+    window.history.replaceState(null, '', url)
+  }
   const [adminKey, setAdminKey] = useState(null)
   const [showKeyPrompt, setShowKeyPrompt] = useState(false)
   const [editorOpen, setEditorOpen] = useState(false)
@@ -130,8 +150,13 @@ export default function App() {
         if (cancelled) return
         setConfig(configData)
         setBalance(balanceData)
-        // Server-saved level wins over the local fallback (unless previewing).
-        if (configData.level && !PREVIEW) setLevel(sanitizeLevel(configData.level))
+        // Server-saved level wins over the local fallback (for 經典 only —
+        // preset picks stay as chosen).
+        if (configData.level) {
+          const lv = sanitizeLevel(configData.level)
+          setServerLevel(lv)
+          if (INITIAL_KEY === 'classic') setLevel(lv)
+        }
       } catch {
         if (!cancelled) setApiError(true)
       }
@@ -180,11 +205,6 @@ export default function App() {
           <a href="/" className="text-xs text-slate-400 underline-offset-2 hover:text-amber-300 hover:underline">
             ← 回阿北玩具堂
           </a>
-          {PREVIEW && (
-            <span className="ml-3 rounded-full border border-amber-500/50 bg-amber-500/10 px-3 py-0.5 text-xs font-semibold text-amber-300">
-              關卡預覽：{PREVIEW.name}
-            </span>
-          )}
         </div>
         <div className="flex items-center gap-3 text-sm">
           <button
@@ -211,7 +231,32 @@ export default function App() {
       </header>
 
       <main className="mx-auto w-full max-w-6xl px-4 pb-10">
-        <SkeeballCanvas level={level} freePlay={Boolean(balance?.freePlay)} onGameComplete={refreshBalance} />
+        <div className="mb-3 flex flex-wrap items-center gap-2">
+          <span className="text-xs uppercase tracking-wide text-slate-400">關卡</span>
+          {Object.entries(LEVEL_PRESETS).map(([key, p]) => (
+            <button
+              key={key}
+              type="button"
+              onClick={() => choosePreset(key)}
+              className={
+                key === presetKey
+                  ? 'rounded-full bg-amber-500 px-4 py-1.5 text-sm font-bold text-slate-950 shadow'
+                  : 'rounded-full bg-slate-800 px-4 py-1.5 text-sm text-slate-200 hover:bg-slate-700'
+              }
+            >
+              {p.name}
+            </button>
+          ))}
+        </div>
+
+        {/* key on the preset: switching levels resets the game to the start
+            screen instead of swapping the board out mid-throw. */}
+        <SkeeballCanvas
+          key={presetKey}
+          level={level}
+          freePlay={Boolean(balance?.freePlay)}
+          onGameComplete={refreshBalance}
+        />
 
         {isAdmin && !editorOpen && !showKeyPrompt && (
           <button
