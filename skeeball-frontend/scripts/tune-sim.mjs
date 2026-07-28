@@ -1,14 +1,16 @@
-// Headless power-sweep of the CURRENT level (tilted deck + curved ramp).
+// Headless power-sweep of a level (tilted deck + curved ramp).
 // Mirrors computeGeometry/computeRampSegments/SkeeballWorld colliders and
 // PlayBall's launch math, then reports where each power lands.
-// Run: node scripts/tune-sim.mjs [aimRadians]
+// Run: node scripts/tune-sim.mjs [aimRadians] [presetKey]
+// NOTE: the patrolling DeckSweeper is NOT modeled — results are best-case timing.
 import RAPIER from '@dimforge/rapier3d-compat'
-import { DEFAULT_LEVEL } from '../src/config/levelConfig.js'
+import { LEVEL_PRESETS } from '../src/config/presets.js'
 import { computeBackstopSegments, computeGeometry, computeRampSegments, GRAVITY_Y } from '../src/config/geometry.js'
 
 await RAPIER.init()
 
-const level = DEFAULT_LEVEL
+const PRESET = process.argv[3] ?? 'classic'
+const level = LEVEL_PRESETS[PRESET].level
 const geom = computeGeometry(level)
 const { lane, ramp, backboard, ball } = level
 const tilt = geom.tilt
@@ -160,8 +162,35 @@ function runShot(power, aim) {
   return { result, maxDeckY: maxDeckY.toFixed(2), xAtMax: xAtMax.toFixed(2) }
 }
 
-console.log(`aim=${AIM} tilt=${tilt} gravity=${GRAVITY} maxSpeed=${ball.maxSpeed}`)
-for (let p = 0.1; p <= 1.001; p += 0.05) {
-  const { result, maxDeckY, xAtMax } = runShot(p, AIM)
-  console.log(`power=${p.toFixed(2)} peak=(x ${xAtMax}, y ${maxDeckY}) -> ${result}`)
+if (process.argv[2] === 'grid') {
+  // Coverage check: sweep aim × power, count what each hole receives.
+  const hits = new Map(level.targets.map((t) => [t.name, { n: 0, first: null }]))
+  let total = 0
+  let misses = 0
+  for (let aim = -0.13; aim <= 0.1301; aim += 0.02) {
+    for (let p = 0.1; p <= 1.001; p += 0.05) {
+      total++
+      const { result } = runShot(p, aim)
+      const m = result.match(/^SCORE \d+ \((.+)\)$/)
+      if (!m) {
+        misses++
+        continue
+      }
+      const h = hits.get(m[1])
+      h.n++
+      h.first ??= `aim ${aim.toFixed(2)} power ${p.toFixed(2)}`
+    }
+  }
+  console.log(`preset=${PRESET} shots=${total} noscore=${misses} (${Math.round((misses / total) * 100)}%)`)
+  for (const t of level.targets) {
+    const h = hits.get(t.name)
+    console.log(`${String(t.points).padStart(3)} ${t.name}: ${h.n} hits` +
+      (h.first ? ` (first: ${h.first})` : '  ⚠️ UNREACHABLE'))
+  }
+} else {
+  console.log(`aim=${AIM} preset=${PRESET} tilt=${tilt} gravity=${GRAVITY} maxSpeed=${ball.maxSpeed}`)
+  for (let p = 0.1; p <= 1.001; p += 0.05) {
+    const { result, maxDeckY, xAtMax } = runShot(p, AIM)
+    console.log(`power=${p.toFixed(2)} peak=(x ${xAtMax}, y ${maxDeckY}) -> ${result}`)
+  }
 }

@@ -4,6 +4,11 @@ import LevelEditor from './components/LevelEditor.jsx'
 import { putLevel } from './api/skeeballApi.js'
 import { isMuted, setMuted } from './audio/sfx.js'
 import { DEFAULT_LEVEL, loadLevelLocal, sanitizeLevel, saveLevelLocal } from './config/levelConfig.js'
+import { LEVEL_PRESETS } from './config/presets.js'
+
+// ?level=<key> previews a bundled level preset (client-side only — the
+// served default level is untouched; sessions still score normally).
+const PREVIEW = LEVEL_PRESETS[new URLSearchParams(window.location.search).get('level')] ?? null
 
 /** Password prompt shown before the level editor opens (?admin in the URL). */
 function AdminKeyModal({ onSubmit, onCancel }) {
@@ -83,7 +88,8 @@ export default function App() {
   const [config, setConfig] = useState(null)
   const [balance, setBalance] = useState(null)
   const [apiError, setApiError] = useState(false)
-  const [level, setLevel] = useState(() => loadLevelLocal() ?? DEFAULT_LEVEL)
+  const [level, setLevel] = useState(() =>
+    PREVIEW ? sanitizeLevel(PREVIEW.level) : (loadLevelLocal() ?? DEFAULT_LEVEL))
   const [adminKey, setAdminKey] = useState(null)
   const [showKeyPrompt, setShowKeyPrompt] = useState(false)
   const [editorOpen, setEditorOpen] = useState(false)
@@ -124,8 +130,8 @@ export default function App() {
         if (cancelled) return
         setConfig(configData)
         setBalance(balanceData)
-        // Server-saved level wins over the local fallback.
-        if (configData.level) setLevel(sanitizeLevel(configData.level))
+        // Server-saved level wins over the local fallback (unless previewing).
+        if (configData.level && !PREVIEW) setLevel(sanitizeLevel(configData.level))
       } catch {
         if (!cancelled) setApiError(true)
       }
@@ -174,6 +180,11 @@ export default function App() {
           <a href="/" className="text-xs text-slate-400 underline-offset-2 hover:text-amber-300 hover:underline">
             ← 回阿北玩具堂
           </a>
+          {PREVIEW && (
+            <span className="ml-3 rounded-full border border-amber-500/50 bg-amber-500/10 px-3 py-0.5 text-xs font-semibold text-amber-300">
+              關卡預覽：{PREVIEW.name}
+            </span>
+          )}
         </div>
         <div className="flex items-center gap-3 text-sm">
           <button
