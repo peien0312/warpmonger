@@ -4,29 +4,43 @@
  * sanitizeLevel defensively clamps any external input back into valid ranges.
  */
 
+/**
+ * Layout philosophy (2026-07 rebuild): the target deck is TILTED back
+ * (backboard.tilt, radians from vertical) so the ball lands on it and rolls —
+ * the easy 50 sits low-center right in the natural landing path, the 100s
+ * flank mid-deck, the 150 sits high-center, and the two golden 300s live in
+ * the top corners where only a committed full-power shot reaches. A ball that
+ * fails a high hole rolls back down across the lower holes — easy small
+ * scores, rare jackpots.
+ */
 export const DEFAULT_LEVEL = {
   targets: [
-    { name: 'Outer Ring', points: 50, r: 0.9, x: 0, y: 3.2, color: '#38bdf8' },
-    { name: 'Middle Ring', points: 100, r: 0.75, x: -1.7, y: 2.95, color: '#a78bfa' },
-    { name: 'Inner Ring', points: 150, r: 0.75, x: 1.7, y: 3.0, color: '#f59e0b' },
-    { name: 'Apex Corner L', points: 300, r: 0.65, x: -1.95, y: 4.35, color: '#facc15' },
-    { name: 'Apex Corner R', points: 300, r: 0.65, x: 1.95, y: 4.35, color: '#facc15' },
+    { name: '中央之門 50', points: 50, r: 0.85, x: 0, y: 3.0, color: '#38bdf8' },
+    { name: '左聖印 100', points: 100, r: 0.7, x: -1.5, y: 3.7, color: '#a78bfa' },
+    { name: '右聖印 100', points: 100, r: 0.7, x: 1.5, y: 3.7, color: '#a78bfa' },
+    { name: '帝皇之眼 150', points: 150, r: 0.66, x: 0, y: 4.5, color: '#f59e0b' },
+    { name: '荷魯斯之眼 L', points: 300, r: 0.62, x: -1.85, y: 5.2, color: '#facc15' },
+    { name: '荷魯斯之眼 R', points: 300, r: 0.62, x: 1.85, y: 5.2, color: '#facc15' },
   ],
   lane: { width: 4, length: 12, thickness: 0.3 },
-  ramp: { length: 3.5, rise: 2.2, gap: 2, curve: 0.3 },
-  backboard: { height: 4, thickness: 0.25 },
+  ramp: { length: 3.5, rise: 2.2, gap: 1.0, curve: 0.45 },
+  backboard: { height: 4, thickness: 0.25, tilt: 0.62 },
   ball: {
-    radius: 0.45,
+    radius: 0.4,
     mass: 2.5,
-    friction: 1.2,
-    restitution: 0.3,
-    minSpeed: 1.8,
+    friction: 0.9,
+    restitution: 0.22,
+    minSpeed: 13,
     maxSpeed: 24,
-    upBase: 0.05,
+    upBase: 0.06,
     upScale: 0.1,
   },
-  aim: { maxAngle: 0.38, oscSpeed: 1.6 },
-  textures: { ballUrl: '', laneUrl: '', backgroundUrl: '' },
+  aim: { maxAngle: 0.14, oscSpeed: 1.6 },
+  textures: {
+    ballUrl: '/static/game/tex/wh_ball.jpg',
+    laneUrl: '/static/game/tex/wh_lane.jpg',
+    backgroundUrl: '/static/game/tex/wh_space.jpg',
+  },
 }
 
 const STORAGE_KEY = 'horusball-level'
@@ -52,7 +66,8 @@ function color(value, fallback) {
 function url(value, fallback) {
   if (value === '' || value == null) return ''
   if (typeof value !== 'string' || value.length > 500) return fallback
-  return /^https?:\/\//.test(value) ? value : fallback
+  // http(s) or site-relative (the bundled /static/game/tex/* skins)
+  return /^(https?:\/\/|\/[^/])/.test(value) ? value : fallback
 }
 
 function sanitizeTarget(raw, fallback) {
@@ -83,7 +98,7 @@ export function sanitizeLevel(raw) {
   const aimSrc = src.aim && typeof src.aim === 'object' ? src.aim : {}
   const texSrc = src.textures && typeof src.textures === 'object' ? src.textures : {}
 
-  const minSpeed = num(ballSrc.minSpeed, d.ball.minSpeed, 0.5, 10)
+  const minSpeed = num(ballSrc.minSpeed, d.ball.minSpeed, 0.5, 20)
   return {
     targets,
     lane: {
@@ -100,6 +115,7 @@ export function sanitizeLevel(raw) {
     backboard: {
       height: num(boardSrc.height, d.backboard.height, 2, 8),
       thickness: num(boardSrc.thickness, d.backboard.thickness, 0.1, 0.5),
+      tilt: num(boardSrc.tilt, d.backboard.tilt, 0, 1.2),
     },
     ball: {
       radius: num(ballSrc.radius, d.ball.radius, 0.2, 0.6),
@@ -116,9 +132,9 @@ export function sanitizeLevel(raw) {
       oscSpeed: num(aimSrc.oscSpeed, d.aim.oscSpeed, 0.2, 5),
     },
     textures: {
-      ballUrl: url(texSrc.ballUrl, ''),
-      laneUrl: url(texSrc.laneUrl, ''),
-      backgroundUrl: url(texSrc.backgroundUrl, ''),
+      ballUrl: url(texSrc.ballUrl, d.textures.ballUrl),
+      laneUrl: url(texSrc.laneUrl, d.textures.laneUrl),
+      backgroundUrl: url(texSrc.backgroundUrl, d.textures.backgroundUrl),
     },
   }
 }

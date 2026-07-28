@@ -290,6 +290,7 @@ export default function LevelEditor({ level, onChange, onSave, onClose, saveStat
         <SliderField label="Ramp curve (滑道弧度)" value={level.ramp.curve} min={0} max={1} step={0.05} onChange={(v) => updateSection('ramp', { curve: v })} />
         <SliderField label="Backboard height" value={level.backboard.height} min={2} max={8} onChange={(v) => updateSection('backboard', { height: v })} />
         <SliderField label="Backboard thickness" value={level.backboard.thickness} min={0.1} max={0.5} onChange={(v) => updateSection('backboard', { thickness: v })} />
+        <SliderField label="Backboard tilt (背板後傾角)" value={level.backboard.tilt} min={0} max={1.2} step={0.02} onChange={(v) => updateSection('backboard', { tilt: v })} />
       </section>
 
       {/* Ball & Aim */}

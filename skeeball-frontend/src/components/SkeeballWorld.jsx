@@ -6,10 +6,13 @@ import * as THREE from 'three'
 import { DEFAULT_LEVEL } from '../config/levelConfig.js'
 import TextureErrorBoundary from './TextureErrorBoundary.jsx'
 
+export { computeGeometry, computeRampSegments } from '../config/geometry.js'
+import { computeBackstopSegments, computeGeometry, computeRampSegments, POCKET_DEPTH } from '../config/geometry.js'
+
 export const COLORS = {
   lane: '#8b5a2b',
   ramp: '#a06a35',
-  backboard: '#1e293b',
+  backboard: '#20242c',
   pocket: '#0b1120',
   gutter: '#334155',
   ball: '#dc2626',
@@ -22,78 +25,8 @@ export const COLORS = {
 // Wood-like contact feel: low bounce, high friction so the ball rolls.
 export const WOOD = { friction: 0.9, restitution: 0.25 }
 
-const POCKET_DEPTH = 1.2
 const POCKET_WALL = 0.08
 const RIM_SEGMENTS = 10
-const RAMP_SEGMENTS = 14
-
-/**
- * Split the ramp into N box segments following a power-curve profile:
- * y = rise · t^(1 + 2·curve). curve 0 = straight incline; higher values stay
- * flatter at the bottom and launch steeper at the lip (ski-jump shape).
- * The same segments drive both the meshes and the physics colliders.
- */
-export function computeRampSegments(lane, ramp) {
-  const exponent = 1 + 2 * ramp.curve
-  const z0 = lane.length / 2
-  const y = (t) => ramp.rise * Math.pow(t, exponent)
-  const segs = []
-  for (let i = 0; i < RAMP_SEGMENTS; i++) {
-    const t0 = i / RAMP_SEGMENTS
-    const t1 = (i + 1) / RAMP_SEGMENTS
-    const dz = (t1 - t0) * ramp.length
-    const dy = y(t1) - y(t0)
-    segs.push({
-      position: [0, (y(t0) + y(t1)) / 2, z0 + ((t0 + t1) / 2) * ramp.length],
-      angle: Math.atan2(dy, dz),
-      length: Math.hypot(dz, dy) + 0.02, // slight overlap so segments don't gap
-    })
-  }
-  return segs
-}
-
-/**
- * Pure geometry derivation from a level config. Everything the world,
- * aim arrow, preview ball and play ball need, computed in one place.
- */
-export function computeGeometry(level = DEFAULT_LEVEL) {
-  const { lane, ramp, backboard, ball } = level
-  const rampTopZ = lane.length / 2 + ramp.length
-  // Gap between the ramp lip and the backboard: the ball flies it ballistically.
-  const backboardZ = rampTopZ + ramp.gap + backboard.thickness / 2
-  const boardCenterY = ramp.rise + backboard.height / 2
-  const boardFaceZ = backboardZ - backboard.thickness / 2
-  const boardBackZ = backboardZ + backboard.thickness / 2
-
-  // Board is one meter wider than the lane; holes sit in the band the ball
-  // can physically reach off the ramp lip, apex corners higher.
-  const boardWidth = lane.width + 1
-  const BOARD = { x0: -boardWidth / 2, x1: boardWidth / 2, y0: ramp.rise, y1: ramp.rise + backboard.height }
-
-  const BALL_START = [0, lane.thickness / 2 + ball.radius, -lane.length / 2 + 1.2]
-
-  // Stray-ball kill bounds, scaled to the arena size (defaults: y<-2.5, z>13, z<-9, |x|>8).
-  const missBounds = {
-    minY: -2.5,
-    maxZ: boardBackZ + POCKET_DEPTH + 1,
-    minZ: -(lane.length - 3),
-    maxAbsX: lane.width * 2,
-  }
-
-  return {
-    lane,
-    ramp,
-    backboard,
-    rampTopZ,
-    backboardZ,
-    boardCenterY,
-    boardFaceZ,
-    boardBackZ,
-    BOARD,
-    BALL_START,
-    missBounds,
-  }
-}
 
 export function useLevelGeometry(level) {
   return useMemo(() => computeGeometry(level), [level])
@@ -232,7 +165,7 @@ function Backboard({ geom, targets }) {
               receiveShadow
             >
               <boxGeometry args={[w, h, backboard.thickness]} />
-              <meshStandardMaterial color={COLORS.backboard} roughness={0.5} />
+              <meshStandardMaterial color={COLORS.backboard} roughness={0.45} metalness={0.35} />
             </mesh>
           </RigidBody>
         )
@@ -260,9 +193,35 @@ function RimColliders({ hole, geom }) {
     })
   }, [hole, backboard, backboardZ])
   return (
-    <RigidBody type="fixed" colliders={false} friction={0.6} restitution={0.35}>
+    <RigidBody type="fixed" colliders={false} friction={0.6} restitution={0.2}>
       {segments.map((s, i) => (
         <CuboidCollider key={i} args={s.args} position={s.position} rotation={s.rotation} />
+      ))}
+    </RigidBody>
+  )
+}
+
+function ApexBackstop({ hole, geom }) {
+  const segments = useMemo(
+    () => computeBackstopSegments(hole, geom.boardFaceZ),
+    [hole, geom]
+  )
+  return (
+    <RigidBody type="fixed" colliders={false} friction={0.8} restitution={0.08}>
+      {segments.map((s, i) => (
+        <group key={i}>
+          <CuboidCollider args={s.args} position={s.position} rotation={s.rotation} />
+          <mesh position={s.position} rotation={s.rotation} castShadow>
+            <boxGeometry args={s.args.map((v) => v * 2)} />
+            <meshStandardMaterial
+              color={COLORS.apex}
+              emissive={COLORS.apex}
+              emissiveIntensity={0.25}
+              metalness={0.5}
+              roughness={0.35}
+            />
+          </mesh>
+        </group>
       ))}
     </RigidBody>
   )
@@ -379,6 +338,7 @@ function ScoreHole({ hole, geom, onScore }) {
       >
         {isApex ? `${hole.points} 頭獎` : `${hole.points}`}
       </Text>
+      {isApex && <ApexBackstop hole={hole} geom={geom} />}
       <RimColliders hole={hole} geom={geom} />
       <CapturePocket hole={hole} geom={geom} onScore={onScore} />
     </group>
@@ -427,14 +387,23 @@ export function PreviewBall({ textureUrl, position, radius = 0.45 }) {
 
 export default function SkeeballWorld({ level = DEFAULT_LEVEL, onScore }) {
   const geom = useLevelGeometry(level)
+  const { rise } = geom.ramp
   return (
     <group>
       <Lane geom={geom} textureUrl={level.textures.laneUrl} />
       <Ramp geom={geom} textureUrl={level.textures.laneUrl} />
-      <Backboard geom={geom} targets={level.targets} />
-      {level.targets.map((hole) => (
-        <ScoreHole key={hole.name} hole={hole} geom={geom} onScore={onScore} />
-      ))}
+      {/* Deck group: everything board-related is built in the flat (vertical)
+          coordinates and rotated back around the deck's bottom edge. Fixed
+          rapier bodies pick up the group transform at creation; Physics
+          remounts on level change so the colliders follow edits. */}
+      <group position={[0, rise, geom.backboardZ]} rotation={[geom.tilt, 0, 0]}>
+        <group position={[0, -rise, -geom.backboardZ]}>
+          <Backboard geom={geom} targets={level.targets} />
+          {level.targets.map((hole) => (
+            <ScoreHole key={hole.name} hole={hole} geom={geom} onScore={onScore} />
+          ))}
+        </group>
+      </group>
     </group>
   )
 }

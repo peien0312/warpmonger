@@ -240,7 +240,7 @@ export default function SkeeballCanvas({ level = DEFAULT_LEVEL, onGameComplete }
       setScore((s) => s + points)
       setLastHit(points)
       sfx.score(points)
-      const at = [hole.x, hole.y, geom.boardFaceZ - 0.2]
+      const at = geom.boardPoint(hole.x, hole.y, -0.2)
       spawnFx([
         { kind: 'burst', position: at, color: hole.color, big: golden },
         { kind: 'pop', position: at, text: `+${points}`, big: golden,
@@ -354,8 +354,9 @@ export default function SkeeballCanvas({ level = DEFAULT_LEVEL, onGameComplete }
             />
             <directionalLight position={[-5, 6, 4]} intensity={0.3} />
 
-            {/* key on level: fixed physics bodies are recreated so editor edits apply live. */}
-            <Physics key={JSON.stringify(level)} gravity={[0, -9.81, 0]}>
+            {/* key on level: fixed physics bodies are recreated so editor edits apply live.
+                Gravity above earth-normal kills the floaty feel at this scale. */}
+            <Physics key={JSON.stringify(level)} gravity={[0, -16, 0]}>
               <SkeeballWorld level={level} onScore={handleScore} />
               {(aiming || step === 'idle') && (
                 <>

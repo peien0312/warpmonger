@@ -66,21 +66,26 @@ def _member_id_or_none():
 # ----- level config (defaults mirror HORUSBALL backend/models/Config.js) -----
 
 def default_level():
+    """Mirror of the frontend DEFAULT_LEVEL (levelConfig.js) — tilted target
+    deck, easy 50 in the landing path, golden 300s in the top corners."""
     return {
         "targets": [
-            {"name": "Outer Ring", "points": 50, "r": 0.9, "x": 0, "y": 3.2, "color": "#38bdf8"},
-            {"name": "Middle Ring", "points": 100, "r": 0.75, "x": -1.7, "y": 2.95, "color": "#a78bfa"},
-            {"name": "Inner Ring", "points": 150, "r": 0.75, "x": 1.7, "y": 3.0, "color": "#f59e0b"},
-            {"name": "Apex Corner L", "points": 300, "r": 0.65, "x": -1.95, "y": 4.35, "color": "#facc15"},
-            {"name": "Apex Corner R", "points": 300, "r": 0.65, "x": 1.95, "y": 4.35, "color": "#facc15"},
+            {"name": "中央之門 50", "points": 50, "r": 0.85, "x": 0, "y": 3.0, "color": "#38bdf8"},
+            {"name": "左聖印 100", "points": 100, "r": 0.7, "x": -1.5, "y": 3.7, "color": "#a78bfa"},
+            {"name": "右聖印 100", "points": 100, "r": 0.7, "x": 1.5, "y": 3.7, "color": "#a78bfa"},
+            {"name": "帝皇之眼 150", "points": 150, "r": 0.66, "x": 0, "y": 4.5, "color": "#f59e0b"},
+            {"name": "荷魯斯之眼 L", "points": 300, "r": 0.62, "x": -1.85, "y": 5.2, "color": "#facc15"},
+            {"name": "荷魯斯之眼 R", "points": 300, "r": 0.62, "x": 1.85, "y": 5.2, "color": "#facc15"},
         ],
         "lane": {"width": 4, "length": 12, "thickness": 0.3},
-        "ramp": {"length": 3.5, "rise": 2.2, "gap": 2, "curve": 0.3},
-        "backboard": {"height": 4, "thickness": 0.25},
-        "ball": {"radius": 0.45, "mass": 2.5, "friction": 1.2, "restitution": 0.3,
-                 "minSpeed": 1.8, "maxSpeed": 24, "upBase": 0.05, "upScale": 0.1},
-        "aim": {"maxAngle": 0.38},
-        "textures": {"ballUrl": "", "laneUrl": "", "backgroundUrl": ""},
+        "ramp": {"length": 3.5, "rise": 2.2, "gap": 1.0, "curve": 0.45},
+        "backboard": {"height": 4, "thickness": 0.25, "tilt": 0.62},
+        "ball": {"radius": 0.4, "mass": 2.5, "friction": 0.9, "restitution": 0.22,
+                 "minSpeed": 13, "maxSpeed": 24, "upBase": 0.06, "upScale": 0.1},
+        "aim": {"maxAngle": 0.14, "oscSpeed": 1.6},
+        "textures": {"ballUrl": "/static/game/tex/wh_ball.jpg",
+                     "laneUrl": "/static/game/tex/wh_lane.jpg",
+                     "backgroundUrl": "/static/game/tex/wh_space.jpg"},
     }
 
 
@@ -315,7 +320,8 @@ def get_session(sid):
 # ----- level editor save (port of backend/routes/admin.js) -----
 
 _COLOR_RE = re.compile(r"^#[0-9a-fA-F]{6}$")
-_URL_RE = re.compile(r"^https?://.+")
+# http(s) or site-relative (the bundled /static/game/tex/* skins)
+_URL_RE = re.compile(r"^(https?://.+|/[^/].*)")
 
 
 def _num(v, lo, hi):
@@ -364,19 +370,19 @@ def sanitize_level(body):
     ramp, err = section(body.get("ramp"), {"length": (1.5, 6), "rise": (0.5, 4), "gap": (0, 4), "curve": (0, 1)}, "ramp")
     if err:
         return None, err
-    backboard, err = section(body.get("backboard"), {"height": (2, 8), "thickness": (0.1, 0.5)}, "backboard")
+    backboard, err = section(body.get("backboard"), {"height": (2, 8), "thickness": (0.1, 0.5), "tilt": (0, 1.2)}, "backboard")
     if err:
         return None, err
     ball, err = section(body.get("ball"), {
         "radius": (0.2, 0.6), "mass": (0.5, 10), "friction": (0, 2),
-        "restitution": (0, 1), "minSpeed": (0.5, 10),
+        "restitution": (0, 1), "minSpeed": (0.5, 20),
         "maxSpeed": (float("-inf"), 40), "upBase": (0, 0.3), "upScale": (0, 0.5),
     }, "ball")
     if err:
         return None, err
     if not ball["maxSpeed"] > ball["minSpeed"]:
         return None, "ball.maxSpeed must be greater than ball.minSpeed"
-    aim, err = section(body.get("aim"), {"maxAngle": (0.05, 0.8)}, "aim")
+    aim, err = section(body.get("aim"), {"maxAngle": (0.05, 0.8), "oscSpeed": (0.2, 5)}, "aim")
     if err:
         return None, err
 

@@ -75,7 +75,10 @@ export default function PlayBall({
       } else {
         stallSince.current = null
       }
-      if (v.z < -0.4) {
+      // Backward motion on the tilted deck is normal play (rolling down
+      // across the holes) — only count it once the ball is back before the
+      // deck, where nothing can score anymore.
+      if (v.z < -0.4 && z < (b?.backwardZ ?? Infinity)) {
         backwardSince.current ??= now
         deadEnd ||= now - backwardSince.current > BACKWARD_TIME
       } else {
@@ -97,8 +100,8 @@ export default function PlayBall({
       mass={ballCfg.mass}
       friction={ballCfg.friction}
       restitution={ballCfg.restitution}
-      linearDamping={0.2}
-      angularDamping={0.5}
+      linearDamping={0.08}
+      angularDamping={0.15}
       ccd
       linearVelocity={launchVelocity}
       userData={{ isSkeeball: true }}
