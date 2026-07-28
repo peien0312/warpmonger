@@ -5,6 +5,7 @@ import { BallCollider, CuboidCollider, RigidBody } from '@react-three/rapier'
 import * as THREE from 'three'
 import { DEFAULT_LEVEL } from '../config/levelConfig.js'
 import TextureErrorBoundary from './TextureErrorBoundary.jsx'
+import * as sfx from '../audio/sfx.js'
 
 export { computeGeometry, computeRampSegments } from '../config/geometry.js'
 import { computeBackstopSegments, computeGeometry, computeRampSegments, POCKET_DEPTH } from '../config/geometry.js'
@@ -388,6 +389,55 @@ export function PreviewBall({ textureUrl, position, radius = 0.45 }) {
   )
 }
 
+// 巡邏門 patrol path: guards the upper deck (150 + golden corners approach)
+// while the low 50 stays free — memorized aim+power now needs TIMING too.
+const SWEEP_Y = 4.15
+const SWEEP_PERIOD = 4.6 // seconds per full left-right-left cycle
+
+/**
+ * Kinematic guard bar sweeping across the deck face. Lives OUTSIDE the
+ * tilted group: kinematic bodies are driven in world coordinates every
+ * frame, so it derives its pose from geom.boardPoint directly.
+ */
+function DeckSweeper({ geom }) {
+  const body = useRef()
+  const amplitude = geom.BOARD.x1 - 0.75
+  const initial = useMemo(() => geom.boardPoint(0, SWEEP_Y, -0.3), [geom])
+
+  useFrame(({ clock }) => {
+    if (!body.current) return
+    const x = Math.sin((clock.elapsedTime * Math.PI * 2) / SWEEP_PERIOD) * amplitude
+    const [wx, wy, wz] = geom.boardPoint(x, SWEEP_Y, -0.3)
+    body.current.setNextKinematicTranslation({ x: wx, y: wy, z: wz })
+  })
+
+  return (
+    <RigidBody
+      ref={body}
+      type="kinematicPosition"
+      position={initial}
+      rotation={[geom.tilt, 0, 0]}
+      colliders="cuboid"
+      friction={0.4}
+      restitution={0.55}
+      onCollisionEnter={({ other }) => {
+        if (other.rigidBody?.userData?.isSkeeball) sfx.clank()
+      }}
+    >
+      <mesh castShadow>
+        <boxGeometry args={[1.25, 0.26, 0.55]} />
+        <meshStandardMaterial
+          color="#92600e"
+          emissive="#f59e0b"
+          emissiveIntensity={0.45}
+          metalness={0.6}
+          roughness={0.3}
+        />
+      </mesh>
+    </RigidBody>
+  )
+}
+
 export default function SkeeballWorld({ level = DEFAULT_LEVEL, onScore }) {
   const geom = useLevelGeometry(level)
   const { rise } = geom.ramp
@@ -407,6 +457,7 @@ export default function SkeeballWorld({ level = DEFAULT_LEVEL, onScore }) {
           ))}
         </group>
       </group>
+      <DeckSweeper geom={geom} />
     </group>
   )
 }

@@ -109,6 +109,18 @@ export function score(points) {
   })
 }
 
+/** Metallic clank — ball vs the patrolling guard bar. */
+let lastClank = 0
+export function clank() {
+  const now = performance.now()
+  if (now - lastClank < 150) return // grinding contact spams collision events
+  lastClank = now
+  play((a) => {
+    tone(a, { freq: 2200, type: 'square', dur: 0.08, gain: 0.05, slideTo: 900 })
+    noise(a, { dur: 0.12, gain: 0.08, filterFreq: 3500, filterType: 'highpass' })
+  })
+}
+
 /** Soft womp for a missed / skipped ball. */
 export function miss() {
   play((a) => {
