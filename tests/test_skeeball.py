@@ -85,6 +85,22 @@ def test_tokens_spend_and_402(client, monkeypatch):
     assert memberdb.skeeball_grant_tokens(m['id'], -5, 'revoke') == 0
 
 
+def test_free_play_skips_tokens(client, monkeypatch):
+    monkeypatch.setenv('SKEEBALL_BETA_MEMBERS', 'all')
+    monkeypatch.setenv('SKEEBALL_FREE_PLAY', '1')
+    monkeypatch.setattr(skeeball, 'MIN_MS_BETWEEN_ROLLS', 0)
+    m = _member('freeplay')
+    _login(client, m['id'])
+    # zero tokens, yet games start and complete; balance advertises freePlay
+    assert client.get('/api/skeeball/user/balance').get_json()['freePlay'] is True
+    result = _play_full_game(client, [50, 0, 0])
+    assert result['totalScore'] == 50
+    assert memberdb.skeeball_tokens(m['id']) == 0
+
+    monkeypatch.delenv('SKEEBALL_FREE_PLAY')
+    assert client.post('/api/skeeball/session/start').status_code == 402
+
+
 def test_full_game_grants_tier_prize(client, monkeypatch):
     monkeypatch.setenv('SKEEBALL_BETA_MEMBERS', 'all')
     monkeypatch.setattr(skeeball, 'MIN_MS_BETWEEN_ROLLS', 0)

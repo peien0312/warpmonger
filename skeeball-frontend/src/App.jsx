@@ -186,7 +186,10 @@ export default function App() {
           </button>
           {balance ? (
             <span className="rounded-full bg-slate-800 px-4 py-1.5">
-              遊戲次數：<span className="font-semibold text-sky-300">{balance.tokenBalance}</span>
+              遊戲次數：
+              <span className="font-semibold text-sky-300">
+                {balance.freePlay ? '無限 ∞（封測）' : balance.tokenBalance}
+              </span>
             </span>
           ) : (
             <span className="rounded-full bg-slate-800/60 px-4 py-1.5 text-slate-400">
@@ -197,7 +200,7 @@ export default function App() {
       </header>
 
       <main className="mx-auto w-full max-w-6xl px-4 pb-10">
-        <SkeeballCanvas level={level} onGameComplete={refreshBalance} />
+        <SkeeballCanvas level={level} freePlay={Boolean(balance?.freePlay)} onGameComplete={refreshBalance} />
 
         {isAdmin && !editorOpen && !showKeyPrompt && (
           <button
@@ -218,7 +221,7 @@ export default function App() {
           </div>
           <div className="rounded-xl bg-slate-900 p-4">
             <p className="text-xs uppercase tracking-wide text-slate-400">遊戲機會</p>
-            <p className="mt-1 text-sm">封測期間由阿北發放，開賽後每消費滿 NT$1,000 送 1 次</p>
+            <p className="mt-1 text-sm">封測期間無限暢玩！正式開賽後每消費滿 NT$1,000 送 1 次</p>
           </div>
           <div className="rounded-xl bg-slate-900 p-4">
             <p className="text-xs uppercase tracking-wide text-slate-400">中獎領取</p>

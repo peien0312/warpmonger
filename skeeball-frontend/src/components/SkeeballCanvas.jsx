@@ -121,7 +121,7 @@ function PowerMeter({ powerRef, onLock }) {
   )
 }
 
-export default function SkeeballCanvas({ level = DEFAULT_LEVEL, onGameComplete }) {
+export default function SkeeballCanvas({ level = DEFAULT_LEVEL, freePlay = false, onGameComplete }) {
   const geom = useMemo(() => computeGeometry(level), [level])
   const ballUrl = level.textures.ballUrl
   const bgUrl = level.textures.backgroundUrl
@@ -432,7 +432,7 @@ export default function SkeeballCanvas({ level = DEFAULT_LEVEL, onGameComplete }
             disabled={starting}
             className="rounded-full bg-amber-500 px-8 py-3 text-lg font-bold text-slate-950 shadow-xl hover:bg-amber-400 disabled:opacity-60"
           >
-            {starting ? '開始中…' : '開始遊戲（1 次機會・3 球）'}
+            {starting ? '開始中…' : freePlay ? '開始遊戲（3 球）' : '開始遊戲（1 次機會・3 球）'}
           </button>
           {offlineReason && (
             <span className="rounded-full bg-slate-950/80 px-4 py-1 text-xs font-medium text-amber-300">

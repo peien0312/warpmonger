@@ -63,6 +63,12 @@ def _member_id_or_none():
     return mid
 
 
+def free_play():
+    """Env SKEEBALL_FREE_PLAY=1: games cost no tokens (beta unlimited mode).
+    Unset it to return to the token economy at launch."""
+    return (os.environ.get("SKEEBALL_FREE_PLAY") or "").strip().lower() in ("1", "true", "yes")
+
+
 # ----- level config (defaults mirror HORUSBALL backend/models/Config.js) -----
 
 def default_level():
@@ -195,6 +201,7 @@ def balance():
         return jsonify({"error": "unauthorized"}), 401
     return jsonify({
         "tokenBalance": memberdb.skeeball_tokens(mid),
+        "freePlay": free_play(),
         "ticketBalance": 0,
         "goldenTickets": 0,
         "customAssets": {},
@@ -207,8 +214,11 @@ def start():
     mid = _member_id_or_none()
     if not mid:
         return jsonify({"error": "unauthorized"}), 401
-    if not memberdb.skeeball_spend_token(mid):
-        return jsonify({"error": "insufficient_tokens"}), 402
+    spent = False
+    if not free_play():
+        if not memberdb.skeeball_spend_token(mid):
+            return jsonify({"error": "insufficient_tokens"}), 402
+        spent = True
 
     sid = uuid.uuid4().hex
     secret = uuid.uuid4().hex + uuid.uuid4().hex
@@ -221,7 +231,8 @@ def start():
         conn.commit()
         conn.close()
     except Exception:
-        memberdb.skeeball_refund_token(mid)
+        if spent:
+            memberdb.skeeball_refund_token(mid)
         raise
     return jsonify({
         "sessionId": sid,
