@@ -38,3 +38,31 @@ def test_image_sitemap_renders(client):
     r = client.get("/sitemap-images.xml")
     assert r.status_code == 200
     assert b"<urlset" in r.data
+
+
+def test_products_tag_canonical_matches_link_encoding(client):
+    """Canonical must use the same %20 encoding as the Jinja |urlencode links
+    and the sitemap — the old urlencode() +/%2F style split every tag page
+    into two URL variants in GSC."""
+    html = client.get("/products?tag=Dark+Angels&sort=price_low").get_data(as_text=True)
+    assert _canonical(html) == "http://localhost/products?tag=Dark%20Angels"
+    html = client.get("/products?tag=1/25+Scale").get_data(as_text=True)
+    assert _canonical(html) == "http://localhost/products?tag=1/25%20Scale"
+
+
+def test_login_is_noindex_and_next_variants_collapse(client):
+    html = client.get("/login?next=/products/warhammer-40k/stock-item").get_data(as_text=True)
+    assert '<meta name="robots" content="noindex">' in html
+    assert _canonical(html) == "http://localhost/login"
+
+
+def test_sitemap_lists_no_redirecting_urls(client):
+    xml = client.get("/sitemap.xml").get_data(as_text=True)
+    assert "/page/" not in xml  # legacy /page/<slug> URLs 301 to the real routes
+    for path in ("/guide", "/returns", "/terms"):
+        assert f"http://localhost{path}</loc>" in xml
+
+
+def test_robots_disallows_auth(client):
+    txt = client.get("/robots.txt").get_data(as_text=True)
+    assert "Disallow: /auth/" in txt.split("User-agent:")[1]  # under User-agent: *

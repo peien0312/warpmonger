@@ -2,6 +2,9 @@
 
 {% block title %}會員登入 | ABBEY'S TOYS 阿北玩具堂{% endblock %}
 
+{# login pages have no search value; ?next= variants were indexed as duplicates #}
+{% block robots %}<meta name="robots" content="noindex">{% endblock %}
+
 {% block content %}
 <div class="container login-page">
     <h1 class="page-title">會員登入</h1>

@@ -457,16 +457,22 @@ def inject_canonical():
         return {}
     canonical = request.url
     if request.endpoint == 'products_page':
-        from urllib.parse import urlencode
-        kept = [(k, request.args[k]) for k in ('category', 'tag')
+        from urllib.parse import quote
+        # Encode like the Jinja |urlencode links and the sitemap (%20 spaces,
+        # literal /). urlencode()'s +/%2F style produced canonicals pointing
+        # at URL variants Google never crawls, splitting every tag page in two.
+        kept = [f"{k}={quote(request.args[k])}" for k in ('category', 'tag')
                 if request.args.get(k)]
-        canonical = request.base_url + ('?' + urlencode(kept) if kept else '')
+        canonical = request.base_url + ('?' + '&'.join(kept) if kept else '')
     elif request.endpoint == 'quiz_page':
         # ?r=/&s= share variants all consolidate onto the bare /quiz page.
         canonical = request.base_url
     elif request.endpoint == 'blog_page':
         # ?tag=/?q= listing variants consolidate onto /blog — the posts
         # themselves should rank, not the parameterized listing.
+        canonical = request.base_url
+    elif request.endpoint == 'login_page':
+        # /login?next=<every product> is one page; ?next= variants collapse.
         canonical = request.base_url
     return {'canonical_url': canonical}
 
@@ -2430,9 +2436,10 @@ def sitemap():
                       'lastmod': post.get('date') or db_lastmod,
                       'changefreq': 'monthly', 'priority': '0.5'})
 
-    # Static pages (policy / info)
-    for page_slug in ALLOWED_PAGES:
-        pages.append({'loc': f"{root}page/{page_slug}",
+    # Static info pages — the real routes; the legacy /page/<slug> URLs 301
+    # here and must NOT be listed (GSC flags sitemap URLs that redirect).
+    for path in ('guide', 'returns', 'terms'):
+        pages.append({'loc': root + path,
                       'lastmod': today, 'changefreq': 'monthly', 'priority': '0.3'})
 
     xml = ['<?xml version="1.0" encoding="UTF-8"?>',
@@ -2716,6 +2723,7 @@ def robots():
 
     txt = f"""User-agent: *
 Allow: /
+Disallow: /auth/
 
 {blocks}
 Sitemap: {request.url_root}sitemap.xml
