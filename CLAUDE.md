@@ -207,6 +207,32 @@ code kept for rollback (name-rebound to `posdb.*` at the bottom of app.py).
 - `notify_arrivals.py` (VM crontab, 10:00 daily): LINE-pushes/emails
   members whose 到貨通知 products flipped to 現貨.
 
+## 荷魯斯滾球 skeeball mini-game (`/game`, closed beta)
+
+3D skeeball; win = coupon. Python port (`skeeball.py` blueprint,
+`/api/skeeball/*`) of github.com/max92034/HORUSBALL per its
+INTEGRATION.md strategy B — the upstream Node/Mongo backend is NOT used.
+Frontend source vendored in `skeeball-frontend/` (zh-TW rebrand, ticket
+booth removed → direct prizes), `npm run build` emits `static/game/`
+(commit the build; VM has no Node). `/game` = member login +
+`SKEEBALL_BETA_MEMBERS` env gate (ids or `all`; unset = off), noindex.
+- Wallet: `skeeball_wallet`/`skeeball_grants` in members.db, manual
+  grants only (beta) via `/api/internal/skeeball/grant` (POS member
+  page has the UI). 1 token = one 3-ball game, atomic spend at
+  session/start.
+- Anti-cheat ported: per-session HMAC nonce, sequence/plausibility/
+  rate/expiry checks, server recomputes the total from stored rolls.
+- Prizes: POS settings key `skeeball_prizes`
+  (`{"tiers":[{"min_score":N,"code":...}],"apex_code":...}`); best tier
+  ≤ total wins, single-roll 300 wins apex. Grant =
+  `memberdb.grant_coupon(source='skeeball', source_ref=session_id)`
+  (once per game). Prize coupons use POS `auto_grant='skeeball'` so
+  typed-in codes are refused at checkout; `/config` never exposes codes.
+- Level editor (`/game?admin`) saves to members.db `skeeball_kv` behind
+  `SKEEBALL_ADMIN_KEY` (in VM .env).
+- Planned post-beta: token accrual from real spend (every NT$1,000 paid
+  → 1 game), replace the （測試） placeholder coupons with real amounts.
+
 ## Quiz
 
 `/quiz` — 「你是哪位原體？」16-question, 4-axis (忠誠/反骨 · 熱血/沉穩 ·
