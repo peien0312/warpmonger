@@ -16,3 +16,5 @@ all/
 nohup.out
 
 line_shopping_output/
+# skeeball game frontend build deps
+skeeball-frontend/node_modules/

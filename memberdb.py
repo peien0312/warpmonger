@@ -154,6 +154,40 @@ def init():
             sent_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             UNIQUE(kind, ref)
         );
+        CREATE TABLE IF NOT EXISTS skeeball_wallet (
+            member_id INTEGER PRIMARY KEY REFERENCES members(id),
+            tokens INTEGER NOT NULL DEFAULT 0,   -- 遊戲次數 (1 token = 1 場 3 球)
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+        CREATE TABLE IF NOT EXISTS skeeball_grants (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,  -- audit log of token grants
+            member_id INTEGER NOT NULL REFERENCES members(id),
+            delta INTEGER NOT NULL,
+            note TEXT,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+        CREATE TABLE IF NOT EXISTS skeeball_sessions (
+            id TEXT PRIMARY KEY,                   -- uuid4 hex
+            member_id INTEGER NOT NULL REFERENCES members(id),
+            secret TEXT NOT NULL,                  -- per-session HMAC nonce secret
+            status TEXT NOT NULL DEFAULT 'active', -- active|completed|expired
+            balls_thrown INTEGER NOT NULL DEFAULT 0,
+            rolls TEXT NOT NULL DEFAULT '[]',      -- JSON roll log (server-stamped)
+            total_score INTEGER NOT NULL DEFAULT 0,
+            golden INTEGER NOT NULL DEFAULT 0,     -- single-roll 300 apex hit
+            prize_code TEXT,                       -- granted coupon code
+            prize_title TEXT,
+            started_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            expires_at REAL,                       -- epoch seconds
+            ended_at TIMESTAMP
+        );
+        CREATE INDEX IF NOT EXISTS idx_skeeball_sessions_member
+            ON skeeball_sessions(member_id, started_at);
+        CREATE TABLE IF NOT EXISTS skeeball_kv (
+            key TEXT PRIMARY KEY,                  -- 'level' = editor-saved level JSON
+            value TEXT NOT NULL,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
     """)
     # backfill identities from the legacy google_sub column
     # ("line:<uid>" rows were LINE logins, everything else Google)
@@ -1171,5 +1205,86 @@ def revoke_review_coupon(review_id):
         "UPDATE member_coupons SET status = 'revoked' "
         "WHERE source = 'review' AND source_ref = ? AND status = 'granted'",
         (str(review_id),))
+    conn.commit()
+    conn.close()
+
+
+# ----- skeeball (荷魯斯滾球) token wallet + sessions -----
+# Tokens are manually granted (beta) — 1 token = one 3-ball game. Coupon
+# prizes are granted through the normal member_coupons wallet (source
+# 'skeeball', source_ref = session id → exactly-once per game).
+
+def skeeball_tokens(member_id):
+    conn = _conn()
+    row = conn.execute("SELECT tokens FROM skeeball_wallet WHERE member_id = ?",
+                       (member_id,)).fetchone()
+    conn.close()
+    return row["tokens"] if row else 0
+
+
+def skeeball_grant_tokens(member_id, delta, note=""):
+    """Add (or with negative delta, remove) game tokens. Returns new balance.
+    Balance is clamped at 0 on the way down."""
+    conn = _conn()
+    conn.execute(
+        "INSERT OR IGNORE INTO skeeball_wallet (member_id, tokens) VALUES (?, 0)",
+        (member_id,))
+    conn.execute(
+        "UPDATE skeeball_wallet SET tokens = MAX(0, tokens + ?), "
+        "updated_at = CURRENT_TIMESTAMP WHERE member_id = ?",
+        (delta, member_id))
+    conn.execute(
+        "INSERT INTO skeeball_grants (member_id, delta, note) VALUES (?, ?, ?)",
+        (member_id, delta, note or ""))
+    row = conn.execute("SELECT tokens FROM skeeball_wallet WHERE member_id = ?",
+                       (member_id,)).fetchone()
+    conn.commit()
+    conn.close()
+    return row["tokens"] if row else 0
+
+
+def skeeball_spend_token(member_id):
+    """Atomic conditional decrement — one token for one game.
+    Returns True when a token was spent, False when the balance is empty."""
+    conn = _conn()
+    cur = conn.execute(
+        "UPDATE skeeball_wallet SET tokens = tokens - 1, "
+        "updated_at = CURRENT_TIMESTAMP "
+        "WHERE member_id = ? AND tokens >= 1", (member_id,))
+    conn.commit()
+    conn.close()
+    return bool(cur.rowcount)
+
+
+def skeeball_refund_token(member_id):
+    """Give a token back (session create failed after the spend)."""
+    conn = _conn()
+    conn.execute(
+        "UPDATE skeeball_wallet SET tokens = tokens + 1 WHERE member_id = ?",
+        (member_id,))
+    conn.commit()
+    conn.close()
+
+
+def skeeball_kv_get(key, default=None):
+    conn = _conn()
+    row = conn.execute("SELECT value FROM skeeball_kv WHERE key = ?",
+                       (key,)).fetchone()
+    conn.close()
+    if not row:
+        return default
+    try:
+        return json.loads(row["value"])
+    except Exception:
+        return default
+
+
+def skeeball_kv_set(key, value):
+    conn = _conn()
+    conn.execute("""
+        INSERT INTO skeeball_kv (key, value) VALUES (?, ?)
+        ON CONFLICT(key) DO UPDATE SET value = excluded.value,
+            updated_at = CURRENT_TIMESTAMP
+    """, (key, json.dumps(value, ensure_ascii=False)))
     conn.commit()
     conn.close()

@@ -3800,6 +3800,28 @@ def checkout_success():
 import memberdb
 memberdb.init()
 
+# ----- 荷魯斯滾球 skeeball mini-game (closed beta) -----
+# API blueprint in skeeball.py; the game itself is a static Vite build at
+# static/game/ (source vendored in skeeball-frontend/, build committed).
+# Gated by env SKEEBALL_BETA_MEMBERS (ids or 'all'; unset = off). No nav
+# links anywhere while in beta; noindex on the page.
+import skeeball
+app.register_blueprint(skeeball.bp)
+
+
+@app.route('/game')
+def skeeball_game():
+    member = current_member()
+    if not member:
+        return redirect('/login?next=/game')
+    if not skeeball.beta_allowed(member['id']):
+        return render_template('public/404.html'), 404
+    resp = send_from_directory(
+        os.path.join(app.root_path, 'static', 'game'), 'index.html')
+    resp.headers['X-Robots-Tag'] = 'noindex, nofollow'
+    resp.headers['Cache-Control'] = 'no-store'
+    return resp
+
 # ----- product review photos (member-uploaded, site-owned) -----
 # Stored alongside members.db under data/ so they survive deploys (deploy.sh
 # ships code only, never data/). Served by /review-photo/<file>; the POS admin
@@ -4463,6 +4485,31 @@ def api_internal_coupon_grant():
     if not gid:
         return jsonify({'success': False, 'error': '已發放過此優惠券'}), 409
     return jsonify({'success': True, 'member_id': row['id']})
+
+
+@app.route('/api/internal/skeeball/grant', methods=['POST'])
+def api_internal_skeeball_grant():
+    """POS admin -> grant skeeball game tokens to a member (closed-beta manual
+    accrual; 1 token = one 3-ball game). Negative delta removes tokens."""
+    if not _valid_storefront_key(request.headers.get('X-Storefront-Key')):
+        return jsonify({'error': 'bad key'}), 401
+    data = request.get_json(silent=True) or {}
+    try:
+        member_id = int(data.get('member_id') or 0)
+        delta = int(data.get('tokens') or 0)
+    except (TypeError, ValueError):
+        return jsonify({'success': False, 'error': 'bad payload'}), 400
+    if not member_id or not delta:
+        return jsonify({'success': False, 'error': 'need member_id and tokens'}), 400
+    import sqlite3 as _sq
+    conn = _sq.connect(memberdb.DB_PATH)
+    row = conn.execute("SELECT id FROM members WHERE id = ?", (member_id,)).fetchone()
+    conn.close()
+    if not row:
+        return jsonify({'success': False, 'error': '找不到會員'}), 404
+    balance = memberdb.skeeball_grant_tokens(
+        member_id, delta, (data.get('note') or 'POS grant')[:100])
+    return jsonify({'success': True, 'member_id': member_id, 'tokens': balance})
 
 
 @app.route('/api/internal/line-push', methods=['POST'])
