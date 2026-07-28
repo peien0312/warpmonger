@@ -23,8 +23,12 @@ function loadBest() {
   }
 }
 
-/** Camera orbit via keyboard: hold A / D to rotate around the lane. */
-function KeyboardOrbit({ target = [0, 1.5, 4], speed = 1.6 }) {
+/**
+ * Camera rig: hold A / D to rotate around the lane, or drag (mouse/touch)
+ * anywhere on the canvas — the container feeds pixel deltas through dragRef.
+ * Dragging also tilts the camera height a little for a free look.
+ */
+function CameraRig({ target = [0, 1.5, 4], speed = 1.6, dragRef }) {
   const keys = useRef({ a: false, d: false })
 
   useEffect(() => {
@@ -47,11 +51,19 @@ function KeyboardOrbit({ target = [0, 1.5, 4], speed = 1.6 }) {
   }, [])
 
   useFrame(({ camera }, dt) => {
-    const dir = (keys.current.a ? 1 : 0) - (keys.current.d ? 1 : 0)
-    if (!dir) return
     const t = new THREE.Vector3(...target)
+    const dir = (keys.current.a ? 1 : 0) - (keys.current.d ? 1 : 0)
+    const drag = dragRef?.current
+    let angle = dir * speed * Math.min(dt, 0.05)
+    if (drag && (drag.dx || drag.dy)) {
+      angle += drag.dx * 0.006 // drag right → scene turns with the pointer
+      camera.position.y = Math.min(10, Math.max(2, camera.position.y - drag.dy * 0.03))
+      drag.dx = 0
+      drag.dy = 0
+    } else if (!dir) {
+      return
+    }
     const offset = camera.position.clone().sub(t)
-    const angle = dir * speed * Math.min(dt, 0.05)
     const cos = Math.cos(angle)
     const sin = Math.sin(angle)
     camera.position.set(
@@ -147,6 +159,38 @@ export default function SkeeballCanvas({ level = DEFAULT_LEVEL, freePlay = false
   const ballDoneRef = useRef(false) // one END (score OR miss/skip) per ball
   const syncedRef = useRef(false)
   const fxIdRef = useRef(0)
+
+  // Drag-to-orbit vs click-to-lock: a press that travels >6px is a camera
+  // drag (deltas stream through dragDeltaRef to CameraRig) and the click that
+  // follows it is swallowed via wasDragRef.
+  const pointerRef = useRef(null) // { lastX, lastY, startX, startY }
+  const dragDeltaRef = useRef({ dx: 0, dy: 0 })
+  const wasDragRef = useRef(false)
+
+  const onPointerDown = useCallback((e) => {
+    if (e.pointerType === 'mouse' && e.button !== 0) return
+    pointerRef.current = { lastX: e.clientX, lastY: e.clientY, startX: e.clientX, startY: e.clientY }
+    wasDragRef.current = false
+  }, [])
+
+  const onPointerMove = useCallback((e) => {
+    const p = pointerRef.current
+    if (!p) return
+    if (!wasDragRef.current &&
+        Math.hypot(e.clientX - p.startX, e.clientY - p.startY) > 6) {
+      wasDragRef.current = true
+    }
+    if (wasDragRef.current) {
+      dragDeltaRef.current.dx += e.clientX - p.lastX
+      dragDeltaRef.current.dy += e.clientY - p.lastY
+    }
+    p.lastX = e.clientX
+    p.lastY = e.clientY
+  }, [])
+
+  const onPointerEnd = useCallback(() => {
+    pointerRef.current = null
+  }, [])
 
   const removeFx = useCallback((id) => {
     setFx((list) => list.filter((f) => f.id !== id))
@@ -305,13 +349,13 @@ export default function SkeeballCanvas({ level = DEFAULT_LEVEL, freePlay = false
   }, [step, onGameComplete])
 
   const handleLockAngle = () => {
-    if (step !== 'aim') return
+    if (step !== 'aim' || wasDragRef.current) return
     sfx.click()
     setStep('power')
   }
 
   const handleLockPower = useCallback(() => {
-    if (stepRef.current !== 'power') return
+    if (stepRef.current !== 'power' || wasDragRef.current) return
     scoredRef.current = false
     ballDoneRef.current = false
     sfx.click()
@@ -324,7 +368,14 @@ export default function SkeeballCanvas({ level = DEFAULT_LEVEL, freePlay = false
   const aiming = step === 'aim' || step === 'power'
 
   return (
-    <div className="relative w-full overflow-hidden rounded-2xl border border-slate-700 bg-slate-900 shadow-xl">
+    <div
+      className="relative w-full touch-pan-y select-none overflow-hidden rounded-2xl border border-slate-700 bg-slate-900 shadow-xl"
+      onPointerDown={onPointerDown}
+      onPointerMove={onPointerMove}
+      onPointerUp={onPointerEnd}
+      onPointerCancel={onPointerEnd}
+      onPointerLeave={onPointerEnd}
+    >
       <div className="h-[60vh] min-h-[320px] w-full md:h-[70vh]">
         <Canvas
           shadows
@@ -397,7 +448,7 @@ export default function SkeeballCanvas({ level = DEFAULT_LEVEL, freePlay = false
               )
             )}
 
-            <KeyboardOrbit target={[0, 1.5, 4]} />
+            <CameraRig target={[0, 1.5, 4]} dragRef={dragDeltaRef} />
           </Suspense>
         </Canvas>
       </div>
@@ -505,13 +556,14 @@ export default function SkeeballCanvas({ level = DEFAULT_LEVEL, freePlay = false
       {/* Controls cheat-sheet — always visible. */}
       <div className="pointer-events-none absolute bottom-3 left-1/2 flex -translate-x-1/2 items-center gap-3 rounded-full bg-slate-950/70 px-4 py-1.5 text-xs text-slate-300">
         <span>
+          拖曳（或
           <kbd className="rounded border border-slate-600 bg-slate-800 px-1.5 py-0.5 font-bold text-slate-100">A</kbd>
-          {' / '}
+          {'/'}
           <kbd className="rounded border border-slate-600 bg-slate-800 px-1.5 py-0.5 font-bold text-slate-100">D</kbd>
-          {' 旋轉視角'}
+          ）旋轉視角
         </span>
         <span className="text-slate-600">|</span>
-        <span>滑鼠點擊：鎖定角度 → 鎖定力度</span>
+        <span>點擊：鎖定角度 → 鎖定力度</span>
         <span className="text-slate-600">|</span>
         <span>
           <kbd className="rounded border border-slate-600 bg-slate-800 px-1.5 py-0.5 font-bold text-slate-100">R</kbd>
