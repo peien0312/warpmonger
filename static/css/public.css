@@ -1677,7 +1677,11 @@ section h2::after {
 
 .related-card a {
     text-decoration: none;
-    display: block;
+    /* flex column + auto top margin on the price pins it to the card
+       bottom, so prices align across cards with different title lengths */
+    display: flex;
+    flex-direction: column;
+    height: 100%;
 }
 
 .related-card:hover {
@@ -1709,6 +1713,7 @@ section h2::after {
     font-weight: 700;
     font-size: 1rem;
     margin: 0 12px 12px;
+    margin-top: auto;
 }
 
 /* Mobile responsive for related products */
