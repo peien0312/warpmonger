@@ -5022,3 +5022,137 @@ html, body { overflow-x: hidden; overflow-x: clip; }
     /* SE-class widths and Display Zoom: the logo mark alone is the brand */
     .site-logo .logo-text-stack { display: none; }
 }
+
+/* =====================================================================
+   蝦皮實績 trust band (homepage) — stained-glass identity
+   Lead-came panel with the shop's Shopee track record; quote row is
+   optional (renders only when home.html's shopee_quotes is non-empty).
+   ===================================================================== */
+.shopee-trust { padding: 8px 0 40px; }
+.shopee-trust-panel {
+    background: #342A21;
+    border: 2px solid #17100B;
+    border-radius: 6px;
+    box-shadow: 0 0 0 1px #6E4B2A, 0 4px 14px rgba(0, 0, 0, 0.45);
+    padding: 22px 28px;
+    display: flex;
+    align-items: center;
+    gap: 28px;
+    flex-wrap: wrap;
+}
+.shopee-trust-head { flex: 1 1 280px; min-width: 0; }
+.shopee-trust-mark {
+    display: inline-block;
+    font-size: 0.72rem;
+    letter-spacing: 0.14em;
+    color: #D9A441;
+    border: 1px solid #6E4B2A;
+    border-radius: 999px;
+    padding: 3px 12px;
+    margin-bottom: 10px;
+}
+/* resets undo the generic `section h2` banner treatment (border + bar) */
+.shopee-trust-title {
+    font-size: 1.2rem;
+    color: #E6DAC4;
+    margin: 0 0 6px;
+    text-align: left;
+    text-transform: none;
+    letter-spacing: 0.04em;
+    font-weight: 700;
+    text-shadow: none;
+    border-bottom: none;
+    padding-bottom: 0;
+}
+.shopee-trust-title::after { content: none; }
+.shopee-trust-sub {
+    color: #A99A7C;
+    font-size: 0.88rem;
+    line-height: 1.6;
+    margin: 0;
+}
+.shopee-trust-stats {
+    list-style: none;
+    display: flex;
+    align-items: center;
+    gap: 22px;
+    margin: 0;
+    padding: 0;
+}
+.shopee-trust-stats li { text-align: center; }
+.shopee-trust-stats li + li {
+    border-left: 1px solid #6E4B2A;
+    padding-left: 22px;
+}
+.shopee-trust-stats strong {
+    display: block;
+    font-family: 'Cinzel', 'Noto Serif TC', serif;
+    font-size: 1.35rem;
+    color: #D9A441;
+    line-height: 1.2;
+}
+.shopee-trust-stats span {
+    display: block;
+    margin-top: 2px;
+    font-size: 0.75rem;
+    color: #A99A7C;
+    white-space: nowrap;
+}
+.shopee-trust-link {
+    display: inline-block;
+    color: #E6DAC4;
+    font-size: 0.88rem;
+    text-decoration: none;
+    border: 1px solid #6E4B2A;
+    border-radius: 6px;
+    padding: 10px 18px;
+    box-shadow: inset 0 1px 0 rgba(217, 164, 65, 0.2);
+    white-space: nowrap;
+    transition: border-color 0.2s, color 0.2s;
+}
+.shopee-trust-link:hover {
+    border-color: #D9A441;
+    color: #D9A441;
+}
+.shopee-trust-quotes {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 16px;
+    margin-top: 16px;
+}
+.shopee-quote {
+    background: #292019;
+    border: 1px solid #17100B;
+    border-radius: 6px;
+    box-shadow: 0 0 0 1px #6E4B2A;
+    padding: 16px 18px;
+    margin: 0;
+}
+.shopee-quote blockquote {
+    margin: 0 0 8px;
+    color: #E6DAC4;
+    font-size: 0.92rem;
+    line-height: 1.7;
+}
+.shopee-quote figcaption {
+    color: #A99A7C;
+    font-size: 0.78rem;
+}
+@media (max-width: 768px) {
+    .shopee-trust-panel {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 18px;
+        padding: 18px 20px;
+    }
+    /* in column direction the desktop flex-basis (280px) would become
+       height and open a dead gap under the intro text */
+    .shopee-trust-head { flex: 0 0 auto; }
+    .shopee-trust-stats {
+        width: 100%;
+        justify-content: space-between;
+        gap: 12px;
+    }
+    .shopee-trust-stats li + li { padding-left: 12px; }
+    .shopee-trust-link { align-self: stretch; text-align: center; }
+}

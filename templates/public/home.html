@@ -18,11 +18,12 @@
   "contactPoint": {
     "@type": "ContactPoint",
     "contactType": "Customer Service",
-    "email": "sales@johnactionfigure.com",
-    "availableLanguage": ["English"]
+    "email": "sales@abbeystoys.com",
+    "availableLanguage": ["zh-TW"]
   },
   "sameAs": [
-    "https://t.me/JohnActionFigure"
+    "https://shopee.tw/peien0312",
+    "https://lin.ee/OTxThMe"
   ]
 }
 </script>
@@ -57,6 +58,40 @@
                 <img src="/static/images/abbeys_logo_square.jpg?v=2" alt="Abbey's Toys 阿北的店 — 彩繪玻璃工坊" loading="eager" width="600" height="600" fetchpriority="high" decoding="sync">
             </video>
         </div>
+    </div>
+</section>
+
+{# 蝦皮實績 trust band — stats verified against shopee.tw/peien0312.
+   Counts are rounded down (900+) so they stay true as the shop grows;
+   bump them when they lag far behind. (The Shopee account is 8 years old
+   but the shop has been active ~1 year — don't claim 老店.) Add curated
+   review texts to shopee_quotes below ("text", "author") to show the
+   quote row — real reviews only, anonymize authors (e.g. t***7). #}
+{% set shopee_quotes = [] %}
+<section class="shopee-trust">
+    <div class="container">
+        <div class="shopee-trust-panel">
+            <div class="shopee-trust-head">
+                <span class="shopee-trust-mark">蝦皮優選賣家</span>
+                <h2 class="shopee-trust-title">蝦皮 ★5.0 滿分賣場，同一個阿北</h2>
+                <p class="shopee-trust-sub">本站由蝦皮賣場「ABBEY'S TOYS 阿北玩具堂」直營，現貨出貨與售後服務同樣有保障，官網會員還享會員價。</p>
+            </div>
+            <ul class="shopee-trust-stats">
+                <li><strong>★ 5.0</strong><span>900+ 筆評價</span></li>
+                <li><strong>100%</strong><span>聊聊幾分鐘內回覆</span></li>
+            </ul>
+            <a class="shopee-trust-link" href="https://shopee.tw/peien0312" target="_blank" rel="noopener">在蝦皮查看全部評價 ↗</a>
+        </div>
+        {% if shopee_quotes %}
+        <div class="shopee-trust-quotes">
+            {% for q in shopee_quotes %}
+            <figure class="shopee-quote">
+                <blockquote>{{ q.text }}</blockquote>
+                <figcaption>— {{ q.author }}・蝦皮買家</figcaption>
+            </figure>
+            {% endfor %}
+        </div>
+        {% endif %}
     </div>
 </section>
 
@@ -258,6 +293,19 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     {% endif %}
+
+    // Track click-throughs to the Shopee shop (trust-band CTA)
+    var shopeeLink = document.querySelector('.shopee-trust-link');
+    if (shopeeLink) {
+        shopeeLink.addEventListener('click', function() {
+            if (typeof gtag === 'function') {
+                gtag('event', 'select_content', {
+                    content_type: 'outbound_shopee',
+                    content_id: 'home_trust_band'
+                });
+            }
+        });
+    }
 
     // Track blog post clicks
     document.querySelectorAll('.post-card a').forEach(function(link) {
