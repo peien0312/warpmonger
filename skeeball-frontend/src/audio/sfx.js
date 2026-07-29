@@ -129,6 +129,14 @@ export function miss() {
   })
 }
 
+/** Single firework pop for the end-of-game celebration bursts. */
+export function pop() {
+  play((a) => {
+    tone(a, { freq: 300 + Math.random() * 500, type: 'triangle', dur: 0.25, gain: 0.1, slideTo: 90 })
+    noise(a, { dur: 0.3, gain: 0.06, filterFreq: 5000, filterType: 'highpass' })
+  })
+}
+
 /** Game-over sting: win = warm resolve; no prize = gentle descending pair. */
 export function gameOver(won) {
   play((a) => {

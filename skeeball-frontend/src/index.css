@@ -25,6 +25,36 @@ body {
   }
 }
 
+/* Game-over modal entrance. */
+.modal-pop {
+  animation: modal-pop 0.45s cubic-bezier(0.2, 1.8, 0.4, 1);
+}
+
+@keyframes modal-pop {
+  0% {
+    transform: scale(0.6) translateY(24px);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+  }
+}
+
+/* 槓龜 turtle — a slow sympathetic wobble. */
+.turtle-wobble {
+  animation: turtle-wobble 1.6s ease-in-out infinite;
+}
+
+@keyframes turtle-wobble {
+  0%, 100% {
+    transform: rotate(-12deg);
+  }
+  50% {
+    transform: rotate(12deg) translateY(-2px);
+  }
+}
+
 /* HUD score bump — retriggered by keying the element on the score value. */
 .score-bump {
   display: inline-block;

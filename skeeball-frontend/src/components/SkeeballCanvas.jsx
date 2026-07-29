@@ -25,12 +25,33 @@ function loadBest() {
   }
 }
 
+/** Animated count-up for the final-score reveal. */
+function CountUp({ value, duration = 900 }) {
+  const [shown, setShown] = useState(0)
+  useEffect(() => {
+    if (!value) {
+      setShown(0)
+      return
+    }
+    let raf
+    const start = performance.now()
+    const tick = (now) => {
+      const t = Math.min(1, (now - start) / duration)
+      setShown(Math.round(value * (1 - Math.pow(1 - t, 3)))) // ease-out
+      if (t < 1) raf = requestAnimationFrame(tick)
+    }
+    raf = requestAnimationFrame(tick)
+    return () => cancelAnimationFrame(raf)
+  }, [value, duration])
+  return <>{shown}</>
+}
+
 // Per-phase camera framings: HOME showcases the whole arena (idle/results),
 // AIM drops behind the ball so the arrow, lane and deck are all in view.
 const HOME_CAM = new THREE.Vector3(0, 5.9, -9.6)
 const CAM_TARGET = [0, 2.8, 6.5]
-const AIM_CAM = new THREE.Vector3(0, 2.1, -9.0)
-const AIM_TARGET = [0, 2.8, 10]
+const AIM_CAM = new THREE.Vector3(0, 3.0, -10.6)
+const AIM_TARGET = [0, 2.6, 10]
 
 /**
  * Camera rig with three behaviors:
@@ -378,6 +399,31 @@ export default function SkeeballCanvas({ level = DEFAULT_LEVEL, freePlay = false
     }
   }, [step]) // eslint-disable-line react-hooks/exhaustive-deps
 
+  // End-of-game fireworks over the deck, scaled to the final score.
+  useEffect(() => {
+    if (step !== 'over' || score < 150) return
+    const golden = score >= 300
+    const count = golden ? 6 : 3
+    const timers = []
+    for (let i = 0; i < count; i++) {
+      timers.push(setTimeout(() => {
+        sfx.pop()
+        spawnFx([{
+          kind: 'burst',
+          position: geom.boardPoint(
+            (Math.random() - 0.5) * 3.5,
+            3.2 + Math.random() * 2.4,
+            -1.2 - Math.random() * 1.5),
+          color: golden
+            ? ['#facc15', '#fde68a', '#fbbf24'][i % 3]
+            : ['#38bdf8', '#a78bfa', '#f59e0b'][i % 3],
+          big: golden,
+        }])
+      }, 350 + i * 420))
+    }
+    return () => timers.forEach(clearTimeout)
+  }, [step]) // eslint-disable-line react-hooks/exhaustive-deps
+
   // Server recomputes the score from stored rolls — never send client totals.
   useEffect(() => {
     if (step !== 'over' || !syncedRef.current || !sessionRef.current) return
@@ -567,16 +613,24 @@ export default function SkeeballCanvas({ level = DEFAULT_LEVEL, freePlay = false
         </div>
       )}
 
-      {/* Game over — prize reveal */}
+      {/* Game over — score reveal + prize */}
       {step === 'over' && (
-        <div className="absolute inset-0 flex items-center justify-center bg-slate-950/70">
-          {completeResult?.prize && (
-            <ConfettiRain gold={Boolean(completeResult.golden)} />
+        <div className="absolute inset-0 flex items-center justify-center bg-slate-950/60">
+          {(completeResult?.prize || score >= 250) && (
+            <ConfettiRain gold={Boolean(completeResult?.golden) || score >= 300} />
           )}
-          <div className="flex max-w-sm flex-col items-center gap-4 rounded-2xl border border-slate-700 bg-slate-900 px-10 py-8 text-center shadow-2xl">
-            <p className="text-xl font-bold text-slate-100 md:text-2xl">
-              遊戲結束 — 總分 <span className="text-amber-300">{score}</span>
+          <div className="modal-pop flex max-w-sm flex-col items-center gap-3 rounded-2xl border border-slate-700 bg-slate-900/95 px-10 py-8 text-center shadow-2xl">
+            <p className="text-sm tracking-widest text-slate-400">遊戲結束</p>
+            <p className={`text-5xl font-black md:text-6xl ${
+              score >= 300 ? 'text-amber-300' : score >= 150 ? 'text-sky-300' : 'text-slate-200'
+            }`}>
+              <CountUp value={score} />
             </p>
+            {score === 0 && (
+              <p className="text-base font-bold text-slate-300">
+                <span className="turtle-wobble inline-block">🐢</span> 槓龜了…下場再戰！
+              </p>
+            )}
             {newBest && (
               <p className="text-sm font-bold text-sky-300">🏆 新紀錄！</p>
             )}
