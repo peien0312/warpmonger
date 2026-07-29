@@ -389,6 +389,47 @@ export function PreviewBall({ textureUrl, position, radius = 0.45 }) {
   )
 }
 
+/** Emissive dressing: neon rails along the gutters + a glowing frame around
+ * the deck. Pure decor (no colliders) — with bloom these carry the look. */
+function ArenaTrim({ geom }) {
+  const { lane, ramp } = geom
+  const railLength = lane.length + ramp.length + ramp.gap
+  const railZ = (ramp.length + ramp.gap) / 2
+  const railY = lane.thickness / 2 + 0.38
+  return (
+    <group>
+      {[-1, 1].map((side) => (
+        <mesh key={side} position={[(side * (lane.width + 0.4)) / 2, railY, railZ]}>
+          <boxGeometry args={[0.12, 0.06, railLength]} />
+          <meshStandardMaterial color="#b45309" emissive="#f59e0b" emissiveIntensity={1.8} />
+        </mesh>
+      ))}
+    </group>
+  )
+}
+
+/** Glowing border around the deck (deck-local coordinates). */
+function DeckFrame({ geom }) {
+  const B = geom.BOARD
+  const z = geom.boardFaceZ - 0.02
+  const bars = [
+    { pos: [0, B.y1 + 0.1, z], size: [B.x1 - B.x0 + 0.34, 0.1, 0.1] },
+    { pos: [0, B.y0 - 0.1, z], size: [B.x1 - B.x0 + 0.34, 0.1, 0.1] },
+    { pos: [B.x0 - 0.12, (B.y0 + B.y1) / 2, z], size: [0.1, B.y1 - B.y0 + 0.34, 0.1] },
+    { pos: [B.x1 + 0.12, (B.y0 + B.y1) / 2, z], size: [0.1, B.y1 - B.y0 + 0.34, 0.1] },
+  ]
+  return (
+    <group>
+      {bars.map((b, i) => (
+        <mesh key={i} position={b.pos}>
+          <boxGeometry args={b.size} />
+          <meshStandardMaterial color="#7c2d12" emissive="#f97316" emissiveIntensity={1.2} />
+        </mesh>
+      ))}
+    </group>
+  )
+}
+
 // 巡邏門 patrol path: guards the upper deck (150 + golden corners approach)
 // while the low 50 stays free — memorized aim+power now needs TIMING too.
 const SWEEP_Y = 4.15
@@ -452,12 +493,23 @@ export default function SkeeballWorld({ level = DEFAULT_LEVEL, onScore }) {
       <group position={[0, rise, geom.backboardZ]} rotation={[geom.tilt, 0, 0]}>
         <group position={[0, -rise, -geom.backboardZ]}>
           <Backboard geom={geom} targets={level.targets} />
+          <DeckFrame geom={geom} />
           {level.targets.map((hole) => (
             <ScoreHole key={hole.name} hole={hole} geom={geom} onScore={onScore} />
           ))}
         </group>
       </group>
       <DeckSweeper geom={geom} />
+      <ArenaTrim geom={geom} />
+      {/* warm key light over the deck: gives the gunmetal + brass materials
+          something to reflect and pools the eye on the target zone */}
+      <pointLight
+        position={geom.boardPoint(0, 4.6, -3)}
+        intensity={26}
+        color="#ffc978"
+        distance={14}
+        decay={1.6}
+      />
     </group>
   )
 }

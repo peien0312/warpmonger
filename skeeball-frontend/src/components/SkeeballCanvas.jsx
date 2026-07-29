@@ -1,6 +1,7 @@
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Canvas, useFrame } from '@react-three/fiber'
 import { Html, Stars } from '@react-three/drei'
+import { Bloom, EffectComposer, Vignette } from '@react-three/postprocessing'
 import { Physics } from '@react-three/rapier'
 import * as THREE from 'three'
 import SkeeballWorld, { computeGeometry, PreviewBall, SceneBackground } from './SkeeballWorld.jsx'
@@ -491,6 +492,15 @@ export default function SkeeballCanvas({ level = DEFAULT_LEVEL, freePlay = false
               ballRef={ballPosRef}
               following={step === 'rolling'}
             />
+
+            {/* The "lens": bloom makes every emissive surface (rings,
+                backstops, guard bar, trim) actually glow; vignette focuses
+                the eye. This is most of the distance between raw three.js
+                and a screenshot people share. */}
+            <EffectComposer>
+              <Bloom mipmapBlur intensity={0.85} luminanceThreshold={0.55} luminanceSmoothing={0.2} />
+              <Vignette eskil={false} offset={0.18} darkness={0.72} />
+            </EffectComposer>
           </Suspense>
         </Canvas>
       </div>
