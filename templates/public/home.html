@@ -61,12 +61,17 @@
     </div>
 </section>
 
-{# 蝦皮實績 trust band — stats verified against shopee.tw/peien0312.
-   Counts are rounded down (900+) so they stay true as the shop grows;
-   bump them when they lag far behind. (The Shopee account is 8 years old
-   but the shop has been active ~1 year — don't claim 老店.) Add curated
-   review texts to shopee_quotes below ("text", "author") to show the
-   quote row — real reviews only, anonymize authors (e.g. t***7). #}
+{# 蝦皮實績 trust band — stats verified against shopee.tw/peien0312 and
+   the seller dashboard (2026-07): 911 評價, 40萬+ 商品卡瀏覽 (top-5
+   products alone total ~378k across 2025+2026). Counts are rounded down
+   (900+/40萬+) so they stay true as the shop grows; bump them when they
+   lag far behind. (The Shopee account is 8 years old but the shop has
+   been active ~1 year — don't claim 老店. Don't publish revenue/order
+   totals. The 40萬+ stat is a deliberate quiet 40K pun — keep it as a
+   bare number, don't spell the joke out in copy.) Add curated review
+   texts to shopee_quotes below ("text",
+   "author") to show the quote row — real reviews only, anonymize
+   authors (e.g. t***7). #}
 {% set shopee_quotes = [] %}
 <section class="shopee-trust">
     <div class="container">
@@ -78,6 +83,7 @@
             </div>
             <ul class="shopee-trust-stats">
                 <li><strong>★ 5.0</strong><span>900+ 筆評價</span></li>
+                <li><strong>40萬+</strong><span>商品瀏覽</span></li>
                 <li><strong>100%</strong><span>聊聊幾分鐘內回覆</span></li>
             </ul>
             <a class="shopee-trust-link" href="https://shopee.tw/peien0312" target="_blank" rel="noopener">在蝦皮查看全部評價 ↗</a>
