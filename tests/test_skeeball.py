@@ -198,6 +198,26 @@ def test_complete_idempotent_single_grant(client, monkeypatch):
     assert len(grants) == 1
 
 
+def test_leaderboard_masks_names_and_flags_me(client, monkeypatch):
+    monkeypatch.setenv('SKEEBALL_BETA_MEMBERS', 'all')
+    monkeypatch.setattr(skeeball, 'MIN_MS_BETWEEN_ROLLS', 0)
+    m = _member('rank1')
+    _login(client, m['id'])
+    memberdb.skeeball_grant_tokens(m['id'], 2, 'test')
+    _play_full_game(client, [150, 100, 0])
+    _play_full_game(client, [50, 0, 0])     # best stays 250
+
+    board = client.get('/api/skeeball/leaderboard').get_json()['entries']
+    mine = [e for e in board if e['me']]
+    assert mine and mine[0]['best'] == 250 and mine[0]['games'] == 2
+    assert mine[0]['name'].endswith('○○')   # masked
+    assert '滾球玩家' not in str(board)      # full name never leaks
+
+    with client.session_transaction() as sess:
+        sess.clear()
+    assert client.get('/api/skeeball/leaderboard').status_code == 401
+
+
 def test_config_public_and_no_code_leak(client):
     _seed_prizes()
     cfg = client.get('/api/skeeball/config').get_json()

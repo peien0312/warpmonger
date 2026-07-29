@@ -236,6 +236,9 @@ export default function SkeeballCanvas({ level = DEFAULT_LEVEL, freePlay = false
   const dragDeltaRef = useRef({ dx: 0, dy: 0 })
   const wasDragRef = useRef(false)
   const ballPosRef = useRef(null) // live ball position for the chase camera
+  const nudgeRef = useRef(0) // -1 | 0 | +1 mid-roll steering
+  const rimTouchedRef = useRef(false) // ball grazed a hole rim this roll
+  const comboRef = useRef(0) // consecutive scoring balls this game
 
   const onPointerDown = useCallback((e) => {
     if (e.pointerType === 'mouse' && e.button !== 0) return
@@ -281,6 +284,7 @@ export default function SkeeballCanvas({ level = DEFAULT_LEVEL, freePlay = false
     setOfflineReason(null)
     sessionRef.current = null
     syncedRef.current = false
+    comboRef.current = 0
     try {
       const data = await startSession()
       sessionRef.current = { sessionId: data.sessionId, nonce: data.nonce }
@@ -351,8 +355,10 @@ export default function SkeeballCanvas({ level = DEFAULT_LEVEL, freePlay = false
       scoredRef.current = true
       const points = hole.points
       const golden = points >= 300
+      comboRef.current += 1
+      const combo = comboRef.current
       setScore((s) => s + points)
-      setLastHit(points)
+      setLastHit({ points, combo })
       sfx.score(points)
       const at = geom.boardPoint(hole.x, hole.y, -0.2)
       spawnFx([
@@ -370,20 +376,45 @@ export default function SkeeballCanvas({ level = DEFAULT_LEVEL, freePlay = false
     if (stepRef.current !== 'rolling') return
     if (ballDoneRef.current) return
     ballDoneRef.current = true
-    setLastHit(0)
+    comboRef.current = 0
+    setLastHit({ points: 0, nearMiss: rimTouchedRef.current })
     sfx.miss()
     endBall(0)
   }, [endBall])
 
-  // [R] forfeits a hopeless ball (stuck, rolled backward) — counts as a miss.
+  // [R] forfeits a hopeless ball; ←→ steer the rolling ball (screen-space:
+  // ArrowRight pushes toward the camera's right, which is world -x).
   useEffect(() => {
     const onKey = (e) => {
       if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return
       if (e.key.toLowerCase() === 'r') handleMiss()
+      if (e.key === 'ArrowRight') nudgeRef.current = -1
+      if (e.key === 'ArrowLeft') nudgeRef.current = 1
+    }
+    const onKeyUp = (e) => {
+      if ((e.key === 'ArrowRight' && nudgeRef.current === -1) ||
+          (e.key === 'ArrowLeft' && nudgeRef.current === 1)) {
+        nudgeRef.current = 0
+      }
     }
     window.addEventListener('keydown', onKey)
-    return () => window.removeEventListener('keydown', onKey)
+    window.addEventListener('keyup', onKeyUp)
+    return () => {
+      window.removeEventListener('keydown', onKey)
+      window.removeEventListener('keyup', onKeyUp)
+    }
   }, [handleMiss])
+
+  const handleRimHit = useCallback(() => {
+    rimTouchedRef.current = true
+  }, [])
+
+  // Spark burst where the guard bar swats the ball.
+  const handleSweeperHit = useCallback(() => {
+    const b = ballPosRef.current
+    if (!b) return
+    spawnFx([{ kind: 'burst', position: [b.x, b.y + 0.2, b.z], color: '#fbbf24' }])
+  }, [spawnFx])
 
   // Personal best (client-side, per browser) — update the moment a game ends.
   useEffect(() => {
@@ -453,6 +484,8 @@ export default function SkeeballCanvas({ level = DEFAULT_LEVEL, freePlay = false
     if (stepRef.current !== 'power' || wasDragRef.current) return
     scoredRef.current = false
     ballDoneRef.current = false
+    rimTouchedRef.current = false
+    nudgeRef.current = 0
     ballPosRef.current = {
       x: geom.BALL_START[0], y: geom.BALL_START[1], z: geom.BALL_START[2],
     }
@@ -505,7 +538,12 @@ export default function SkeeballCanvas({ level = DEFAULT_LEVEL, freePlay = false
 
             {/* key on level: fixed physics bodies are recreated so editor edits apply live. */}
             <Physics key={JSON.stringify(level)} gravity={[0, GRAVITY_Y, 0]}>
-              <SkeeballWorld level={level} onScore={handleScore} />
+              <SkeeballWorld
+                level={level}
+                onScore={handleScore}
+                onRimHit={handleRimHit}
+                onSweeperHit={handleSweeperHit}
+              />
               {(aiming || step === 'idle') && (
                 <>
                   <PreviewBall
@@ -534,6 +572,7 @@ export default function SkeeballCanvas({ level = DEFAULT_LEVEL, freePlay = false
                   missBounds={geom.missBounds}
                   onMiss={handleMiss}
                   posRef={ballPosRef}
+                  nudgeRef={nudgeRef}
                 />
               )}
             </Physics>
@@ -577,8 +616,28 @@ export default function SkeeballCanvas({ level = DEFAULT_LEVEL, freePlay = false
       )}
       {lastHit !== null && step !== 'over' && step !== 'idle' && (
         <div className="pointer-events-none absolute left-1/2 top-16 -translate-x-1/2 rounded-full bg-slate-950/80 px-5 py-1.5 text-sm font-semibold text-slate-100">
-          {lastHit > 0 ? `+${lastHit} 分！` : '沒進洞'}
+          {lastHit.points > 0
+            ? `+${lastHit.points} 分！${lastHit.combo >= 2 ? ` 🔥 連擊 x${lastHit.combo}` : ''}`
+            : lastHit.nearMiss ? '差一點！擦到洞邊了 😤' : '沒進洞'}
         </div>
+      )}
+
+      {/* Mid-roll steering buttons (touch / mouse) — keyboard ←→ also works. */}
+      {step === 'rolling' && (
+        <>
+          {[['◀', 1, 'left-3'], ['▶', -1, 'right-3']].map(([label, dir, side]) => (
+            <button
+              key={label}
+              type="button"
+              className={`absolute ${side} bottom-16 h-14 w-14 rounded-full border border-amber-500/40 bg-slate-950/60 text-xl text-amber-300 active:bg-amber-500/30`}
+              onPointerDown={(e) => { e.stopPropagation(); nudgeRef.current = dir }}
+              onPointerUp={() => { nudgeRef.current = 0 }}
+              onPointerLeave={() => { if (nudgeRef.current === dir) nudgeRef.current = 0 }}
+            >
+              {label}
+            </button>
+          ))}
+        </>
       )}
 
       {/* Start screen — user gesture also kicks off the backend session. */}
@@ -679,6 +738,12 @@ export default function SkeeballCanvas({ level = DEFAULT_LEVEL, freePlay = false
         </span>
         <span className="text-slate-600">|</span>
         <span>點擊：鎖定角度 → 鎖定力度</span>
+        <span className="text-slate-600">|</span>
+        <span>
+          <kbd className="rounded border border-slate-600 bg-slate-800 px-1.5 py-0.5 font-bold text-slate-100">←</kbd>
+          <kbd className="ml-0.5 rounded border border-slate-600 bg-slate-800 px-1.5 py-0.5 font-bold text-slate-100">→</kbd>
+          {' 滾動中微調'}
+        </span>
         <span className="text-slate-600">|</span>
         <span>
           <kbd className="rounded border border-slate-600 bg-slate-800 px-1.5 py-0.5 font-bold text-slate-100">R</kbd>

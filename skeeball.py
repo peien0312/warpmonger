@@ -314,6 +314,40 @@ def complete(sid):
                     "golden": bool(s["golden"]), "prize": granted})
 
 
+@bp.get("/leaderboard")
+def leaderboard():
+    """本週排行榜 — best completed-session score per member, rolling 7 days.
+    Names are masked; the caller's own row is flagged. Beta-gated like the
+    rest of the game API."""
+    mid = _member_id_or_none()
+    if not mid:
+        return jsonify({"error": "unauthorized"}), 401
+    conn = memberdb._conn()
+    rows = conn.execute("""
+        SELECT s.member_id, MAX(s.total_score) AS best, COUNT(*) AS games,
+               COALESCE(m.name, '') AS name
+        FROM skeeball_sessions s
+        JOIN members m ON m.id = s.member_id
+        WHERE s.status = 'completed'
+          AND s.started_at >= datetime('now', '-7 day')
+          AND s.total_score > 0
+        GROUP BY s.member_id
+        ORDER BY best DESC, games ASC
+        LIMIT 10
+    """).fetchall()
+    conn.close()
+
+    def mask(name):
+        name = (name or "").strip()
+        return (name[0] + "○○") if name else "神秘玩家"
+
+    return jsonify({"entries": [
+        {"rank": i + 1, "name": mask(r["name"]), "best": r["best"],
+         "games": r["games"], "me": r["member_id"] == mid}
+        for i, r in enumerate(rows)
+    ]})
+
+
 @bp.get("/session/<sid>")
 def get_session(sid):
     mid = _member_id_or_none()

@@ -9,6 +9,8 @@ const MAX_FLIGHT_TIME = 8 // seconds before a stray ball is retired
 const STALL_SPEED = 0.55 // m/s — below this the ball is "going nowhere"
 const STALL_TIME = 1.2 // seconds of going-nowhere before retiring
 const BACKWARD_TIME = 1.1 // seconds of rolling back toward the player
+const NUDGE_ACCEL = 7 // m/s² of ←→ mid-roll steering
+const NUDGE_BUDGET = 2.6 // total m/s of Δv a ball may be steered
 
 /**
  * Dynamic physics ball. Launch velocity is set through the RigidBody's
@@ -29,12 +31,14 @@ export default function PlayBall({
   startPosition,
   missBounds,
   posRef,
+  nudgeRef,
 }) {
   const body = useRef()
   const done = useRef(false)
   const bornAt = useRef(null)
   const stallSince = useRef(null)
   const backwardSince = useRef(null)
+  const nudgeBudget = useRef(NUDGE_BUDGET)
 
   const launchVelocity = useMemo(() => {
     const speed = ballCfg.minSpeed + power * (ballCfg.maxSpeed - ballCfg.minSpeed)
@@ -46,7 +50,7 @@ export default function PlayBall({
     return [(dir.x / len) * speed, (dir.y / len) * speed, (dir.z / len) * speed]
   }, [angle, power, ballCfg])
 
-  useFrame(({ clock }) => {
+  useFrame(({ clock }, dt) => {
     const api = body.current
     if (!api) return
 
@@ -58,6 +62,16 @@ export default function PlayBall({
     if (done.current) return
     const { x, y, z } = api.translation()
     if (posRef) posRef.current = { x, y, z }
+
+    // Mid-roll steering (←→ / on-screen buttons): a small, budget-capped
+    // lateral push — enough to save a drifting shot, not enough to aim
+    // after the fact.
+    const steer = nudgeRef?.current || 0
+    if (steer && nudgeBudget.current > 0) {
+      const dv = NUDGE_ACCEL * Math.min(dt, 0.05)
+      api.applyImpulse({ x: steer * dv * ballCfg.mass, y: 0, z: 0 }, true)
+      nudgeBudget.current -= dv
+    }
     const b = missBounds
     const outOfBounds = b && (y < b.minY || z > b.maxZ || z < b.minZ || Math.abs(x) > b.maxAbsX)
     const timedOut = clock.elapsedTime - bornAt.current > MAX_FLIGHT_TIME

@@ -178,7 +178,7 @@ function Backboard({ geom, targets }) {
 }
 
 /** Ring of small cuboid colliders forming a physical, bouncy circular rim. */
-function RimColliders({ hole, geom }) {
+function RimColliders({ hole, geom, onRimHit }) {
   const { backboard, backboardZ } = geom
   const segments = useMemo(() => {
     const chord = 2 * hole.r * Math.sin(Math.PI / RIM_SEGMENTS) + 0.06
@@ -196,7 +196,15 @@ function RimColliders({ hole, geom }) {
     })
   }, [hole, backboard, backboardZ])
   return (
-    <RigidBody type="fixed" colliders={false} friction={0.6} restitution={0.2}>
+    <RigidBody
+      type="fixed"
+      colliders={false}
+      friction={0.6}
+      restitution={0.2}
+      onCollisionEnter={({ other }) => {
+        if (other.rigidBody?.userData?.isSkeeball) onRimHit?.(hole)
+      }}
+    >
       {segments.map((s, i) => (
         <CuboidCollider key={i} args={s.args} position={s.position} rotation={s.rotation} />
       ))}
@@ -296,7 +304,7 @@ function ApexRim({ hole, boardFaceZ }) {
   )
 }
 
-function ScoreHole({ hole, geom, onScore }) {
+function ScoreHole({ hole, geom, onScore, onRimHit }) {
   const { boardFaceZ } = geom
   const isApex = hole.points === 300
   return (
@@ -345,7 +353,7 @@ function ScoreHole({ hole, geom, onScore }) {
         {String(hole.points)}
       </Text>
       {isApex && <ApexBackstop hole={hole} geom={geom} />}
-      <RimColliders hole={hole} geom={geom} />
+      <RimColliders hole={hole} geom={geom} onRimHit={onRimHit} />
       <CapturePocket hole={hole} geom={geom} onScore={onScore} />
     </group>
   )
@@ -442,7 +450,7 @@ const SWEEP_PERIOD = 4.6 // seconds per full left-right-left cycle
  * tilted group: kinematic bodies are driven in world coordinates every
  * frame, so it derives its pose from geom.boardPoint directly.
  */
-function DeckSweeper({ geom }) {
+function DeckSweeper({ geom, onSweeperHit }) {
   const body = useRef()
   const amplitude = geom.BOARD.x1 - 0.75
   const initial = useMemo(() => geom.boardPoint(0, SWEEP_Y, -0.3), [geom])
@@ -464,7 +472,10 @@ function DeckSweeper({ geom }) {
       friction={0.4}
       restitution={0.55}
       onCollisionEnter={({ other }) => {
-        if (other.rigidBody?.userData?.isSkeeball) sfx.clank()
+        if (other.rigidBody?.userData?.isSkeeball) {
+          sfx.clank()
+          onSweeperHit?.()
+        }
       }}
     >
       <mesh castShadow>
@@ -481,7 +492,7 @@ function DeckSweeper({ geom }) {
   )
 }
 
-export default function SkeeballWorld({ level = DEFAULT_LEVEL, onScore }) {
+export default function SkeeballWorld({ level = DEFAULT_LEVEL, onScore, onRimHit, onSweeperHit }) {
   const geom = useLevelGeometry(level)
   const { rise } = geom.ramp
   return (
@@ -497,11 +508,11 @@ export default function SkeeballWorld({ level = DEFAULT_LEVEL, onScore }) {
           <Backboard geom={geom} targets={level.targets} />
           <DeckFrame geom={geom} />
           {level.targets.map((hole) => (
-            <ScoreHole key={hole.name} hole={hole} geom={geom} onScore={onScore} />
+            <ScoreHole key={hole.name} hole={hole} geom={geom} onScore={onScore} onRimHit={onRimHit} />
           ))}
         </group>
       </group>
-      <DeckSweeper geom={geom} />
+      <DeckSweeper geom={geom} onSweeperHit={onSweeperHit} />
       <ArenaTrim geom={geom} />
       {/* warm key light over the deck: gives the gunmetal + brass materials
           something to reflect and pools the eye on the target zone */}

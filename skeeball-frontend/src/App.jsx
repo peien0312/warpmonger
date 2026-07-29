@@ -55,6 +55,37 @@ function AdminKeyModal({ onSubmit, onCancel }) {
   )
 }
 
+/** 本週排行榜 — best score per member over the rolling week. */
+function Leaderboard({ entries }) {
+  if (!entries?.length) return null
+  const medals = ['🥇', '🥈', '🥉']
+  return (
+    <section className="mt-6 rounded-2xl border border-slate-700 bg-slate-900 p-5">
+      <h2 className="text-lg font-bold text-amber-400">⚔️ 本週排行榜</h2>
+      <p className="mt-1 text-xs text-slate-400">近 7 天最佳單場成績</p>
+      <ul className="mt-3 flex flex-col gap-1.5">
+        {entries.map((e) => (
+          <li
+            key={e.rank}
+            className={`flex items-center justify-between rounded-xl px-4 py-2 ${
+              e.me ? 'border border-amber-500/50 bg-amber-500/10' : 'bg-slate-800/60'
+            }`}
+          >
+            <span className="flex items-center gap-2 text-sm">
+              <span className="w-7 text-center">{medals[e.rank - 1] ?? `${e.rank}.`}</span>
+              <span className={e.me ? 'font-bold text-amber-200' : 'text-slate-200'}>
+                {e.name}{e.me && '（你）'}
+              </span>
+              <span className="text-xs text-slate-500">{e.games} 場</span>
+            </span>
+            <span className="text-sm font-bold text-slate-100">{e.best}</span>
+          </li>
+        ))}
+      </ul>
+    </section>
+  )
+}
+
 /** 獎品表 — what score wins which coupon (from /config, codes never shown). */
 function PrizeTable({ prizes }) {
   const tiers = prizes?.tiers ?? []
@@ -132,6 +163,26 @@ export default function App() {
       // Keep showing the last known balance.
     }
   }, [])
+
+  const [board, setBoard] = useState(null)
+  const refreshBoard = useCallback(async () => {
+    try {
+      const res = await fetch('/api/skeeball/leaderboard', { credentials: 'include' })
+      if (!res.ok) throw new Error('API request failed')
+      setBoard((await res.json()).entries)
+    } catch {
+      // Board stays hidden (offline / logged out).
+    }
+  }, [])
+
+  useEffect(() => {
+    refreshBoard()
+  }, [refreshBoard])
+
+  const handleGameComplete = useCallback(() => {
+    refreshBalance()
+    refreshBoard()
+  }, [refreshBalance, refreshBoard])
 
   useEffect(() => {
     let cancelled = false
@@ -255,7 +306,7 @@ export default function App() {
           key={presetKey}
           level={level}
           freePlay={Boolean(balance?.freePlay)}
-          onGameComplete={refreshBalance}
+          onGameComplete={handleGameComplete}
         />
 
         {isAdmin && !editorOpen && !showKeyPrompt && (
@@ -267,6 +318,8 @@ export default function App() {
             Open Level Editor
           </button>
         )}
+
+        <Leaderboard entries={board} />
 
         <PrizeTable prizes={config?.prizes} />
 
