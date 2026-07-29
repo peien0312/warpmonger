@@ -84,10 +84,12 @@ function LaneMaterial({ url, color, roughness }) {
   return <meshStandardMaterial map={texture} color={color} roughness={roughness} />
 }
 
-/** Floor/ramp material: texture when a lane URL is set, flat color otherwise. */
+/** Floor/ramp material: texture when a lane URL is set, flat color otherwise.
+ * Textures render untinted — multiplying by the brown fallback color turned
+ * the gunmetal plates to mud. */
 function WoodSurface({ textureUrl, color, roughness }) {
   return textureUrl ? (
-    <LaneSurface textureUrl={textureUrl} color={color} roughness={roughness} />
+    <LaneSurface textureUrl={textureUrl} color="#ffffff" roughness={roughness} />
   ) : (
     <meshStandardMaterial color={color} roughness={roughness} />
   )
@@ -468,9 +470,9 @@ function DeckSweeper({ geom }) {
       <mesh castShadow>
         <boxGeometry args={[1.25, 0.26, 0.55]} />
         <meshStandardMaterial
-          color="#92600e"
-          emissive="#f59e0b"
-          emissiveIntensity={0.45}
+          color="#b45309"
+          emissive="#fbbf24"
+          emissiveIntensity={1.4}
           metalness={0.6}
           roughness={0.3}
         />

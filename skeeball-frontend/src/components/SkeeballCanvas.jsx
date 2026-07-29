@@ -25,7 +25,12 @@ function loadBest() {
   }
 }
 
-const HOME_CAM = new THREE.Vector3(0, 5.5, -11)
+// Per-phase camera framings: HOME showcases the whole arena (idle/results),
+// AIM drops behind the ball so the arrow, lane and deck are all in view.
+const HOME_CAM = new THREE.Vector3(0, 5.9, -9.6)
+const CAM_TARGET = [0, 2.8, 6.5]
+const AIM_CAM = new THREE.Vector3(0, 2.1, -9.0)
+const AIM_TARGET = [0, 2.8, 10]
 
 /**
  * Camera rig with three behaviors:
@@ -35,10 +40,10 @@ const HOME_CAM = new THREE.Vector3(0, 5.5, -11)
  * - free: hold A/D to rotate, or drag (mouse/touch) — the container feeds
  *   pixel deltas through dragRef; dragging also tilts the camera height.
  */
-function CameraRig({ target = [0, 1.5, 4], speed = 1.6, dragRef, ballRef, following }) {
+function CameraRig({ target = CAM_TARGET, speed = 1.6, dragRef, ballRef, step }) {
   const keys = useRef({ a: false, d: false })
-  const returning = useRef(false)
-  const wasFollowing = useRef(false)
+  const glide = useRef(null) // { pos, look } to ease toward, or null
+  const prevStep = useRef(null)
 
   useEffect(() => {
     const set = (key, value) => {
@@ -63,8 +68,21 @@ function CameraRig({ target = [0, 1.5, 4], speed = 1.6, dragRef, ballRef, follow
     const t = new THREE.Vector3(...target)
     const drag = dragRef?.current
 
-    if (following && ballRef?.current) {
-      wasFollowing.current = true
+    // Phase change → pick the framing to glide toward.
+    if (step !== prevStep.current) {
+      const first = prevStep.current === null
+      prevStep.current = step
+      if (step === 'aim' || step === 'power') {
+        glide.current = { pos: AIM_CAM, look: new THREE.Vector3(...AIM_TARGET) }
+      } else if (step !== 'rolling') {
+        glide.current = { pos: HOME_CAM, look: t }
+      }
+      if (first) {
+        camera.lookAt(t) // Canvas default aims at the origin — frame the deck
+      }
+    }
+
+    if (step === 'rolling' && ballRef?.current) {
       const b = ballRef.current
       const desired = new THREE.Vector3(b.x * 0.5, b.y + 2.2, b.z - 4.5)
       camera.position.lerp(desired, 1 - Math.exp(-dt * 4.5))
@@ -72,19 +90,15 @@ function CameraRig({ target = [0, 1.5, 4], speed = 1.6, dragRef, ballRef, follow
       if (drag) { drag.dx = 0; drag.dy = 0 }
       return
     }
-    if (wasFollowing.current) {
-      wasFollowing.current = false
-      returning.current = true
-    }
 
     const dir = (keys.current.a ? 1 : 0) - (keys.current.d ? 1 : 0)
     const dragged = drag && (drag.dx || drag.dy)
-    if (dir || dragged) returning.current = false
+    if (dir || dragged) glide.current = null
 
-    if (returning.current) {
-      camera.position.lerp(HOME_CAM, 1 - Math.exp(-dt * 3.5))
-      camera.lookAt(t)
-      if (camera.position.distanceTo(HOME_CAM) < 0.15) returning.current = false
+    if (glide.current) {
+      camera.position.lerp(glide.current.pos, 1 - Math.exp(-dt * 3.5))
+      camera.lookAt(glide.current.look)
+      if (camera.position.distanceTo(glide.current.pos) < 0.12) glide.current = null
       return
     }
 
@@ -417,7 +431,7 @@ export default function SkeeballCanvas({ level = DEFAULT_LEVEL, freePlay = false
       <div className="h-[60vh] min-h-[320px] w-full md:h-[70vh]">
         <Canvas
           shadows
-          camera={{ position: [0, 5.5, -11], fov: 50 }}
+          camera={{ position: [HOME_CAM.x, HOME_CAM.y, HOME_CAM.z], fov: 50 }}
           dpr={[1, 2]}
           gl={{ antialias: true }}
         >
@@ -433,10 +447,10 @@ export default function SkeeballCanvas({ level = DEFAULT_LEVEL, freePlay = false
               <Stars radius={70} depth={40} count={2500} factor={4} fade speed={0.6} />
             )}
 
-            <ambientLight intensity={0.55} />
+            <ambientLight intensity={0.75} />
             <directionalLight
               position={[6, 10, -6]}
-              intensity={1.2}
+              intensity={1.6}
               castShadow
               shadow-mapSize-width={1024}
               shadow-mapSize-height={1024}
@@ -486,12 +500,7 @@ export default function SkeeballCanvas({ level = DEFAULT_LEVEL, freePlay = false
               )
             )}
 
-            <CameraRig
-              target={[0, 1.5, 4]}
-              dragRef={dragDeltaRef}
-              ballRef={ballPosRef}
-              following={step === 'rolling'}
-            />
+            <CameraRig dragRef={dragDeltaRef} ballRef={ballPosRef} step={step} />
 
             {/* The "lens": bloom makes every emissive surface (rings,
                 backstops, guard bar, trim) actually glow; vignette focuses
