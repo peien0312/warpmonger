@@ -110,12 +110,33 @@
             {{ post.content_html|safe }}
         </div>
 
-        {% if post.shop_products or post.shop_tags %}
+        {% if post.shop_products %}
+        <section class="codex-related post-shop-products">
+            <h2 class="section-title">🛒 文中登場的商品</h2>
+            <div class="products-grid">
+                {% for p in post.shop_products %}
+                <div class="product-card">
+                    <a href="{{ url_prefix }}/products/{{ p.category }}/{{ p.slug }}">
+                        <div class="product-image-container">
+                            {% if p.images %}
+                            <img src="/static/images/products/{{ p.category }}/{{ p.slug }}/thumb_{{ p.images[0].rsplit('.', 1)[0] }}.jpg"
+                                 alt="{{ p.zhtw_name or p.title }}" loading="lazy">
+                            {% else %}
+                            <div class="product-placeholder">{{ t.no_image }}</div>
+                            {% endif %}
+                        </div>
+                        <h3>{{ p.zhtw_name or p.title }}</h3>
+                        {% if p.final_price %}<p class="price">NT${{ p.final_price|ntd }}</p>{% endif %}
+                    </a>
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+        {% endif %}
+
+        {% if post.shop_tags %}
         <div class="post-shop-tags">
             <span class="post-shop-tags-label">🛒 想收這個派系？</span>
-            {% for sp in post.shop_products %}
-            <a href="{{ url_prefix }}/products/{{ sp.ref }}" class="tag tag-link">{{ sp.name }}</a>
-            {% endfor %}
             {% for tag in post.shop_tags %}
             <a href="{{ url_prefix }}/products?tag={{ tag|urlencode }}" class="tag tag-link">{{ tag|tag_label }}</a>
             {% endfor %}

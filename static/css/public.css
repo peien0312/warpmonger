@@ -4645,7 +4645,7 @@ details.spoiler-block .spoiler-body { padding: 4px 16px 12px; }
 }
 .post-cover a:hover .post-cover-shop { color: #E6DAC4; }
 /* sections below the article text must not wrap around the cover */
-.post-shop-tags, .blog-comments, .post-footer { clear: both; }
+.post-shop-tags, .post-shop-products, .blog-comments, .post-footer { clear: both; }
 @media (max-width: 768px) {
     .post-cover {
         float: none;

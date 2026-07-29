@@ -2008,14 +2008,14 @@ def blog_post_page(slug):
     product_tags = {t['name'] for t in get_all_tags()}
     post['shop_tags'] = [t for t in (post.get('tags') or [])
                          if t in product_tags]
-    # hand-picked 相關商品 refs → direct product links ahead of the tag links
+    # hand-picked 相關商品 refs → full product dicts, rendered as a card grid
+    # at the end of the article (editor's pick order preserved)
     post['shop_products'] = []
     for _ref in (post.get('related_products') or []):
         _m = re.match(r'^([^/]+)/([^/]+)$', _ref)
         _p = _m and get_product(_m.group(1), _m.group(2))
         if _p:
-            post['shop_products'].append(
-                {'ref': _ref, 'name': _p.get('zhtw_name') or _p.get('title')})
+            post['shop_products'].append(_p)
 
     # the cover links to a product page: an explicit 封面連結 wins (needed for
     # custom-uploaded covers), else it's derived from a product-image cover
