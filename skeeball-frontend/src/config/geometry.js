@@ -112,7 +112,7 @@ export function computeGeometry(level = DEFAULT_LEVEL) {
   // Stray-ball kill bounds — generous now: the drop field is part of play.
   const missBounds = {
     minY: pachinko.faceY - 4,
-    maxZ: pachinko.faceZ + 4,
+    maxZ: 29,   // generous: covers every drop-track variant (sonic ends ~25)
     minZ: -(lane.length - 3),
     maxAbsX: lane.width * 2.4,
     // Rolling backward is a natural part of play ON the deck (a failed high

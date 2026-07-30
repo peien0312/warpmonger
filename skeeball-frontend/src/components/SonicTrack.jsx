@@ -10,14 +10,17 @@ import { BonusRing, BossStation, WALL, rollRingValue } from './dropShared.jsx'
  * more boost, and rockets into the boss.
  */
 
-const CATCH = { z0: 5, y: -1.8, angle: 0.3, length: 6, width: 11 }
+// The catch ramp must span the ENTIRE deck drop zone (z≈10-14.5) — the loop
+// lives beyond it, so balls only ever enter it from the inside via the track
+// (an earlier layout put the loop under the deck: drops landed ON the wheel).
+const CATCH = { z0: 5, y: -1.8, angle: 0.3, length: 11, width: 11 }
 const TRACK_W = 2.4
-const TRACK_Y = -3.55            // flat running height after the catch ramp
-const LOOP = { z: 15.2, r: 2.3, segs: 22 }   // center z; center y = TRACK_Y + r
+const TRACK_Y = -5.1             // flat running height after the catch ramp
+const LOOP = { z: 19.3, r: 2.3, segs: 22 }   // center z; center y = TRACK_Y + r
 const BOOST_SPEED = 17
-const PAD1_Z = 12.2
-const PAD2_Z = 18.2
-const FACE_POS = [0, -1.4, 21.4]
+const PAD1_Z = 16.4
+const PAD2_Z = 22.4
+const FACE_POS = [0, -3.0, 25.0]
 
 export function genSonicRings() {
   const mk = (id, position, rotation = [0, 0, 0]) => ({
@@ -25,10 +28,10 @@ export function genSonicRings() {
   })
   return [
     mk('catch-1', [(Math.random() - 0.5) * 6, CATCH.y - 2.1 + 0.55, 9.2]),
-    mk('run-1', [0, TRACK_Y + 0.55, 13.4]),
+    mk('run-1', [0, TRACK_Y + 0.55, 17.2]),
     // the hero ring: apex of the loop, collected upside down
     mk('apex', [0, TRACK_Y + 2 * LOOP.r - 0.85, LOOP.z]),
-    mk('run-2', [0, TRACK_Y + 0.55, 19.3]),
+    mk('run-2', [0, TRACK_Y + 0.55, 23.4]),
   ]
 }
 
@@ -36,8 +39,8 @@ export function sonicCams(geom) {
   return {
     deckZ: geom.backboardZ,
     faceZ: FACE_POS[2],
-    side: new THREE.Vector3(-10.5, -0.2, 14.6),
-    impact: new THREE.Vector3(-4.8, 0.4, 17.6),
+    side: new THREE.Vector3(-11.2, -1.4, 18.6),
+    impact: new THREE.Vector3(-5.0, -0.8, 21.8),
   }
 }
 
@@ -160,16 +163,16 @@ export default function SonicTrack({ rings, onRingCollect, onFaceHit, onBoost, f
 
       {/* the running track: catch end → past the loop → the boss */}
       <RigidBody type="fixed" colliders="cuboid" friction={0.1} restitution={0.05}>
-        <mesh position={[0, TRACK_Y - 0.11, 15.6]} receiveShadow>
-          <boxGeometry args={[TRACK_W, 0.22, 11.6]} />
+        <mesh position={[0, TRACK_Y - 0.11, 20.2]} receiveShadow>
+          <boxGeometry args={[TRACK_W, 0.22, 10.6]} />
           <meshStandardMaterial color="#20242c" metalness={0.5} roughness={0.4} />
         </mesh>
       </RigidBody>
       {/* track side rails the whole way */}
       {[-1, 1].map((side) => (
         <RigidBody key={side} type="fixed" colliders="cuboid" friction={0.1} restitution={0.2}>
-          <mesh position={[(side * (TRACK_W + 0.25)) / 2, TRACK_Y + 0.3, 15.6]}>
-            <boxGeometry args={[0.22, 0.55, 11.6]} />
+          <mesh position={[(side * (TRACK_W + 0.25)) / 2, TRACK_Y + 0.3, 20.2]}>
+            <boxGeometry args={[0.22, 0.55, 10.6]} />
             <meshStandardMaterial color="#7c2d12" emissive="#f97316" emissiveIntensity={0.9} />
           </mesh>
         </RigidBody>
