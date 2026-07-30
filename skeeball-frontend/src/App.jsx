@@ -5,6 +5,7 @@ import { putLevel } from './api/skeeballApi.js'
 import { isMuted, setMuted } from './audio/sfx.js'
 import { DEFAULT_LEVEL, loadLevelLocal, sanitizeLevel, saveLevelLocal } from './config/levelConfig.js'
 import { LEVEL_PRESETS } from './config/presets.js'
+import { DROP_TRACKS } from './components/dropRegistry.js'
 
 // ?level=<key> deep-links a level; the in-page picker keeps it in sync.
 // Presets apply client-side only — the served default level is untouched;
@@ -12,6 +13,10 @@ import { LEVEL_PRESETS } from './config/presets.js'
 const INITIAL_KEY = (() => {
   const k = new URLSearchParams(window.location.search).get('level')
   return LEVEL_PRESETS[k] ? k : 'classic'
+})()
+const INITIAL_TRACK = (() => {
+  const k = new URLSearchParams(window.location.search).get('track')
+  return DROP_TRACKS[k] ? k : 'pachinko'
 })()
 
 /** Password prompt shown before the level editor opens (?admin in the URL). */
@@ -124,6 +129,16 @@ export default function App() {
   const [balance, setBalance] = useState(null)
   const [apiError, setApiError] = useState(false)
   const [presetKey, setPresetKey] = useState(INITIAL_KEY)
+  const [dropKey, setDropKey] = useState(INITIAL_TRACK)
+
+  const chooseTrack = (key) => {
+    if (key === dropKey) return
+    setDropKey(key)
+    const url = new URL(window.location)
+    if (key === 'pachinko') url.searchParams.delete('track')
+    else url.searchParams.set('track', key)
+    window.history.replaceState(null, '', url)
+  }
   const [serverLevel, setServerLevel] = useState(null)
   const [level, setLevel] = useState(() =>
     INITIAL_KEY !== 'classic'
@@ -282,6 +297,23 @@ export default function App() {
       </header>
 
       <main className="mx-auto w-full max-w-6xl px-4 pb-10">
+        <div className="mb-2 flex flex-wrap items-center gap-2">
+          <span className="text-xs uppercase tracking-wide text-slate-400">軌道</span>
+          {Object.entries(DROP_TRACKS).map(([key, t]) => (
+            <button
+              key={key}
+              type="button"
+              onClick={() => chooseTrack(key)}
+              className={
+                key === dropKey
+                  ? 'rounded-full bg-orange-500 px-4 py-1.5 text-sm font-bold text-slate-950 shadow'
+                  : 'rounded-full bg-slate-800 px-4 py-1.5 text-sm text-slate-200 hover:bg-slate-700'
+              }
+            >
+              {t.name}
+            </button>
+          ))}
+        </div>
         <div className="mb-3 flex flex-wrap items-center gap-2">
           <span className="text-xs uppercase tracking-wide text-slate-400">關卡</span>
           {Object.entries(LEVEL_PRESETS).map(([key, p]) => (
@@ -303,8 +335,9 @@ export default function App() {
         {/* key on the preset: switching levels resets the game to the start
             screen instead of swapping the board out mid-throw. */}
         <SkeeballCanvas
-          key={presetKey}
+          key={presetKey + dropKey}
           level={level}
+          dropKey={dropKey}
           freePlay={Boolean(balance?.freePlay)}
           onGameComplete={handleGameComplete}
         />

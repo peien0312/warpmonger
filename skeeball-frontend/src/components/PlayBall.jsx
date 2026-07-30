@@ -87,7 +87,7 @@ export default function PlayBall({
       const speed = Math.hypot(v.x, v.y, v.z)
       // In the drop field slow creeping is normal (dead-bounce collector) —
       // only a truly parked ball gets retired, and it gets longer to recover.
-      const inDrop = z > (b?.backwardZ ?? Infinity)
+      const inDrop = y < -0.5 || z > (b?.backwardZ ?? Infinity)
       const stallSpeed = inDrop ? 0.2 : STALL_SPEED
       const stallTime = inDrop ? 3.0 : STALL_TIME
       if (speed < stallSpeed) {

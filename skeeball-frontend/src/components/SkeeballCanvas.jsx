@@ -9,7 +9,7 @@ import { GRAVITY_Y } from '../config/geometry.js'
 import { BOSS, damageTier } from '../config/boss.js'
 import AimArrow from './AimArrow.jsx'
 import PlayBall from './PlayBall.jsx'
-import Pachinko from './Pachinko.jsx'
+import { DROP_TRACKS } from './dropRegistry.js'
 import { ConfettiRain, ScoreBurst, ScorePop } from './Effects.jsx'
 import * as sfx from '../audio/sfx.js'
 import { completeSession, postRoll, startSession } from '../api/skeeballApi.js'
@@ -65,23 +65,11 @@ const AIM_TARGET = [0, 2.6, 10]
  * - free: hold A/D to rotate, or drag (mouse/touch) — the container feeds
  *   pixel deltas through dragRef; dragging also tilts the camera height.
  */
-function CameraRig({ target = CAM_TARGET, speed = 1.6, dragRef, ballRef, step, geom }) {
+function CameraRig({ target = CAM_TARGET, speed = 1.6, dragRef, ballRef, step, dropCams }) {
   const keys = useRef({ a: false, d: false })
   const glide = useRef(null) // { pos, look } to ease toward, or null
   const prevStep = useRef(null)
   const lookRef = useRef(new THREE.Vector3(...CAM_TARGET))
-
-  // Broadcast cams for the pachinko drop: a fixed side vantage that pans
-  // with the ball (whole run + boss readable), then a push-in for impact.
-  const dropCams = useMemo(() => {
-    const p = geom.pachinko
-    return {
-      deckZ: geom.backboardZ,
-      faceZ: p.faceZ,
-      side: new THREE.Vector3(-(p.width / 2 + 5.4), 0.9, p.faceZ - 6.8),
-      impact: new THREE.Vector3(-(p.width / 2 + 1.4), p.faceY + 3.8, p.faceZ - 4.8),
-    }
-  }, [geom])
 
   useEffect(() => {
     const set = (key, value) => {
@@ -234,8 +222,10 @@ function PowerMeter({ powerRef, onLock }) {
   )
 }
 
-export default function SkeeballCanvas({ level = DEFAULT_LEVEL, freePlay = false, onGameComplete }) {
+export default function SkeeballCanvas({ level = DEFAULT_LEVEL, dropKey = 'pachinko', freePlay = false, onGameComplete }) {
   const geom = useMemo(() => computeGeometry(level), [level])
+  const track = DROP_TRACKS[dropKey] ?? DROP_TRACKS.pachinko
+  const dropCams = useMemo(() => track.cams(geom), [track, geom])
   const ballUrl = level.textures.ballUrl
   const bgUrl = level.textures.backgroundUrl
   const [step, setStep] = useState('idle') // idle | aim | power | rolling | over
@@ -459,6 +449,18 @@ export default function SkeeballCanvas({ level = DEFAULT_LEVEL, freePlay = false
   const handleFaceHit = useCallback(() => resolveBall(true), [resolveBall])
   const handleMiss = useCallback(() => resolveBall(false), [resolveBall])
 
+  const handleCannonFire = useCallback(() => {
+    sfx.boom()
+    const b = ballPosRef.current
+    if (b) spawnFx([{ kind: 'burst', position: [b.x, b.y + 0.4, b.z], color: '#fb923c', big: true }])
+  }, [spawnFx])
+
+  const handleBoost = useCallback(() => {
+    sfx.zip()
+    const b = ballPosRef.current
+    if (b) spawnFx([{ kind: 'burst', position: [b.x, b.y + 0.3, b.z], color: '#22d3ee' }])
+  }, [spawnFx])
+
   const handleRingCollect = useCallback((ring) => {
     setRings((list) => {
       if (list.find((r) => r.id === ring.id)?.collected) return list
@@ -585,26 +587,13 @@ export default function SkeeballCanvas({ level = DEFAULT_LEVEL, freePlay = false
       x: geom.BALL_START[0], y: geom.BALL_START[1], z: geom.BALL_START[2],
     }
     // fresh random bonus rings for this ball's drop
-    const p = geom.pachinko
-    setRings(Array.from({ length: 5 }, (_, i) => {
-      const roll = Math.random()
-      const [value, color] =
-        roll < 0.55 ? [10, '#38bdf8'] : roll < 0.85 ? [25, '#a78bfa'] : [50, '#facc15']
-      return {
-        id: `${Date.now()}-${i}`,
-        x: (Math.random() - 0.5) * (p.width - 2.4),
-        lz: p.ringZone.z0 + ((i + Math.random() * 0.8) / 5) * (p.ringZone.z1 - p.ringZone.z0),
-        value,
-        color,
-        collected: false,
-      }
-    }))
+    setRings(track.genRings(geom))
     sfx.click()
     sfx.launch(powerRef.current)
     setLaunch({ angle: aimRef.current, power: powerRef.current, key: Date.now() })
     setLastHit(null)
     setStep('rolling')
-  }, [geom])
+  }, [geom, track])
 
   const aiming = step === 'aim' || step === 'power'
 
@@ -647,18 +636,20 @@ export default function SkeeballCanvas({ level = DEFAULT_LEVEL, freePlay = false
             <directionalLight position={[-5, 6, 4]} intensity={0.3} />
 
             {/* key on level: fixed physics bodies are recreated so editor edits apply live. */}
-            <Physics key={JSON.stringify(level)} gravity={[0, GRAVITY_Y, 0]}>
+            <Physics key={JSON.stringify(level) + dropKey} gravity={[0, GRAVITY_Y, 0]}>
               <SkeeballWorld
                 level={level}
                 onScore={handleScore}
                 onRimHit={handleRimHit}
                 onSweeperHit={handleSweeperHit}
               />
-              <Pachinko
+              <track.Component
                 geom={geom}
                 rings={rings}
                 onRingCollect={handleRingCollect}
                 onFaceHit={handleFaceHit}
+                onCannonFire={handleCannonFire}
+                onBoost={handleBoost}
                 faceStage={faceStage}
                 laughing={laughing}
                 faceHitKey={faceHitKey}
@@ -704,7 +695,7 @@ export default function SkeeballCanvas({ level = DEFAULT_LEVEL, freePlay = false
               )
             )}
 
-            <CameraRig dragRef={dragDeltaRef} ballRef={ballPosRef} step={step} geom={geom} />
+            <CameraRig dragRef={dragDeltaRef} ballRef={ballPosRef} step={step} dropCams={dropCams} />
 
             {/* The "lens": bloom makes every emissive surface (rings,
                 backstops, guard bar, trim) actually glow; vignette focuses

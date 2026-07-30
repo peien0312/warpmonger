@@ -151,6 +151,23 @@ export function punch(tier = 1) {
   })
 }
 
+/** Cannon blast. */
+export function boom() {
+  play((a) => {
+    tone(a, { freq: 70, type: 'sine', dur: 0.5, gain: 0.3, slideTo: 30 })
+    noise(a, { dur: 0.45, gain: 0.18, filterFreq: 700 })
+    noise(a, { at: 0.05, dur: 0.3, gain: 0.08, filterFreq: 4000, filterType: 'highpass' })
+  })
+}
+
+/** Accelerator pad zip. */
+export function zip() {
+  play((a) => {
+    tone(a, { freq: 300, type: 'sawtooth', dur: 0.28, gain: 0.09, slideTo: 1800 })
+    noise(a, { dur: 0.2, gain: 0.05, filterFreq: 2500, filterType: 'highpass' })
+  })
+}
+
 /** The boss's mocking laugh — three descending "ho"s. */
 export function laugh() {
   play((a) => {
