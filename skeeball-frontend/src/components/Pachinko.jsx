@@ -130,8 +130,8 @@ export default function Pachinko({ geom, rings, onRingCollect, onFaceHit, faceSt
       {/* walls start past the ramp so they don't tower beside the lane */}
       {[-1, 1].map((side) => (
         <RigidBody key={side} type="fixed" colliders="cuboid" {...WALL}>
-          <mesh position={[(side * p.width) / 2, 2.6, 4 + (length - 3.5) / 2]}>
-            <boxGeometry args={[0.25, 6.5, length - 3.5]} />
+          <mesh position={[(side * p.width) / 2, 4.5, 4 + (length - 3.5) / 2]}>
+            <boxGeometry args={[0.25, 11, length - 3.5]} />
             <meshStandardMaterial color="#242a35" roughness={0.7} transparent opacity={0.3} />
           </mesh>
         </RigidBody>

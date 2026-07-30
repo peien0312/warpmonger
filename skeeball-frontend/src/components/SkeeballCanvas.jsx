@@ -50,6 +50,8 @@ function CountUp({ value, duration = 900 }) {
 
 // Per-phase camera framings: HOME showcases the whole arena (idle/results),
 // AIM drops behind the ball so the arrow, lane and deck are all in view.
+const _chaseTmp = new THREE.Vector3()
+const _lookTmp = new THREE.Vector3()
 const HOME_CAM = new THREE.Vector3(0, 5.9, -9.6)
 const CAM_TARGET = [0, 2.8, 6.5]
 const AIM_CAM = new THREE.Vector3(0, 3.0, -10.6)
@@ -63,10 +65,23 @@ const AIM_TARGET = [0, 2.6, 10]
  * - free: hold A/D to rotate, or drag (mouse/touch) — the container feeds
  *   pixel deltas through dragRef; dragging also tilts the camera height.
  */
-function CameraRig({ target = CAM_TARGET, speed = 1.6, dragRef, ballRef, step, deckZ }) {
+function CameraRig({ target = CAM_TARGET, speed = 1.6, dragRef, ballRef, step, geom }) {
   const keys = useRef({ a: false, d: false })
   const glide = useRef(null) // { pos, look } to ease toward, or null
   const prevStep = useRef(null)
+  const lookRef = useRef(new THREE.Vector3(...CAM_TARGET))
+
+  // Broadcast cams for the pachinko drop: a fixed side vantage that pans
+  // with the ball (whole run + boss readable), then a push-in for impact.
+  const dropCams = useMemo(() => {
+    const p = geom.pachinko
+    return {
+      deckZ: geom.backboardZ,
+      faceZ: p.faceZ,
+      side: new THREE.Vector3(-(p.width / 2 + 5.4), 0.9, p.faceZ - 6.8),
+      impact: new THREE.Vector3(-(p.width / 2 + 1.4), p.faceY + 3.8, p.faceZ - 4.8),
+    }
+  }, [geom])
 
   useEffect(() => {
     const set = (key, value) => {
@@ -97,7 +112,11 @@ function CameraRig({ target = CAM_TARGET, speed = 1.6, dragRef, ballRef, step, d
       prevStep.current = step
       if (step === 'aim' || step === 'power') {
         glide.current = { pos: AIM_CAM, look: new THREE.Vector3(...AIM_TARGET) }
-      } else if (step !== 'rolling') {
+      } else if (step === 'rolling') {
+        if (ballRef?.current) {
+          lookRef.current.set(ballRef.current.x, ballRef.current.y, ballRef.current.z)
+        }
+      } else {
         glide.current = { pos: HOME_CAM, look: t }
       }
       if (first) {
@@ -107,14 +126,20 @@ function CameraRig({ target = CAM_TARGET, speed = 1.6, dragRef, ballRef, step, d
 
     if (step === 'rolling' && ballRef?.current) {
       const b = ballRef.current
-      // once the ball is past the deck (the pachinko drop) the camera swings
-      // high so it never clips through the deck/chute walls
-      const dropping = deckZ != null && b.z > deckZ - 0.8
-      const desired = dropping
-        ? new THREE.Vector3(b.x * 0.35, Math.max(b.y + 4.6, 4.5), b.z - 5.2)
-        : new THREE.Vector3(b.x * 0.5, b.y + 2.2, b.z - 4.5)
-      camera.position.lerp(desired, 1 - Math.exp(-dt * 4.5))
-      camera.lookAt(b.x, b.y + 0.3, b.z)
+      const dropping = b.z > dropCams.deckZ - 0.8
+      let desired
+      if (dropping) {
+        // 柏青哥 broadcast view: fixed side vantage panning with the ball;
+        // push in for the face impact over the last few meters
+        desired = b.z > dropCams.faceZ - 4.2 ? dropCams.impact : dropCams.side
+      } else {
+        desired = _chaseTmp.set(b.x * 0.5, b.y + 2.2, b.z - 4.5)
+      }
+      camera.position.lerp(desired, 1 - Math.exp(-dt * (dropping ? 3 : 4.5)))
+      // smoothed look target so the pan is a broadcast glide, not a twitch
+      _lookTmp.set(b.x, b.y + 0.3, b.z)
+      lookRef.current.lerp(_lookTmp, 1 - Math.exp(-dt * 6))
+      camera.lookAt(lookRef.current)
       if (drag) { drag.dx = 0; drag.dy = 0 }
       return
     }
@@ -679,7 +704,7 @@ export default function SkeeballCanvas({ level = DEFAULT_LEVEL, freePlay = false
               )
             )}
 
-            <CameraRig dragRef={dragDeltaRef} ballRef={ballPosRef} step={step} deckZ={geom.backboardZ} />
+            <CameraRig dragRef={dragDeltaRef} ballRef={ballPosRef} step={step} geom={geom} />
 
             {/* The "lens": bloom makes every emissive surface (rings,
                 backstops, guard bar, trim) actually glow; vignette focuses
