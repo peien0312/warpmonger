@@ -133,10 +133,119 @@ def space(path, w=2048, h=1024):
     full.save(path, quality=85)
 
 
+def _face_base(size=1024):
+    """Shared HORUS head: big bald bronze dome on transparency."""
+    img = Image.new("RGBA", (size, size), (0, 0, 0, 0))
+    d = ImageDraw.Draw(img)
+    cx = size // 2
+    # head + jaw
+    d.ellipse([cx - 400, 60, cx + 400, 900], fill=(196, 152, 92, 255),
+              outline=(94, 66, 30, 255), width=10)
+    # dome shading + bald shine
+    d.ellipse([cx - 320, 90, cx + 340, 420], fill=(214, 172, 112, 255))
+    d.ellipse([cx + 90, 120, cx + 260, 230], fill=(240, 214, 168, 255))
+    # ears
+    for side in (-1, 1):
+        d.ellipse([cx + side * 400 - 48, 420, cx + side * 400 + 48, 560],
+                  fill=(186, 140, 82, 255), outline=(94, 66, 30, 255), width=8)
+    # eye of horus mark (teal, under left eye)
+    d.arc([cx - 300, 560, cx - 120, 660], 20, 160, fill=(20, 160, 170, 255), width=10)
+    d.line([cx - 210, 645, cx - 240, 720], fill=(20, 160, 170, 255), width=10)
+    return img, d, cx
+
+
+def _face_angry_eyes(d, cx, black_eye=None):
+    """Glaring eyes + heavy inward-slanted brows. black_eye: None|'r'|'both'."""
+    for side in (-1, 1):
+        ex = cx + side * 190
+        bruised = black_eye == "both" or (black_eye == "r" and side == 1)
+        if bruised:
+            d.ellipse([ex - 120, 380, ex + 120, 560], fill=(96, 62, 120, 255))
+        d.ellipse([ex - 95, 415, ex + 95, 535], fill=(245, 240, 228, 255),
+                  outline=(70, 50, 30, 255), width=6)
+        d.ellipse([ex - 34, 445 if not bruised else 470, ex + 34,
+                   515 if not bruised else 540], fill=(120, 30, 20, 255))
+        d.ellipse([ex - 12, 460 if not bruised else 485, ex + 12,
+                   490 if not bruised else 515], fill=(20, 10, 8, 255))
+        # brow: thick wedge slanting toward the nose
+        brow = ([ (ex - 130, 330), (ex + 120, 400), (ex + 120, 452), (ex - 130, 392) ]
+                if side == 1 else
+                [ (ex + 130, 330), (ex - 120, 400), (ex - 120, 452), (ex + 130, 392) ])
+        d.polygon(brow, fill=(60, 40, 22, 255))
+
+
+def _face_frown(d, cx, cracked=False):
+    """Gritted-teeth grimace."""
+    d.rounded_rectangle([cx - 190, 700, cx + 190, 800], 40,
+                        fill=(70, 30, 24, 255), outline=(70, 50, 30, 255), width=8)
+    for i in range(5):
+        x0 = cx - 170 + i * 68
+        missing = cracked and i == 2
+        if not missing:
+            d.rounded_rectangle([x0, 712, x0 + 60, 788], 12, fill=(235, 228, 210, 255))
+    # downturned mouth corners
+    d.arc([cx - 260, 640, cx - 120, 760], 300, 40, fill=(70, 50, 30, 255), width=12)
+    d.arc([cx + 120, 640, cx + 260, 760], 140, 240, fill=(70, 50, 30, 255), width=12)
+
+
+def _bandaid(d, x, y, angle_deg=30):
+    """Crossed band-aid strips."""
+    import math
+    for a in (angle_deg, angle_deg + 90):
+        rad = math.radians(a)
+        dx, dy = math.cos(rad) * 80, math.sin(rad) * 80
+        px, py = math.cos(rad + 1.5708) * 18, math.sin(rad + 1.5708) * 18
+        d.polygon([(x - dx - px, y - dy - py), (x + dx - px, y + dy - py),
+                   (x + dx + px, y + dy + py), (x - dx + px, y - dy + py)],
+                  fill=(226, 200, 160, 255), outline=(150, 120, 80, 255))
+
+
+def horus_faces(out_dir, size=1024):
+    """HORUS boss faces: fresh / bruised / battered / laughing. RGBA PNGs so
+    the in-game plane keeps the head silhouette."""
+    # stage 0 — furious and pristine
+    img, d, cx = _face_base(size)
+    _face_angry_eyes(d, cx)
+    _face_frown(d, cx)
+    img.save(os.path.join(out_dir, "horus_face_0.png"))
+
+    # stage 1 — black eye, cheek bruise, forehead band-aid
+    img, d, cx = _face_base(size)
+    d.ellipse([cx - 330, 600, cx - 150, 730], fill=(110, 70, 140, 160))
+    _face_angry_eyes(d, cx, black_eye="r")
+    _face_frown(d, cx)
+    _bandaid(d, cx - 120, 200)
+    img.save(os.path.join(out_dir, "horus_face_1.png"))
+
+    # stage 2 — both eyes, green+purple bruises, missing tooth, swollen jaw
+    img, d, cx = _face_base(size)
+    d.ellipse([cx - 350, 580, cx - 140, 740], fill=(110, 70, 140, 170))
+    d.ellipse([cx + 140, 610, cx + 350, 760], fill=(90, 130, 70, 160))
+    d.ellipse([cx - 90, 130, cx + 120, 260], fill=(120, 80, 150, 140))
+    _face_angry_eyes(d, cx, black_eye="both")
+    _face_frown(d, cx, cracked=True)
+    _bandaid(d, cx - 130, 195)
+    _bandaid(d, cx + 240, 330, angle_deg=70)
+    img.save(os.path.join(out_dir, "horus_face_2.png"))
+
+    # laugh — closed happy eyes, huge open mouth: the mockery face
+    img, d, cx = _face_base(size)
+    for side in (-1, 1):
+        ex = cx + side * 190
+        d.arc([ex - 95, 430, ex + 95, 560], 200, 340, fill=(60, 40, 22, 255), width=18)
+        d.arc([ex - 130, 330, ex + 130, 430], 220, 320, fill=(60, 40, 22, 255), width=14)
+    d.ellipse([cx - 210, 620, cx + 210, 850], fill=(70, 30, 24, 255),
+              outline=(70, 50, 30, 255), width=8)
+    d.rounded_rectangle([cx - 170, 630, cx + 170, 690], 16, fill=(235, 228, 210, 255))
+    d.ellipse([cx - 90, 760, cx + 90, 850], fill=(180, 80, 80, 255))  # tongue
+    img.save(os.path.join(out_dir, "horus_laugh.png"))
+
+
 if __name__ == "__main__":
     os.makedirs(OUT, exist_ok=True)
     ball(os.path.join(OUT, "wh_ball.jpg"))
     lane(os.path.join(OUT, "wh_lane.jpg"))
     space(os.path.join(OUT, "wh_space.jpg"))
+    horus_faces(OUT)
     for f in sorted(os.listdir(OUT)):
         print(f, os.path.getsize(os.path.join(OUT, f)) // 1024, "KB")

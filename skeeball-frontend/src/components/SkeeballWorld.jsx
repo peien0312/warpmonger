@@ -116,13 +116,8 @@ function Lane({ geom, textureUrl }) {
           </mesh>
         </RigidBody>
       ))}
-      {/* Safety floor far below the lane to catch stray balls before the kill-z. */}
-      <RigidBody type="fixed" colliders="cuboid">
-        <mesh position={[0, -3.2, 4]} visible={false}>
-          <boxGeometry args={[30, 0.3, 40]} />
-          <meshStandardMaterial />
-        </mesh>
-      </RigidBody>
+      {/* (No safety floor: everything below the lane belongs to the
+          pachinko drop field now — see Pachinko.jsx.) */}
     </group>
   )
 }
@@ -239,8 +234,9 @@ function ApexBackstop({ hole, geom }) {
 }
 
 /**
- * Capture pocket behind a hole: a short walled box tunnel. The ball falls in,
- * rolls to the back, and only then hits the score sensor.
+ * Pass-through pocket behind a hole: a short walled tunnel with NO back wall.
+ * The ball falls in, trips the score sensor, and continues out the back into
+ * the pachinko drop field below.
  */
 function CapturePocket({ hole, geom, onScore }) {
   const { boardBackZ } = geom
@@ -249,12 +245,11 @@ function CapturePocket({ hole, geom, onScore }) {
   const z1 = boardBackZ + POCKET_DEPTH
   const zc = (z0 + z1) / 2
   const walls = [
-    // floor, ceiling, left, right, back
+    // floor, ceiling, left, right — open at the back
     { pos: [hole.x, hole.y - half - POCKET_WALL / 2, zc], size: [half * 2 + POCKET_WALL * 2, POCKET_WALL, POCKET_DEPTH] },
     { pos: [hole.x, hole.y + half + POCKET_WALL / 2, zc], size: [half * 2 + POCKET_WALL * 2, POCKET_WALL, POCKET_DEPTH] },
     { pos: [hole.x - half - POCKET_WALL / 2, hole.y, zc], size: [POCKET_WALL, half * 2, POCKET_DEPTH] },
     { pos: [hole.x + half + POCKET_WALL / 2, hole.y, zc], size: [POCKET_WALL, half * 2, POCKET_DEPTH] },
-    { pos: [hole.x, hole.y, z1 + POCKET_WALL / 2], size: [half * 2 + POCKET_WALL * 2, half * 2 + POCKET_WALL * 2, POCKET_WALL] },
   ]
   return (
     <group>

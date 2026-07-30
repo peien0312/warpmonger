@@ -99,11 +99,16 @@ def current_level():
     return memberdb.skeeball_kv_get("level") or default_level()
 
 
+RING_BONUS_HEADROOM = 200   # max pachinko ring bonuses collectable per ball
+
+
 def _max_plausible_score():
+    """Per-roll cap: best hole + the pachinko ring bonuses a single drop can
+    realistically collect (damage = hole points + rings)."""
     try:
-        return max(t["points"] for t in current_level()["targets"])
+        return max(t["points"] for t in current_level()["targets"]) + RING_BONUS_HEADROOM
     except Exception:
-        return APEX_POINTS
+        return APEX_POINTS + RING_BONUS_HEADROOM
 
 
 # ----- prize tiers (definitions in POS settings + coupons table) -----

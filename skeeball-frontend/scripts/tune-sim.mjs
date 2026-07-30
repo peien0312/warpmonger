@@ -112,12 +112,12 @@ for (const hole of level.targets) {
   const z1 = geom.boardBackZ + POCKET_DEPTH
   const zc = (geom.boardBackZ + z1) / 2
   const POCKET_WALL = 0.08
+  // pass-through pockets (no back wall) — mirror of SkeeballWorld
   for (const w of [
     { pos: [hole.x, hole.y - half - POCKET_WALL / 2, zc], size: [half * 2, POCKET_WALL, POCKET_DEPTH] },
     { pos: [hole.x, hole.y + half + POCKET_WALL / 2, zc], size: [half * 2, POCKET_WALL, POCKET_DEPTH] },
     { pos: [hole.x - half - POCKET_WALL / 2, hole.y, zc], size: [POCKET_WALL, half * 2, POCKET_DEPTH] },
     { pos: [hole.x + half + POCKET_WALL / 2, hole.y, zc], size: [POCKET_WALL, half * 2, POCKET_DEPTH] },
-    { pos: [hole.x, hole.y, z1 + POCKET_WALL / 2], size: [half * 2, half * 2, POCKET_WALL] },
   ]) {
     deckCuboid(w.pos, null, w.size.map((v) => v / 2), 0.7, 0.2)
   }

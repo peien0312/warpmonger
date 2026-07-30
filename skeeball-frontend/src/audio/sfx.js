@@ -129,6 +129,38 @@ export function miss() {
   })
 }
 
+/** Bonus-ring chime — bright and quick. */
+export function ring() {
+  play((a) => {
+    tone(a, { freq: 1318.5, type: 'triangle', dur: 0.18, gain: 0.14 })
+    tone(a, { freq: 1975.5, type: 'sine', at: 0.05, dur: 0.25, gain: 0.1 })
+  })
+}
+
+/** Ball-meets-face impact, scaled by damage tier (0 weak … 3 gold). */
+export function punch(tier = 1) {
+  play((a) => {
+    const power = 0.1 + tier * 0.06
+    tone(a, { freq: 120, type: 'sine', dur: 0.28, gain: power * 1.6, slideTo: 45 })
+    noise(a, { dur: 0.16 + tier * 0.05, gain: power, filterFreq: 900 + tier * 500 })
+    if (tier >= 3) {
+      // gold: add a ringing overtone like a struck bell
+      tone(a, { freq: 660, type: 'triangle', at: 0.06, dur: 0.6, gain: 0.12 })
+      tone(a, { freq: 990, type: 'triangle', at: 0.1, dur: 0.7, gain: 0.08 })
+    }
+  })
+}
+
+/** The boss's mocking laugh — three descending "ho"s. */
+export function laugh() {
+  play((a) => {
+    ;[392, 330, 262].forEach((f, i) => {
+      tone(a, { freq: f, type: 'square', at: i * 0.16, dur: 0.13, gain: 0.07, slideTo: f * 0.88 })
+      noise(a, { at: i * 0.16, dur: 0.1, gain: 0.03, filterFreq: 1200 })
+    })
+  })
+}
+
 /** Single firework pop for the end-of-game celebration bursts. */
 export function pop() {
   play((a) => {

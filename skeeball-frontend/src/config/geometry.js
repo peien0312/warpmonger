@@ -86,16 +86,39 @@ export function computeGeometry(level = DEFAULT_LEVEL) {
 
   const BALL_START = [0, lane.thickness / 2 + ball.radius, -lane.length / 2 + 1.2]
 
-  // Stray-ball kill bounds, scaled to the arena (tilt pushes the deck top
-  // and its pockets further back in z).
+  // Pachinko drop field behind/below the deck: every ball (scored or not)
+  // funnels onto a collector floor, down a pegged chute, into the boss face.
+  const deckBackZ = boardBackZ + backboard.height * Math.sin(tilt) + POCKET_DEPTH
+  // ONE continuous inclined plane from under the lane's end all the way down
+  // to the boss face — no collector/chute junction, no seams, nowhere for a
+  // ball to rest. Drops from the deck/gap land mid-plane and roll on down.
+  const drop = {
+    z0: lane.length / 2 - 1,   // starts under the ramp, clear of the lane
+    y: -1.8,                   // top edge, below the lane underside
+    angle: 0.34,               // steep enough that nothing ever parks
+    length: 15,
+  }
+  const pachinko = {
+    width: lane.width + 3.5,
+    drop,
+    // local-z band (along the plane) BELOW the deck landing zone
+    ringZone: { z0: 10.2, z1: 13.6 },
+    pegRowsZ: [10.6, 11.9, 13.2],
+    deckBackZ,
+  }
+  pachinko.faceZ = drop.z0 + drop.length * Math.cos(drop.angle)
+  pachinko.faceY = drop.y - drop.length * Math.sin(drop.angle)
+
+  // Stray-ball kill bounds — generous now: the drop field is part of play.
   const missBounds = {
-    minY: -2.5,
-    maxZ: boardBackZ + backboard.height * Math.sin(tilt) + POCKET_DEPTH + 1,
+    minY: pachinko.faceY - 4,
+    maxZ: pachinko.faceZ + 4,
     minZ: -(lane.length - 3),
-    maxAbsX: lane.width * 2,
+    maxAbsX: lane.width * 2.4,
     // Rolling backward is a natural part of play ON the deck (a failed high
-    // shot rolls down across the lower holes) — only before the deck does
-    // backward motion mean the ball is hopeless.
+    // shot rolls down across the lower holes) and in the drop field — only
+    // before the deck AND above the collector does backward motion mean the
+    // ball is hopeless.
     backwardZ: rampTopZ,
   }
 
@@ -122,5 +145,6 @@ export function computeGeometry(level = DEFAULT_LEVEL) {
     BALL_START,
     missBounds,
     boardPoint,
+    pachinko,
   }
 }

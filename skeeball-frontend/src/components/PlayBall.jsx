@@ -5,7 +5,7 @@ import { RigidBody } from '@react-three/rapier'
 import { BallSurface } from './SkeeballWorld.jsx'
 import { DEFAULT_LEVEL } from '../config/levelConfig.js'
 
-const MAX_FLIGHT_TIME = 8 // seconds before a stray ball is retired
+const MAX_FLIGHT_TIME = 14 // seconds — the pachinko drop is part of the ride
 const STALL_SPEED = 0.55 // m/s — below this the ball is "going nowhere"
 const STALL_TIME = 1.2 // seconds of going-nowhere before retiring
 const BACKWARD_TIME = 1.1 // seconds of rolling back toward the player
@@ -85,16 +85,21 @@ export default function PlayBall({
     if (alive > 0.5) {
       const v = api.linvel()
       const speed = Math.hypot(v.x, v.y, v.z)
-      if (speed < STALL_SPEED) {
+      // In the drop field slow creeping is normal (dead-bounce collector) —
+      // only a truly parked ball gets retired, and it gets longer to recover.
+      const inDrop = z > (b?.backwardZ ?? Infinity)
+      const stallSpeed = inDrop ? 0.2 : STALL_SPEED
+      const stallTime = inDrop ? 3.0 : STALL_TIME
+      if (speed < stallSpeed) {
         stallSince.current ??= now
-        deadEnd = now - stallSince.current > STALL_TIME
+        deadEnd = now - stallSince.current > stallTime
       } else {
         stallSince.current = null
       }
-      // Backward motion on the tilted deck is normal play (rolling down
-      // across the holes) — only count it once the ball is back before the
-      // deck, where nothing can score anymore.
-      if (v.z < -0.4 && z < (b?.backwardZ ?? Infinity)) {
+      // Backward motion on the tilted deck / in the drop field is normal
+      // play — only count it once the ball is back before the deck AND
+      // above the collector (i.e. rolling down the lane toward the player).
+      if (v.z < -0.4 && z < (b?.backwardZ ?? Infinity) && y > 0) {
         backwardSince.current ??= now
         deadEnd ||= now - backwardSince.current > BACKWARD_TIME
       } else {

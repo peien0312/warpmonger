@@ -25,6 +25,34 @@ body {
   }
 }
 
+/* Damage number smash-in: overshoot scale then settle, drift up, fade. */
+.damage-pop {
+  animation: damage-pop 1.6s cubic-bezier(0.2, 1.6, 0.35, 1) forwards;
+  text-shadow: 0 0 24px rgba(0, 0, 0, 0.9);
+}
+
+@keyframes damage-pop {
+  0% {
+    transform: scale(0.2);
+    opacity: 0;
+  }
+  18% {
+    transform: scale(1.25);
+    opacity: 1;
+  }
+  30% {
+    transform: scale(1);
+  }
+  75% {
+    transform: scale(1) translateY(-16px);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(0.95) translateY(-40px);
+    opacity: 0;
+  }
+}
+
 /* Game-over modal entrance. */
 .modal-pop {
   animation: modal-pop 0.45s cubic-bezier(0.2, 1.8, 0.4, 1);

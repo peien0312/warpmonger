@@ -6,8 +6,10 @@ import { Physics } from '@react-three/rapier'
 import * as THREE from 'three'
 import SkeeballWorld, { computeGeometry, PreviewBall, SceneBackground } from './SkeeballWorld.jsx'
 import { GRAVITY_Y } from '../config/geometry.js'
+import { BOSS, damageTier } from '../config/boss.js'
 import AimArrow from './AimArrow.jsx'
 import PlayBall from './PlayBall.jsx'
+import Pachinko from './Pachinko.jsx'
 import { ConfettiRain, ScoreBurst, ScorePop } from './Effects.jsx'
 import * as sfx from '../audio/sfx.js'
 import { completeSession, postRoll, startSession } from '../api/skeeballApi.js'
@@ -61,7 +63,7 @@ const AIM_TARGET = [0, 2.6, 10]
  * - free: hold A/D to rotate, or drag (mouse/touch) — the container feeds
  *   pixel deltas through dragRef; dragging also tilts the camera height.
  */
-function CameraRig({ target = CAM_TARGET, speed = 1.6, dragRef, ballRef, step }) {
+function CameraRig({ target = CAM_TARGET, speed = 1.6, dragRef, ballRef, step, deckZ }) {
   const keys = useRef({ a: false, d: false })
   const glide = useRef(null) // { pos, look } to ease toward, or null
   const prevStep = useRef(null)
@@ -105,7 +107,12 @@ function CameraRig({ target = CAM_TARGET, speed = 1.6, dragRef, ballRef, step })
 
     if (step === 'rolling' && ballRef?.current) {
       const b = ballRef.current
-      const desired = new THREE.Vector3(b.x * 0.5, b.y + 2.2, b.z - 4.5)
+      // once the ball is past the deck (the pachinko drop) the camera swings
+      // high so it never clips through the deck/chute walls
+      const dropping = deckZ != null && b.z > deckZ - 0.8
+      const desired = dropping
+        ? new THREE.Vector3(b.x * 0.35, Math.max(b.y + 4.6, 4.5), b.z - 5.2)
+        : new THREE.Vector3(b.x * 0.5, b.y + 2.2, b.z - 4.5)
       camera.position.lerp(desired, 1 - Math.exp(-dt * 4.5))
       camera.lookAt(b.x, b.y + 0.3, b.z)
       if (drag) { drag.dx = 0; drag.dy = 0 }
@@ -239,6 +246,13 @@ export default function SkeeballCanvas({ level = DEFAULT_LEVEL, freePlay = false
   const nudgeRef = useRef(0) // -1 | 0 | +1 mid-roll steering
   const rimTouchedRef = useRef(false) // ball grazed a hole rim this roll
   const comboRef = useRef(0) // consecutive scoring balls this game
+  const holeScoreRef = useRef(0) // hole points banked by the current ball
+  const ringBonusRef = useRef(0) // pachinko ring bonuses this ball
+  const [rings, setRings] = useState([]) // per-ball random bonus rings
+  const [faceStage, setFaceStage] = useState(0)
+  const [laughing, setLaughing] = useState(false)
+  const [faceHitKey, setFaceHitKey] = useState(0)
+  const [damagePop, setDamagePop] = useState(null) // { value, tier, taunt, key }
 
   const onPointerDown = useCallback((e) => {
     if (e.pointerType === 'mouse' && e.button !== 0) return
@@ -285,6 +299,8 @@ export default function SkeeballCanvas({ level = DEFAULT_LEVEL, freePlay = false
     sessionRef.current = null
     syncedRef.current = false
     comboRef.current = 0
+    setFaceStage(0)
+    setLaughing(false)
     try {
       const data = await startSession()
       sessionRef.current = { sessionId: data.sessionId, nonce: data.nonce }
@@ -347,18 +363,18 @@ export default function SkeeballCanvas({ level = DEFAULT_LEVEL, freePlay = false
     [reportRoll]
   )
 
+  // Hole hit banks the base points — the ball keeps travelling into the
+  // pachinko drop; nothing is scored/reported until the face (or death).
   const handleScore = useCallback(
     (hole) => {
       if (stepRef.current !== 'rolling') return
-      if (ballDoneRef.current) return // one END per ball
-      ballDoneRef.current = true
+      if (scoredRef.current || ballDoneRef.current) return // one hole per ball
       scoredRef.current = true
       const points = hole.points
       const golden = points >= 300
       comboRef.current += 1
-      const combo = comboRef.current
-      setScore((s) => s + points)
-      setLastHit({ points, combo })
+      holeScoreRef.current = points
+      setLastHit({ points, combo: comboRef.current })
       sfx.score(points)
       const at = geom.boardPoint(hole.x, hole.y, -0.2)
       spawnFx([
@@ -366,21 +382,73 @@ export default function SkeeballCanvas({ level = DEFAULT_LEVEL, freePlay = false
         { kind: 'pop', position: at, text: `+${points}`, big: golden,
           color: golden ? '#fde68a' : '#fef3c7' },
       ])
-      // Let the ball visibly settle into the pocket before unmounting it.
-      setTimeout(() => endBall(points), 300)
     },
-    [endBall, geom, spawnFx]
+    [geom, spawnFx]
   )
 
-  const handleMiss = useCallback(() => {
-    if (stepRef.current !== 'rolling') return
-    if (ballDoneRef.current) return
+  // score value mirror so resolveBall can compute cumulative damage without
+  // a stale closure
+  const scoreRefValue = useRef(0)
+  scoreRefValue.current = score
+
+  /** Resolve the current ball with its accumulated damage. */
+  const resolveBall = useCallback((withFace) => {
+    if (stepRef.current !== 'rolling' || ballDoneRef.current) return
     ballDoneRef.current = true
-    comboRef.current = 0
-    setLastHit({ points: 0, nearMiss: rimTouchedRef.current })
-    sfx.miss()
-    endBall(0)
+    const damage = holeScoreRef.current + ringBonusRef.current
+    if (!scoredRef.current) comboRef.current = 0
+    setScore((s) => s + damage)
+
+    if (withFace) {
+      const tier = damageTier(damage)
+      const tierN = { weak: 0, plain: 1, blue: 1, purple: 2, gold: 3 }[tier]
+      setFaceHitKey((k) => k + 1)
+      sfx.punch(tierN)
+      const weak = damage < BOSS.laughBelow
+      if (weak) {
+        setLaughing(true)
+        setTimeout(() => setLaughing(false), 1500)
+        setTimeout(() => sfx.laugh(), 250)
+      }
+      setDamagePop({
+        value: damage,
+        tier,
+        taunt: weak ? BOSS.taunts[Math.floor(Math.random() * BOSS.taunts.length)] : null,
+        key: Date.now(),
+      })
+      setTimeout(() => setDamagePop(null), 1600)
+      // bruise stages track cumulative damage this game
+      setFaceStage(() => {
+        const total = scoreRefValue.current + damage
+        return total >= BOSS.bruiseAt[1] ? 2 : total >= BOSS.bruiseAt[0] ? 1 : 0
+      })
+      setTimeout(() => endBall(damage), 700)
+    } else {
+      // Died on the way — no face, no ceremony.
+      setLastHit({ points: 0, nearMiss: rimTouchedRef.current, partial: damage })
+      sfx.miss()
+      endBall(damage)
+    }
   }, [endBall])
+
+  const handleFaceHit = useCallback(() => resolveBall(true), [resolveBall])
+  const handleMiss = useCallback(() => resolveBall(false), [resolveBall])
+
+  const handleRingCollect = useCallback((ring) => {
+    setRings((list) => {
+      if (list.find((r) => r.id === ring.id)?.collected) return list
+      return list.map((r) => (r.id === ring.id ? { ...r, collected: true } : r))
+    })
+    ringBonusRef.current += ring.value
+    sfx.ring()
+    const b = ballPosRef.current
+    if (b) {
+      spawnFx([
+        { kind: 'burst', position: [b.x, b.y + 0.3, b.z], color: ring.color },
+        { kind: 'pop', position: [b.x, b.y + 0.6, b.z], text: `+${ring.value}`, color: ring.color },
+      ])
+    }
+  }, [spawnFx])
 
   // [R] forfeits a hopeless ball; ←→ steer the rolling ball (screen-space:
   // ArrowRight pushes toward the camera's right, which is world -x).
@@ -486,9 +554,26 @@ export default function SkeeballCanvas({ level = DEFAULT_LEVEL, freePlay = false
     ballDoneRef.current = false
     rimTouchedRef.current = false
     nudgeRef.current = 0
+    holeScoreRef.current = 0
+    ringBonusRef.current = 0
     ballPosRef.current = {
       x: geom.BALL_START[0], y: geom.BALL_START[1], z: geom.BALL_START[2],
     }
+    // fresh random bonus rings for this ball's drop
+    const p = geom.pachinko
+    setRings(Array.from({ length: 5 }, (_, i) => {
+      const roll = Math.random()
+      const [value, color] =
+        roll < 0.55 ? [10, '#38bdf8'] : roll < 0.85 ? [25, '#a78bfa'] : [50, '#facc15']
+      return {
+        id: `${Date.now()}-${i}`,
+        x: (Math.random() - 0.5) * (p.width - 2.4),
+        lz: p.ringZone.z0 + ((i + Math.random() * 0.8) / 5) * (p.ringZone.z1 - p.ringZone.z0),
+        value,
+        color,
+        collected: false,
+      }
+    }))
     sfx.click()
     sfx.launch(powerRef.current)
     setLaunch({ angle: aimRef.current, power: powerRef.current, key: Date.now() })
@@ -544,6 +629,15 @@ export default function SkeeballCanvas({ level = DEFAULT_LEVEL, freePlay = false
                 onRimHit={handleRimHit}
                 onSweeperHit={handleSweeperHit}
               />
+              <Pachinko
+                geom={geom}
+                rings={rings}
+                onRingCollect={handleRingCollect}
+                onFaceHit={handleFaceHit}
+                faceStage={faceStage}
+                laughing={laughing}
+                faceHitKey={faceHitKey}
+              />
               {(aiming || step === 'idle') && (
                 <>
                   <PreviewBall
@@ -585,7 +679,7 @@ export default function SkeeballCanvas({ level = DEFAULT_LEVEL, freePlay = false
               )
             )}
 
-            <CameraRig dragRef={dragDeltaRef} ballRef={ballPosRef} step={step} />
+            <CameraRig dragRef={dragDeltaRef} ballRef={ballPosRef} step={step} deckZ={geom.backboardZ} />
 
             {/* The "lens": bloom makes every emissive surface (rings,
                 backstops, guard bar, trim) actually glow; vignette focuses
@@ -601,7 +695,7 @@ export default function SkeeballCanvas({ level = DEFAULT_LEVEL, freePlay = false
 
       {/* HUD */}
       <div className="pointer-events-none absolute left-3 top-3 rounded-xl bg-slate-950/70 px-4 py-2 text-sm text-slate-100">
-        分數：<span key={score} className="score-bump font-bold text-amber-300">{score}</span>
+        總傷害：<span key={score} className="score-bump font-bold text-amber-300">{score}</span>
         {best > 0 && (
           <span className="ml-3 text-xs text-slate-400">最佳 {best}</span>
         )}
@@ -618,7 +712,29 @@ export default function SkeeballCanvas({ level = DEFAULT_LEVEL, freePlay = false
         <div className="pointer-events-none absolute left-1/2 top-16 -translate-x-1/2 rounded-full bg-slate-950/80 px-5 py-1.5 text-sm font-semibold text-slate-100">
           {lastHit.points > 0
             ? `+${lastHit.points} 分！${lastHit.combo >= 2 ? ` 🔥 連擊 x${lastHit.combo}` : ''}`
-            : lastHit.nearMiss ? '差一點！擦到洞邊了 😤' : '沒進洞'}
+            : lastHit.partial > 0
+              ? `半路陣亡…帶著 ${lastHit.partial} 傷害收場`
+              : lastHit.nearMiss ? '差一點！擦到洞邊了 😤' : '沒進洞'}
+        </div>
+      )}
+
+      {/* Damage number — the payoff of the whole run. */}
+      {damagePop && (
+        <div key={damagePop.key} className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
+          <p className={`damage-pop font-black ${
+            damagePop.tier === 'gold' ? 'text-7xl text-amber-300 md:text-8xl'
+            : damagePop.tier === 'purple' ? 'text-6xl text-fuchsia-300 md:text-7xl'
+            : damagePop.tier === 'blue' ? 'text-6xl text-sky-300'
+            : damagePop.tier === 'plain' ? 'text-5xl text-slate-100'
+            : 'text-4xl text-slate-400'
+          }`}>
+            {damagePop.value === 0 ? 'MISS' : `-${damagePop.value}`}
+          </p>
+          {damagePop.taunt && (
+            <p className="damage-pop mt-2 text-lg font-bold text-amber-200">
+              {BOSS.name}：「{damagePop.taunt}」
+            </p>
+          )}
         </div>
       )}
 
@@ -687,7 +803,7 @@ export default function SkeeballCanvas({ level = DEFAULT_LEVEL, freePlay = false
             </p>
             {score === 0 && (
               <p className="text-base font-bold text-slate-300">
-                <span className="turtle-wobble inline-block">🐢</span> 槓龜了…下場再戰！
+                <span className="turtle-wobble inline-block">🐢</span> 被{BOSS.name}笑到不行…下場雪恥！
               </p>
             )}
             {newBest && (
