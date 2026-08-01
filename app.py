@@ -4522,12 +4522,17 @@ def api_internal_line_push():
     data = request.get_json(silent=True) or {}
     uid = (data.get('line_user_id') or '').strip()
     text = (data.get('text') or '').strip()
-    if not uid or not text:
-        return jsonify({'success': False, 'error': 'need line_user_id and text'}), 400
+    image_url = (data.get('image_url') or '').strip()
+    if not uid or not (text or image_url):
+        return jsonify({'success': False, 'error': 'need line_user_id and text or image_url'}), 400
     if not linepush.enabled():
         return jsonify({'success': False, 'error': 'LINE 未設定'}), 503
     try:
-        linepush.push_text(uid, text)
+        if image_url:
+            # image (+optional text) push, un-mirrored — the POS logs it
+            linepush.push_image(uid, image_url, text or None)
+        else:
+            linepush.push_text(uid, text)
         return jsonify({'success': True})
     except Exception as e:
         print(f"internal line push failed: {e}")

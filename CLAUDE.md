@@ -134,7 +134,10 @@ code kept for rollback (name-rebound to `posdb.*` at the bottom of app.py).
   showcase cards (posdb.get_showcase_entries) or the pitch; postbacks
   are mirrored to the POS chat log as （點選：…）.
 - POS-facing internal APIs: `/api/internal/line-push` {line_user_id,
-  text} (POS chat reply box) and `/api/internal/narrowcast` {skus,
+  text, image_url?} (POS chat reply box; image_url = showcase-queue
+  手動推送 of a catalog image — public HTTPS jpeg/png, pushed via
+  linepush.push_image, NOT mirrored back — the POS writes its own
+  chat-log rows for image pushes) and `/api/internal/narrowcast` {skus,
   segment interested|all_bound, note, dry_run, cap} — interested =
   wishlist members + same-series buyers (posdb.series_buyer_phones),
   capped (default 50) as a quota guard; one push per recipient

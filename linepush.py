@@ -109,6 +109,19 @@ def push_text(line_user_id, text):
     return r
 
 
+def push_image(line_user_id, image_url, text=None):
+    """Push an image (public HTTPS jpeg/png URL) plus an optional text line
+    in one call. No log_to_pos mirror — the POS showcase-queue push is the
+    only caller and it writes its own chat-log rows (it owns the file)."""
+    messages = [{"type": "image", "originalContentUrl": image_url,
+                 "previewImageUrl": image_url}]
+    if text:
+        messages.append({"type": "text", "text": text[:4900]})
+    return _api("/v2/bot/message/push", {
+        "to": line_user_id, "messages": messages,
+    })
+
+
 def push_flex(line_user_id, alt_text, bubbles, pretext=None):
     """One push call (= one quota unit) carrying an optional text line plus
     the flex carousel."""
