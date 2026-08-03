@@ -26,7 +26,10 @@ def test_availability_states():
              "preorder-item": "preorder", "inquiry-item": "inquiry",
              "member-item": "orderable",
              # a passed preorder_date does NOT release the product
-             "stale-preorder-item": "preorder"}
+             "stale-preorder-item": "preorder",
+             # CN unit exists but is allocated to an order (中國待發):
+             # not buyable pipeline, so deprecated falls through to inquiry
+             "reserved-cn-item": "inquiry"}
     for slug, want in cases.items():
         p = _product(slug)
         got = p["availability"]

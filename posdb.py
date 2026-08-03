@@ -124,23 +124,26 @@ def member_price_of(row):
 def _availability(row, inv, waiting, today):
     """Availability state per the shop's fulfillment rules (priority order):
       in_stock  現貨            tw - waiting_tw > 0 (preorder flag ignored)
-      incoming  約2週內到貨      tw + in_transit + china - waiting > 0
+      incoming  約2週內到貨      tw + in_transit + china - waiting - reserved > 0
       preorder  預購            is_preorder, no stock (date is display-only)
       orderable 可訂購 約2-3週   not deprecated -> can order from JoyToy
       inquiry   絕版詢價         deprecated, not preorder -> price on inquiry
-    `waiting` is (all, taiwan_fillable): China-modded 待配貨 items (goods
-    with a service child) can never take a Taiwan shelf unit, so only
-    taiwan_fillable demand hides 現貨; all demand gates incoming.
+    `waiting` is (all, taiwan_fillable, reserved): China-modded 待配貨 items
+    (goods with a service child) can never take a Taiwan shelf unit, so only
+    taiwan_fillable demand hides 現貨; all demand gates incoming. `reserved`
+    is 中國待發/集運中 demand — those units are earmarked for an order but
+    still counted in the china/in_transit inventory rows (the POS only moves
+    stock at batch add/ship), so they must not read as buyable pipeline.
     A passed preorder_date does NOT release the product (vendors slip
     dates) — it stays 預購 until stock actually arrives, which flips it
     to incoming/in_stock through the normal inventory flow. The date only
     drives the arrival-month display and is hidden once stale."""
-    waiting_all, waiting_tw = waiting
+    waiting_all, waiting_tw, reserved = waiting
     tw = inv.get("taiwan", 0)
     total = tw + inv.get("in_transit", 0) + inv.get("china", 0)
     if tw - waiting_tw > 0:
         return "in_stock"
-    if total - waiting_all > 0:
+    if total - waiting_all - reserved > 0:
         return "incoming"
     if row["is_preorder"]:
         return "preorder"
@@ -197,7 +200,18 @@ def _load_products():
         WHERE oi.status = '待配貨' AND (o.is_deleted = 0 OR o.is_deleted IS NULL)
         GROUP BY oi.product_id
     """):
-        waiting[r["product_id"]] = (r["qty"] or 0, r["qty_tw"] or 0)
+        waiting[r["product_id"]] = [r["qty"] or 0, r["qty_tw"] or 0, 0]
+
+    # 中國待發/集運中 demand: allocated to an order but still counted in the
+    # china/in_transit inventory rows — subtract before calling stock buyable.
+    for r in cur.execute("""
+        SELECT oi.product_id, SUM(oi.quantity) AS qty
+        FROM order_items oi JOIN orders o ON o.id = oi.order_id
+        WHERE oi.status IN ('中國待發', '集運中')
+          AND (o.is_deleted = 0 OR o.is_deleted IS NULL)
+        GROUP BY oi.product_id
+    """):
+        waiting.setdefault(r["product_id"], [0, 0, 0])[2] = r["qty"] or 0
 
     from datetime import date, datetime as _dt, timedelta
     today = date.today().isoformat()
@@ -237,7 +251,7 @@ def _load_products():
         except Exception:
             tags = []
         avail = _availability(row, inv.get(row["id"], {}),
-                              waiting.get(row["id"], (0, 0)), today)
+                              waiting.get(row["id"], (0, 0, 0)), today)
         products.append({
             "slug": row["slug"],
             "category": row["category_slug"],

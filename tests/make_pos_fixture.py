@@ -43,6 +43,11 @@ async def main():
             # (90d back so arrival month = release+1 is fully in the past)
             ("JT0006", "逾期預購測試品", 3200, dict(slug="stale-preorder-item", is_preorder=True,
                                               preorder_date=datetime.now() - timedelta(days=90))),
+            # deprecated + CN unit already allocated to an order (中國待發):
+            # the unit still sits in the china inventory row, but it is NOT
+            # buyable — must read inquiry, not incoming (JT00058 regression)
+            ("JT0009", "絕版已配測試品", 2000, dict(slug="reserved-cn-item",
+                                              is_deprecated=True)),
             # real import artifacts: stray space / embedded newlines in names
             ("JT0007", "千子 MK III型戰術軍團士兵", 1200, dict(slug="tsons-mkiii")),
             ("JT0008", "千子\nMKIV軍團戰術小隊\n軍團士兵 1", 1200, dict(slug="tsons-mkiv-l1")),
@@ -59,6 +64,8 @@ async def main():
                                 location="taiwan", quantity=5))
         db.add(models.Inventory(product_id=prods["JT0003"].id,
                                 location="china", quantity=2))
+        db.add(models.Inventory(product_id=prods["JT0009"].id,
+                                location="china", quantity=1))
         # body deliberately hostile to naive JSON embedding: CRLF line
         # endings, double quotes, backslash, tab (GSC "invalid escape
         # sequence" regression — JSON-LD must be built with |tojson)
@@ -97,6 +104,11 @@ async def main():
                                 product_id=prods["JT0005"].id,
                                 quantity=1, unit_price=3000, cost_cny=300,
                                 cost_twd=1335))
+        # JT0009's lone CN unit is earmarked for this order (中國待發)
+        db.add(models.OrderItem(order_id=po.id,
+                                product_id=prods["JT0009"].id,
+                                quantity=1, unit_price=2000, cost_cny=200,
+                                cost_twd=890, status="中國待發"))
         # recent Taiwan receive -> powers the OA hidden 新貨 command
         db.add(models.InventoryLog(product_id=prods["JT0001"].id,
                                    location="taiwan", change=5,
