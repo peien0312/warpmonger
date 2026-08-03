@@ -4818,6 +4818,42 @@ def api_internal_notify():
         email_html = mailer.render_status_html(headline, paras, bank_info=bank,
                                                action_url=order_link, action_label='前往付款')
         email_text = mailer.render_status_text(headline, paras, bank_info=bank)
+    elif tmpl == 'order_updated':
+        # POS 審單調整後重寄訂單通知 — current items + totals + order link
+        import mailer
+        d = data.get('data') or {}
+        ono = d.get('order_no', '')
+        headline = f"訂單內容已更新 — {ono}"
+        order_link = f"{SITE_URL}/order/{ono}?t={_order_token(ono)}"
+        item_lines = []
+        for it in (d.get('items') or []):
+            qty = it.get('qty', 1)
+            if it.get('price'):
+                item_lines.append(
+                    f"・{it.get('name', '商品')} x{qty}：NT${int(it['price']):,}")
+            else:
+                item_lines.append(f"・{it.get('name', '商品')} x{qty}：報價中")
+        totals = []
+        if d.get('discount'):
+            totals.append(f"折扣 -NT${int(d['discount']):,}")
+        if d.get('shipping_fee'):
+            totals.append(f"運費 NT${int(d['shipping_fee']):,}")
+        grand = int(d.get('grand_total') or 0)
+        totals.append(f"合計 NT${grand:,}")
+        paid = int(d.get('paid') or 0)
+        if paid and grand > paid:
+            totals.append(f"已收 NT${paid:,}，待收 NT${grand - paid:,}")
+        paras = (["阿北調整了您的訂單，最新明細如下："]
+                 + item_lines + totals
+                 + ["有任何問題歡迎直接回覆或用 LINE 聯絡阿北。"])
+        line_lines = ([headline, ""] + item_lines + [""] + totals
+                      + ["", f"訂單頁：{order_link}"])
+        message = "\n".join(line_lines + ["— ABBEY'S TOYS 阿北玩具堂"])
+        email_subject = f"[阿北玩具堂] 訂單更新 {ono}"
+        email_html = mailer.render_status_html(headline, paras, order_no=ono,
+                                               action_url=order_link,
+                                               action_label='查看訂單')
+        email_text = mailer.render_status_text(headline, paras)
     elif tmpl == 'order_cancelled':
         import mailer
         d = data.get('data') or {}
