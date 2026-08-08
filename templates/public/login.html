@@ -14,12 +14,12 @@
     {% endif %}
     <div class="login-buttons">
         {% if has_line %}
-        <a href="{{ line_href }}" class="btn login-btn login-line">
+        <a href="{{ line_href }}" class="btn login-btn login-line" rel="nofollow">
             用 LINE 登入 <small>（推薦：通知直接傳 LINE）</small>
         </a>
         {% endif %}
         {% if has_google %}
-        <a href="{{ google_href }}" class="btn login-btn login-google">
+        <a href="{{ google_href }}" class="btn login-btn login-google" rel="nofollow">
             用 Google 登入
         </a>
         {% if in_line %}

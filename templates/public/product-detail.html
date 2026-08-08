@@ -215,7 +215,7 @@
                     {% if product.final_price %}
                     {{ card_price(product, member, login_hint=false) }}
                     {% if product.member_price and product.member_price < product.final_price and not member %}
-                    <p class="availability-note"><a href="/login?next={{ request.path }}">登入</a>即享會員價 NT${{ product.member_price|ntd }}。</p>
+                    <p class="availability-note"><a href="/login?next={{ request.path }}" rel="nofollow">登入</a>即享會員價 NT${{ product.member_price|ntd }}。</p>
                     {% endif %}
                     {% elif product.availability == 'inquiry' %}
                     <p class="price contact-price">價格詢問</p>
@@ -443,7 +443,7 @@
         </form>
         {% else %}
         <div class="review-login-prompt">
-            <a href="/login?next={{ (url_prefix ~ '/products/' ~ product.category ~ '/' ~ product.slug)|urlencode }}#write-review" class="btn btn-outline">登入後撰寫評價</a>
+            <a href="/login?next={{ (url_prefix ~ '/products/' ~ product.category ~ '/' ~ product.slug)|urlencode }}#write-review" class="btn btn-outline" rel="nofollow">登入後撰寫評價</a>
         </div>
         {% endif %}
     </section>

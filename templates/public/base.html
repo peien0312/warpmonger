@@ -200,7 +200,7 @@
                         {% if member.picture %}<img src="{{ member.picture }}" alt="member" referrerpolicy="no-referrer">{% else %}👤{% endif %}
                     </a>
                     {% else %}
-                    <a href="/login" class="login-link" title="會員登入">登入</a>
+                    <a href="/login" class="login-link" rel="nofollow" title="會員登入">登入</a>
                     {% endif %}
                 </div>
 
@@ -268,7 +268,7 @@
                     {# <a href="{{ url_prefix }}/showcase">玩家分享</a> #}
                     <a href="{{ url_prefix }}/guide">購物說明</a>
                     <a href="https://lin.ee/OTxThMe" target="_blank" rel="noopener">聯絡我們（LINE）</a>
-                    {% if member %}<a href="/account">會員中心</a>{% else %}<a href="/login">會員登入</a>{% endif %}
+                    {% if member %}<a href="/account">會員中心</a>{% else %}<a href="/login" rel="nofollow">會員登入</a>{% endif %}
                     <a href="{{ url_prefix }}/cart" class="mobile-menu-cart">
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <circle cx="9" cy="21" r="1"></circle>

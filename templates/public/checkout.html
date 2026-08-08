@@ -60,7 +60,7 @@
                 <label>姓名 *<input type="text" name="name" required maxlength="50"></label>
                 <label>電話 *<input type="tel" name="phone" required maxlength="20" pattern="[0-9+\-() ]{8,}"></label>
                 <label>Email *<input type="email" name="email" maxlength="100" required></label>
-                <small class="text-muted">未登入時請留 email 以接收訂單通知；<a href="/login?next=/checkout">登入會員</a>可查詢訂單並儲存收件資料，並用 LINE 接收通知。</small>
+                <small class="text-muted">未登入時請留 email 以接收訂單通知；<a href="/login?next=/checkout" rel="nofollow">登入會員</a>可查詢訂單並儲存收件資料，並用 LINE 接收通知。</small>
                 {% endif %}
 
                 <h3>收件資料</h3>
@@ -116,7 +116,7 @@
                     <p id="coupon-msg" class="coupon-msg"></p>
                 </div>
                 {% else %}
-                <p class="text-muted"><a href="/login?next=/checkout">登入會員</a>即可使用優惠券。</p>
+                <p class="text-muted"><a href="/login?next=/checkout" rel="nofollow">登入會員</a>即可使用優惠券。</p>
                 {% endif %}
 
                 <div id="payment-section">
